@@ -44,7 +44,6 @@ VehicleComponent::VehicleComponent(size_t _wheelCount, bool _inputTypeDigital) :
 void VehicleComponent::Initialize() {
 	for (size_t i = 0; i < wheelCount; ++i) {
 		MeshComponent* wheel = new MeshComponent(wheelMeshPrefab);
-		wheel->transform.SetScale(glm::vec3(0.5f));
 		wheelMeshes.push_back(wheel);
 	}
 }
