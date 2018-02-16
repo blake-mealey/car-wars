@@ -495,6 +495,7 @@ void Graphics::RenderDebugGui() {
     static bool showSceneGraph = true;
     if (showSceneGraph) {
         ImGui::Begin("Scene Graph", &showSceneGraph);
+        ImGui::PushItemWidth(-100);
         EntityManager::GetRoot()->RenderDebugGui();
         ImGui::End();
     }
