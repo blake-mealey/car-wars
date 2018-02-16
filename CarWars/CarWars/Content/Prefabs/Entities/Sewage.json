@@ -16,16 +16,17 @@
         "Mesh": "sewage_wheel.obj",
         "Texture": "Sewage_Wheel.png",
         "Material": "Basic.json",
-        "UvScale": [ 1.0, 1.0 ]
+        "UvScale": [ 1.0, 1.0 ],
+		"Scale": [0.9, 0.9, 0.9]
       },
       "ChassisMass": 1000,
-      "ChassisSize": [ 2.9, 1.75, 7.4 ],
+      "ChassisSize": [ 2.1, 1.6, 7.4 ],
       "WheelMass": 20,
       "WheelRadius": 0.6,
       "WheelWidth": 0.6,
-      "WheelCount": 4,
-      "FrontAxisOffset": 0.9,
-      "RearAxisOffset": 1.5
+      "WheelCount": 6,
+      "FrontAxisOffset": 1.5,
+      "RearAxisOffset": 1.9
     }
   ]
 }
