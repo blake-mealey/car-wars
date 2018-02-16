@@ -1,0 +1,10 @@
+{
+	"Tag": "Sun",
+	"Components": [
+		{
+			"Type": "DirectionLight",
+			"Direction": [1, -1, 0],
+			"CastsShadows": true
+		}
+	]
+},

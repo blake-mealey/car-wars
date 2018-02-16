@@ -1,0 +1,239 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C8A0B291-1EE4-4B21-B844-F49FA208721D}</ProjectGuid>
+    <RootNamespace>CarWars</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>CarWars</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.2.1\include;$(ProjectDir)Dependencies\glew-2.1.0\include;$(ProjectDir)Dependencies\Assimp\include;$(ProjectDir)Dependencies\PxShared\include;$(ProjectDir)Dependencies\PhysX\Include;$(ProjectDir)Dependencies</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FloatingPointModel>Fast</FloatingPointModel>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\glfw-3.2.1\lib-vc2015\Win32;$(ProjectDir)Dependencies\glew-2.1.0\lib\Release\Win32;$(ProjectDir)Dependencies\Assimp\libs\Win32;$(ProjectDir)Dependencies\PxShared\lib\vc14win32;$(ProjectDir)Dependencies\PhysX\Lib\vc14win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;assimp.lib;PsFastXmlDEBUG_x86.lib;PxFoundationDEBUG_x86.lib;PxPvdSDKDEBUG_x86.lib;PhysX3CommonDEBUG_x86.lib;PhysX3CookingDEBUG_x86.lib;PhysX3DEBUG_x86.lib;PhysX3ExtensionsDEBUG.lib;PhysX3VehicleDEBUG.lib;SceneQueryDEBUG.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <ExceptionHandling>false</ExceptionHandling>
+      <PreprocessorDefinitions>_MBCS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.2.1\include;$(ProjectDir)Dependencies\glew-2.1.0\include;$(ProjectDir)Dependencies\Assimp\include;$(ProjectDir)Dependencies\PxShared\include;$(ProjectDir)Dependencies\PhysX\Include;$(ProjectDir)Dependencies</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\glfw-3.2.1\lib-vc2015\x64;$(ProjectDir)Dependencies\glew-2.1.0\lib\Release\x64;$(ProjectDir)Dependencies\Assimp\libs\x64;$(ProjectDir)Dependencies\PxShared\lib\vc14win64;$(ProjectDir)Dependencies\PhysX\Lib\vc14win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;assimp-vc140-mt.lib;PsFastXmlDEBUG_x64.lib;PxFoundationDEBUG_x64.lib;PxPvdSDKDEBUG_x64.lib;PhysX3CommonDEBUG_x64.lib;PhysX3CookingDEBUG_x64.lib;PhysX3DEBUG_x64.lib;PhysX3ExtensionsDEBUG.lib;PhysX3VehicleDEBUG.lib;SceneQueryDEBUG.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.2.1\include;$(ProjectDir)Dependencies\glew-2.1.0\include;$(ProjectDir)Dependencies\Assimp\include;$(ProjectDir)Dependencies\PxShared\include;$(ProjectDir)Dependencies\PhysX\Include;$(ProjectDir)Dependencies</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FloatingPointModel>Fast</FloatingPointModel>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\glfw-3.2.1\lib-vc2015\Win32;$(ProjectDir)Dependencies\glew-2.1.0\lib\Release\Win32;$(ProjectDir)Dependencies\Assimp\libs\Win32;$(ProjectDir)Dependencies\PxShared\lib\vc14win32;$(ProjectDir)Dependencies\PhysX\Lib\vc14win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;assimp.lib;PsFastXml_x86.lib;PxFoundation_x86.lib;PxPvdSDK_x86.lib;PhysX3_x86.lib;PhysX3Common_x86.lib;PhysX3Cooking_x86.lib;PhysX3Extensions.lib;PhysX3Vehicle.lib;SceneQuery.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PreprocessorDefinitions>_MBCS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.2.1\include;$(ProjectDir)Dependencies\glew-2.1.0\include;$(ProjectDir)Dependencies\Assimp\include;$(ProjectDir)Dependencies\PxShared\include;$(ProjectDir)Dependencies\PhysX\Include;$(ProjectDir)Dependencies</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\glfw-3.2.1\lib-vc2015\x64;$(ProjectDir)Dependencies\glew-2.1.0\lib\Release\x64;$(ProjectDir)Dependencies\Assimp\libs\x64;$(ProjectDir)Dependencies\PxShared\lib\vc14win64;$(ProjectDir)Dependencies\PhysX\Lib\vc14win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;assimp-vc140-mt.lib;PsFastXml_x64.lib;PxFoundation_x64.lib;PxPvdSDK_x64.lib;PhysX3_x64.lib;PhysX3Common_x64.lib;PhysX3Cooking_x64.lib;PhysX3Extensions.lib;PhysX3Vehicle.lib;SceneQuery.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Engine\Components\CameraComponent.cpp" />
+    <ClCompile Include="Engine\Components\Collider.cpp" />
+    <ClCompile Include="Engine\Components\Component.cpp" />
+    <ClCompile Include="Engine\Components\DirectionLightComponent.cpp" />
+    <ClCompile Include="Engine\Components\MeshComponent.cpp" />
+    <ClCompile Include="Engine\Components\PointLightComponent.cpp" />
+    <ClCompile Include="Engine\Components\RigidbodyComponent.cpp" />
+    <ClCompile Include="Engine\Components\SpotLightComponent.cpp" />
+    <ClCompile Include="Engine\Components\VehicleComponent.cpp" />
+    <ClCompile Include="Engine\Entities\Entity.cpp" />
+    <ClCompile Include="Engine\Entities\EntityManager.cpp" />
+    <ClCompile Include="Engine\Entities\Transform.cpp" />
+    <ClCompile Include="Engine\Systems\Content\ContentManager.cpp" />
+    <ClCompile Include="Engine\Systems\Content\Mesh.cpp" />
+    <ClCompile Include="Engine\Systems\Content\ShaderProgram.cpp" />
+    <ClCompile Include="Engine\Systems\Game.cpp" />
+    <ClCompile Include="Engine\Systems\Graphics.cpp" />
+    <ClCompile Include="Engine\Systems\InputManager.cpp" />
+    <ClCompile Include="Engine\Systems\IO\Keyboard.cpp" />
+    <ClCompile Include="Engine\Systems\IO\Mouse.cpp" />
+    <ClCompile Include="Engine\Systems\IO\XboxController.cpp" />
+    <ClCompile Include="Engine\Systems\Physics.cpp" />
+    <ClCompile Include="Engine\Systems\Physics\CollisionFilterShader.cpp" />
+    <ClCompile Include="Engine\Systems\Physics\Vehicle4WCreate.cpp" />
+    <ClCompile Include="Engine\Systems\Physics\VehicleCreate.cpp" />
+    <ClCompile Include="Engine\Systems\Physics\VehicleSceneQuery.cpp" />
+    <ClCompile Include="Engine\Systems\Physics\VehicleTireFriction.cpp" />
+    <ClCompile Include="Engine\Systems\StateManager.cpp" />
+    <ClCompile Include="Engine\Systems\Time.cpp" />
+    <ClCompile Include="HelloWorld.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Engine\Components\CameraComponent.h" />
+    <ClInclude Include="Engine\Components\Collider.h" />
+    <ClInclude Include="Engine\Components\Component.h" />
+    <ClInclude Include="Engine\Components\DirectionLightComponent.h" />
+    <ClInclude Include="Engine\Components\MeshComponent.h" />
+    <ClInclude Include="Engine\Components\PointLightComponent.h" />
+    <ClInclude Include="Engine\Components\RigidbodyComponent.h" />
+    <ClInclude Include="Engine\Components\SpotLightComponent.h" />
+    <ClInclude Include="Engine\Components\VehicleComponent.h" />
+    <ClInclude Include="Engine\Entities\Entity.h" />
+    <ClInclude Include="Engine\Entities\EntityManager.h" />
+    <ClInclude Include="Engine\Entities\Transform.h" />
+    <ClInclude Include="Engine\Events\Event.h" />
+    <ClInclude Include="Engine\Systems\Content\ContentManager.h" />
+    <ClInclude Include="Engine\Systems\Content\DirectionLight.h" />
+    <ClInclude Include="Engine\Systems\Content\Material.h" />
+    <ClInclude Include="Engine\Systems\Content\Mesh.h" />
+    <ClInclude Include="Engine\Systems\Content\PointLight.h" />
+    <ClInclude Include="Engine\Systems\Content\ShaderProgram.h" />
+    <ClInclude Include="Engine\Systems\Content\SpotLight.h" />
+    <ClInclude Include="Engine\Systems\Content\Texture.h" />
+    <ClInclude Include="Engine\Systems\Game.h" />
+    <ClInclude Include="Engine\Systems\Graphics.h" />
+    <ClInclude Include="Engine\Systems\InputManager.h" />
+    <ClInclude Include="Engine\Systems\IO\Keyboard.h" />
+    <ClInclude Include="Engine\Systems\IO\Mouse.h" />
+    <ClInclude Include="Engine\Systems\IO\XboxController.h" />
+    <ClInclude Include="Engine\Systems\Physics.h" />
+    <ClInclude Include="Engine\Systems\Physics\CollisionFilterShader.h" />
+    <ClInclude Include="Engine\Systems\Physics\VehicleConcurrency.h" />
+    <ClInclude Include="Engine\Systems\Physics\VehicleCreate.h" />
+    <ClInclude Include="Engine\Systems\Physics\VehicleSceneQuery.h" />
+    <ClInclude Include="Engine\Systems\Physics\VehicleTireFriction.h" />
+    <ClInclude Include="Engine\Systems\Physics\VehicleWheelQueryResult.h" />
+    <ClInclude Include="Engine\Systems\StateManager.h" />
+    <ClInclude Include="Engine\Systems\System.h" />
+    <ClInclude Include="Engine\Systems\Time.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerEnvironment>PATH=%PATH%;$(ProjectDir)Dependencies\bin\x86;$(ProjectDir)Dependencies\bin\x86\debug
+$(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LocalDebuggerEnvironment>PATH=%PATH%;$(ProjectDir)Dependencies\bin\x86;$(ProjectDir)Dependencies\bin\x86\release
+$(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerEnvironment>PATH=%PATH%;$(ProjectDir)Dependencies\bin\x64;$(ProjectDir)Dependencies\bin\x64\debug
+$(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerEnvironment>PATH=%PATH%;$(ProjectDir)Dependencies\bin\x64;$(ProjectDir)Dependencies\bin\x64\release
+$(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+</Project>

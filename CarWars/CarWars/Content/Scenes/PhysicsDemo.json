@@ -1,0 +1,92 @@
+[
+  {
+    "Tag": "Floor",
+    "Position": [ 0, 0, 0 ],
+    "Scale": [ 20, 1, 20 ],
+    "Components": [
+      {
+        "Type": "Mesh",
+        "Mesh": "Plane.obj",
+        "Texture": "DiamondPlate.jpg",
+        "Material": "Basic.json",
+        "UvScale": [ 5, 5 ]
+      }
+    ]
+  },
+    {
+        "Tag": "Light",
+	    "Position": [ 10, 2, 10 ],
+        "Components": [
+	        {
+		        "Type": "Mesh",
+                "Mesh": "Cube.obj",
+                "Material": "RedShiny.json"
+	        },
+	        {
+		        "Type": "PointLight",
+                "Color": [1, 0, 0],
+                "Power": 50
+	        }
+        ]
+    },
+	{
+		"Tag": "Light",
+		"Position": [ -10, 2, 10 ],
+		"Components": [
+			{
+				"Type": "Mesh",
+				"Mesh": "Cube.obj",
+				"Material": "BlueShiny.json"
+			},
+			{
+				"Type": "PointLight",
+				"Color": [0, 0, 1],
+				"Power": 50
+			}
+		]
+	},
+  {
+    "Prefab": "Flatbed.json",
+    "Position": [ 0, 10, 0 ]
+  },
+  "Sun.json",
+  {
+    "Tag": "Camera",
+    "Components": [
+      {
+        "Type": "Camera",
+        "Position": [ 0, 10, -25 ]
+      }
+    ]
+  },
+    {
+    "Tag": "Camera",
+    "Components": [
+      {
+        "Type": "Camera",
+        "Position": [ 0, 10, -25 ],
+        "Enabled": false
+      }
+    ]
+  },
+    {
+    "Tag": "Camera",
+    "Components": [
+      {
+        "Type": "Camera",
+        "Position": [ 0, 10, -25 ],
+        "Enabled": false
+      }
+    ]
+  },
+    {
+    "Tag": "Camera",
+    "Components": [
+      {
+        "Type": "Camera",
+        "Position": [ 0, 10, -25 ],
+        "Enabled": false
+      }
+    ]
+  }
+]

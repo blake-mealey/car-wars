@@ -1,0 +1,40 @@
+{
+	"Components": [
+		{
+			"Type": "Mesh",
+			"Mesh": "Boulder.obj",
+			"Texture": "Boulder.jpg",
+			"Material": "Basic.json"
+		}
+	],
+	"Children": [
+		{
+			"Position": [-0.7, -0.7, 0],
+			"Scale": [0.5, 0.6, 0.7],
+			"Components": [
+				{
+					"Type": "Mesh",
+					"Mesh": "Boulder.obj",
+					"Texture": "Boulder.jpg",
+					"Material": "Basic.json",
+					"UvScale": [0.5, 0.5],
+					"Enabled": true
+				}
+			]
+		},
+		{
+			"Position": [0.7, 0, 0.7],
+			"Scale": [0.7, 0.6, 0.5],
+			"Components": [
+				{
+					"Type": "Mesh",
+					"Mesh": "Boulder.obj",
+					"Texture": "Boulder.jpg",
+					"Material": "Basic.json",
+					"UvScale": [0.5, 0.5],
+					"Enabled": true
+				}
+			]
+		}
+	]
+}

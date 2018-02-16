@@ -1,0 +1,32 @@
+[
+	{
+		"Name": "Ground",
+        "CollidesWith": [
+            "Chassis", "Obstacles", "DrivableObstacles"
+        ]
+	},
+	{
+		"Name": "Wheels",
+		"CollidesWith": [
+			"Wheels", "Chassis", "Obstacles"
+		]
+	},
+	{
+		"Name": "Chassis",
+		"CollidesWith": [
+			"Ground", "Wheels", "Chassis", "Obstacles", "DrivableObstacles"
+		]
+	},
+	{
+		"Name": "Obstacles",
+		"CollidesWith": [
+			"Ground", "Wheels", "Chassis", "Obstacles", "DrivableObstacles"
+		]
+	},
+	{
+		"Name": "DrivableObstacles",
+		"CollidesWith": [
+			"Ground", "Chassis", "Obstacles", "DrivableObstacles"
+		]
+	}
+]
