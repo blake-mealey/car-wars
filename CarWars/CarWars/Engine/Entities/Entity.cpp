@@ -28,8 +28,13 @@ void Entity::RenderDebugGui() {
         }
 
         if (!components.empty() && ImGui::TreeNode("Components")) {
+            size_t i = 0;
             for (Component *component : components) {
-                component->RenderDebugGui();
+                if (ImGui::TreeNode((void*)(intptr_t)i, "Component (%s)", Component::GetTypeName(component->GetType()))) {
+                    component->RenderDebugGui();
+                    ImGui::TreePop();
+                }
+                i++;
             }
             ImGui::TreePop();
         }

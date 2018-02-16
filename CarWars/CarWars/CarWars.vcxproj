@@ -160,6 +160,7 @@
     <ClCompile Include="Engine\Entities\EntityManager.cpp" />
     <ClCompile Include="Engine\Entities\Transform.cpp" />
     <ClCompile Include="Engine\Systems\Content\ContentManager.cpp" />
+    <ClCompile Include="Engine\Systems\Content\Material.cpp" />
     <ClCompile Include="Engine\Systems\Content\Mesh.cpp" />
     <ClCompile Include="Engine\Systems\Content\ShaderProgram.cpp" />
     <ClCompile Include="Engine\Systems\Game.cpp" />

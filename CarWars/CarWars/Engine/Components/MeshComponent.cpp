@@ -3,6 +3,8 @@
 #include "../Entities/Entity.h"
 
 #include <iostream>
+#include "imgui/imgui.h"
+#include <glm/gtc/type_ptr.hpp>
 
 ComponentType MeshComponent::GetType() {
 	return ComponentType_Mesh;
@@ -63,7 +65,17 @@ glm::vec2 MeshComponent::GetUvScale() const {
 }
 
 void MeshComponent::RenderDebugGui() {
-    
+    if (ImGui::TreeNode("Transform")) {
+        transform.RenderDebugGui();
+        ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNode("Material")) {
+        material->RenderDebugGui();
+        ImGui::TreePop();
+    }
+
+    ImGui::DragFloat2("UV Scale", glm::value_ptr(uvScale), 0.1f);
 }
 
 void MeshComponent::SetEntity(Entity* _entity) {

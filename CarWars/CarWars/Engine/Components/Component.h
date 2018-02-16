@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 class Event;
 class Entity;
@@ -19,6 +20,8 @@ public:
 	
 	bool enabled;
 	
+    static std::string GetTypeName(ComponentType type);
+
 	virtual ComponentType GetType() = 0;
 	virtual void HandleEvent(Event *event) = 0;
 

@@ -2,7 +2,8 @@
 
 #include "glm/glm.hpp"
 
-struct Material {
+class Material {
+public:
     Material(glm::vec3 _diffuseColor, glm::vec3 _specularColor, float _specularity, float _emissiveness) :
       diffuseColor(_diffuseColor), specularColor(_specularColor), specularity(_specularity), emissiveness(_emissiveness) {}
 
@@ -12,4 +13,6 @@ struct Material {
 	float specularity;
 
     float emissiveness;
+
+    void RenderDebugGui();
 };
