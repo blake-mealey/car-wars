@@ -8,7 +8,6 @@
 #include "../Entities/EntityManager.h"
 #include "../Entities/Transform.h"
 
-#include <iostream>
 #include "Physics/VehicleSceneQuery.h"
 #include "Physics/VehicleTireFriction.h"
 #include "Physics/VehicleCreate.h"
@@ -16,6 +15,7 @@
 #include "../Components/VehicleComponent.h"
 #include "StateManager.h"
 #include "Physics/CollisionFilterShader.h"
+
 using namespace std;
 
 using namespace physx;
