@@ -8,6 +8,13 @@
 #include <vehicle/PxVehicleUtilControl.h>
 #include <json/json.hpp>
 
+struct AxleData {
+    AxleData(const float _centerOffset = 0.f, const float _wheelInset = 0.f)
+        : centerOffset(_centerOffset), wheelInset(_wheelInset) {};
+    float centerOffset;
+    float wheelInset;
+};
+
 class VehicleComponent : public Component {
 public:
 	VehicleComponent(nlohmann::json data);
@@ -37,8 +44,7 @@ public:
     float GetWheelMomentOfIntertia() const;
     size_t GetWheelCount() const;
 
-	float GetFrontAxisOffset() const;
-	float GetRearAxisOffset() const;
+    std::vector<AxleData> GetAxleData() const;
 
     void RenderDebugGui() override;
 
@@ -54,8 +60,7 @@ private:
     float wheelWidth;
 	size_t wheelCount;
 
-	float frontAxisOffset;
-	float rearAxisOffset;
+    std::vector<AxleData> axleData;
 
 	void Initialize();
 };

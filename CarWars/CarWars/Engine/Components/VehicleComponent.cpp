@@ -25,16 +25,20 @@ VehicleComponent::VehicleComponent(nlohmann::json data) {
     wheelWidth = ContentManager::GetFromJson<float>(data["WheelWidth"], 0.4f);
     wheelCount = ContentManager::GetFromJson<size_t>(data["WheelCount"], 4);
 
-	frontAxisOffset = ContentManager::GetFromJson<float>(data["FrontAxisOffset"], 0.3f * chassisSize.z);
-	rearAxisOffset = ContentManager::GetFromJson<float>(data["RearAxisOffset"], 0.3f * chassisSize.z);
+    // Load any axle data present in data file
+    for (nlohmann::json axle : data["Axles"]) {
+        axleData.push_back(AxleData(
+            ContentManager::GetFromJson<float>(axle["CenterOffset"], 0.f),
+            ContentManager::GetFromJson<float>(axle["WheelInset"], 0.f)
+        ));
+    }
 
 	Initialize();
 }
 
 VehicleComponent::VehicleComponent(size_t _wheelCount, bool _inputTypeDigital) :
         inputTypeDigital(_inputTypeDigital), chassisMass(1500.f), chassisSize(glm::vec3(2.5f, 2.f, 5.f)),
-		wheelMass(20.f), wheelRadius(0.5f), wheelWidth(0.4f), wheelCount(_wheelCount),
-		frontAxisOffset(0.3f), rearAxisOffset(0.3f) {
+		wheelMass(20.f), wheelRadius(0.5f), wheelWidth(0.4f), wheelCount(_wheelCount) {
 	
 	wheelMeshPrefab = new MeshComponent("Boulder.obj", "Basic.json", "Boulder.jpg");
 
@@ -42,6 +46,13 @@ VehicleComponent::VehicleComponent(size_t _wheelCount, bool _inputTypeDigital) :
 }
 
 void VehicleComponent::Initialize() {
+    // Fill any remaining any remaining axle data
+    const float axleCount = ceil(static_cast<float>(wheelCount) * 0.5f);
+    for (size_t i = axleData.size(); i < axleCount; ++i) {
+        axleData.push_back(AxleData(glm::mix(0.5f*chassisSize.z, -0.5f*chassisSize.z, static_cast<float>(i) / axleCount)));
+    }
+
+    // Create the meshes for each of the wheels
 	for (size_t i = 0; i < wheelCount; ++i) {
 		MeshComponent* wheel = new MeshComponent(wheelMeshPrefab);
 		wheelMeshes.push_back(wheel);
@@ -99,12 +110,8 @@ size_t VehicleComponent::GetWheelCount() const {
     return wheelCount;
 }
 
-float VehicleComponent::GetFrontAxisOffset() const {
-	return frontAxisOffset;
-}
-
-float VehicleComponent::GetRearAxisOffset() const {
-	return rearAxisOffset;
+std::vector<AxleData> VehicleComponent::GetAxleData() const {
+    return axleData;
 }
 
 void VehicleComponent::RenderDebugGui() {
