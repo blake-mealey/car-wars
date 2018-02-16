@@ -25,8 +25,14 @@
       "WheelRadius": 0.6,
       "WheelWidth": 0.6,
       "WheelCount": 4,
-      "FrontAxisOffset": 0.9,
-      "RearAxisOffset": 1.5
+      "Axles": [
+          {
+              "CenterOffset": 2.8
+          },
+          {
+              "CenterOffset": -2.2
+          }
+      ]
     }
   ],
   "Children": [
