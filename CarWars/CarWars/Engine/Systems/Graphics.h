@@ -94,8 +94,11 @@ public:
 	bool Initialize(char* windowTitle);
 	bool InitializeFullScreen(char* windowTitle); // don't use when debugging
 	void Update(Time currentTime, Time deltaTime) override;
+    
+    // Debug gui
+    void RenderDebugGui();
 
-	// System accessors
+    // System accessors
 	GLFWwindow* GetWindow() const;
 
 	static void WindowSizeCallback(GLFWwindow *window, int width, int height);

@@ -1,5 +1,6 @@
 #include "EntityManager.h"
 
+Entity* EntityManager::root = new Entity(0);
 std::vector<Entity*> EntityManager::staticEntities;
 std::vector<Entity*> EntityManager::dynamicEntities;
 std::map<size_t, Entity*> EntityManager::idToEntity;
@@ -7,7 +8,11 @@ std::map<std::string, std::vector<Entity*>> EntityManager::tagToEntities;
 
 std::map<ComponentType, std::vector<Component*>> EntityManager::components;
 
-size_t EntityManager::nextEntityId = 0;
+size_t EntityManager::nextEntityId = 1;
+
+Entity* EntityManager::GetRoot() {
+    return root;
+}
 
 Entity* EntityManager::FindEntity(size_t id) {
 	return idToEntity[id];
@@ -32,6 +37,7 @@ Entity* EntityManager::CreateEntity(std::vector<Entity*> &entities) {
 	Entity* entity = new Entity(id);
 	entities.push_back(entity);
 	idToEntity[id] = entity;
+    SetParent(entity, root);
 	return entity;
 }
 
@@ -61,12 +67,67 @@ void EntityManager::SetTag(Entity* entity, std::string tag) {
 	tagToEntities[tag].push_back(entity);
 }
 
+void EntityManager::SetParent(Entity* child, Entity* parent) {
+    // Double check we aren't changing it to the same parent
+    Entity *previousParent = child->parent;
+    if (previousParent == parent) return;
+
+    // Check if there was a previous parent
+    if (previousParent) {
+        // Remove this child from its old parent's children vector
+        const auto it = std::find(previousParent->children.begin(), previousParent->children.end(), child);
+        if (it != previousParent->children.end())
+            previousParent->children.erase(it);
+    }
+
+    // Check if there is a new parent
+    if (parent) {
+        // Update this child's and its transform's parent pointers
+        child->parent = parent;
+        child->transform.parent = &parent->transform;
+
+        // Add this child to the new parent's children vector
+        parent->children.push_back(child);
+    }
+}
+
+Entity* EntityManager::GetParent(Entity* entity) {
+    return entity->parent;
+}
+
+std::vector<Entity*> EntityManager::FindChildren(Entity* entity, std::string tag, size_t maxCount) {
+    std::vector<Entity*> children;
+    if (maxCount == 0) return children;
+    
+    for (Entity *child : entity->children) {
+        if (child->HasTag(tag)) {
+            children.push_back(child);
+            if (maxCount == children.size()) break;
+        }
+    }
+    
+    return children;
+}
+
+std::vector<Entity*> EntityManager::FindChildren(Entity* entity, std::string tag) {
+    return FindChildren(entity, tag, entity->children.size());
+}
+
+Entity* EntityManager::FindFirstChild(Entity* entity, std::string tag) {
+    return FindChildren(entity, tag, 1)[0];
+}
+
+std::vector<Entity*> EntityManager::GetChildren(Entity* entity) {
+    return entity->children;
+}
+
 void EntityManager::DestroyStaticEntity(size_t id) {
 	DestroyEntity(id, staticEntities);
 }
 
 void EntityManager::DestroyEntity(size_t id, std::vector<Entity*> &entities) {
 	Entity* entity = FindEntity(id);
+    SetParent(entity, nullptr);
 	if (entity != nullptr) {
 		idToEntity.erase(id);
 		auto it = std::find(entities.begin(), entities.end(), entity);

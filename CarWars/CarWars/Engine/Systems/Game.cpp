@@ -123,6 +123,8 @@ void Game::Update(Time currentTime, Time deltaTime) {
 		//baby->transform.Rotate(glm::vec3(1,0,0),.01f);
 
 	} else if (StateManager::GetState() == GameState_Paused) {
-		std::cout << "paused" << std::endl;
+
+        // PAUSED
+
 	}
 }

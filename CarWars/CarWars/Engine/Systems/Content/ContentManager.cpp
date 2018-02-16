@@ -219,7 +219,7 @@ Entity* ContentManager::LoadEntity(nlohmann::json data) {
 		else if (key == "Children") {
 			for (auto childData : it.value()) {
 				Entity *child = LoadEntity(childData);
-				child->transform.parent = &entity->transform;
+                EntityManager::SetParent(child, entity);
 			}
 		}
 		else if (key == "CylinderPart" && data["CylinderPart"]) {

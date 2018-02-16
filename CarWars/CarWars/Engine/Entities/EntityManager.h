@@ -6,6 +6,7 @@
 class EntityManager {
 public:
 	// Access entities
+    static Entity* GetRoot();
 	static Entity* FindEntity(size_t id);
 	static std::vector<Entity*> FindEntities(std::string tag);
 
@@ -17,6 +18,14 @@ public:
 
 	static void SetTag(size_t entityId, std::string tag);
 	static void SetTag(Entity *entity, std::string tag);
+
+    // Manage entity parenting
+    static void SetParent(Entity* child, Entity *parent);
+    static Entity* GetParent(Entity* entity);
+    static std::vector<Entity*> FindChildren(Entity* entity, std::string tag, size_t maxCount);
+    static std::vector<Entity*> FindChildren(Entity* entity, std::string tag);
+    static Entity* FindFirstChild(Entity* entity, std::string tag);
+    static std::vector<Entity*> GetChildren(Entity* entity);
 
 	// Manage components
 	static void AddComponent(size_t entityId, Component* component);
@@ -31,6 +40,7 @@ private:
 	static void DestroyEntity(size_t id, std::vector<Entity*> &entities);
 
 	// Store entities
+    static Entity* root;
 	static std::vector<Entity*> staticEntities;
 	static std::vector<Entity*> dynamicEntities;
 	static std::map<size_t, Entity*> idToEntity;

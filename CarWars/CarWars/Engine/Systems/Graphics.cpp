@@ -483,10 +483,40 @@ void Graphics::Update(Time currentTime, Time deltaTime) {
     // DEBUG GUI
     // -------------------------------------------------------------------------------------------------------------- //
 
-    
+    RenderDebugGui();
 
 	//Swap Buffers to Display New Frame
 	glfwSwapBuffers(window);
+}
+
+void RenderEntityDebugGui(Entity *entity) {
+    if (ImGui::TreeNode((void*)(intptr_t)entity->GetId(), "Entity (%s)", entity->GetTag().c_str())) {
+        for (Entity *child : EntityManager::GetChildren(entity)) {
+            RenderEntityDebugGui(child);
+        }
+        ImGui::TreePop();
+    }
+}
+
+void Graphics::RenderDebugGui() {
+    ImGui_ImplGlfwGL3_NewFrame();
+
+    static bool showSceneGraph = true;
+    if (showSceneGraph) {
+        ImGui::Begin("Scene Graph", &showSceneGraph);
+        RenderEntityDebugGui(EntityManager::GetRoot());
+        ImGui::End();
+    }
+
+    static bool show_demo_window = false;
+    if (show_demo_window) {
+        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver); // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway. Here we just want to make the demo initial state a bit more friendly!
+        ImGui::ShowDemoWindow(&show_demo_window);
+    }
+
+    // Render debug GUI
+    glViewport(0, 0, windowWidth, windowHeight);
+    ImGui::Render();
 }
 
 void Graphics::LoadModel(ShaderProgram *shaderProgram, MeshComponent *model) {

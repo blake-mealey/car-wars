@@ -28,6 +28,9 @@ private:
 
 	size_t id;
 	std::string tag;
+
+    Entity *parent;
+    std::vector<Entity*> children;
 public:
 	std::vector<Component*> components;
 };
