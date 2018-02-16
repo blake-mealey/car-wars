@@ -7,7 +7,7 @@
       "Texture": "Sewage.png",
       "Material": "Basic.json",
       "Rotate": [ 0, 180, 0 ],
-      "Position": [ 0, -2, 0 ]
+      "Position": [ 0, -0.85, 0.18 ]
     },
     {
       "Type": "Vehicle",
