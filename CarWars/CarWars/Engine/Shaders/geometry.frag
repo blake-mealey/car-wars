@@ -33,6 +33,8 @@ uniform float materialEmissiveness;
 uniform vec3 ambientColor;
 
 uniform sampler2DShadow shadowMap;
+uniform uint shadowsEnabled;
+
 uniform sampler2D diffuseTexture;
 uniform uint diffuseTextureEnabled;
 
@@ -76,11 +78,7 @@ void main() {
 	// bias = clamp(bias, 0, 0.01);
 	float bias = 0.005;
 	float visibility = 1.0;
-	visibility -= 0.75 * texture(shadowMap, vec3(shadowCoord.xy, shadowCoord.z - bias));
-	// visibility -= 0.8 * (1 - texture(shadowMap, vec3(shadowCoord.xy, (shadowCoord.z - bias)/shadowCoord.w)));
-	/*if ((texture(shadowMap, shadowCoord.xy)).z < shadowCoord.z - bias) {
-		visibility = 0.25;
-	}*/
+	visibility -= shadowsEnabled * (0.75 * texture(shadowMap, vec3(shadowCoord.xy, shadowCoord.z - bias)));
 
 	vec3 diffuseColor = (1 - diffuseTextureEnabled) * materialDiffuseColor
 		+ diffuseTextureEnabled * texture(diffuseTexture, uvScale*vec2(1.f - fragmentUv.x, fragmentUv.y)).rgb;

@@ -17,6 +17,8 @@ const char* UniformName::DiffuseTextureEnabled = "diffuseTextureEnabled";
 const char* UniformName::UvScale = "uvScale";
 
 const char* UniformName::ShadowMap = "shadowMap";
+const char* UniformName::ShadowsEnabled = "shadowsEnabled";
+
 const char* UniformName::DepthModelViewProjectionMatrix = "depthModelViewProjectionMatrix";
 const char* UniformName::DepthBiasModelViewProjectionMatrix = "depthBiasModelViewProjectionMatrix";
 

@@ -22,6 +22,8 @@ const struct UniformName {
 	static const char* UvScale;
 	
 	static const char* ShadowMap;
+	static const char* ShadowsEnabled;
+
 	static const char* DepthModelViewProjectionMatrix;
 	static const char* DepthBiasModelViewProjectionMatrix;
 	
