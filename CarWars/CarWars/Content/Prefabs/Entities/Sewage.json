@@ -23,9 +23,9 @@
       "WheelMass": 20,
       "WheelRadius": 0.6,
       "WheelWidth": 0.6,
-      "WheelCount": 4,
-      "FrontAxisOffset": 0.9,
-      "RearAxisOffset": 1.5
+      "WheelCount": 6,
+      "FrontAxisOffset": 1.5,
+      "RearAxisOffset": 1.9
     }
   ]
 }
