@@ -29,11 +29,6 @@ void Mouse::MousePositionCallback(GLFWwindow* window, double _x, double _y) {
 		else if (cameraC->GetCameraVerticalAngle() < (1.0f / 3.0f * 3.14f / 2.0f)) {
 			cameraC->SetCameraVerticalAngle(1.0f / 3.0f * 3.14f / 2.0f);
 		}
-		//Rotate The Weapon along the horizonal
-		MachineGunComponent* gun = static_cast<MachineGunComponent*>(EntityManager::FindEntities("Vehicle")[0]->components[1]);
-		gun->SetTargetRotation(cameraC->GetCameraHorizontalAngle(), cameraC->GetCameraVerticalAngle());
-		Entity* vehicle = EntityManager::FindEntities("Vehicle")[0];
-		EntityManager::FindChildren(vehicle, "MachineGunTurret")[0]->transform.SetRotationAxisAngles(glm::vec3(0.0f, 1.0f, 0.0f), gun->horizontalAngle + glm::radians(90.0f));
 	}
 	else {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
