@@ -31,6 +31,7 @@ MeshComponent::MeshComponent(MeshComponent* component) {
 	material = component->GetMaterial();
 	texture = component->GetTexture();
 	uvScale = component->GetUvScale();
+    transform = component->transform;
 }
 
 MeshComponent::MeshComponent(std::string meshPath, std::string materialPath) : texture(nullptr) {
