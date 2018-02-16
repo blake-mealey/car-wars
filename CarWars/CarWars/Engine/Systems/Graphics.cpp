@@ -2,6 +2,9 @@
 #include "IO/Mouse.h"
 #include "IO/Keyboard.h"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw_gl3.h"
+
 #include <iostream>
 #include "Content/ContentManager.h"
 #include <glm/gtx/string_cast.hpp>
@@ -72,6 +75,14 @@ bool Graphics::Initialize(char* windowTitle) {
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
 	glfwSwapInterval(1);	//Swap Buffer Every Frame (Double Buffering)
+
+    // Setup ImGui binding
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui_ImplGlfwGL3_Init(window, false);
+    //io.NavFlags |= ImGuiNavFlags_EnableKeyboard;  // Enable Keyboard Controls
+    io.NavFlags |= ImGuiNavFlags_EnableGamepad;   // Enable Gamepad Controls
+    ImGui::StyleColorsDark();
 
 	// Input callbacks
 	glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
@@ -467,6 +478,12 @@ void Graphics::Update(Time currentTime, Time deltaTime) {
     // Disable blending and re-enable the depth mask
     glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);
+
+    // -------------------------------------------------------------------------------------------------------------- //
+    // DEBUG GUI
+    // -------------------------------------------------------------------------------------------------------------- //
+
+    
 
 	//Swap Buffers to Display New Frame
 	glfwSwapBuffers(window);

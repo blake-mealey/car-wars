@@ -143,6 +143,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Dependencies\imgui\imgui.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_demo.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_draw.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_impl_glfw_gl3.cpp" />
     <ClCompile Include="Engine\Components\CameraComponent.cpp" />
     <ClCompile Include="Engine\Components\Collider.cpp" />
     <ClCompile Include="Engine\Components\Component.cpp" />
@@ -175,6 +179,13 @@
     <ClCompile Include="HelloWorld.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dependencies\imgui\imconfig.h" />
+    <ClInclude Include="Dependencies\imgui\imgui.h" />
+    <ClInclude Include="Dependencies\imgui\imgui_impl_glfw_gl3.h" />
+    <ClInclude Include="Dependencies\imgui\imgui_internal.h" />
+    <ClInclude Include="Dependencies\imgui\stb_rect_pack.h" />
+    <ClInclude Include="Dependencies\imgui\stb_textedit.h" />
+    <ClInclude Include="Dependencies\imgui\stb_truetype.h" />
     <ClInclude Include="Engine\Components\CameraComponent.h" />
     <ClInclude Include="Engine\Components\Collider.h" />
     <ClInclude Include="Engine\Components\Component.h" />
