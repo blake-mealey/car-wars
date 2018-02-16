@@ -92,6 +92,10 @@ void CameraComponent::SetCameraVerticalAngle(float _cameraLift) {
     UpdatePositionFromAngles();
 }
 
+void CameraComponent::RenderDebugGui() {
+    
+}
+
 void CameraComponent::UpdatePositionFromAngles() {
     SetPosition(distanceFromCenter * glm::vec3(
         cos(GetCameraHorizontalAngle()) * sin(GetCameraVerticalAngle()),

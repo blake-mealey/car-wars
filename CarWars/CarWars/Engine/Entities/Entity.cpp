@@ -1,5 +1,6 @@
 #include "Entity.h"
 #include "../Events/Event.h"
+#include "imgui/imgui.h"
 
 Entity::Entity(size_t _id) : id(_id) {}
 
@@ -13,6 +14,28 @@ void Entity::HandleEvent(Event* event) {
 	for (size_t i = 0; i < components.size(); i++) {
 		components[i]->HandleEvent(event);		// TODO: Not really correct, use Colton's code
 	}
+}
+
+void Entity::RenderDebugGui() {
+    if (ImGui::TreeNode((void*)(intptr_t)GetId(), "Entity (%s)", GetTag().c_str())) {
+        if (!components.empty() && ImGui::TreeNode("Components")) {
+            for (Component *component : components) {
+                component->RenderDebugGui();
+            }
+
+            ImGui::TreePop();
+        }
+
+        if (!children.empty() && ImGui::TreeNode("Children")) {
+            for (Entity *child : children) {
+                child->RenderDebugGui();
+            }
+
+            ImGui::TreePop();
+        }
+
+        ImGui::TreePop();
+    }
 }
 
 void Entity::AddComponent(Component* component) {

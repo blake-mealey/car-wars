@@ -37,6 +37,8 @@ public:
 	float GetCameraVerticalAngle();
 	void SetCameraVerticalAngle(float _cameraLift);
 
+    void RenderDebugGui() override;
+
 private:
 	float fieldOfView;		// In degrees
 	glm::vec3 position;

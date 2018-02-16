@@ -40,6 +40,8 @@ public:
 	float GetFrontAxisOffset() const;
 	float GetRearAxisOffset() const;
 
+    void RenderDebugGui() override;
+
 private:
 	MeshComponent* wheelMeshPrefab;
     std::vector<MeshComponent*> wheelMeshes;

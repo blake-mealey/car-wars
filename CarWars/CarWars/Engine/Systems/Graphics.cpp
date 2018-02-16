@@ -489,22 +489,13 @@ void Graphics::Update(Time currentTime, Time deltaTime) {
 	glfwSwapBuffers(window);
 }
 
-void RenderEntityDebugGui(Entity *entity) {
-    if (ImGui::TreeNode((void*)(intptr_t)entity->GetId(), "Entity (%s)", entity->GetTag().c_str())) {
-        for (Entity *child : EntityManager::GetChildren(entity)) {
-            RenderEntityDebugGui(child);
-        }
-        ImGui::TreePop();
-    }
-}
-
 void Graphics::RenderDebugGui() {
     ImGui_ImplGlfwGL3_NewFrame();
 
     static bool showSceneGraph = true;
     if (showSceneGraph) {
         ImGui::Begin("Scene Graph", &showSceneGraph);
-        RenderEntityDebugGui(EntityManager::GetRoot());
+        EntityManager::GetRoot()->RenderDebugGui();
         ImGui::End();
     }
 

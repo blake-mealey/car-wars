@@ -108,6 +108,10 @@ float VehicleComponent::GetRearAxisOffset() const {
 	return rearAxisOffset;
 }
 
+void VehicleComponent::RenderDebugGui() {
+    
+}
+
 ComponentType VehicleComponent::GetType() {
     return ComponentType_Vehicle;
 }

@@ -2,7 +2,6 @@
 
 Component::Component() : entity(nullptr), enabled(true) { }
 
-
 void Component::SetEntity(Entity* _entity) {
 	entity = _entity;
 }

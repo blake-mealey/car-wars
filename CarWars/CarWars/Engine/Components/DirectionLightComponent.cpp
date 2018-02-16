@@ -1,5 +1,7 @@
 #include "DirectionLightComponent.h"
 #include "../Systems/Content/ContentManager.h"
+#include <glm/gtc/type_ptr.hpp>
+#include "imgui/imgui.h"
 
 DirectionLightComponent::DirectionLightComponent(nlohmann::json data) {
     color = ContentManager::JsonToVec3(data["Color"], glm::vec3(1.f));
@@ -39,3 +41,9 @@ ComponentType DirectionLightComponent::GetType() {
 }
 
 void DirectionLightComponent::HandleEvent(Event* event) {}
+void DirectionLightComponent::RenderDebugGui() {
+    ImGui::PushItemWidth(-100);
+    ImGui::Checkbox("Casts Shadows", &castsShadows);
+    ImGui::SliderFloat3("Direction", glm::value_ptr(direction), -10.f, 10.f);
+    ImGui::ColorPicker3("Colour", glm::value_ptr(color));
+}

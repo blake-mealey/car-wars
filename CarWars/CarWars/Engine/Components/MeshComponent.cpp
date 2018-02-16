@@ -62,6 +62,10 @@ glm::vec2 MeshComponent::GetUvScale() const {
 	return uvScale;
 }
 
+void MeshComponent::RenderDebugGui() {
+    
+}
+
 void MeshComponent::SetEntity(Entity* _entity) {
 	Component::SetEntity(_entity);
 	transform.parent = &_entity->transform;

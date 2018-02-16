@@ -17,6 +17,8 @@ public:
 
 	void HandleEvent(Event *event);
 
+    void RenderDebugGui();
+
 	size_t GetId() const;
 	std::string GetTag() const;
 	bool HasTag(std::string _tag) const;

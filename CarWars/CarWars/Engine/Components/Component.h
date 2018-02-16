@@ -22,6 +22,8 @@ public:
 	virtual ComponentType GetType() = 0;
 	virtual void HandleEvent(Event *event) = 0;
 
+    virtual void RenderDebugGui() = 0;
+
 	virtual void SetEntity(Entity *_entity);
 	Entity* GetEntity() const;
 protected:

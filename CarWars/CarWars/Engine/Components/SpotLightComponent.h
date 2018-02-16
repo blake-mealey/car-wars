@@ -18,6 +18,8 @@ public:
 
 	ComponentType GetType() override;
 	void HandleEvent(Event* event) override;
+
+    void RenderDebugGui() override;
 private:
 	glm::vec3 color;
 	float power;

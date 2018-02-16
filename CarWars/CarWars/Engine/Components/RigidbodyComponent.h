@@ -8,6 +8,8 @@ public:
 
 	ComponentType GetType();
 	void HandleEvent(Event *event);
+
+    void RenderDebugGui() override;
 private:
 
 };

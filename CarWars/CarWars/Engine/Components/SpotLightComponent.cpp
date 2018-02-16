@@ -1,5 +1,8 @@
 #include "SpotLightComponent.h"
 #include "../Systems/Content/ContentManager.h"
+#include "imgui/imgui.h"
+
+#include "glm/gtc/type_ptr.hpp"
 
 SpotLightComponent::SpotLightComponent(nlohmann::json data) {
 	color = ContentManager::JsonToVec3(data["Color"], glm::vec3(1.f));
@@ -32,6 +35,14 @@ ComponentType SpotLightComponent::GetType() {
 }
 
 void SpotLightComponent::HandleEvent(Event* event) {}
+
+void SpotLightComponent::RenderDebugGui() {
+    ImGui::PushItemWidth(-100);
+    ImGui::SliderAngle("Angle", &angle);
+    ImGui::SliderFloat("Power", &power, 0, 1000);
+    ImGui::SliderFloat3("Direction", glm::value_ptr(direction), -10.f, 10.f);
+    ImGui::ColorPicker3("Colour", glm::value_ptr(color));
+}
 
 glm::vec3 SpotLightComponent::GetColor() const {
 	return color;

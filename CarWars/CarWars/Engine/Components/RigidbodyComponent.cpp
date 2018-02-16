@@ -12,3 +12,6 @@ ComponentType RigidbodyComponent::GetType() {
 }
 
 void RigidbodyComponent::HandleEvent(Event *event) {}
+void RigidbodyComponent::RenderDebugGui() {
+    
+}

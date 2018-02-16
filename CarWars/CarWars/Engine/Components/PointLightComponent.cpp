@@ -1,5 +1,7 @@
 #include "PointLightComponent.h"
 #include "../Systems/Content/ContentManager.h"
+#include <glm/gtc/type_ptr.hpp>
+#include "imgui/imgui.h"
 
 PointLightComponent::PointLightComponent(nlohmann::json data) {
 	color = ContentManager::JsonToVec3(data["Color"], glm::vec3(1.f));
@@ -25,3 +27,8 @@ ComponentType PointLightComponent::GetType() {
 }
 
 void PointLightComponent::HandleEvent(Event* event) {}
+void PointLightComponent::RenderDebugGui() {
+    ImGui::PushItemWidth(-100);
+    ImGui::SliderFloat("Power", &power, 0, 1000);
+    ImGui::ColorPicker3("Colour", glm::value_ptr(color));
+}

@@ -31,6 +31,8 @@ public:
 	Material* GetMaterial() const;
 	Texture* GetTexture() const;
 	glm::vec2 GetUvScale() const;
+
+    void RenderDebugGui() override;
 private:
 	Mesh *mesh;
 	Material *material;
