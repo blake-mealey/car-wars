@@ -274,8 +274,8 @@ void ContentManager::LoadSkybox(std::string directoryPath) {
 
     int width, height, nrChannels;
     for (size_t i = 0; i < 6; i++) {
-        const char *filePath = (SKYBOX_DIR_PATH + directoryPath + SKYBOX_FACE_NAMES[i] + ".png").c_str();
-        unsigned char *data = stbi_load(filePath, &width, &height, &nrChannels, 0);
+        const std::string filePath = SKYBOX_DIR_PATH + directoryPath + SKYBOX_FACE_NAMES[i] + ".png";
+        unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
         if (data) {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         } else {
