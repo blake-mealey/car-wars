@@ -62,7 +62,9 @@ int main() {
 		//Calculate Game Time
 		if (StateManager::IsState(GameState_Playing)) {
 			gameTime += deltaTime;
+			StateManager::gameTime = gameTime;
 		}
+		StateManager::deltaTime = deltaTime;
 		// Iterate through each system and call their update methods
 		for (System* system : systems) {
 			system->Update(currentTime, deltaTime);

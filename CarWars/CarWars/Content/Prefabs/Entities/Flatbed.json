@@ -9,6 +9,9 @@
       "Rotate": [ 0, 180, 0 ],
       "Position": [ 0, -2, 0 ]
     },
+	{
+		"Type": "MachineGun"
+	},
     {
       "Type": "Vehicle",
       "WheelMesh": {
@@ -61,6 +64,7 @@
 		},
 			  {
 			"Position": [0.0, 0, -1],
+			"Tag": "MachineGunTurret",
 			"Components": [
 				{
 					"Type": "Mesh",

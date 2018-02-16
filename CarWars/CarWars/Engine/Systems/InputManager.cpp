@@ -11,6 +11,7 @@
 
 #include "vehicle/PxVehicleUtil.h"
 #include "../Components/VehicleComponent.h"
+#include "../Components/WeaponComponents/MachineGunComponent.h"
 
 vector<XboxController*> InputManager::xboxControllers;
 
@@ -61,6 +62,10 @@ void InputManager::HandleKeyboard() {
 	vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
 	VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[0]);
 	
+	if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
+		static_cast<MachineGunComponent*>(vehicle->GetEntity()->components[1])->Shoot();
+	}
+
 	if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
 		cout << "Escape Key Pressed" << endl;
 		if (StateManager::GetState() == GameState_Playing) {

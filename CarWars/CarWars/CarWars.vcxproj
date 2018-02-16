@@ -156,6 +156,10 @@
     <ClCompile Include="Engine\Components\RigidbodyComponent.cpp" />
     <ClCompile Include="Engine\Components\SpotLightComponent.cpp" />
     <ClCompile Include="Engine\Components\VehicleComponent.cpp" />
+    <ClCompile Include="Engine\Components\WeaponComponents\MachineGunComponent.cpp" />
+    <ClCompile Include="Engine\Components\WeaponComponents\RailGunComponent.cpp" />
+    <ClCompile Include="Engine\Components\WeaponComponents\RocketLauncherComponent.cpp" />
+    <ClCompile Include="Engine\Components\WeaponComponents\WeaponComponent.cpp" />
     <ClCompile Include="Engine\Entities\Entity.cpp" />
     <ClCompile Include="Engine\Entities\EntityManager.cpp" />
     <ClCompile Include="Engine\Entities\Transform.cpp" />
@@ -197,6 +201,10 @@
     <ClInclude Include="Engine\Components\RigidbodyComponent.h" />
     <ClInclude Include="Engine\Components\SpotLightComponent.h" />
     <ClInclude Include="Engine\Components\VehicleComponent.h" />
+    <ClInclude Include="Engine\Components\WeaponComponents\MachineGunComponent.h" />
+    <ClInclude Include="Engine\Components\WeaponComponents\RailGunComponent.h" />
+    <ClInclude Include="Engine\Components\WeaponComponents\RocketLauncherComponent.h" />
+    <ClInclude Include="Engine\Components\WeaponComponents\WeaponComponent.h" />
     <ClInclude Include="Engine\Entities\Entity.h" />
     <ClInclude Include="Engine\Entities\EntityManager.h" />
     <ClInclude Include="Engine\Entities\Transform.h" />
