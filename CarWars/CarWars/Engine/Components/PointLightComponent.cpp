@@ -27,8 +27,8 @@ ComponentType PointLightComponent::GetType() {
 }
 
 void PointLightComponent::HandleEvent(Event* event) {}
+
 void PointLightComponent::RenderDebugGui() {
-    ImGui::PushItemWidth(-100);
     ImGui::SliderFloat("Power", &power, 0, 1000);
     ImGui::ColorPicker3("Colour", glm::value_ptr(color));
 }

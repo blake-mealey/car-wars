@@ -37,7 +37,6 @@ ComponentType SpotLightComponent::GetType() {
 void SpotLightComponent::HandleEvent(Event* event) {}
 
 void SpotLightComponent::RenderDebugGui() {
-    ImGui::PushItemWidth(-100);
     ImGui::SliderAngle("Angle", &angle);
     ImGui::SliderFloat("Power", &power, 0, 1000);
     ImGui::SliderFloat3("Direction", glm::value_ptr(direction), -10.f, 10.f);

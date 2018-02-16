@@ -2,6 +2,7 @@
 #include <glm/gtc/matrix_transform.inl>
 #include "../Entities/Entity.h"
 #include "../Systems/Content/ContentManager.h"
+#include "imgui/imgui.h"
 
 const float CameraComponent::NEAR_CLIPPING_PLANE = 0.1f;
 const float CameraComponent::FAR_CLIPPING_PLANE = 100.f;
@@ -93,7 +94,10 @@ void CameraComponent::SetCameraVerticalAngle(float _cameraLift) {
 }
 
 void CameraComponent::RenderDebugGui() {
-    
+    if (ImGui::SliderFloat("FOV", &fieldOfView, 0, 180)) UpdateProjectionMatrix();
+    if (ImGui::SliderAngle("Horizontal Angle", &cameraAngle)) UpdatePositionFromAngles();
+    if (ImGui::SliderAngle("Vertical Angle", &cameraLift)) UpdatePositionFromAngles();
+    if (ImGui::SliderFloat("Distance", &distanceFromCenter, 0, FAR_CLIPPING_PLANE)) UpdatePositionFromAngles();
 }
 
 void CameraComponent::UpdatePositionFromAngles() {
