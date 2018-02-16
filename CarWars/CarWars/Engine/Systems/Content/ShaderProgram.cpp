@@ -43,7 +43,9 @@ GLuint ShaderProgram::GetId() const {
 GLuint ShaderProgram::GetUniformLocation(const char* name) {
 	const auto it = uniforms.find(name);
 	if (it == uniforms.end()) {
-		uniforms[name] = glGetUniformLocation(programId, name);
+        GLuint location = glGetUniformLocation(programId, name);
+        uniforms[name] = location;
+        return location;
 	}
 	return it->second;
 }
