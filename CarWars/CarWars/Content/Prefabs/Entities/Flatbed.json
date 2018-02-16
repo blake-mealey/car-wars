@@ -16,8 +16,7 @@
         "Mesh": "flatbed_wheel.obj",
         "Texture": "Boulder.jpg",
         "Material": "Basic.json",
-        "UvScale": [ 0.5, 0.5 ],
-		"Scale": [0.1, 0.1, 0.1]
+        "UvScale": [ 0.5, 0.5 ]
       },
       "ChassisMass": 1000,
       "ChassisSize": [ 2.9, 1.75, 7.4 ],
