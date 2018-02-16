@@ -58,6 +58,8 @@ public:
 	// static Texture*? GetTexture(std::string filePath);
 	// static GameData*? GetDataFile(std::string filePath);
 
+    template <class T>
+    static T* LoadComponent(nlohmann::json data);
 	static Component* LoadComponent(nlohmann::json data);
 	static Entity* LoadEntity(nlohmann::json data);
 
@@ -68,9 +70,15 @@ private:
     static GLuint skyboxCubemap;
 };
 
-// TODO: For some reason I can't compile when this is in ContentManager.cpp?
 template <typename T>
 T ContentManager::GetFromJson(nlohmann::json json, T defaultValue) {
-	if (json.is_null()) return defaultValue;
-	return json.get<T>();
+    if (json.is_null()) return defaultValue;
+    return json.get<T>();
+}
+
+template <class T>
+T* ContentManager::LoadComponent(nlohmann::json data) {
+    T *component = new T(data);
+    component->enabled = GetFromJson<bool>(data["Enabled"], true);
+    return component;
 }

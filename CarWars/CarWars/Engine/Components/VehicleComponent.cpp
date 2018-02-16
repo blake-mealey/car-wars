@@ -12,7 +12,7 @@ VehicleComponent::VehicleComponent(nlohmann::json data) {
 	inputTypeDigital = ContentManager::GetFromJson<bool>(data["DigitalInput"], false);
 
 	if (!data["WheelMesh"].is_null()) {
-		wheelMeshPrefab = static_cast<MeshComponent*>(ContentManager::LoadComponent(data["WheelMesh"]));
+		wheelMeshPrefab = static_cast<MeshComponent*>(ContentManager::LoadComponent<MeshComponent>(data["WheelMesh"]));
 	} else {
 		wheelMeshPrefab = new MeshComponent("Boulder.obj", "Basic.json", "Boulder.jpg");
 	}
