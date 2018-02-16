@@ -19,11 +19,18 @@ void Entity::HandleEvent(Event* event) {
 
 void Entity::RenderDebugGui() {
     if (ImGui::TreeNode((void*)(intptr_t)GetId(), "Entity (%s)", GetTag().c_str())) {
+        if (ImGui::TreeNode("Properties")) {
+            if (ImGui::TreeNode("Transform")) {
+                transform.RenderDebugGui();
+                ImGui::TreePop();
+            }
+            ImGui::TreePop();
+        }
+
         if (!components.empty() && ImGui::TreeNode("Components")) {
             for (Component *component : components) {
                 component->RenderDebugGui();
             }
-
             ImGui::TreePop();
         }
 
@@ -31,7 +38,6 @@ void Entity::RenderDebugGui() {
             for (Entity *child : children) {
                 child->RenderDebugGui();
             }
-
             ImGui::TreePop();
         }
 

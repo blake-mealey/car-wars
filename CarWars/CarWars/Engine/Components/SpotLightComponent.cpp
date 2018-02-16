@@ -38,9 +38,9 @@ void SpotLightComponent::HandleEvent(Event* event) {}
 
 void SpotLightComponent::RenderDebugGui() {
     ImGui::SliderAngle("Angle", &angle);
-    ImGui::SliderFloat("Power", &power, 0, 1000);
-    ImGui::SliderFloat3("Direction", glm::value_ptr(direction), -10.f, 10.f);
-    ImGui::ColorPicker3("Colour", glm::value_ptr(color));
+    ImGui::DragFloat("Power", &power);
+    ImGui::DragFloat3("Direction", glm::value_ptr(direction), 0.01f);
+    ImGui::ColorEdit3("Colour", glm::value_ptr(color));
 }
 
 glm::vec3 SpotLightComponent::GetColor() const {

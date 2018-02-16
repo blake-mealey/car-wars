@@ -6,6 +6,8 @@
 #include <iostream>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include "imgui/imgui.h"
+#include <glm/gtc/type_ptr.hpp>
 
 const glm::vec3 Transform::FORWARD = glm::vec3(0, 0, -1);
 const glm::vec3 Transform::RIGHT = glm::vec3(1, 0, 0);
@@ -39,6 +41,11 @@ void Transform::Update() {
 
 void Transform::ConnectToCylinder() {
 	connectedToCylinder = true;
+}
+
+void Transform::RenderDebugGui() {
+    if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.01f)) SetPosition(position);
+    if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.05f)) SetScale(scale);
 }
 
 glm::vec3 Transform::GetLocalPosition() {

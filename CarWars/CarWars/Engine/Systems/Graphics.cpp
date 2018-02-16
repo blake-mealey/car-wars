@@ -57,6 +57,16 @@ void Graphics::WindowSizeCallback(GLFWwindow *window, int width, int height) {
 	Instance().SetWindowDimensions(width, height);
 }
 
+void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    Mouse::MouseButtonCallback(window, button, action, mods);
+    ImGui_ImplGlfwGL3_MouseButtonCallback(window, button, action, mods);
+}
+
+void KeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    Keyboard::KeyboardCallback(window, key, scancode, action, mods);
+    ImGui_ImplGlfwGL3_KeyCallback(window, key, scancode, action, mods);
+}
+
 bool Graphics::Initialize(char* windowTitle) {
 	if (!glfwInit()) {
 		std::cout << "Error Initializing GLFW" << std::endl;
@@ -84,11 +94,16 @@ bool Graphics::Initialize(char* windowTitle) {
     io.NavFlags |= ImGuiNavFlags_EnableGamepad;   // Enable Gamepad Controls
     ImGui::StyleColorsDark();
 
+
+
 	// Input callbacks
 	glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
-	glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
-	glfwSetKeyCallback(window, Keyboard::KeyboardCallback);
+	glfwSetMouseButtonCallback(window, MouseButtonCallback);
+	glfwSetKeyCallback(window, KeyboardCallback);
 	//glfwSetJoystickCallback(Controller::ControllerCallback);
+    
+    glfwSetScrollCallback(window, ImGui_ImplGlfwGL3_ScrollCallback);
+    glfwSetCharCallback(window, ImGui_ImplGlfwGL3_CharCallback);
 
 	// Window callbacks
 	glfwSetWindowSizeCallback(window, Graphics::WindowSizeCallback);

@@ -22,6 +22,8 @@ public:
 	static const glm::vec3 RIGHT;
 	static const glm::vec3 UP;
 
+    void RenderDebugGui();
+
 	// Getters for basic data
 	glm::vec3 GetLocalPosition();
 	glm::vec3 GetLocalScale();
