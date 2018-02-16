@@ -46,8 +46,24 @@
 		]
 	},
   {
+    "Prefab": "Sewage.json",
+    "Position": [ -10, 10, 0 ]
+  },
+    {
+    "Prefab": "Hearse.json",
+    "Position": [ -5, 10, 0 ]
+  },
+    {
     "Prefab": "Flatbed.json",
     "Position": [ 0, 10, 0 ]
+  },
+      {
+    "Prefab": "IceCream.json",
+    "Position": [ 5, 10, 0 ]
+  },
+        {
+    "Prefab": "FireTruck.json",
+    "Position": [ 10, 10, 0 ]
   },
   "Sun.json",
   {
