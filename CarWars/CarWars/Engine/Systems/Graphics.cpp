@@ -253,7 +253,7 @@ void Graphics::Update(Time currentTime, Time deltaTime) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glCullFace(GL_FRONT);
 
-		// Set the current shader and VAO
+		// Use the shadow program
 		ShaderProgram *shadowProgram = shaders[Shaders::ShadowMap];
 		glUseProgram(shadowProgram->GetId());
 
@@ -300,7 +300,10 @@ void Graphics::Update(Time currentTime, Time deltaTime) {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, textureIds[Textures::ShadowMap]);
         geometryProgram->LoadUniform(UniformName::ShadowMap, 1);
-	}
+        geometryProgram->LoadUniform(UniformName::ShadowsEnabled, true);
+    } else {
+        geometryProgram->LoadUniform(UniformName::ShadowsEnabled, false);
+    }
 
 	// Load our lights into the GPU
     geometryProgram->LoadUniform(UniformName::AmbientColor, AMBIENT_COLOR);
