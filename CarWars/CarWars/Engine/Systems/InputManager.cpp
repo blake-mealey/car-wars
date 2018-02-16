@@ -72,7 +72,7 @@ void InputManager::HandleKeyboard() {
 	if (Keyboard::KeyDown(GLFW_KEY_W)) {
 		cout << "W Key Held" << endl;
 		vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-		vehicle->pxVehicleInputData.setAnalogAccel((float)2);
+		vehicle->pxVehicleInputData.setAnalogAccel(1.f);
 	}
 	if (Keyboard::KeyReleased(GLFW_KEY_W)) {
 		cout << "W Key Released" << endl;
@@ -81,7 +81,7 @@ void InputManager::HandleKeyboard() {
 	if (Keyboard::KeyDown(GLFW_KEY_S)) {
 		cout << "S Key Held" << endl;
 		vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
-		vehicle->pxVehicleInputData.setAnalogAccel((float)1);
+		vehicle->pxVehicleInputData.setAnalogAccel(1.f);
 	}
 	if (Keyboard::KeyReleased(GLFW_KEY_S)) {
 		cout << "S Key Released" << endl;
@@ -89,7 +89,7 @@ void InputManager::HandleKeyboard() {
 	}
 	if (Keyboard::KeyDown(GLFW_KEY_A)) {
 		cout << "A Key Held" << endl;
-		vehicle->pxVehicleInputData.setAnalogSteer(2.f);
+		vehicle->pxVehicleInputData.setAnalogSteer(1.f);
 	}
 	if (Keyboard::KeyReleased(GLFW_KEY_A)) {
 		cout << "A Key Released" << endl;
@@ -97,7 +97,7 @@ void InputManager::HandleKeyboard() {
 	}
 	if (Keyboard::KeyDown(GLFW_KEY_D)) {
 		cout << "D Key Held" << endl;
-		vehicle->pxVehicleInputData.setAnalogSteer(-2.f);
+		vehicle->pxVehicleInputData.setAnalogSteer(-1.f);
 	}
 	if (Keyboard::KeyReleased(GLFW_KEY_D)) {
 		cout << "D Key Released" << endl;
@@ -164,12 +164,12 @@ void InputManager::HandleController() {
 				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
 				
 				if (vehicle->pxVehicle->computeForwardSpeed() > 5.f) {
-					vehicle->pxVehicleInputData.setAnalogBrake((PxReal)1.0f);
+					vehicle->pxVehicleInputData.setAnalogBrake(1.0f);
 				}
 				else {
-					vehicle->pxVehicleInputData.setAnalogBrake((PxReal)0.0f);
+					vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
 					vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
-					vehicle->pxVehicleInputData.setAnalogAccel((float)(*controller)->GetState().Gamepad.bLeftTrigger / 255.0f);
+					vehicle->pxVehicleInputData.setAnalogAccel((*controller)->GetState().Gamepad.bLeftTrigger / 255.0f);
 				}
 			} else if ((*controller)->GetPreviousState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD && (*controller)->GetState().Gamepad.bLeftTrigger < XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " released L-TRIGGER" << endl;
@@ -191,7 +191,7 @@ void InputManager::HandleController() {
 
 
 				cout << vehicle->pxVehicle->computeForwardSpeed() << endl;
-				vehicle->pxVehicleInputData.setAnalogBrake((PxReal)0.0f);
+				vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
 				int speed = (int)vehicle->pxVehicle->computeForwardSpeed();
 				if (speed < 15){
 					vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
@@ -203,7 +203,7 @@ void InputManager::HandleController() {
 					vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eTHIRD);
 				}
 
-				vehicle->pxVehicleInputData.setAnalogAccel(((float)(*controller)->GetState().Gamepad.bRightTrigger - (float)(*controller)->GetState().Gamepad.bLeftTrigger) / 255.0f);
+				vehicle->pxVehicleInputData.setAnalogAccel(((*controller)->GetState().Gamepad.bRightTrigger - (*controller)->GetState().Gamepad.bLeftTrigger) / 255.0f);
 				
 				//Entity *boulder = EntityManager::FindEntities("Boulder")[0];
 				//float x = 0.05f * (*controller)->GetState().Gamepad.bRightTrigger;
@@ -231,7 +231,7 @@ void InputManager::HandleController() {
 
 				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
 				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
-				vehicle->pxVehicleInputData.setAnalogSteer(-2.0f * (*controller)->GetState().Gamepad.sThumbLX / 32768.0f);
+				vehicle->pxVehicleInputData.setAnalogSteer(-(*controller)->GetState().Gamepad.sThumbLX / 32768.0f);
 
 			} else if (((*controller)->GetPreviousState().Gamepad.sThumbLX >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || (*controller)->GetPreviousState().Gamepad.sThumbLX <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) && (((*controller)->GetState().Gamepad.sThumbLX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) && ((*controller)->GetState().Gamepad.sThumbLX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE))) {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " released LEFT-JOYSTICK X-AXIS" << endl;
