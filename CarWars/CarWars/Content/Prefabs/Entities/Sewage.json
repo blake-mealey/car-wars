@@ -3,7 +3,7 @@
   "Components": [
     {
       "Type": "Mesh",
-      "Mesh": "sewage.obj",
+      "Mesh": "sewage_chassis.obj",
       "Texture": "Sewage.png",
       "Material": "Basic.json",
       "Rotate": [ 0, 180, 0 ],
@@ -11,12 +11,21 @@
     },
     {
       "Type": "Vehicle",
-      "ChassisMass": 1500,
-      "ChassisSize": [ 2.5, 2, 5 ],
+      "WheelMesh": {
+        "Type": "Mesh",
+        "Mesh": "sewage_wheel.obj",
+        "Texture": "Boulder.jpg",
+        "Material": "Basic.json",
+        "UvScale": [ 0.5, 0.5 ]
+      },
+      "ChassisMass": 1000,
+      "ChassisSize": [ 2.9, 1.75, 7.4 ],
       "WheelMass": 20,
-      "WheelRadius": 0.5,
-      "WheelWidth": 0.4,
-      "WheelCount": 4
+      "WheelRadius": 0.6,
+      "WheelWidth": 0.6,
+      "WheelCount": 4,
+      "FrontAxisOffset": 0.9,
+      "RearAxisOffset": 1.5
     }
   ]
 }

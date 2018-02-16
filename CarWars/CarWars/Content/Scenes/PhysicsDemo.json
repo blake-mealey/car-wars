@@ -100,15 +100,5 @@
         "Enabled": false
       }
     ]
-  },
-  {
-    "Tag": "Camera",
-    "Components": [
-      {
-        "Type": "Camera",
-        "Position": [ 0, 10, -25 ],
-        "Enabled": false
-      }
-    ]
   }
 ]
