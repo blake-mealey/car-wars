@@ -19,6 +19,8 @@
 #include "../../Components/DirectionLightComponent.h"
 #include "../../Components/SpotLightComponent.h"
 #include "../../Components/VehicleComponent.h"
+#include "../../Components/WeaponComponents/WeaponComponent.h"
+#include "../../Components/WeaponComponents/MachineGunComponent.h"
 #include "../Physics/CollisionFilterShader.h"
 
 std::map<std::string, Mesh*> ContentManager::meshes;
@@ -173,6 +175,7 @@ Component* ContentManager::LoadComponent(nlohmann::json data) {
         else if (type == "DirectionLight") component = new DirectionLightComponent(data);
         else if (type == "SpotLight") component = new SpotLightComponent(data);
         else if (type == "Vehicle") component = new VehicleComponent(data);
+		else if (type == "MachineGun") component = new MachineGunComponent();
         else {
             std::cout << "Unsupported component type: " << type << std::endl;
             supportedType = false;

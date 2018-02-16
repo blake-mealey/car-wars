@@ -11,7 +11,9 @@ enum ComponentType {
 	ComponentType_DirectionLight,
 	ComponentType_SpotLight,
 	ComponentType_Rigidbody,
-    ComponentType_Vehicle
+	ComponentType_Vehicle,
+	ComponentType_Weapons,
+	ComponentType_MachineGun
 };
 
 class Component {
