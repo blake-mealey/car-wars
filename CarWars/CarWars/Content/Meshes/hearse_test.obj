@@ -1,6 +1,6 @@
 # Blender v2.79 (sub 0) OBJ File: ''
 # www.blender.org
-mtllib hearse.mtl
+mtllib hearse_test.mtl
 o Box001_Untitled.001
 v 0.792287 0.584643 0.840044
 v 0.785409 1.040675 2.066362

@@ -61,10 +61,6 @@
     "Prefab": "IceCream.json",
     "Position": [ 5, 10, 0 ]
   },
-        {
-    "Prefab": "FireTruck.json",
-    "Position": [ 10, 10, 0 ]
-  },
   "Sun.json",
   {
     "Tag": "Camera",

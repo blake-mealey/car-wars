@@ -3,7 +3,7 @@
   "Components": [
     {
       "Type": "Mesh",
-      "Mesh": "hearse.obj",
+      "Mesh": "hearse_test.obj",
       "Texture": "Hearse.png",
       "Material": "Basic.json",
       "Rotate": [ 0, 180, 0 ],
