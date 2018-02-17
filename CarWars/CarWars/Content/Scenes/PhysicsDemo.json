@@ -3,6 +3,7 @@
     "Tag": "Floor",
     "Position": [ 0, 0, 0 ],
     "Scale": [ 20, 1, 20 ],
+    "Scale": [ 40, 1, 40 ],
     "Components": [
       {
         "Type": "Mesh",
@@ -10,12 +11,24 @@
         "Texture": "DiamondPlate.jpg",
         "Material": "Basic.json",
         "UvScale": [ 5, 5 ]
+      },
+      {
+        "Type": "RigidStatic",
+        "Colliders": [
+          {
+            "Type": "Box",
+            "CollisionGroup": "Ground",
+            "Size": [80, 0.01, 80]
+          }
+        ]
       }
     ]
   },
     {
         "Tag": "Light",
-	    "Position": [ 10, 2, 10 ],
+	    "Position": [ 10, 0, 10 ],
+        "Rotate": [0, 0, 45],
+        "Scale": [4, 4, 4],
         "Components": [
 	        {
 		        "Type": "Mesh",
@@ -26,7 +39,17 @@
 		        "Type": "PointLight",
                 "Color": [1, 0, 0],
                 "Power": 50
-	        }
+	        },
+            {
+                "Type": "RigidStatic",
+                "Colliders": [
+                    {
+                        "Type": "Box",
+                        "CollisionGroup": "DrivableObstacles",
+                        "Size": [8, 8, 8]
+                    }
+                ]
+            }
         ]
     },
 	{
@@ -42,12 +65,26 @@
 				"Type": "PointLight",
 				"Color": [0, 0, 1],
 				"Power": 50
-			}
+			},
+            {
+                "Type": "RigidDynamic",
+                "Colliders": [
+                    {
+                        "Type": "Box",
+                        "CollisionGroup": "DrivableObstacles",
+                        "Size": [2, 2, 2]
+                    }
+                ]
+            }
 		]
 	},
   {
     "Prefab": "Sewage.json",
+<<<<<<< HEAD
     "Position": [ -5, 10, 0 ]
+=======
+    "Position": [ 0, 10, 0 ]
+>>>>>>> 6aadb43a433178e5b5f336d024213322974a84f7
   },
   "Sun.json",
   {

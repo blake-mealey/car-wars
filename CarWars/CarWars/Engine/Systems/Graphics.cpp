@@ -13,6 +13,8 @@
 #include "../Components/MeshComponent.h"
 #include "../Components/SpotLightComponent.h"
 #include <glm/gtc/matrix_transform.inl>
+#include "../Components/RigidbodyComponents/RigidbodyComponent.h"
+#include "../Components/Colliders/BoxCollider.h"
 
 // Constants
 const size_t Graphics::MAX_CAMERAS = 4;
@@ -217,6 +219,8 @@ void Graphics::Update(Time currentTime, Time deltaTime) {
 	const std::vector<Component*> spotLights = EntityManager::GetComponents(ComponentType_SpotLight);
 	const std::vector<Component*> meshes = EntityManager::GetComponents(ComponentType_Mesh);
 	const std::vector<Component*> cameraComponents = EntityManager::GetComponents(ComponentType_Camera);
+	const std::vector<Component*> rigidDynamicComponents = EntityManager::GetComponents(ComponentType_RigidDynamic);
+	const std::vector<Component*> rigidStaticComponents = EntityManager::GetComponents(ComponentType_RigidStatic);
 
     // Get the active cameras and setup their viewports
     LoadCameras(cameraComponents);
@@ -340,6 +344,65 @@ void Graphics::Update(Time currentTime, Time deltaTime) {
 		}
 	}
 
+    // -------------------------------------------------------------------------------------------------------------- //
+    // RENDER BOX COLLIDERS
+    // -------------------------------------------------------------------------------------------------------------- //
+
+    // Use wireframe polygon mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    for (size_t j = 0; j < rigidDynamicComponents.size() + rigidStaticComponents.size(); j++) {
+        // Get enabled models
+        RigidbodyComponent* rigidbody;
+        if (j < rigidDynamicComponents.size()) {
+            rigidbody = static_cast<RigidbodyComponent*>(rigidDynamicComponents[j]);
+        } else {
+            rigidbody = static_cast<RigidbodyComponent*>(rigidStaticComponents[j - rigidDynamicComponents.size()]);
+        }
+        if (!rigidbody->enabled) continue;
+
+        for (Collider *collider : rigidbody->colliders) {
+            // Currently we only support rendering box colliders
+            if (collider->GetType() != Collider_Box) continue;
+
+            // Get the global transformation matrix of the collider
+            const glm::mat4 modelMatrix = collider->GetGlobalTransform().GetTransformationMatrix();
+
+            Mesh *cubeMesh = ContentManager::GetMesh("Cube.obj");
+            
+            // Load the model's vertices, uvs, normals, and textures into the GPU
+            LoadModel(
+                geometryProgram,
+                modelMatrix,
+                ContentManager::GetMaterial("PhysicsCollider.json"),
+                cubeMesh
+            );
+
+            if (shadowCaster != nullptr) {
+                // Load the depth bias model view projection matrix into the GPU
+                const glm::mat4 depthModelMatrix = modelMatrix;
+                const glm::mat4 depthModelViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+                const glm::mat4 depthBiasMVP = BIAS_MATRIX*depthModelViewProjectionMatrix;
+                geometryProgram->LoadUniform(UniformName::DepthBiasModelViewProjectionMatrix, depthBiasMVP);
+            }
+
+            for (Camera camera : cameras) {
+                // Setup the viewport for each camera (split-screen)
+                glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+
+                // Load the model view projection matrix into the GPU
+                const glm::mat4 modelViewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix * modelMatrix;
+                geometryProgram->LoadUniform(UniformName::ViewMatrix, camera.viewMatrix);
+                geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
+
+                // Render the model
+                glDrawArrays(GL_TRIANGLES, 0, cubeMesh->vertexCount);
+            }
+        }
+    }
+
+    // Reset polygon mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // -------------------------------------------------------------------------------------------------------------- //
     // RENDER SKYBOX
@@ -532,7 +595,7 @@ void Graphics::RenderDebugGui() {
 void Graphics::LoadModel(ShaderProgram *shaderProgram, MeshComponent *model) {
 	if (!model->enabled) return;
 
-	// Load the model matrix into the GPU
+	/*// Load the model matrix into the GPU
 	const glm::mat4 modelMatrix = model->transform.GetTransformationMatrix();
     shaderProgram->LoadUniform(UniformName::ModelMatrix, modelMatrix);
 
@@ -559,7 +622,43 @@ void Graphics::LoadModel(ShaderProgram *shaderProgram, MeshComponent *model) {
         shaderProgram->LoadUniform(UniformName::UvScale, model->GetUvScale());
 	} else {
         shaderProgram->LoadUniform(UniformName::DiffuseTextureEnabled, false);
-	}
+	}*/
+
+    LoadModel(
+        shaderProgram,
+        model->transform.GetTransformationMatrix(),
+        model->GetMaterial(),
+        model->GetMesh(),
+        model->GetTexture(),
+        model->GetUvScale()
+    );
+}
+
+void Graphics::LoadModel(ShaderProgram *shaderProgram, glm::mat4 modelMatrix, Material *material, Mesh* mesh, Texture *texture, glm::vec2 uvScale) {
+    // Load the model matrix into the GPU
+    shaderProgram->LoadUniform(UniformName::ModelMatrix, modelMatrix);
+
+    // Load the material data into the GPU
+    shaderProgram->LoadUniform(UniformName::MaterialDiffuseColor, material->diffuseColor);
+    shaderProgram->LoadUniform(UniformName::MaterialSpecularColor, material->specularColor);
+    shaderProgram->LoadUniform(UniformName::MaterialSpecularity, material->specularity);
+    shaderProgram->LoadUniform(UniformName::MaterialEmissiveness, material->emissiveness);
+
+    // Load the mesh into the GPU
+    LoadMesh(mesh);
+
+    // Load the texture into the GPU
+    if (texture != nullptr) {
+        shaderProgram->LoadUniform(UniformName::DiffuseTextureEnabled, true);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture->textureId);
+        shaderProgram->LoadUniform(UniformName::DiffuseTexture, 0);
+
+        shaderProgram->LoadUniform(UniformName::UvScale, uvScale);
+    } else {
+        shaderProgram->LoadUniform(UniformName::DiffuseTextureEnabled, false);
+    }
 }
 
 void Graphics::LoadCameras(std::vector<Component*> cameraComponents) {

@@ -34,8 +34,7 @@
 
 using namespace physx;
 
-enum
-{
+enum {
 	DRIVABLE_SURFACE = 0xffff0000,
 	UNDRIVABLE_SURFACE = 0x0000ffff
 };

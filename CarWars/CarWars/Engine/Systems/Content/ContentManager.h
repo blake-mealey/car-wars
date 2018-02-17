@@ -17,6 +17,7 @@ public:
 	static const std::string MESH_DIR_PATH;
 	static const std::string TEXTURE_DIR_PATH;
 	static const std::string MATERIAL_DIR_PATH;
+	static const std::string PX_MATERIAL_DIR_PATH;
 	static const std::string SCENE_DIR_PATH;
 
 	static const std::string SKYBOX_DIR_PATH;
@@ -33,6 +34,7 @@ public:
 	static Mesh* GetMesh(std::string filePath);
 	static Texture* GetTexture(std::string filePath);
 	static Material* GetMaterial(std::string filePath);
+	static physx::PxMaterial* GetPxMaterial(std::string filePath);
 
     static Component* LoadComponentPrefab(std::string filePath);
 	static Entity* LoadEntityPrefab(std::string filePath);
@@ -67,6 +69,7 @@ private:
 	static std::map<std::string, Mesh*> meshes;
 	static std::map<std::string, Texture*> textures;
 	static std::map<std::string, Material*> materials;
+	static std::map<std::string, physx::PxMaterial*> pxMaterials;
     static GLuint skyboxCubemap;
 };
 

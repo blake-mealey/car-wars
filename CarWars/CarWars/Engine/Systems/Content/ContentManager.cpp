@@ -19,13 +19,16 @@
 #include "../../Components/DirectionLightComponent.h"
 #include "../../Components/SpotLightComponent.h"
 #include "../../Components/VehicleComponent.h"
-#include "../../Components/WeaponComponents/WeaponComponent.h"
 #include "../../Components/WeaponComponents/MachineGunComponent.h"
 #include "../Physics/CollisionFilterShader.h"
+#include "../Physics.h"
+#include "../../Components/RigidbodyComponents/RigidStaticComponent.h"
+#include "../../Components/RigidbodyComponents/RigidDynamicComponent.h"
 
 std::map<std::string, Mesh*> ContentManager::meshes;
 std::map<std::string, Texture*> ContentManager::textures;
 std::map<std::string, Material*> ContentManager::materials;
+std::map<std::string, physx::PxMaterial*> ContentManager::pxMaterials;
 GLuint ContentManager::skyboxCubemap;
 
 const std::string ContentManager::CONTENT_DIR_PATH = "./Content/";
@@ -33,6 +36,7 @@ const std::string ContentManager::CONTENT_DIR_PATH = "./Content/";
 const std::string ContentManager::MESH_DIR_PATH = CONTENT_DIR_PATH + "Meshes/";
 const std::string ContentManager::TEXTURE_DIR_PATH = CONTENT_DIR_PATH + "Textures/";
 const std::string ContentManager::MATERIAL_DIR_PATH = CONTENT_DIR_PATH + "Materials/";
+const std::string ContentManager::PX_MATERIAL_DIR_PATH = CONTENT_DIR_PATH + "PhysicsMaterials/";
 const std::string ContentManager::SCENE_DIR_PATH = CONTENT_DIR_PATH + "Scenes/";
 
 const std::string ContentManager::SKYBOX_DIR_PATH = CONTENT_DIR_PATH + "Skyboxes/";
@@ -133,7 +137,21 @@ Material* ContentManager::GetMaterial(const std::string filePath) {
     const float specularity = GetFromJson<float>(data["Specularity"], 1);
     const float emissiveness = GetFromJson<float>(data["Emissiveness"], 0);
 
-	return new Material(diffuseColor, specularColor, specularity, emissiveness);
+    materials[filePath] = material;
+    return new Material(diffuseColor, specularColor, specularity, emissiveness);
+}
+
+physx::PxMaterial* ContentManager::GetPxMaterial(std::string filePath) {
+    physx::PxMaterial* material = pxMaterials[filePath];
+    if (material != nullptr) return material;
+
+    nlohmann::json data = LoadJson(PX_MATERIAL_DIR_PATH + filePath);
+    const float staticFriction = GetFromJson<float>(data["StaticFriction"], 0.5f);
+    const float dynamicFriction = GetFromJson<float>(data["DynamicFriction"], 0.5f);
+    const float restitution = GetFromJson<float>(data["Restitution"], 0.6f);
+
+    pxMaterials[filePath] = material;
+    return Physics::Instance().GetApi().createMaterial(staticFriction, dynamicFriction, restitution);
 }
 
 Component* ContentManager::LoadComponentPrefab(std::string filePath) {
@@ -174,6 +192,8 @@ Component* ContentManager::LoadComponent(nlohmann::json data) {
         else if (type == "PointLight") component = new PointLightComponent(data);
         else if (type == "DirectionLight") component = new DirectionLightComponent(data);
         else if (type == "SpotLight") component = new SpotLightComponent(data);
+        else if (type == "RigidStatic") component = new RigidStaticComponent(data);
+        else if (type == "RigidDynamic") component = new RigidDynamicComponent(data);
         else if (type == "Vehicle") component = new VehicleComponent(data);
 		else if (type == "MachineGun") component = new MachineGunComponent();
         else {
@@ -202,33 +222,21 @@ Entity* ContentManager::LoadEntity(nlohmann::json data) {
 		entity = EntityManager::CreateDynamicEntity();		// TODO: Determine whether or not the entity is static
 	}
 
-	for (auto it = data.begin(); it != data.end(); ++it) {
-		std::string key = it.key();
-		if (key == "Tag") EntityManager::SetTag(entity, it.value());
-		else if (key == "Position") entity->transform.SetPosition(JsonToVec3(data["Position"]));
-		else if (key == "Scale") entity->transform.SetScale(JsonToVec3(data["Scale"]));
-		else if (key == "Rotate") {
-			glm::vec3 rotation = JsonToVec3(data["Rotate"]);
-			entity->transform.SetRotation(glm::vec3(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z)));
-		}
-		else if (key == "Components") {
-            for (auto componentData : it.value()) {
-                Component *component = LoadComponent(componentData);
-                if (component != nullptr) {
-                    EntityManager::AddComponent(entity, component);
-                }
-            }
-		}
-		else if (key == "Children") {
-			for (auto childData : it.value()) {
-				Entity *child = LoadEntity(childData);
-                EntityManager::SetParent(child, entity);
-			}
-		}
-		else if (key == "CylinderPart" && data["CylinderPart"]) {
-			entity->transform.ConnectToCylinder();
-		}
-	}
+    if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);
+    entity->transform = Transform(data);
+
+    for (const auto componentData : data["Components"]) {
+        Component *component = LoadComponent(componentData);
+        if (component != nullptr) {
+            EntityManager::AddComponent(entity, component);
+        }
+    }
+
+    for (const auto childData : data["Children"]) {
+        Entity *child = LoadEntity(childData);
+        EntityManager::SetParent(child, entity);
+    }
+
 	return entity;
 }
 

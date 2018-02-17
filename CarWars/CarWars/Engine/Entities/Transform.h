@@ -4,10 +4,12 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "PxPhysicsAPI.h"
+#include <json/json.hpp>
 
 class Transform {
 public:
 	Transform();
+	Transform(nlohmann::json data);
 	Transform(physx::PxTransform transform);
 	Transform(Transform *parent, glm::vec3 pPosition, glm::vec3 pScale, glm::vec3 pEulerRotation, bool connectedToCylinder);
 	Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::quat pRotation, bool connectedToCylinder);
@@ -22,7 +24,7 @@ public:
 	static const glm::vec3 RIGHT;
 	static const glm::vec3 UP;
 
-    void RenderDebugGui();
+    bool RenderDebugGui();
 
 	// Getters for basic data
 	glm::vec3 GetLocalPosition();
@@ -71,6 +73,7 @@ public:
 	static glm::vec3 FromPx(physx::PxVec3 v);
 	static glm::vec2 FromPx(physx::PxVec2 v);
 	static glm::quat FromPx(physx::PxQuat q);
+	static Transform FromPx(physx::PxTransform t);
 
     static physx::PxVec4 ToPx(glm::vec4 v);
     static physx::PxVec3 ToPx(glm::vec3 v);

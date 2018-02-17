@@ -14,7 +14,9 @@ public:
 	static Physics& Instance();
     ~Physics();
 
-    PxPhysics* GetApi() const;
+    physx::PxPhysics& GetApi() const;
+    physx::PxCooking& GetCooking() const;
+    physx::PxScene& GetScene() const;
 
     void Initialize();
     void InitializeVehicles();
@@ -52,5 +54,5 @@ private:
 
     physx::PxVehicleDrivableSurfaceToTireFrictionPairs* pxFrictionPairs = NULL;
 
-    physx::PxRigidStatic* pxGroundPlane = NULL;
+//    physx::PxRigidStatic* pxGroundPlane = NULL;
 };

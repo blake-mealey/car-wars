@@ -104,7 +104,7 @@ struct VehicleDesc
 	ShapeUserData* shapeUserDatas;
 };
 
-PxVehicleDrive4W* createVehicle4W(const VehicleComponent& vehDesc, PxMaterial *material, PxPhysics* physics, PxCooking* cooking);
+PxVehicleDrive4W* createVehicle4W(VehicleComponent& vehDesc, PxMaterial *material, PxPhysics* physics, PxCooking* cooking);
 
 PxVehicleDriveTank* createVehicleTank(const VehicleDesc& vehDesc, PxPhysics* physics, PxCooking* cooking);
 

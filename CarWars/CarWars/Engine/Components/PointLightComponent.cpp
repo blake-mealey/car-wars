@@ -29,6 +29,7 @@ ComponentType PointLightComponent::GetType() {
 void PointLightComponent::HandleEvent(Event* event) {}
 
 void PointLightComponent::RenderDebugGui() {
+    Component::RenderDebugGui();
     ImGui::DragFloat("Power", &power);
     ImGui::ColorEdit3("Colour", glm::value_ptr(color));
 }

@@ -15,6 +15,8 @@
 #include "../Components/VehicleComponent.h"
 #include "StateManager.h"
 #include "Physics/CollisionFilterShader.h"
+#include "Content/ContentManager.h"
+#include <iostream>
 
 using namespace std;
 
@@ -33,7 +35,7 @@ Physics &Physics::Instance() {
 Physics::~Physics() {
     /*gVehicle4W->getRigidDynamicActor()->release();        // TODO: VehicleComponent destructor
     gVehicle4W->free();*/
-    pxGroundPlane->release();                               // TODO: Component destructor
+    //pxGroundPlane->release();                               // TODO: Component destructor
     pxBatchQuery->release();
     pxVehicleSceneQueryData->free(pxAllocator);
     pxFrictionPairs->release();
@@ -50,8 +52,16 @@ Physics::~Physics() {
     pxFoundation->release();
 }
 
-PxPhysics* Physics::GetApi() const {
-    return pxPhysics;
+PxPhysics& Physics::GetApi() const {
+    return *pxPhysics;
+}
+
+PxCooking& Physics::GetCooking() const {
+    return *pxCooking;
+}
+
+physx::PxScene& Physics::GetScene() const {
+    return *pxScene;
 }
 
 const PxVehiclePadSmoothingData Physics::gPadSmoothingData =
@@ -119,6 +129,7 @@ void Physics::Initialize() {
     sceneDesc.filterShader = CollisionGroups::FilterShader;
 
     pxScene = pxPhysics->createScene(sceneDesc);
+    pxScene->setFlag(PxSceneFlag::eENABLE_ACTIVE_ACTORS, true);
     PxPvdSceneClient* pvdClient = pxScene->getScenePvdClient();
     if (pvdClient)
     {
@@ -126,7 +137,7 @@ void Physics::Initialize() {
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
     }
-    pxMaterial = pxPhysics->createMaterial(0.5f, 0.5f, 0.6f);
+    pxMaterial = ContentManager::GetPxMaterial("Default.json");
 
     pxCooking = PxCreateCooking(PX_PHYSICS_VERSION, *pxFoundation, PxCookingParams(PxTolerancesScale()));
 }
@@ -147,9 +158,9 @@ void Physics::InitializeVehicles() {
     pxFrictionPairs = createFrictionPairs(pxMaterial);
 
     //Create a plane to drive on.
-    const PxFilterData groundPlaneSimFilterData = CollisionGroups::GetFilterData("Ground");
-    pxGroundPlane = createDrivablePlane(groundPlaneSimFilterData, pxMaterial, pxPhysics);
-    pxScene->addActor(*pxGroundPlane);
+    //const PxFilterData groundPlaneSimFilterData = CollisionGroups::GetFilterData("Ground");
+    //pxGroundPlane = createDrivablePlane(groundPlaneSimFilterData, pxMaterial, pxPhysics);
+    //pxScene->addActor(*pxGroundPlane);
 
     for (Component* component : vehicleComponents) {
         VehicleComponent* vehicle = static_cast<VehicleComponent*>(component);
@@ -212,27 +223,15 @@ void Physics::Update(Time currentTime, Time deltaTime) {
     pxScene->simulate(timestep);
     pxScene->fetchResults(true);
 
-	/*if (currentTime.GetTimeSeconds() >= nextTime) {
-		gVehicle4W->getRigidDynamicActor()->addForce(PxVec3(500000.0f * i, 1000000.0f, 0.0f), PxForceMode::eFORCE, true);
-		nextTime = currentTime.GetTimeSeconds() + 5.0f;
-		i *= -1;
-	}*/
-
-    for (Component* component : vehicleComponents) {
-        VehicleComponent* vehicle = static_cast<VehicleComponent*>(component);
-        PxTransform t = vehicle->pxVehicle->getRigidDynamicActor()->getGlobalPose();
-		vehicle->GetEntity()->transform.SetPosition(Transform::FromPx(t.p));
-		vehicle->GetEntity()->transform.SetRotation(Transform::FromPx(t.q));
-		vehicle->UpdateWheelTransforms();
-    }
-
-    // retrieve array of actors that moved
-    /*PxU32 nbActiveActors;
+    // Retrieve array of actors that moved
+    PxU32 nbActiveActors;
     PxActor** activeActors = pxScene->getActiveActors(nbActiveActors);
 
-    // update each render object with the new transform
+    // Update each render object with the new transform
     for (PxU32 i = 0; i < nbActiveActors; ++i) {
-        Component* component = static_cast<Component*>(activeActors[i]->userData);
-        component->GetEntity()->transform = Transform(activeActors[i]->getGlobalPose());
-    }*/
+        PxRigidActor* activeActor = static_cast<PxRigidActor*>(activeActors[i]);
+
+        Component* component = static_cast<Component*>(activeActor->userData);
+        if (component) component->UpdateFromPhysics(activeActor->getGlobalPose());
+    }
 }
