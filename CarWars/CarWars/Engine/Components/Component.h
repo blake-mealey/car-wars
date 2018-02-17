@@ -30,7 +30,7 @@ public:
 	virtual ComponentType GetType() = 0;
 	virtual void HandleEvent(Event *event) = 0;
 
-    virtual void RenderDebugGui() = 0;
+    virtual void RenderDebugGui();
 
     virtual void UpdateFromPhysics(physx::PxTransform t);
 

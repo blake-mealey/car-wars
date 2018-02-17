@@ -62,6 +62,7 @@ glm::vec2 MeshComponent::GetUvScale() const {
 }
 
 void MeshComponent::RenderDebugGui() {
+    Component::RenderDebugGui();
     if (ImGui::TreeNode("Transform")) {
         transform.RenderDebugGui();
         ImGui::TreePop();

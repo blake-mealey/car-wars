@@ -43,9 +43,22 @@ ComponentType RigidbodyComponent::GetType() {
 void RigidbodyComponent::HandleEvent(Event *event) {}
 
 void RigidbodyComponent::RenderDebugGui() {
+    Component::RenderDebugGui();
     if (ImGui::TreeNode("Transform")) {
         Transform t = pxRigid->getGlobalPose();
         if (t.RenderDebugGui()) pxRigid->setGlobalPose(Transform::ToPx(t), true);
+        ImGui::TreePop();
+    }
+
+    if (!colliders.empty() && ImGui::TreeNode("Colliders")) {
+        size_t i = 0;
+        for (Collider *collider : colliders) {
+            if (ImGui::TreeNode((void*)(intptr_t)i, "Collider (%s)", Collider::GetTypeName(collider->GetType()))) {
+                collider->RenderDebugGui();
+                ImGui::TreePop();
+            }
+            i++;
+        }
         ImGui::TreePop();
     }
 }

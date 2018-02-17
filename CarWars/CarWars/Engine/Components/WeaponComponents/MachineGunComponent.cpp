@@ -20,5 +20,5 @@ void MachineGunComponent::HandleEvent(Event *event) {
 }
 
 void MachineGunComponent::RenderDebugGui() {
-	return;
+    WeaponComponent::RenderDebugGui();
 }

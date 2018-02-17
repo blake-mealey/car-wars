@@ -11,6 +11,7 @@ public:
     ConvexMeshCollider(std::string _collisionGroup, physx::PxMaterial *_material, Mesh *_mesh);
     ConvexMeshCollider(nlohmann::json data);
 
+    ColliderType GetType() const override;
 private:
     void InitializeGeometry() override;
     Mesh *mesh;

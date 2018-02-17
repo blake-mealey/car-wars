@@ -94,6 +94,7 @@ void CameraComponent::SetCameraVerticalAngle(float _cameraLift) {
 }
 
 void CameraComponent::RenderDebugGui() {
+    Component::RenderDebugGui();
     if (ImGui::DragFloat("FOV", &fieldOfView, 0, 180)) UpdateProjectionMatrix();
     if (ImGui::SliderAngle("Horizontal Angle", &cameraAngle)) UpdatePositionFromAngles();
     if (ImGui::SliderAngle("Vertical Angle", &cameraLift, 5, 175)) UpdatePositionFromAngles();

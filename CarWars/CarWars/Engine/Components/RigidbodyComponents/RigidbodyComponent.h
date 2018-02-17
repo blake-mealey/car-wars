@@ -18,10 +18,11 @@ public:
 
     void RenderDebugGui() override;
     void SetEntity(Entity *_entity) override;
+
+    std::vector<Collider*> colliders;
 protected:
     virtual void InitializeRigidbody() = 0;
     void InitializeRigidbody(physx::PxRigidActor* actor);
 
-    std::vector<Collider*> colliders;
     physx::PxRigidActor* pxRigid;
 };

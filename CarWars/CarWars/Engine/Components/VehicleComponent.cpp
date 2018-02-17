@@ -116,6 +116,7 @@ std::vector<AxleData> VehicleComponent::GetAxleData() const {
 }
 
 void VehicleComponent::RenderDebugGui() {
+    Component::RenderDebugGui();
     if (ImGui::TreeNode("Transform")) {
         Transform t = pxVehicle->getRigidDynamicActor()->getGlobalPose();
         if (t.RenderDebugGui()) pxVehicle->getRigidDynamicActor()->setGlobalPose(Transform::ToPx(t), true);

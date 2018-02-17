@@ -42,6 +42,7 @@ ComponentType DirectionLightComponent::GetType() {
 
 void DirectionLightComponent::HandleEvent(Event* event) {}
 void DirectionLightComponent::RenderDebugGui() {
+    Component::RenderDebugGui();
     ImGui::Checkbox("Casts Shadows", &castsShadows);
     ImGui::DragFloat3("Direction", glm::value_ptr(direction), 0.01f);
     ImGui::ColorEdit3("Colour", glm::value_ptr(color));

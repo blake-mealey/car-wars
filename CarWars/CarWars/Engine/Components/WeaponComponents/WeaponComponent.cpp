@@ -17,5 +17,5 @@ void WeaponComponent::HandleEvent(Event *event) {
 }
 
 void WeaponComponent::RenderDebugGui() {
-	return;
+    Component::RenderDebugGui();
 }

@@ -15,6 +15,10 @@ MeshCollider::MeshCollider(nlohmann::json data) : Collider(data) {
     MeshCollider::InitializeGeometry();
 }
 
+ColliderType MeshCollider::GetType() const {
+    return Collider_TriangleMesh;
+}
+
 void MeshCollider::InitializeGeometry() {
     PxTriangleMeshDesc meshDesc;
     meshDesc.points.count = mesh->vertexCount;

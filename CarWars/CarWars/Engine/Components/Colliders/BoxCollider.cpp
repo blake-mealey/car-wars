@@ -14,6 +14,16 @@ BoxCollider::BoxCollider(nlohmann::json data) : Collider(data) {
     BoxCollider::InitializeGeometry();
 }
 
+ColliderType BoxCollider::GetType() const {
+    return Collider_Box;
+}
+
+Transform BoxCollider::GetGlobalTransform() const {
+    Transform transform = Collider::GetGlobalTransform();
+    transform.SetScale(size * 0.5f);
+    return transform;
+}
+
 void BoxCollider::InitializeGeometry() {
     geometry = new PxBoxGeometry(Transform::ToPx(size) * 0.5f);
 }

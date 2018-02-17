@@ -21,6 +21,7 @@
 
 #define SCREEN_LEVEL_COUNT 6
 
+class Material;
 class MeshComponent;
 
 struct Camera {
@@ -113,6 +114,7 @@ private:
 	Graphics& operator= (const Graphics&) = delete;
 
 	void LoadModel(ShaderProgram* shaderProgram, MeshComponent* model);
+    void Graphics::LoadModel(ShaderProgram *shaderProgram, glm::mat4 modelMatrix, Material *material, Mesh* mesh, Texture *texture = nullptr, glm::vec2 uvScale = glm::vec2(1.f));
 
 	void LoadCameras(std::vector<Component*> cameraComponents);
 	std::vector<Camera> cameras;

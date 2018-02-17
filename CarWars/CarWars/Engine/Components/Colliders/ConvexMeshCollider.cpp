@@ -15,6 +15,10 @@ ConvexMeshCollider::ConvexMeshCollider(nlohmann::json data) : Collider(data) {
     ConvexMeshCollider::InitializeGeometry();
 }
 
+ColliderType ConvexMeshCollider::GetType() const {
+    return Collider_ConvexMesh;
+}
+
 void ConvexMeshCollider::InitializeGeometry() {
     PxConvexMeshDesc convexDesc;
     convexDesc.points.count = mesh->vertexCount;

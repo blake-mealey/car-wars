@@ -1,5 +1,6 @@
 #include "Component.h"
 #include "../Entities/Entity.h"
+#include "imgui/imgui.h"
 
 Component::Component() : entity(nullptr), enabled(true) { }
 
@@ -18,6 +19,10 @@ std::string Component::GetTypeName(ComponentType type) {
         case ComponentType_MachineGun: return "MachineGun";
         default: return std::to_string(type);
     }
+}
+
+void Component::RenderDebugGui() {
+    ImGui::Checkbox("Enabled", &enabled);
 }
 
 void Component::UpdateFromPhysics(physx::PxTransform t) {
