@@ -147,13 +147,18 @@
     <ClCompile Include="Dependencies\imgui\imgui_demo.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui_draw.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui_impl_glfw_gl3.cpp" />
+    <ClCompile Include="Engine\Components\Colliders\MeshCollider.cpp" />
     <ClCompile Include="Engine\Components\CameraComponent.cpp" />
-    <ClCompile Include="Engine\Components\Collider.cpp" />
+    <ClCompile Include="Engine\Components\Colliders\BoxCollider.cpp" />
+    <ClCompile Include="Engine\Components\Colliders\Collider.cpp" />
     <ClCompile Include="Engine\Components\Component.cpp" />
     <ClCompile Include="Engine\Components\DirectionLightComponent.cpp" />
+    <ClCompile Include="Engine\Components\Colliders\ConvexMeshCollider.cpp" />
     <ClCompile Include="Engine\Components\MeshComponent.cpp" />
     <ClCompile Include="Engine\Components\PointLightComponent.cpp" />
-    <ClCompile Include="Engine\Components\RigidbodyComponent.cpp" />
+    <ClCompile Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.cpp" />
+    <ClCompile Include="Engine\Components\RigidbodyComponents\RigidDynamicComponent.cpp" />
+    <ClCompile Include="Engine\Components\RigidbodyComponents\RigidStaticComponent.cpp" />
     <ClCompile Include="Engine\Components\SpotLightComponent.cpp" />
     <ClCompile Include="Engine\Components\VehicleComponent.cpp" />
     <ClCompile Include="Engine\Components\WeaponComponents\MachineGunComponent.cpp" />
@@ -192,13 +197,18 @@
     <ClInclude Include="Dependencies\imgui\stb_rect_pack.h" />
     <ClInclude Include="Dependencies\imgui\stb_textedit.h" />
     <ClInclude Include="Dependencies\imgui\stb_truetype.h" />
+    <ClInclude Include="Engine\Components\Colliders\MeshCollider.h" />
     <ClInclude Include="Engine\Components\CameraComponent.h" />
-    <ClInclude Include="Engine\Components\Collider.h" />
+    <ClInclude Include="Engine\Components\Colliders\BoxCollider.h" />
+    <ClInclude Include="Engine\Components\Colliders\Collider.h" />
     <ClInclude Include="Engine\Components\Component.h" />
     <ClInclude Include="Engine\Components\DirectionLightComponent.h" />
+    <ClInclude Include="Engine\Components\Colliders\ConvexMeshCollider.h" />
     <ClInclude Include="Engine\Components\MeshComponent.h" />
     <ClInclude Include="Engine\Components\PointLightComponent.h" />
-    <ClInclude Include="Engine\Components\RigidbodyComponent.h" />
+    <ClInclude Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.h" />
+    <ClInclude Include="Engine\Components\RigidbodyComponents\RigidDynamicComponent.h" />
+    <ClInclude Include="Engine\Components\RigidbodyComponents\RigidStaticComponent.h" />
     <ClInclude Include="Engine\Components\SpotLightComponent.h" />
     <ClInclude Include="Engine\Components\VehicleComponent.h" />
     <ClInclude Include="Engine\Components\WeaponComponents\MachineGunComponent.h" />
@@ -234,6 +244,9 @@
     <ClInclude Include="Engine\Systems\StateManager.h" />
     <ClInclude Include="Engine\Systems\System.h" />
     <ClInclude Include="Engine\Systems\Time.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Content\PhysicsMaterials\Default.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

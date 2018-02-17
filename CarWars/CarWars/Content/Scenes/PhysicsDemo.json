@@ -26,7 +26,16 @@
 		        "Type": "PointLight",
                 "Color": [1, 0, 0],
                 "Power": 50
-	        }
+	        },
+            {
+                "Type": "RigidStatic",
+                "Colliders": [
+                    {
+                        "Type": "Box",
+                        "Size": [2, 2, 2]
+                    }
+                ]
+            }
         ]
     },
 	{
@@ -42,7 +51,16 @@
 				"Type": "PointLight",
 				"Color": [0, 0, 1],
 				"Power": 50
-			}
+			},
+            {
+                "Type": "RigidDynamic",
+                "Colliders": [
+                    {
+                        "Type": "Box",
+                        "Size": [2, 2, 2]
+                    }
+                ]
+            }
 		]
 	},
   {

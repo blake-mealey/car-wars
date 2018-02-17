@@ -8,6 +8,7 @@
 #include <math.h>
 #include "imgui/imgui.h"
 #include <glm/gtc/type_ptr.hpp>
+#include "../Systems/Content/ContentManager.h"
 
 const glm::vec3 Transform::FORWARD = glm::vec3(0, 0, -1);
 const glm::vec3 Transform::RIGHT = glm::vec3(1, 0, 0);
@@ -16,6 +17,17 @@ const glm::vec3 Transform::UP = glm::vec3(0, 1, 0);
 float Transform::radius = 0;
 
 Transform::Transform() : Transform(nullptr, glm::vec3(), glm::vec3(1.f), glm::quat(), false) {}
+
+Transform::Transform(nlohmann::json data) : parent(nullptr) {
+    SetPosition(ContentManager::JsonToVec3(data["Position"], glm::vec3()));
+    SetScale(ContentManager::JsonToVec3(data["Scale"], glm::vec3(1.f)));
+    if (!data["Rotate"].is_null()) {
+        const glm::vec3 rot = ContentManager::JsonToVec3(data["Rotate"]);
+        SetRotationEulerAngles(glm::vec3(glm::radians(rot.x), glm::radians(rot.y), glm::radians(rot.z)));
+    }
+
+    connectedToCylinder = ContentManager::GetFromJson<bool>(data["CylinderPart"], false);
+}
 
 Transform::Transform(physx::PxTransform t) : Transform(nullptr, FromPx(t.p), glm::vec3(1.f), FromPx(t.q), false) {}
 
@@ -43,9 +55,17 @@ void Transform::ConnectToCylinder() {
 	connectedToCylinder = true;
 }
 
-void Transform::RenderDebugGui() {
-    if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.01f)) SetPosition(position);
-    if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.05f)) SetScale(scale);
+bool Transform::RenderDebugGui() {
+    bool changed = false;
+    if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.01f)) {
+        changed = true;
+        SetPosition(position);
+    }
+    if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.05f)) {
+        changed = true;
+        SetScale(scale);
+    }
+    return changed;
 }
 
 glm::vec3 Transform::GetLocalPosition() {
@@ -231,6 +251,10 @@ glm::vec2 Transform::FromPx(physx::PxVec2 v) {
 
 glm::quat Transform::FromPx(physx::PxQuat q) {
 	return glm::quat(q.w, q.x, q.y, q.z);
+}
+
+Transform Transform::FromPx(physx::PxTransform t) {
+    return Transform(t);
 }
 
 physx::PxVec4 Transform::ToPx(glm::vec4 v) {

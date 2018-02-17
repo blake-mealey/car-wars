@@ -133,3 +133,8 @@ void VehicleComponent::SetEntity(Entity* _entity) {
 		EntityManager::AddComponent(GetEntity(), component);
 	}
 }
+
+void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
+    Component::UpdateFromPhysics(t);
+    UpdateWheelTransforms();
+}

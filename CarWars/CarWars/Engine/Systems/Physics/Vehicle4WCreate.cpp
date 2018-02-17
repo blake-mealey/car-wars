@@ -181,7 +181,7 @@ void setupWheelsSimulationData
 
 } //namespace fourwheel
 
-PxVehicleDrive4W* createVehicle4W(const VehicleComponent& vehicle, PxMaterial *material, PxPhysics* physics, PxCooking* cooking)
+PxVehicleDrive4W* createVehicle4W(VehicleComponent& vehicle, PxMaterial *material, PxPhysics* physics, PxCooking* cooking)
 {
 	const PxVec3 chassisDims = Transform::ToPx(vehicle.GetChassisSize());
     const PxF32 wheelWidth = vehicle.GetWheelWidth();
@@ -230,6 +230,7 @@ PxVehicleDrive4W* createVehicle4W(const VehicleComponent& vehicle, PxMaterial *m
 			wheelMaterials, wheelConvexMeshes, numWheels, wheelSimFilterData,
 			chassisMaterials, chassisConvexMeshes, 1, chassisSimFilterData,
 			*physics);
+        veh4WActor->userData = &vehicle;
 	}
 
 	//Set up the sim data for the wheels.

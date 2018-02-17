@@ -31,6 +31,7 @@ public:
 
 	void SetEntity(Entity* _entity) override;
 
+    void UpdateFromPhysics(physx::PxTransform t) override;
 	void UpdateWheelTransforms();
 
     float GetChassisMass() const;
