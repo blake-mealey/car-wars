@@ -61,6 +61,33 @@
 		  "Prefab": "HeadLamp.json",
 		  "Position": [-0.41, -1.16, 2.73],
           "Scale": [0.25, 0.25, 0.1]
-	  }
+	  },	  	
+	  {
+			"Position": [0.0, 0, -1],
+			"Components": [
+				{
+					"Type": "Mesh",
+					"Mesh": "machine_gun_base.obj",
+					"Texture": "TileableDiamondPlate.jpg",
+					"Material": "Basic.json",
+					"UvScale": [0.5, 0.5],
+					"Enabled": true
+				}
+			]
+		},
+			  {
+			"Position": [0.0, 0, -1],
+			"Tag": "MachineGunTurret",
+			"Components": [
+				{
+					"Type": "Mesh",
+					"Mesh": "machine_gun_turret.obj",
+					"Texture": "TileableDiamondPlate.jpg",
+					"Material": "Basic.json",
+					"UvScale": [0.5, 0.5],
+					"Enabled": true
+				}
+			]
+		}
   ]
 }
