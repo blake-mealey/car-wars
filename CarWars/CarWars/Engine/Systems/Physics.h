@@ -54,5 +54,5 @@ private:
 
     physx::PxVehicleDrivableSurfaceToTireFrictionPairs* pxFrictionPairs = NULL;
 
-    physx::PxRigidStatic* pxGroundPlane = NULL;
+//    physx::PxRigidStatic* pxGroundPlane = NULL;
 };

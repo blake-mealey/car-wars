@@ -35,7 +35,7 @@ Physics &Physics::Instance() {
 Physics::~Physics() {
     /*gVehicle4W->getRigidDynamicActor()->release();        // TODO: VehicleComponent destructor
     gVehicle4W->free();*/
-    pxGroundPlane->release();                               // TODO: Component destructor
+    //pxGroundPlane->release();                               // TODO: Component destructor
     pxBatchQuery->release();
     pxVehicleSceneQueryData->free(pxAllocator);
     pxFrictionPairs->release();
@@ -158,9 +158,9 @@ void Physics::InitializeVehicles() {
     pxFrictionPairs = createFrictionPairs(pxMaterial);
 
     //Create a plane to drive on.
-    const PxFilterData groundPlaneSimFilterData = CollisionGroups::GetFilterData("Ground");
-    pxGroundPlane = createDrivablePlane(groundPlaneSimFilterData, pxMaterial, pxPhysics);
-    pxScene->addActor(*pxGroundPlane);
+    //const PxFilterData groundPlaneSimFilterData = CollisionGroups::GetFilterData("Ground");
+    //pxGroundPlane = createDrivablePlane(groundPlaneSimFilterData, pxMaterial, pxPhysics);
+    //pxScene->addActor(*pxGroundPlane);
 
     for (Component* component : vehicleComponents) {
         VehicleComponent* vehicle = static_cast<VehicleComponent*>(component);

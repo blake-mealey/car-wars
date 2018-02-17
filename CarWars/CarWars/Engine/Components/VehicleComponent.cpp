@@ -3,6 +3,7 @@
 #include "../Entities/EntityManager.h"
 
 #include "../Systems/Physics/VehicleCreate.h"
+#include "imgui/imgui.h"
 
 using namespace physx;
 
@@ -115,7 +116,11 @@ std::vector<AxleData> VehicleComponent::GetAxleData() const {
 }
 
 void VehicleComponent::RenderDebugGui() {
-    
+    if (ImGui::TreeNode("Transform")) {
+        Transform t = pxVehicle->getRigidDynamicActor()->getGlobalPose();
+        if (t.RenderDebugGui()) pxVehicle->getRigidDynamicActor()->setGlobalPose(Transform::ToPx(t), true);
+        ImGui::TreePop();
+    }
 }
 
 ComponentType VehicleComponent::GetType() {

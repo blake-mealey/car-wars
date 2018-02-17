@@ -2,14 +2,19 @@
 #include <extensions/PxRigidActorExt.h>
 #include "../../Systems/Physics/CollisionFilterShader.h"
 #include "../../Systems/Content/ContentManager.h"
+#include "../../Systems/Physics/VehicleSceneQuery.h"
 
 using namespace physx;
 
 Collider::Collider(std::string _collisionGroup, physx::PxMaterial *_material) : collisionGroup(_collisionGroup), material(_material), shape(nullptr), geometry(nullptr) {}
 
 Collider::Collider(nlohmann::json data) {
-    collisionGroup = ContentManager::GetFromJson<std::string>(data["CollisionGroup"], "DrivableObstacles");
+    collisionGroup = ContentManager::GetFromJson<std::string>(data["CollisionGroup"], "Default");
     material = ContentManager::GetPxMaterial(ContentManager::GetFromJson<std::string>(data["Material"], "Default.json"));
+    std::string queryFilterType = ContentManager::GetFromJson<std::string>(data["QueryFilterType"], "DrivableSurface");
+    if (queryFilterType == "DrivableSurface") {
+        setupDrivableSurface(queryFilterData);
+    }
 }
 
 Collider::~Collider() {
@@ -23,7 +28,7 @@ physx::PxShape* Collider::GetShape() const {
 
 void Collider::CreateShape(PxRigidActor *actor) {
     shape = physx::PxRigidActorExt::createExclusiveShape(*actor, *geometry, *material);
-    //shape->setQueryFilterData(queryFilterData);                                         // For raycasts
+    shape->setQueryFilterData(queryFilterData);                                         // For raycasts
     shape->setSimulationFilterData(CollisionGroups::GetFilterData(collisionGroup));     // For collisions
     shape->setLocalPose(PxTransform(PxIdentity));
 }
