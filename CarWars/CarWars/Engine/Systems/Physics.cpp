@@ -35,7 +35,6 @@ Physics &Physics::Instance() {
 Physics::~Physics() {
     /*gVehicle4W->getRigidDynamicActor()->release();        // TODO: VehicleComponent destructor
     gVehicle4W->free();*/
-    //pxGroundPlane->release();                               // TODO: Component destructor
     pxBatchQuery->release();
     pxVehicleSceneQueryData->free(pxAllocator);
     pxFrictionPairs->release();
@@ -140,6 +139,8 @@ void Physics::Initialize() {
     pxMaterial = ContentManager::GetPxMaterial("Default.json");
 
     pxCooking = PxCreateCooking(PX_PHYSICS_VERSION, *pxFoundation, PxCookingParams(PxTolerancesScale()));
+
+    InitializeVehicles();
 }
 
 void Physics::InitializeVehicles() {
@@ -147,22 +148,14 @@ void Physics::InitializeVehicles() {
     PxVehicleSetBasisVectors(PxVec3(0, 1, 0), PxVec3(0, 0, 1));
     PxVehicleSetUpdateMode(PxVehicleUpdateMode::eVELOCITY_CHANGE);
 
-    vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-
     //Create the batched scene queries for the suspension raycasts.
-    const size_t vehicleCount = vehicleComponents.size();
-    pxVehicleSceneQueryData = VehicleSceneQueryData::allocate(Game::MAX_VEHICLE_COUNT, PX_MAX_NB_WHEELS, 1, vehicleCount, WheelSceneQueryPreFilterBlocking, NULL, pxAllocator);
+    pxVehicleSceneQueryData = VehicleSceneQueryData::allocate(Game::MAX_VEHICLE_COUNT, PX_MAX_NB_WHEELS, 1, Game::MAX_VEHICLE_COUNT, WheelSceneQueryPreFilterBlocking, NULL, pxAllocator);
     pxBatchQuery = VehicleSceneQueryData::setUpBatchedSceneQuery(0, *pxVehicleSceneQueryData, pxScene);
 
     //Create the friction table for each combination of tire and surface type.
     pxFrictionPairs = createFrictionPairs(pxMaterial);
 
-    //Create a plane to drive on.
-    //const PxFilterData groundPlaneSimFilterData = CollisionGroups::GetFilterData("Ground");
-    //pxGroundPlane = createDrivablePlane(groundPlaneSimFilterData, pxMaterial, pxPhysics);
-    //pxScene->addActor(*pxGroundPlane);
-
-    for (Component* component : vehicleComponents) {
+    /*for (Component* component : vehicleComponents) {
         VehicleComponent* vehicle = static_cast<VehicleComponent*>(component);
 
         //Create a vehicle that will drive on the plane.
@@ -177,7 +170,7 @@ void Physics::InitializeVehicles() {
         vehicle->pxVehicle->setToRestState();
         vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
         vehicle->pxVehicle->mDriveDynData.setUseAutoGears(true);
-    }
+    }*/
 }
 
 void Physics::Update(Time currentTime, Time deltaTime) {

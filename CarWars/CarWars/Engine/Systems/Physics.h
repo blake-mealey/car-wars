@@ -19,7 +19,6 @@ public:
     physx::PxScene& GetScene() const;
 
     void Initialize();
-    void InitializeVehicles();
 
 	void Update(Time currentTime, Time deltaTime) override;
 
@@ -28,6 +27,8 @@ private:
 	Physics();
 	Physics(const Physics&) = delete;
 	Physics& operator= (const Physics&) = delete;
+
+    void InitializeVehicles();
 
     static const PxVehiclePadSmoothingData gPadSmoothingData;
     static const PxVehicleKeySmoothingData gKeySmoothingData;
@@ -53,6 +54,4 @@ private:
     physx::PxBatchQuery* pxBatchQuery = NULL;
 
     physx::PxVehicleDrivableSurfaceToTireFrictionPairs* pxFrictionPairs = NULL;
-
-//    physx::PxRigidStatic* pxGroundPlane = NULL;
 };

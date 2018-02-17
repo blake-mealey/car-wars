@@ -58,11 +58,6 @@ void Game::Initialize() {
 	floor = EntityManager::FindEntities("Floor")[0];
 	baby = EntityManager::FindEntities("Baby")[0];
 
-	//Create Vehicle
-	const PxU32 numWheels = 4;
-
-	PxVehicleWheelsSimData* wheelsSimData = PxVehicleWheelsSimData::allocate(numWheels);
-	//setupWheelsSimluationData(wheelsSimData);
 
 
 

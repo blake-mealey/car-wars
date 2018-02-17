@@ -4,6 +4,7 @@
 
 #include "../Systems/Physics/VehicleCreate.h"
 #include "imgui/imgui.h"
+#include "../Systems/Physics.h"
 
 using namespace physx;
 
@@ -47,6 +48,17 @@ VehicleComponent::VehicleComponent(size_t _wheelCount, bool _inputTypeDigital) :
 }
 
 void VehicleComponent::Initialize() {
+    Physics &physics = Physics::Instance();
+
+    //Create a vehicle that will drive on the plane.
+    pxVehicle = createVehicle4W(*this, ContentManager::GetPxMaterial("Default.json"), &physics.GetApi(), &physics.GetCooking());
+
+    //Set the vehicle to rest in first gear.
+    //Set the vehicle to use auto-gears.
+    pxVehicle->setToRestState();
+    pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+    pxVehicle->mDriveDynData.setUseAutoGears(true);
+
     // Fill any remaining any remaining axle data
     const float axleCount = ceil(static_cast<float>(wheelCount) * 0.5f);
     for (size_t i = axleData.size(); i < axleCount; ++i) {
@@ -138,6 +150,9 @@ void VehicleComponent::SetEntity(Entity* _entity) {
 		}*/
 		EntityManager::AddComponent(GetEntity(), component);
 	}
+
+    pxVehicle->getRigidDynamicActor()->setGlobalPose(Transform::ToPx(GetEntity()->transform));
+    Physics::Instance().GetScene().addActor(*pxVehicle->getRigidDynamicActor());
 }
 
 void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {

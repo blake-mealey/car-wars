@@ -39,12 +39,9 @@ int main() {
     ContentManager::LoadCollisionGroups("Vehicles.json");
     CollisionGroups::InitializeMasks();     // MUST come after all collision groups have been loaded
 
-    // Initialize game (MUST come before InitializeVehicles)
+    // Initialize game
     Game &gameManager = Game::Instance();
     gameManager.Initialize();
-
-    // Initialize vehicles
-    physicsManager.InitializeVehicles();
 
 	// Add systems in desired order
 	systems.push_back(&inputManager);
