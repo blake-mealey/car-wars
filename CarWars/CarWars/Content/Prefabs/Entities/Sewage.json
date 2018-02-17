@@ -63,7 +63,7 @@
           "Scale": [0.25, 0.25, 0.1]
 	  },	  	
 	  {
-			"Position": [0.0, 0, -1],
+			"Position": [0, 0.32, 1],
 			"Components": [
 				{
 					"Type": "Mesh",
@@ -71,12 +71,13 @@
 					"Texture": "TileableDiamondPlate.jpg",
 					"Material": "Basic.json",
 					"UvScale": [0.5, 0.5],
+					"Scale": [0.075, 0.075, 0.075],
 					"Enabled": true
 				}
 			]
 		},
 			  {
-			"Position": [0.0, 0, -1],
+			"Position": [0, 0.32, 1],
 			"Tag": "MachineGunTurret",
 			"Components": [
 				{
@@ -85,6 +86,7 @@
 					"Texture": "TileableDiamondPlate.jpg",
 					"Material": "Basic.json",
 					"UvScale": [0.5, 0.5],
+					"Scale": [0.075, 0.075, 0.075],
 					"Enabled": true
 				}
 			]

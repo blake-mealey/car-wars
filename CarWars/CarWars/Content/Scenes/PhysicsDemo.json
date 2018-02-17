@@ -46,7 +46,7 @@
 		]
 	},
   {
-    "Prefab": "Hearse.json",
+    "Prefab": "Sewage.json",
     "Position": [ -5, 10, 0 ]
   },
   "Sun.json",
