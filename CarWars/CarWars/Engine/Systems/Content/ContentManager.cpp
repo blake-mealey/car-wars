@@ -159,11 +159,6 @@ Component* ContentManager::LoadComponentPrefab(std::string filePath) {
     return LoadComponent(data);
 }
 
-Entity* ContentManager::LoadEntityPrefab(std::string filePath) {
-    const nlohmann::json data = LoadJson(ENTITY_PREFAB_DIR_PATH + filePath);
-    return LoadEntity(data);
-}
-
 std::vector<Entity*> ContentManager::LoadScene(std::string filePath) {
 	std::vector<Entity*> entities;
 
@@ -212,14 +207,13 @@ Component* ContentManager::LoadComponent(nlohmann::json data) {
 
 Entity* ContentManager::LoadEntity(nlohmann::json data) {
     if (data.is_string()) {
-        return LoadEntityPrefab(data.get<std::string>());
+        data = LoadJson(ENTITY_PREFAB_DIR_PATH + data.get<std::string>());
     }
 
-    Entity *entity;
+    Entity *entity = EntityManager::CreateDynamicEntity();		// TODO: Determine whether or not the entity is static
 	if (!data["Prefab"].is_null()) {
-		entity = LoadEntityPrefab(data["Prefab"]);
-	} else {
-		entity = EntityManager::CreateDynamicEntity();		// TODO: Determine whether or not the entity is static
+		nlohmann::json prefabData = LoadJson(ENTITY_PREFAB_DIR_PATH + data["Prefab"].get<std::string>());
+        data.insert(prefabData.begin(), prefabData.end());
 	}
 
     if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);

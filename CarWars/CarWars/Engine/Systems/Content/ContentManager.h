@@ -37,7 +37,6 @@ public:
 	static physx::PxMaterial* GetPxMaterial(std::string filePath);
 
     static Component* LoadComponentPrefab(std::string filePath);
-	static Entity* LoadEntityPrefab(std::string filePath);
 	static std::vector<Entity*> LoadScene(std::string filePath);
 
 	template <typename T>
