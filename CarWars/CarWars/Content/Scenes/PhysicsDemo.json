@@ -79,11 +79,7 @@
 	},
   {
     "Prefab": "Sewage.json",
-<<<<<<< HEAD
-    "Position": [ -5, 10, 0 ]
-=======
     "Position": [ 0, 10, 0 ]
->>>>>>> 6aadb43a433178e5b5f336d024213322974a84f7
   },
   "Sun.json",
   {
