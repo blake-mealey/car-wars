@@ -104,12 +104,12 @@ void Game::Update(Time currentTime, Time deltaTime) {
 			//cos(gameTime.GetTimeMilliSeconds() / 1000)));
 
 		//Rotate The Weapon along the horizonal
-		Entity *camera = EntityManager::FindEntities("Camera")[0];
-		CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
-		MachineGunComponent* gun = static_cast<MachineGunComponent*>(EntityManager::FindEntities("Vehicle")[0]->components[1]);
-		gun->SetTargetRotation(cameraC->GetCameraHorizontalAngle(), cameraC->GetCameraVerticalAngle());
-		Entity* vehicle = EntityManager::FindEntities("Vehicle")[0];
-		EntityManager::FindChildren(vehicle, "MachineGunTurret")[0]->transform.SetRotationAxisAngles(glm::vec3(0.0f, 1.0f, 0.0f), gun->horizontalAngle + glm::radians(90.0f));
+		//Entity *camera = EntityManager::FindEntities("Camera")[0];
+		//CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
+		//MachineGunComponent* gun = static_cast<MachineGunComponent*>(EntityManager::FindEntities("Vehicle")[0]->components[1]);
+		//gun->SetTargetRotation(cameraC->GetCameraHorizontalAngle(), cameraC->GetCameraVerticalAngle());
+		//Entity* vehicle = EntityManager::FindEntities("Vehicle")[0];
+		//EntityManager::FindChildren(vehicle, "MachineGunTurret")[0]->transform.SetRotationAxisAngles(glm::vec3(0.0f, 1.0f, 0.0f), gun->horizontalAngle + glm::radians(90.0f));
 
 		float t = glm::radians(45.5) + gameTime.GetTimeSeconds() / 10;
         glm::vec3 sunPosition = glm::vec3(cos(t), 0.5f, sin(t));
