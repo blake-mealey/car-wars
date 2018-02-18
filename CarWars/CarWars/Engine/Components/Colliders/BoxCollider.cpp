@@ -1,5 +1,4 @@
 #include "BoxCollider.h"
-#include <cooking/PxConvexMeshDesc.h>
 #include "../../Entities/Transform.h"
 #include "../../Systems/Content/ContentManager.h"
 

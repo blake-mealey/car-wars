@@ -47,4 +47,3 @@ void ConvexMeshCollider::InitializeGeometry(Mesh *mesh) {
 void ConvexMeshCollider::InitializeGeometry(physx::PxConvexMesh* mesh) {
     geometry = new PxConvexMeshGeometry(mesh);
 }
-
