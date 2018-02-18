@@ -6,13 +6,14 @@
 
 class BoxCollider : public Collider {
 public:
-    BoxCollider(std::string _collisionGroup, physx::PxMaterial *_material, glm::vec3 _size);
+    BoxCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, glm::vec3 _size);
     BoxCollider(nlohmann::json data);
 
     ColliderType GetType() const override;
 
+    Transform GetLocalTransform() const override;
     Transform GetGlobalTransform() const override;
 private:
-    void InitializeGeometry() override;
+    void InitializeGeometry();
     glm::vec3 size;
 };

@@ -9,7 +9,7 @@
         "Mesh": "Plane.obj",
         "Texture": "DiamondPlate.jpg",
         "Material": "Basic.json",
-        "UvScale": [ 5, 5 ]
+        "UvScale": [ 10, 10 ]
       },
       {
         "Type": "RigidStatic",

@@ -3,6 +3,7 @@
 #include "../../Entities/Transform.h"
 #include "../../Systems/Content/ContentManager.h"
 #include "imgui/imgui.h"
+#include <glm/gtc/type_ptr.inl>
 
 RigidDynamicComponent::RigidDynamicComponent(float _mass, glm::vec3 _momentOfIntertia, glm::vec3 _centerOfMassOffset) :
     mass(_mass), momentOfInertia(_momentOfIntertia), centerOfMassOffset(_centerOfMassOffset) {
@@ -21,6 +22,16 @@ RigidDynamicComponent::RigidDynamicComponent(nlohmann::json data) : RigidbodyCom
 void RigidDynamicComponent::SetMass(float _mass) {
     mass = _mass;
     actor->setMass(mass);
+}
+
+void RigidDynamicComponent::SetMomentOfInertia(glm::vec3 _momentOfInertia) {
+    momentOfInertia = _momentOfInertia;
+    actor->setMassSpaceInertiaTensor(Transform::ToPx(momentOfInertia));
+}
+
+void RigidDynamicComponent::SetCenterOfMassOffset(glm::vec3 _centerOfMassOffset) {
+    centerOfMassOffset = _centerOfMassOffset;
+    actor->setCMassLocalPose(PxTransform(Transform::ToPx(centerOfMassOffset), PxQuat(PxIdentity)));
 }
 
 void RigidDynamicComponent::InitializeRigidbody() {
@@ -44,5 +55,7 @@ void RigidDynamicComponent::HandleEvent(Event* event) {}
 
 void RigidDynamicComponent::RenderDebugGui() {
     RigidbodyComponent::RenderDebugGui();
-    if (ImGui::DragFloat("Mass", &mass, 10, 0)) actor->setMass(mass);
+    if (ImGui::DragFloat("Mass", &mass, 10, 0)) SetMass(mass);
+    if (ImGui::DragFloat3("MomentOfInertia", glm::value_ptr(momentOfInertia), 0.01)) SetMomentOfInertia(momentOfInertia);
+    if (ImGui::DragFloat3("CenterOfMassOffset", glm::value_ptr(centerOfMassOffset), 0.01)) SetCenterOfMassOffset(centerOfMassOffset);
 }

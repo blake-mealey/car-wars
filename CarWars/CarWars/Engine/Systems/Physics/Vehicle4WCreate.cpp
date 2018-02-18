@@ -30,8 +30,8 @@
 #include "VehicleCreate.h"
 #include "VehicleTireFriction.h"
 #include "VehicleSceneQuery.h"
-#include "../../Components/VehicleComponent.h"
 #include "CollisionFilterShader.h"
+#include "../../Components/RigidbodyComponents/VehicleComponent.h"
 
 
 using namespace physx;

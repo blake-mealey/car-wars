@@ -5,17 +5,25 @@
 
 using namespace physx;
 
-BoxCollider::BoxCollider(std::string _collisionGroup, physx::PxMaterial *_material, glm::vec3 _size) : Collider(_collisionGroup, _material), size(_size) {
-    BoxCollider::InitializeGeometry();
+BoxCollider::BoxCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, glm::vec3 _size)
+    : Collider(_collisionGroup, _material, _queryFilterData), size(_size) {
+    
+    InitializeGeometry();
 }
 
 BoxCollider::BoxCollider(nlohmann::json data) : Collider(data) {
     size = ContentManager::JsonToVec3(data["Size"], glm::vec3(1.f));
-    BoxCollider::InitializeGeometry();
+    InitializeGeometry();
 }
 
 ColliderType BoxCollider::GetType() const {
     return Collider_Box;
+}
+
+Transform BoxCollider::GetLocalTransform() const {
+    Transform transform = Collider::GetLocalTransform();
+    transform.SetScale(size * 0.5f);
+    return transform;
 }
 
 Transform BoxCollider::GetGlobalTransform() const {

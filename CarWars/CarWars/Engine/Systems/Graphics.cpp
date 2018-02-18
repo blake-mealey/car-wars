@@ -219,8 +219,11 @@ void Graphics::Update(Time currentTime, Time deltaTime) {
 	const std::vector<Component*> spotLights = EntityManager::GetComponents(ComponentType_SpotLight);
 	const std::vector<Component*> meshes = EntityManager::GetComponents(ComponentType_Mesh);
 	const std::vector<Component*> cameraComponents = EntityManager::GetComponents(ComponentType_Camera);
-	const std::vector<Component*> rigidDynamicComponents = EntityManager::GetComponents(ComponentType_RigidDynamic);
-	const std::vector<Component*> rigidStaticComponents = EntityManager::GetComponents(ComponentType_RigidStatic);
+    const std::vector<Component*> rigidbodyComponents = EntityManager::GetComponents({
+        ComponentType_RigidDynamic,
+        ComponentType_RigidStatic,
+        ComponentType_Vehicle
+    });
 
     // Get the active cameras and setup their viewports
     LoadCameras(cameraComponents);
@@ -351,14 +354,9 @@ void Graphics::Update(Time currentTime, Time deltaTime) {
     // Use wireframe polygon mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    for (size_t j = 0; j < rigidDynamicComponents.size() + rigidStaticComponents.size(); j++) {
+    for (size_t j = 0; j < rigidbodyComponents.size(); j++) {
         // Get enabled models
-        RigidbodyComponent* rigidbody;
-        if (j < rigidDynamicComponents.size()) {
-            rigidbody = static_cast<RigidbodyComponent*>(rigidDynamicComponents[j]);
-        } else {
-            rigidbody = static_cast<RigidbodyComponent*>(rigidStaticComponents[j - rigidDynamicComponents.size()]);
-        }
+        RigidbodyComponent* rigidbody = static_cast<RigidbodyComponent*>(rigidbodyComponents[j]);
         if (!rigidbody->enabled) continue;
 
         for (Collider *collider : rigidbody->colliders) {

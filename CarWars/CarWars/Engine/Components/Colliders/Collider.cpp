@@ -7,14 +7,17 @@
 
 using namespace physx;
 
-Collider::Collider(std::string _collisionGroup, physx::PxMaterial *_material) : collisionGroup(_collisionGroup), material(_material), shape(nullptr), geometry(nullptr) {}
+Collider::Collider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData)
+    : collisionGroup(_collisionGroup), material(_material), queryFilterData(_queryFilterData), shape(nullptr), geometry(nullptr) {}
 
 Collider::Collider(nlohmann::json data) {
     collisionGroup = ContentManager::GetFromJson<std::string>(data["CollisionGroup"], "Default");
     material = ContentManager::GetPxMaterial(ContentManager::GetFromJson<std::string>(data["Material"], "Default.json"));
-    std::string queryFilterType = ContentManager::GetFromJson<std::string>(data["QueryFilterType"], "DrivableSurface");
+    const std::string queryFilterType = ContentManager::GetFromJson<std::string>(data["QueryFilterType"], "DrivableSurface");
     if (queryFilterType == "DrivableSurface") {
         setupDrivableSurface(queryFilterData);
+    } else {
+        setupNonDrivableSurface(queryFilterData);
     }
     transform = Transform(data);
 }
@@ -40,6 +43,10 @@ void Collider::RenderDebugGui() {
         if (transform.RenderDebugGui()) shape->setLocalPose(Transform::ToPx(transform));
         ImGui::TreePop();
     }
+    ImGui::LabelText("Collision Group", "%s", collisionGroup);
+    ImGui::Text("Static Friction: %f", material->getStaticFriction());
+    ImGui::Text("Dynamic Friction: %f", material->getDynamicFriction());
+    ImGui::Text("Restitution Friction: %f", material->getRestitution());
 }
 
 std::string Collider::GetTypeName(ColliderType type) {
@@ -49,6 +56,10 @@ std::string Collider::GetTypeName(ColliderType type) {
         case Collider_TriangleMesh: return "TriangleMesh";
         default: return std::to_string(type);
     }
+}
+
+Transform Collider::GetLocalTransform() const {
+    return shape->getLocalPose();
 }
 
 Transform Collider::GetGlobalTransform() const {

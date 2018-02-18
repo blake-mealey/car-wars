@@ -16,7 +16,7 @@ enum ColliderType {
 
 class Collider {
 public:
-    Collider(std::string _collisionGroup, physx::PxMaterial *_material);
+    Collider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData);
     Collider(nlohmann::json data);
     ~Collider();
 
@@ -29,10 +29,9 @@ public:
 
     virtual ColliderType GetType() const = 0;
 
+    virtual Transform GetLocalTransform() const;
     virtual Transform GetGlobalTransform() const;
 protected:
-    virtual void InitializeGeometry() = 0;
-
     Transform transform;
     std::string collisionGroup;
     physx::PxShape *shape;

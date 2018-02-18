@@ -159,8 +159,8 @@
     <ClCompile Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\RigidDynamicComponent.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\RigidStaticComponent.cpp" />
+    <ClCompile Include="Engine\Components\RigidbodyComponents\VehicleComponent.cpp" />
     <ClCompile Include="Engine\Components\SpotLightComponent.cpp" />
-    <ClCompile Include="Engine\Components\VehicleComponent.cpp" />
     <ClCompile Include="Engine\Components\WeaponComponents\MachineGunComponent.cpp" />
     <ClCompile Include="Engine\Components\WeaponComponents\RailGunComponent.cpp" />
     <ClCompile Include="Engine\Components\WeaponComponents\RocketLauncherComponent.cpp" />
@@ -209,8 +209,8 @@
     <ClInclude Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\RigidDynamicComponent.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\RigidStaticComponent.h" />
+    <ClInclude Include="Engine\Components\RigidbodyComponents\VehicleComponent.h" />
     <ClInclude Include="Engine\Components\SpotLightComponent.h" />
-    <ClInclude Include="Engine\Components\VehicleComponent.h" />
     <ClInclude Include="Engine\Components\WeaponComponents\MachineGunComponent.h" />
     <ClInclude Include="Engine\Components\WeaponComponents\RailGunComponent.h" />
     <ClInclude Include="Engine\Components\WeaponComponents\RocketLauncherComponent.h" />

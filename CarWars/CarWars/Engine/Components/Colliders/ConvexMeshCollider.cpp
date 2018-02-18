@@ -6,20 +6,27 @@
 
 using namespace physx;
 
-ConvexMeshCollider::ConvexMeshCollider(std::string _collisionGroup, physx::PxMaterial *_material, Mesh *_mesh) : Collider(_collisionGroup, _material), mesh(_mesh) {
-    ConvexMeshCollider::InitializeGeometry();
+ConvexMeshCollider::ConvexMeshCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, Mesh *_mesh)
+    : Collider(_collisionGroup, _material, _queryFilterData) {
+    
+    InitializeGeometry(_mesh);
+}
+
+ConvexMeshCollider::ConvexMeshCollider(std::string _collisionGroup, physx::PxMaterial* _material, physx::PxFilterData _queryFilterData, physx::PxConvexMesh* _mesh)
+    : Collider(_collisionGroup, _material, _queryFilterData) {
+    
+    InitializeGeometry(_mesh);
 }
 
 ConvexMeshCollider::ConvexMeshCollider(nlohmann::json data) : Collider(data) {
-    mesh = ContentManager::GetMesh(data["Mesh"]);
-    ConvexMeshCollider::InitializeGeometry();
+    InitializeGeometry(ContentManager::GetMesh(data["Mesh"]));
 }
 
 ColliderType ConvexMeshCollider::GetType() const {
     return Collider_ConvexMesh;
 }
 
-void ConvexMeshCollider::InitializeGeometry() {
+void ConvexMeshCollider::InitializeGeometry(Mesh *mesh) {
     PxConvexMeshDesc convexDesc;
     convexDesc.points.count = mesh->vertexCount;
     convexDesc.points.stride = sizeof(glm::vec3);
@@ -35,5 +42,9 @@ void ConvexMeshCollider::InitializeGeometry() {
     }
 
     geometry = new PxConvexMeshGeometry(convexMesh);
+}
+
+void ConvexMeshCollider::InitializeGeometry(physx::PxConvexMesh* mesh) {
+    geometry = new PxConvexMeshGeometry(mesh);
 }
 

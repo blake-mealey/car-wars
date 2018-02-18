@@ -159,6 +159,15 @@ std::vector<Component*> EntityManager::GetComponents(ComponentType type) {
 	return components[type];
 }
 
+std::vector<Component*> EntityManager::GetComponents(std::vector<ComponentType> types) {
+    std::vector<Component*> all;
+    for (ComponentType type : types) {
+        std::vector<Component*> components = GetComponents(type);
+        all.insert(all.end(), components.begin(), components.end());
+    }
+    return all;
+}
+
 void EntityManager::BroadcastEvent(Event* event) {
 	for (size_t i = 0; i < staticEntities.size(); i++) {
 		staticEntities[i]->HandleEvent(event);

@@ -7,12 +7,12 @@
 #include "../Entities/Entity.h"
 #include "../Entities/EntityManager.h"
 #include "../Entities/Transform.h"
+#include "../Components/RigidbodyComponents/VehicleComponent.h"
 
 #include "Physics/VehicleSceneQuery.h"
 #include "Physics/VehicleTireFriction.h"
 #include "Physics/VehicleCreate.h"
 #include "Game.h"
-#include "../Components/VehicleComponent.h"
 #include "StateManager.h"
 #include "Physics/CollisionFilterShader.h"
 #include "Content/ContentManager.h"
@@ -154,23 +154,6 @@ void Physics::InitializeVehicles() {
 
     //Create the friction table for each combination of tire and surface type.
     pxFrictionPairs = createFrictionPairs(pxMaterial);
-
-    /*for (Component* component : vehicleComponents) {
-        VehicleComponent* vehicle = static_cast<VehicleComponent*>(component);
-
-        //Create a vehicle that will drive on the plane.
-        vehicle->pxVehicle = createVehicle4W(*vehicle, pxMaterial, pxPhysics, pxCooking);
-
-        //PxTransform startTransform(PxVec3(0, (vehicleDesc.chassisSize.y*0.5f + vehicleDesc.wheelRadius + 1.0f), 0), PxQuat(PxIdentity));
-        vehicle->pxVehicle->getRigidDynamicActor()->setGlobalPose(Transform::ToPx(component->GetEntity()->transform));
-        pxScene->addActor(*vehicle->pxVehicle->getRigidDynamicActor());
-
-        //Set the vehicle to rest in first gear.
-        //Set the vehicle to use auto-gears.
-        vehicle->pxVehicle->setToRestState();
-        vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-        vehicle->pxVehicle->mDriveDynData.setUseAutoGears(true);
-    }*/
 }
 
 void Physics::Update(Time currentTime, Time deltaTime) {

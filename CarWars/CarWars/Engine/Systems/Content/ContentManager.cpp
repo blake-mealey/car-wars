@@ -18,12 +18,12 @@
 #include "../../Components/PointLightComponent.h"
 #include "../../Components/DirectionLightComponent.h"
 #include "../../Components/SpotLightComponent.h"
-#include "../../Components/VehicleComponent.h"
 #include "../../Components/WeaponComponents/MachineGunComponent.h"
 #include "../Physics/CollisionFilterShader.h"
 #include "../Physics.h"
 #include "../../Components/RigidbodyComponents/RigidStaticComponent.h"
 #include "../../Components/RigidbodyComponents/RigidDynamicComponent.h"
+#include "../../Components/RigidbodyComponents/VehicleComponent.h"
 
 std::map<std::string, Mesh*> ContentManager::meshes;
 std::map<std::string, Texture*> ContentManager::textures;
@@ -137,8 +137,10 @@ Material* ContentManager::GetMaterial(const std::string filePath) {
     const float specularity = GetFromJson<float>(data["Specularity"], 1);
     const float emissiveness = GetFromJson<float>(data["Emissiveness"], 0);
 
+    material = new Material(diffuseColor, specularColor, specularity, emissiveness);
+
     materials[filePath] = material;
-    return new Material(diffuseColor, specularColor, specularity, emissiveness);
+    return material;
 }
 
 physx::PxMaterial* ContentManager::GetPxMaterial(std::string filePath) {
@@ -150,8 +152,10 @@ physx::PxMaterial* ContentManager::GetPxMaterial(std::string filePath) {
     const float dynamicFriction = GetFromJson<float>(data["DynamicFriction"], 0.5f);
     const float restitution = GetFromJson<float>(data["Restitution"], 0.6f);
 
+    material = Physics::Instance().GetApi().createMaterial(staticFriction, dynamicFriction, restitution);
+
     pxMaterials[filePath] = material;
-    return Physics::Instance().GetApi().createMaterial(staticFriction, dynamicFriction, restitution);
+    return material;
 }
 
 Component* ContentManager::LoadComponentPrefab(std::string filePath) {

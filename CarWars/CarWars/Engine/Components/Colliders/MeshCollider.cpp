@@ -6,13 +6,15 @@
 
 using namespace physx;
 
-MeshCollider::MeshCollider(std::string _collisionGroup, physx::PxMaterial *_material, Mesh *_mesh) : Collider(_collisionGroup, _material), mesh(_mesh) {
-    MeshCollider::InitializeGeometry();
+MeshCollider::MeshCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, Mesh *_mesh)
+    : Collider(_collisionGroup, _material, _queryFilterData), mesh(_mesh) {
+    
+    InitializeGeometry();
 }
 
 MeshCollider::MeshCollider(nlohmann::json data) : Collider(data) {
     mesh = ContentManager::GetMesh(data["Mesh"]);
-    MeshCollider::InitializeGeometry();
+    InitializeGeometry();
 }
 
 ColliderType MeshCollider::GetType() const {

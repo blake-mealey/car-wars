@@ -4,13 +4,13 @@
 #include "../Systems/StateManager.h"
 #include "../Entities/EntityManager.h"
 #include "../Components/CameraComponent.h"
+#include "../Components/RigidbodyComponents/VehicleComponent.h"
 
 #include "Physics.h"
 
 #include "PxPhysicsAPI.h"
 
 #include "vehicle/PxVehicleUtil.h"
-#include "../Components/VehicleComponent.h"
 #include "../Components/WeaponComponents/MachineGunComponent.h"
 
 vector<XboxController*> InputManager::xboxControllers;

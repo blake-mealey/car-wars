@@ -32,6 +32,7 @@ public:
 	static void AddComponent(Entity *entity, Component* component);
 	static void DestroyComponent(Component* component);
 	static std::vector<Component*> GetComponents(ComponentType type);
+    static std::vector<Component*> GetComponents(std::vector<ComponentType> types);
 	
 	// Contact entities
 	static void BroadcastEvent(Event *event);
