@@ -11,7 +11,7 @@ class InputManager : public System {
 public:
 	static InputManager& Instance();
 
-	void Update(Time currentTime, Time deltaTime) override;
+	void Update() override;
 
 	void HandleMouse();
 	void HandleKeyboard();

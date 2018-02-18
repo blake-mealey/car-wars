@@ -26,8 +26,8 @@ InputManager &InputManager::Instance() {
 	return instance;
 }
 
-void InputManager::Update(Time currentTime, Time _deltaTime) {
-	dt = _deltaTime;
+void InputManager::Update() {
+	dt = StateManager::deltaTime;
 	HandleMouse();
 	HandleKeyboard();
 	HandleController();

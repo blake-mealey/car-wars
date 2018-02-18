@@ -156,7 +156,7 @@ void Physics::InitializeVehicles() {
     pxFrictionPairs = createFrictionPairs(pxMaterial);
 }
 
-void Physics::Update(Time currentTime, Time deltaTime) {
+void Physics::Update() {
     if (StateManager::GetState() != GameState_Playing) return;
 
     const PxF32 timestep = 1.0f / 60.0f;

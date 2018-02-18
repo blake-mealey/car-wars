@@ -83,9 +83,8 @@ void Game::Initialize() {
 	}*/
 }
 
-void Game::Update(Time currentTime, Time deltaTime) {
+void Game::Update() {
 	if (StateManager::GetState() == GameState_Playing) {
-		gameTime += deltaTime;
 
 		//boulder->transform.Translate(glm::vec3(0.0f, sin(currentTime.GetTimeSeconds()), 0.0f));
 	    //const glm::vec3 pos = boulder->transform.GetLocalPosition();

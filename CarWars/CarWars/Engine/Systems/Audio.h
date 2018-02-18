@@ -12,7 +12,7 @@ public:
 
     void Initialize();
 
-    void Update(Time currentTime, Time deltaTime) override;
+    void Update() override;
 
 private:
     // No instantiation or copying

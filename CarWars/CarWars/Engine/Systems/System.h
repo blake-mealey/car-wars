@@ -3,7 +3,7 @@
 
 class System {
 public:
-	virtual void Update(Time currentTime, Time deltaTime) = 0;
+	virtual void Update() = 0;
 
 private:
 };
