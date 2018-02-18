@@ -147,6 +147,9 @@
     <ClCompile Include="Engine\Components\RigidbodyComponents\RigidDynamicComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Components\RigidbodyComponents\VehicleComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Components\CameraComponent.h">
@@ -306,6 +309,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Components\RigidbodyComponents\RigidDynamicComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\RigidbodyComponents\VehicleComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

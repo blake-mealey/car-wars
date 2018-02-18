@@ -2,16 +2,8 @@
 #include "System.h"
 #include <vector>
 
-enum Maps {
-	Map_Cylinder
-};
-
-enum GameMode {
-	Team,
-	FFA
-};
-
 class Entity;
+
 class Game : public System {
 public:
     static const unsigned int MAX_VEHICLE_COUNT;
@@ -20,6 +12,7 @@ public:
 	static Game& Instance();
 
 	void Initialize();
+
 	void Update(Time currentTime, Time deltaTime) override;
 
 private:
@@ -38,15 +31,4 @@ private:
 	Entity *baby;
 
 	Entity *car;
-
-	//Variables for Game Initialization
-	Maps selectedMap;				//Map to Play on
-	GameMode selectedGameMode;		//Game Mode to Play
-	size_t numberAiVehicles;		//Number of AI Vehicles (Start)
-	size_t startNumberLives;		//Starting Number of Lives
-	size_t killLimit;				//Max Kills to Win
-	Time timeLimit;					//Max Time of Game
-
-	//Game Variables
-	size_t numberVehiclesRemaining;
 };
