@@ -15,7 +15,6 @@ using namespace std;
 
 int main() {
 	//Initialize Time Variables
-	Time deltaTime;
 	Time currentTime = 0;
 	Time lastTime = 0;
 
@@ -53,13 +52,12 @@ int main() {
 	while (!glfwWindowShouldClose(graphicsManager.GetWindow())) {
 		//Calculate Delta Time
 		currentTime = glfwGetTime();
-		deltaTime = currentTime - lastTime;
+		StateManager::deltaTime = currentTime - lastTime;
 		lastTime = currentTime;
 		//Calculate Game Time
 		if (StateManager::IsState(GameState_Playing)) {
-			StateManager::gameTime += deltaTime;
+			StateManager::gameTime += StateManager::deltaTime;
 		}
-		StateManager::deltaTime = deltaTime;
 		// Iterate through each system and call their update methods
 		for (System* system : systems) {
 			system->Update();

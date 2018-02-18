@@ -3,11 +3,11 @@
 #include <vector>
 
 enum Map {
-	Map_Cylinder
+	Map_Cylinder = 0
 };
 
 enum GameMode {
-	Team,
+	Team = 0,
 	FreeForAll
 };
 
@@ -21,6 +21,17 @@ public:
 
 	void Initialize();
 	void Update() override;
+
+	//Game Creation Variables
+	static Map selectedMap;
+	static GameMode selectedGameMode;
+	static size_t numberOfAi;
+	static size_t numberOfLives;
+	static size_t killLimit;
+	static size_t timeLimitMinutes;
+
+	std::string MapToString();
+	std::string GameModeToString();
 
 private:
 	// No instantiation or copying
@@ -38,12 +49,4 @@ private:
 	Entity *baby;
 
 	Entity *car;
-
-	//Game Creation Variables
-	Map selectedMap;
-	GameMode selectedGameMode;
-	size_t numberOfAi;
-	size_t numberOfLives;
-	size_t killLimit;
-	Time timeLimit;
 };

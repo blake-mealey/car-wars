@@ -25,6 +25,13 @@ using namespace std;
 
 const unsigned int Game::MAX_VEHICLE_COUNT = 8;
 
+Map Game::selectedMap = Map_Cylinder;
+GameMode Game::selectedGameMode = Team;
+size_t Game::numberOfAi = 0;
+size_t Game::numberOfLives = 3;
+size_t Game::killLimit = 10;
+size_t Game::timeLimitMinutes = 10;
+
 Time gameTime(0);
 
 // Singleton
@@ -129,5 +136,21 @@ void Game::Update() {
 
         // PAUSED
 
+	}
+}
+
+std::string Game::MapToString() {
+	switch (selectedMap) {
+	case 0:
+		return "Map_Cylinder";
+	}
+}
+
+std::string Game::GameModeToString() {
+	switch (selectedGameMode) {
+	case 0:
+		return "Team";
+	case 1:
+		return "FFA";
 	}
 }
