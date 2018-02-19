@@ -5,7 +5,7 @@
 #include "imgui/imgui.h"
 
 const float CameraComponent::NEAR_CLIPPING_PLANE = 0.1f;
-const float CameraComponent::FAR_CLIPPING_PLANE = 100.f;
+const float CameraComponent::FAR_CLIPPING_PLANE = 1.f;
 const float CameraComponent::DEFAULT_FIELD_OF_VIEW = 60.f;		// In degrees
 
 ComponentType CameraComponent::GetType() {
@@ -16,7 +16,8 @@ void CameraComponent::HandleEvent(Event* event) {}
 
 CameraComponent::CameraComponent() : CameraComponent(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)) {}
 
-CameraComponent::CameraComponent(nlohmann::json data) : fieldOfView(DEFAULT_FIELD_OF_VIEW) {
+CameraComponent::CameraComponent(nlohmann::json data) {
+	fieldOfView = ContentManager::GetFromJson(data["FOV"], DEFAULT_FIELD_OF_VIEW);
 	position = ContentManager::JsonToVec3(data["Position"], glm::vec3(0.f, 0.f, 1.f));
 	target = ContentManager::JsonToVec3(data["Target"]);
 	upVector = ContentManager::JsonToVec3(data["UpVector"], glm::vec3(0.f, 1.f, 0.f));

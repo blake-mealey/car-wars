@@ -402,8 +402,10 @@ void InputManager::HandleKeyboard() {
 		}
 	}
 	if (Keyboard::KeyDown(GLFW_KEY_W)) {
-		cout << "W Key Held" << endl;
-		vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+		cout << (int)(vehicle->pxVehicle->mDriveDynData.getCurrentGear() - PxVehicleGearsData::eNEUTRAL) << endl;
+		if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
+			vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+		}
 		vehicle->pxVehicleInputData.setAnalogAccel(1.f);
 	}
 	if (Keyboard::KeyReleased(GLFW_KEY_W)) {
@@ -525,14 +527,8 @@ void InputManager::HandleController() {
 				cout << vehicle->pxVehicle->computeForwardSpeed() << endl;
 				vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
 				int speed = (int)vehicle->pxVehicle->computeForwardSpeed();
-				if (speed < 15){
+				if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE){
 					vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-				}
-				else if (speed < 30) {
-					vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eSECOND);
-				}
-				else if (speed < 45) {
-					vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eTHIRD);
 				}
 
 				vehicle->pxVehicleInputData.setAnalogAccel(((*controller)->GetState().Gamepad.bRightTrigger - (*controller)->GetState().Gamepad.bLeftTrigger) / 255.0f);
