@@ -210,7 +210,7 @@ bool Graphics::InitializeFullScreen(char* windowTitle) {
 	return true;
 }
 
-void Graphics::Update(Time currentTime, Time deltaTime) {
+void Graphics::Update() {
 	glfwPollEvents();			// Should this be here or in InputManager?
 
 	// Get components
@@ -434,7 +434,7 @@ void Graphics::Update(Time currentTime, Time deltaTime) {
         skyboxProgram->LoadUniform(UniformName::SunDirection, shadowCaster->GetDirection());
     }
 
-    skyboxProgram->LoadUniform(UniformName::Time, currentTime.GetTimeSeconds());
+    skyboxProgram->LoadUniform(UniformName::Time, StateManager::gameTime.GetTimeSeconds());
 
     for (Camera camera : cameras) {
         // Setup the viewport for each camera (split-screen)

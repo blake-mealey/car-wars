@@ -2,8 +2,16 @@
 #include "System.h"
 #include <vector>
 
-class Entity;
+enum Map {
+	Map_Cylinder = 0
+};
 
+enum GameMode {
+	Team = 0,
+	FreeForAll
+};
+
+class Entity;
 class Game : public System {
 public:
     static const unsigned int MAX_VEHICLE_COUNT;
@@ -12,8 +20,18 @@ public:
 	static Game& Instance();
 
 	void Initialize();
+	void Update() override;
 
-	void Update(Time currentTime, Time deltaTime) override;
+	//Game Creation Variables
+	static Map selectedMap;
+	static GameMode selectedGameMode;
+	static size_t numberOfAi;
+	static size_t numberOfLives;
+	static size_t killLimit;
+	static size_t timeLimitMinutes;
+
+	std::string MapToString();
+	std::string GameModeToString();
 
 private:
 	// No instantiation or copying

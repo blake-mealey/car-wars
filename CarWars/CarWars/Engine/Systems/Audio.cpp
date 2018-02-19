@@ -11,4 +11,4 @@ Audio::~Audio() { }
 
 void Audio::Initialize() { }
 
-void Audio::Update(Time currentTime, Time deltaTime) { }
+void Audio::Update() { }

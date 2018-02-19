@@ -1,6 +1,7 @@
 #include "InputManager.h"
 
 #include "Graphics.h"
+#include "Game.h"
 #include "../Systems/StateManager.h"
 #include "../Entities/EntityManager.h"
 #include "../Components/CameraComponent.h"
@@ -26,8 +27,8 @@ InputManager &InputManager::Instance() {
 	return instance;
 }
 
-void InputManager::Update(Time currentTime, Time _deltaTime) {
-	dt = _deltaTime;
+void InputManager::Update() {
+	dt = StateManager::deltaTime;
 	HandleMouse();
 	HandleKeyboard();
 	HandleController();
@@ -36,29 +37,355 @@ void InputManager::Update(Time currentTime, Time _deltaTime) {
 void InputManager::HandleMouse() {
 	//Mouse Inputs
 
-	//Left Mouse Button
-	if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-		cout << "Left Mouse Button Pressed" << endl;
-	} else if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
-		cout << "Left Mouse Button Held" << endl;
-	} else if (Mouse::ButtonReleased(GLFW_MOUSE_BUTTON_LEFT)) {
-		cout << "Left Mouse Button Released" << endl;
-	}
-
-	//Right Mouse Button
-	if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
-		cout << "Right Mouse Button Pressed" << endl;
-	} else if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
-		cout << "Right Mouse Button Held" << endl;
-	} else if (Mouse::ButtonReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
-		cout << "Right Mouse Button Released" << endl;
-	}
-
-	//cout << "Mouse Position: " << Mouse::GetCursorPosition().x << ", " << Mouse::GetCursorPosition().y << ", " << Mouse::GetCursorPosition().z << endl;
 }
 
 void InputManager::HandleKeyboard() {
 	//Keyboard Inputs
+
+	//Switch on Game State
+	switch (StateManager::GetState()) {
+	case GameState_Menu:
+		//Move Up Menu
+		if (Keyboard::KeyPressed(GLFW_KEY_UP) || Keyboard::KeyPressed(GLFW_KEY_W)) {
+			switch (StateManager::menuIndex) {
+			case 0:
+				StateManager::menuIndex = 2;
+				break;
+			default :
+				StateManager::menuIndex--;
+				break;
+			}
+			std::cout << "Game State: " << StateManager::GameStateToString() << " Index: " << StateManager::menuIndex << std::endl;
+		} 
+		//Move Down Menu
+		if (Keyboard::KeyPressed(GLFW_KEY_DOWN) || Keyboard::KeyPressed(GLFW_KEY_S)) {
+			switch (StateManager::menuIndex) {
+			case 2:
+				StateManager::menuIndex = 0;
+				break;
+			default:
+				StateManager::menuIndex++;
+				break;
+			}
+			std::cout << "Game State: " << StateManager::GameStateToString() << " Index: " << StateManager::menuIndex << std::endl;
+		}
+		//Enter Selection
+		if (Keyboard::KeyPressed(GLFW_KEY_ENTER)) {
+			switch (StateManager::menuIndex) {
+			case 0:
+				StateManager::menuIndex = 0;
+				StateManager::SetState(GameState_Menu_Start);
+				break;
+			case 1:
+				StateManager::menuIndex = 0;
+				StateManager::SetState(GameState_Menu_Settings);
+				break;
+			case 2:
+				Graphics& graphicsInstance = Graphics::Instance();
+				glfwSetWindowShouldClose(graphicsInstance.GetWindow(), true);
+				break;
+			}
+			std::cout << "Game State: " << StateManager::GameStateToString() << " Index: " << StateManager::menuIndex << std::endl;
+		}
+		//Close Game
+		//TODO: Remove Later
+		if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
+			Graphics& graphicsInstance = Graphics::Instance();
+			glfwSetWindowShouldClose(graphicsInstance.GetWindow(), true);
+		}
+		break;
+	case GameState_Menu_Settings:
+		break;
+	case GameState_Menu_Start:
+		//Move Up Menu
+		if (Keyboard::KeyPressed(GLFW_KEY_UP) || Keyboard::KeyPressed(GLFW_KEY_W)) {
+			switch (StateManager::menuIndex) {
+			case 0:
+				StateManager::menuIndex = 5;
+				break;
+			default:
+				StateManager::menuIndex--;
+				break;
+			}
+			std::cout << "Game State: " << StateManager::GameStateToString() << " Index: " << StateManager::menuIndex << std::endl;
+		}
+		//Move Down Menu
+		if (Keyboard::KeyPressed(GLFW_KEY_DOWN) || Keyboard::KeyPressed(GLFW_KEY_S)) {
+			switch (StateManager::menuIndex) {
+			case 5:
+				StateManager::menuIndex = 0;
+				break;
+			default:
+				StateManager::menuIndex++;
+				break;
+			}
+			std::cout << "Game State: " << StateManager::GameStateToString() << " Index: " << StateManager::menuIndex << std::endl;
+		}
+		//Change Value Left
+		if (Keyboard::KeyPressed(GLFW_KEY_LEFT) || Keyboard::KeyPressed(GLFW_KEY_A)) {
+			Game& gameInstance = Game::Instance();
+			size_t mapIndex;
+			size_t gameModeIndex;
+			switch (StateManager::menuIndex) {
+			case 0:
+				mapIndex = (int)gameInstance.selectedMap;
+				switch (mapIndex) {
+				case 0:
+					mapIndex = 0;
+					break;
+				default:
+					mapIndex--;
+					break;
+				}
+				gameInstance.selectedMap = static_cast<Map>(mapIndex);
+				std::cout << "Map Selected: " << gameInstance.MapToString() << std::endl;
+				break;
+			case 1:
+				gameModeIndex = (int)gameInstance.selectedGameMode;
+				switch (gameModeIndex) {
+				case 0:
+					gameModeIndex = 1;
+					break;
+				default:
+					gameModeIndex--;
+					break;
+				}
+				gameInstance.selectedGameMode = static_cast<GameMode>(gameModeIndex);
+				std::cout << "Game Mode Selected: " << gameInstance.GameModeToString() << std::endl;
+				break;
+			case 2:
+				switch (gameInstance.numberOfAi) {
+				case 0:
+					gameInstance.numberOfAi = 7;
+					break;
+				default:
+					gameInstance.numberOfAi--;
+					break;
+				}
+				std::cout << "Number of AI: " << gameInstance.numberOfAi << std::endl;
+				break;
+			case 3:
+				switch (gameInstance.numberOfLives) {
+				case 1:
+					gameInstance.numberOfLives = INFINITE;
+					break;
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+				case 9:
+				case 10:
+					gameInstance.numberOfLives--;
+					break;
+				case INFINITE:
+					gameInstance.numberOfLives = 50;
+					break;
+				default:
+					gameInstance.numberOfLives -= 5;
+					break;
+				}
+				std::cout << "Number of Lives: " << gameInstance.numberOfLives << std::endl;
+				break;
+			case 4:
+				switch (gameInstance.killLimit) {
+				case 1:
+					gameInstance.killLimit = INFINITE;
+					break;
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+				case 9:
+				case 10:
+					gameInstance.killLimit--;
+					break;
+				case INFINITE:
+					gameInstance.killLimit = 100;
+					break;
+				default:
+					gameInstance.killLimit -= 5;
+					break;
+				}
+				std::cout << "Kill Limit: " << gameInstance.killLimit << std::endl;
+				break;
+			case 5:
+				switch (gameInstance.timeLimitMinutes) {
+				case 5:
+					gameInstance.timeLimitMinutes = INFINITE;
+					break;
+				case 6:
+				case 7:
+				case 8:
+				case 9:
+				case 10:
+					gameInstance.timeLimitMinutes--;
+					break;
+				case INFINITE:
+					gameInstance.timeLimitMinutes = 60;
+					break;
+				default:
+					gameInstance.timeLimitMinutes -= 5;
+					break;
+				}
+				std::cout << "Time Limit: " << gameInstance.timeLimitMinutes << std::endl;
+				break;
+			}
+		}
+		//Change Value Right
+		if (Keyboard::KeyPressed(GLFW_KEY_RIGHT) || Keyboard::KeyPressed(GLFW_KEY_D)) {
+			Game& gameInstance = Game::Instance();
+			size_t mapIndex;
+			size_t gameModeIndex;
+			switch (StateManager::menuIndex) {
+			case 0:
+				mapIndex = (int)gameInstance.selectedMap;
+				switch (mapIndex) {
+				case 0:
+					mapIndex = 0;
+					break;
+				default:
+					mapIndex++;
+					break;
+				}
+				gameInstance.selectedMap = static_cast<Map>(mapIndex);
+				std::cout << "Map Selected: " << gameInstance.MapToString() << std::endl;
+				break;
+			case 1:
+				gameModeIndex = (int)gameInstance.selectedGameMode;
+				switch (gameModeIndex) {
+				case 1:
+					gameModeIndex = 0;
+					break;
+				default:
+					gameModeIndex++;
+					break;
+				}
+				gameInstance.selectedGameMode = static_cast<GameMode>(gameModeIndex);
+				std::cout << "Game Mode Selected: " << gameInstance.GameModeToString() << std::endl;
+				break;
+			case 2:
+				switch (gameInstance.numberOfAi) {
+				case 7:
+					gameInstance.numberOfAi = 0;
+					break;
+				default:
+					gameInstance.numberOfAi++;
+					break;
+				}
+				std::cout << "Number of AI: " << gameInstance.numberOfAi << std::endl;
+				break;
+			case 3:
+				switch (gameInstance.numberOfLives) {
+				case INFINITE:
+					gameInstance.numberOfLives = 1;
+					break;
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+				case 9:
+					gameInstance.numberOfLives++;
+					break;
+				case 50:
+					gameInstance.numberOfLives = INFINITE;
+					break;
+				default:
+					gameInstance.numberOfLives += 5;
+					break;
+				}
+				std::cout << "Number of Lives: " << gameInstance.numberOfLives << std::endl;
+				break;
+			case 4:
+				switch (gameInstance.killLimit) {
+				case INFINITE:
+					gameInstance.killLimit = 1;
+					break;
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+				case 9:
+					gameInstance.killLimit++;
+					break;
+				case 100:
+					gameInstance.killLimit = INFINITE;
+					break;
+				default:
+					gameInstance.killLimit += 5;
+					break;
+				}
+				std::cout << "Kill Limit: " << gameInstance.killLimit << std::endl;
+				break;
+			case 5:
+				switch (gameInstance.timeLimitMinutes) {
+				case INFINITE:
+					gameInstance.timeLimitMinutes = 5;
+					break;
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+				case 9:
+					gameInstance.timeLimitMinutes++;
+					break;
+				case 60:
+					gameInstance.timeLimitMinutes = INFINITE;
+					break;
+				default:
+					gameInstance.timeLimitMinutes += 5;
+					break;
+				}
+				std::cout << "Time Limit: " << gameInstance.timeLimitMinutes << std::endl;
+				break;
+			}
+		}
+		//Press Enter to Go to Confirm
+		if (Keyboard::KeyPressed(GLFW_KEY_ENTER)) {
+			StateManager::menuIndex = 0;
+			StateManager::SetState(GameState_Menu_Start_CharacterSelect);
+			std::cout << "Game State: " << StateManager::GameStateToString() << " Index: " << StateManager::menuIndex << std::endl;
+		}
+		//Press Escape to Go Back a Screen
+		if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
+			StateManager::menuIndex = 0;
+			StateManager::SetState(GameState_Menu);
+			std::cout << "Game State: " << StateManager::GameStateToString() << " Index: " << StateManager::menuIndex << std::endl;
+		}
+		break;
+	case GameState_Menu_Start_CharacterSelect:
+		//TODO: Basically all of This, It is Different, Because it is Player Specific
+		//TODO: Current Just Goes to Game
+		if (Keyboard::KeyPressed(GLFW_KEY_ENTER)) {
+			StateManager::SetState(GameState_Playing);
+			std::cout << "Game State: " << StateManager::GameStateToString() << " Index: " << StateManager::menuIndex << std::endl;
+		}
+		//Return to Previous Screen
+		if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
+			StateManager::menuIndex = 0;
+			StateManager::SetState(GameState_Menu_Start);
+			std::cout << "Game State: " << StateManager::GameStateToString() << " Index: " << StateManager::menuIndex << std::endl;
+		}
+		break;
+	case GameState_Playing:
+		break;
+	case GameState_Paused:
+		break;
+	}
+
 	vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
 	VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[0]);
 	
