@@ -225,7 +225,7 @@ void VehicleComponent::CreateVehicle() {
 
         //Gears
         PxVehicleGearsData gears;
-        gears.mSwitchTime = 0.5f;
+        gears.mSwitchTime = 0.1f;
         driveSimData.setGearsData(gears);
 
         //Clutch
@@ -261,9 +261,6 @@ void VehicleComponent::Initialize() {
 
     SetMomentOfInertia(GetChassisMomentOfInertia());
     SetCenterOfMassOffset(GetChassisCenterOfMassOffset());
-    
-    /*SetMomentOfInertia(GetChassisMomentOfInertia());
-    SetCenterOfMassOffset(GetChassisCenterOfMassOffset());*/
 
     //Create a vehicle that will drive on the plane.
     CreateVehicle();
@@ -312,7 +309,7 @@ glm::vec3 VehicleComponent::GetChassisMomentOfInertia() const {
 }
 
 glm::vec3 VehicleComponent::GetChassisCenterOfMassOffset() const {
-    return glm::vec3(0.0f, -chassisSize.y*0.5f + 0.65f, 0.25f);
+    return glm::vec3(0.0f, -1.0f, 0.25f);
 }
 
 float VehicleComponent::GetWheelMass() const {
