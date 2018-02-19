@@ -11,6 +11,8 @@ public:
     MeshCollider(nlohmann::json data);
 
     ColliderType GetType() const override;
+
+    Mesh* GetRenderMesh() override;
 private:
     void InitializeGeometry();
     Mesh *mesh;

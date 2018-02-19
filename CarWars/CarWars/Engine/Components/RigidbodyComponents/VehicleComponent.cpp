@@ -268,12 +268,6 @@ void VehicleComponent::Initialize() {
     //Create a vehicle that will drive on the plane.
     CreateVehicle();
 
-    //Set the vehicle to rest in first gear.
-    //Set the vehicle to use auto-gears.
-    pxVehicle->setToRestState();
-    pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-    pxVehicle->mDriveDynData.setUseAutoGears(true);
-
     // Fill any remaining any remaining axle data
     const float axleCount = ceil(static_cast<float>(wheelCount) * 0.5f);
     for (size_t i = axleData.size(); i < axleCount; ++i) {
@@ -357,6 +351,12 @@ void VehicleComponent::SetEntity(Entity* _entity) {
         }*/
         EntityManager::AddComponent(GetEntity(), component);
     }
+
+    //Set the vehicle to rest in first gear.
+    //Set the vehicle to use auto-gears.
+    pxVehicle->setToRestState();
+    pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+    pxVehicle->mDriveDynData.setUseAutoGears(true);
 }
 
 void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {

@@ -11,6 +11,8 @@ public:
 
     ColliderType GetType() const override;
 
+    Mesh* GetRenderMesh() override;
+
     Transform GetLocalTransform() const override;
     Transform GetGlobalTransform() const override;
 private:

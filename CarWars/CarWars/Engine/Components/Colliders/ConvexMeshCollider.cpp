@@ -26,6 +26,10 @@ ColliderType ConvexMeshCollider::GetType() const {
     return Collider_ConvexMesh;
 }
 
+Mesh* ConvexMeshCollider::GetRenderMesh() {
+    return nullptr;
+}
+
 void ConvexMeshCollider::InitializeGeometry(Mesh *mesh) {
     PxConvexMeshDesc convexDesc;
     convexDesc.points.count = mesh->vertexCount;

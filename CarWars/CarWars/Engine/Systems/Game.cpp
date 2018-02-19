@@ -7,6 +7,7 @@
 #include "../Components/MeshComponent.h"
 #include "../Components/CameraComponent.h"
 #include "../Components/WeaponComponents/MachineGunComponent.h"
+#include "../Components/RigidbodyComponents/RigidStaticComponent.h"
 
 #include "Physics\VehicleCreate.h"
 #include "Physics\VehicleWheelQueryResult.h"
@@ -21,6 +22,7 @@
 #include <math.h>
 #include "StateManager.h"
 #include "../Components/DirectionLightComponent.h"
+#include "../Components/RigidbodyComponents/RigidDynamicComponent.h"
 using namespace std;
 
 const unsigned int Game::MAX_VEHICLE_COUNT = 8;
@@ -57,6 +59,23 @@ void Game::Initialize() {
         static_cast<CameraComponent*>(camera->components[0])->SetCameraHorizontalAngle(-3.14 / 2);
         static_cast<CameraComponent*>(camera->components[0])->SetCameraVerticalAngle(3.14 / 4);
 	}
+
+
+
+    Entity *cylinder = EntityManager::FindEntities("Cylinder")[0];
+    RigidDynamicComponent *cylinderRigid = static_cast<RigidDynamicComponent*>(cylinder->components[1]);
+
+    // Don't fall with gravity
+    cylinderRigid->actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+
+    // Start rotating and don't stop
+    cylinderRigid->actor->setAngularVelocity(PxVec3(0.f, 0.f, 0.1f));
+    cylinderRigid->actor->setAngularDamping(0.f);
+    
+    // Position and velocities cannot be changed by other factors
+    cylinderRigid->actor->setMass(0.f);
+    cylinderRigid->actor->setMassSpaceInertiaTensor(PxVec3(0.f, 0.f, 0.f));
+    
 
 	// Load the scene and get some entities
 	/*ContentManager::LoadScene("GraphicsDemo.json");

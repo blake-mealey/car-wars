@@ -19,7 +19,7 @@
 #include "../../Components/DirectionLightComponent.h"
 #include "../../Components/SpotLightComponent.h"
 #include "../../Components/WeaponComponents/MachineGunComponent.h"
-#include "../Physics/CollisionFilterShader.h"
+#include "../Physics/CollisionGroups.h"
 #include "../Physics.h"
 #include "../../Components/RigidbodyComponents/RigidStaticComponent.h"
 #include "../../Components/RigidbodyComponents/RigidDynamicComponent.h"
@@ -58,25 +58,38 @@ glm::vec2 AssimpVectorToGlm(aiVector2D v) {
 	return glm::vec2(v.x, v.y);
 }
 
-Mesh* ContentManager::GetMesh(const std::string filePath) {
+Mesh* ContentManager::GetMesh(const std::string filePath, unsigned pFlags) {
 	Mesh* mesh = meshes[filePath];
 	if (mesh != nullptr) return mesh;
 
 	Assimp::Importer importer;
 
 	const aiScene *scene = importer.ReadFile(MESH_DIR_PATH + filePath,
-		aiProcess_CalcTangentSpace |
-		aiProcess_Triangulate |
-		aiProcess_SortByPType);
+        pFlags
+		| aiProcess_CalcTangentSpace
+		| aiProcess_Triangulate
+//		| aiProcess_SortByPType             // What does this do?
+        | aiProcess_GenSmoothNormals
+//        | aiProcess_FlipUVs               // We probably want this!
+//        | aiProcess_JoinIdenticalVertices
+    );
 
 	if (scene == nullptr) {
 		std::cout << "WARNING: Failed to load mesh: " << filePath << std::endl;
 		return nullptr;
 	}
 
+    // TODO: Load all meshes
 	aiMesh *aiMesh = scene->mMeshes[0];
 
-	size_t vertexCount = aiMesh->mNumVertices;
+    const size_t triangleCount = aiMesh->mNumFaces;
+    Triangle *triangles = new Triangle[triangleCount];
+    for (size_t i = 0; i < triangleCount; ++i) {
+        const aiFace &triangle = aiMesh->mFaces[i];
+        triangles[i] = Triangle(triangle.mIndices[0], triangle.mIndices[1], triangle.mIndices[2]);
+    }
+
+    const size_t vertexCount = aiMesh->mNumVertices;
 	glm::vec3 *vertices = new glm::vec3[vertexCount];
 	glm::vec2 *uvs = new glm::vec2[vertexCount];
 	glm::vec3 *normals = new glm::vec3[vertexCount];
@@ -86,7 +99,9 @@ Mesh* ContentManager::GetMesh(const std::string filePath) {
 		normals[i] = AssimpVectorToGlm(aiMesh->mNormals[i]);
 	}
 
-	mesh = new Mesh(vertices, uvs, normals, vertexCount);
+	mesh = new Mesh(triangleCount, vertexCount, triangles, vertices, uvs, normals);
+
+    // TODO: Load materials/textures
 
 	meshes[filePath] = mesh;
 	return mesh;

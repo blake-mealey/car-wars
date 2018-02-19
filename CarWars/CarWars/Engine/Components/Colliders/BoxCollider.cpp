@@ -19,6 +19,10 @@ ColliderType BoxCollider::GetType() const {
     return Collider_Box;
 }
 
+Mesh* BoxCollider::GetRenderMesh() {
+    return ContentManager::GetMesh("Cube.obj");
+}
+
 Transform BoxCollider::GetLocalTransform() const {
     Transform transform = Collider::GetLocalTransform();
     transform.SetScale(size * 0.5f);

@@ -3,6 +3,7 @@
 #include "../../Systems/Content/Mesh.h"
 #include "../../Systems/Physics.h"
 #include "../../Systems/Content/ContentManager.h"
+#include <iostream>
 
 using namespace physx;
 
@@ -13,12 +14,16 @@ MeshCollider::MeshCollider(std::string _collisionGroup, physx::PxMaterial *_mate
 }
 
 MeshCollider::MeshCollider(nlohmann::json data) : Collider(data) {
-    mesh = ContentManager::GetMesh(data["Mesh"]);
+    mesh = ContentManager::GetMesh(data["Mesh"])->TransformMesh(Transform(nullptr, glm::vec3(0.f), transform.GetLocalScale(), glm::vec3(0.f), false));
     InitializeGeometry();
 }
 
 ColliderType MeshCollider::GetType() const {
     return Collider_TriangleMesh;
+}
+
+Mesh* MeshCollider::GetRenderMesh() {
+    return mesh;
 }
 
 void MeshCollider::InitializeGeometry() {
@@ -27,18 +32,19 @@ void MeshCollider::InitializeGeometry() {
     meshDesc.points.stride = sizeof(glm::vec3);
     meshDesc.points.data = mesh->vertices;
 
-    // Needed?
-    /*meshDesc.triangles.count = mesh->triangleCount;
-    meshDesc.triangles.stride = 3 * sizeof(glm::vec3);
-    meshDesc.triangles.data = mesh->triangles;*/
+    // This breaks it?????
+    //meshDesc.triangles.count = mesh->triangleCount;
+    //meshDesc.triangles.stride = sizeof(Triangle);
+    //meshDesc.triangles.data = mesh->triangles;
 
-    PxTriangleMesh* triangleMesh = nullptr;
-    PxDefaultMemoryOutputStream buf;
     Physics& physics = Physics::Instance();
-    if (physics.GetCooking().cookTriangleMesh(meshDesc, buf)) {
-        PxDefaultMemoryInputData id(buf.getData(), buf.getSize());
-        triangleMesh = physics.GetApi().createTriangleMesh(id);
-    }
 
-    geometry = new PxTriangleMeshGeometry(triangleMesh);
+    PxDefaultMemoryOutputStream writeBuffer;
+    PxTriangleMeshCookingResult::Enum result;
+    const bool status = physics.GetCooking().cookTriangleMesh(meshDesc, writeBuffer, &result);
+    if (!status)
+        std::cout << "Failed to initialize mesh geometry";
+
+    PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+    geometry = new PxTriangleMeshGeometry(physics.GetApi().createTriangleMesh(readBuffer));
 }

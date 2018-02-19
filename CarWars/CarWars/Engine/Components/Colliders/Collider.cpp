@@ -1,6 +1,6 @@
 #include "Collider.h"
 #include <extensions/PxRigidActorExt.h>
-#include "../../Systems/Physics/CollisionFilterShader.h"
+#include "../../Systems/Physics/CollisionGroups.h"
 #include "../../Systems/Content/ContentManager.h"
 #include "../../Systems/Physics/VehicleSceneQuery.h"
 #include "imgui/imgui.h"
@@ -10,7 +10,7 @@ using namespace physx;
 Collider::Collider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData)
     : collisionGroup(_collisionGroup), material(_material), queryFilterData(_queryFilterData), shape(nullptr), geometry(nullptr) {}
 
-Collider::Collider(nlohmann::json data) {
+Collider::Collider(nlohmann::json data) : shape(nullptr), geometry(nullptr) {
     collisionGroup = ContentManager::GetFromJson<std::string>(data["CollisionGroup"], "Default");
     material = ContentManager::GetPxMaterial(ContentManager::GetFromJson<std::string>(data["Material"], "Default.json"));
     const std::string queryFilterType = ContentManager::GetFromJson<std::string>(data["QueryFilterType"], "DrivableSurface");

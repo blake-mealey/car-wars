@@ -273,6 +273,7 @@ void Graphics::Update() {
 
 			// Load the mesh's vertices into the GPU
 			Mesh *mesh = model->GetMesh();
+            LoadTriangles(mesh->triangles, mesh->triangleCount);
 			LoadVertices(mesh->vertices, mesh->vertexCount);
 
 			// Load the depth model view projection matrix into the GPU
@@ -281,7 +282,8 @@ void Graphics::Update() {
             shadowProgram->LoadUniform(UniformName::DepthModelViewProjectionMatrix, depthModelViewProjectionMatrix);
 
 			// Render the model
-			glDrawArrays(GL_TRIANGLES, 0, model->GetMesh()->vertexCount);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eabIds[EABs::Triangles]);
+            glDrawElements(GL_TRIANGLES, model->GetMesh()->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
 		}
 	}
 
@@ -343,7 +345,8 @@ void Graphics::Update() {
             geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
 
 			// Render the model
-			glDrawArrays(GL_TRIANGLES, 0, model->GetMesh()->vertexCount);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eabIds[EABs::Triangles]);
+            glDrawElements(GL_TRIANGLES, model->GetMesh()->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
 		}
 	}
 
@@ -360,20 +363,19 @@ void Graphics::Update() {
         if (!rigidbody->enabled) continue;
 
         for (Collider *collider : rigidbody->colliders) {
-            // Currently we only support rendering box colliders
-            if (collider->GetType() != Collider_Box) continue;
+            // Check if the collider has a render mesh
+            Mesh *renderMesh = collider->GetRenderMesh();
+            if (!renderMesh) continue;
 
             // Get the global transformation matrix of the collider
             const glm::mat4 modelMatrix = collider->GetGlobalTransform().GetTransformationMatrix();
-
-            Mesh *cubeMesh = ContentManager::GetMesh("Cube.obj");
             
             // Load the model's vertices, uvs, normals, and textures into the GPU
             LoadModel(
                 geometryProgram,
                 modelMatrix,
                 ContentManager::GetMaterial("PhysicsCollider.json"),
-                cubeMesh
+                renderMesh
             );
 
             if (shadowCaster != nullptr) {
@@ -394,7 +396,8 @@ void Graphics::Update() {
                 geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
 
                 // Render the model
-                glDrawArrays(GL_TRIANGLES, 0, cubeMesh->vertexCount);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eabIds[EABs::Triangles]);
+                glDrawElements(GL_TRIANGLES, renderMesh->triangleCount * 3, GL_UNSIGNED_SHORT, static_cast<void*>(nullptr));
             }
         }
     }
@@ -423,6 +426,7 @@ void Graphics::Update() {
     skyboxProgram->LoadUniform(UniformName::SkyboxColor, glm::vec3(1.5f, 1.2f, 1.2f));
 
     // Load the skybox geometry into the GPU
+    LoadTriangles(skyboxCube->triangles, skyboxCube->triangleCount);
     LoadVertices(skyboxCube->vertices, skyboxCube->vertexCount);
 
     // Load the sun data into the GPU
@@ -445,7 +449,8 @@ void Graphics::Update() {
         skyboxProgram->LoadUniform(UniformName::ViewProjectionMatrix, viewProjectionMatrix);
 
         // Render the skybox
-        glDrawArrays(GL_TRIANGLES, 0, skyboxCube->vertexCount);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eabIds[EABs::Triangles]);
+        glDrawElements(GL_TRIANGLES, skyboxCube->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
     }
 
     // -------------------------------------------------------------------------------------------------------------- //
@@ -475,11 +480,11 @@ void Graphics::Update() {
     copyProgram->LoadUniform(UniformName::ScreenTexture, 0);
 
     // Copy the glow buffer to each of the level buffers
-    for (size_t i = 0; i < SCREEN_LEVEL_COUNT; ++i) {
+    for (size_t i = 0; i < BLUR_LEVEL_COUNT; ++i) {
         const float factor = 1.f / pow(2, i);
         glViewport(0, 0, windowWidth * factor, windowHeight * factor);
         
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenLevelIds[i], 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, blurLevelIds[i], 0);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
 
@@ -492,10 +497,10 @@ void Graphics::Update() {
     blurProgram->LoadUniform(UniformName::ImageTexture, 0);
 
     // Blur each of the level buffers
-    for (size_t i = 0; i < SCREEN_LEVEL_COUNT; ++i) {
+    for (size_t i = 0; i < BLUR_LEVEL_COUNT; ++i) {
         // Get the relevant buffers
-        const GLuint buffer = screenLevelIds[i];
-        const GLuint blurBuffer = screenLevelBlurIds[i];
+        const GLuint buffer = blurLevelIds[i];
+        const GLuint blurBuffer = blurTempLevelIds[i];
         
         // Set the right viewport
         const float factor = 1.f / pow(2, i);
@@ -549,8 +554,8 @@ void Graphics::Update() {
     glBlendFunc(GL_ONE, GL_ONE);
 
     // Render each blur level
-    for (size_t i = 0; i < SCREEN_LEVEL_COUNT; ++i) {
-        glBindTexture(GL_TEXTURE_2D, screenLevelIds[i]);
+    for (size_t i = 0; i < BLUR_LEVEL_COUNT; ++i) {
+        glBindTexture(GL_TEXTURE_2D, blurLevelIds[i]);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
 
@@ -592,35 +597,6 @@ void Graphics::RenderDebugGui() {
 
 void Graphics::LoadModel(ShaderProgram *shaderProgram, MeshComponent *model) {
 	if (!model->enabled) return;
-
-	/*// Load the model matrix into the GPU
-	const glm::mat4 modelMatrix = model->transform.GetTransformationMatrix();
-    shaderProgram->LoadUniform(UniformName::ModelMatrix, modelMatrix);
-
-	// Get the mesh's material
-	Material *mat = model->GetMaterial();
-
-	// Load the material data into the GPU
-    shaderProgram->LoadUniform(UniformName::MaterialDiffuseColor, mat->diffuseColor);
-    shaderProgram->LoadUniform(UniformName::MaterialSpecularColor, mat->specularColor);
-    shaderProgram->LoadUniform(UniformName::MaterialSpecularity, mat->specularity);
-    shaderProgram->LoadUniform(UniformName::MaterialEmissiveness, mat->emissiveness);
-
-	// Load the mesh into the GPU
-	LoadMesh(model->GetMesh());
-
-	// Load the texture into the GPU
-	if (model->GetTexture() != nullptr) {
-        shaderProgram->LoadUniform(UniformName::DiffuseTextureEnabled, true);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, model->GetTexture()->textureId);
-        shaderProgram->LoadUniform(UniformName::DiffuseTexture, 0);
-
-        shaderProgram->LoadUniform(UniformName::UvScale, model->GetUvScale());
-	} else {
-        shaderProgram->LoadUniform(UniformName::DiffuseTextureEnabled, false);
-	}*/
 
     LoadModel(
         shaderProgram,
@@ -704,13 +680,13 @@ void Graphics::SetWindowDimensions(size_t width, size_t height) {
     glBindRenderbuffer(GL_RENDERBUFFER, rboIds[RBOs::Depth]);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, windowWidth, windowHeight);
 
-    for (size_t i = 0; i < SCREEN_LEVEL_COUNT; ++i) {
+    for (size_t i = 0; i < BLUR_LEVEL_COUNT; ++i) {
         const float factor = 1.f / pow(2, i);
 
-        glBindTexture(GL_TEXTURE_2D, screenLevelIds[i]);
+        glBindTexture(GL_TEXTURE_2D, blurLevelIds[i]);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth * factor, windowHeight * factor, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
-        glBindTexture(GL_TEXTURE_2D, screenLevelBlurIds[i]);
+        glBindTexture(GL_TEXTURE_2D, blurTempLevelIds[i]);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth * factor, windowHeight * factor, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     }
 
@@ -777,9 +753,16 @@ void Graphics::LoadLights(std::vector<PointLight> pointLights, std::vector<Direc
 }
 
 void Graphics::LoadMesh(Mesh* mesh) {
+    LoadTriangles(mesh->triangles, mesh->triangleCount);
 	LoadVertices(mesh->vertices, mesh->vertexCount);
 	LoadUvs(mesh->uvs, mesh->vertexCount);
 	LoadNormals(mesh->normals, mesh->vertexCount);
+}
+
+void Graphics::LoadTriangles(const Triangle* triangles, const size_t triangleCount) {
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eabIds[EABs::Triangles]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Triangle) * triangleCount, triangles, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void Graphics::LoadVertices(const glm::vec3 *vertices, const size_t vertexCount) {
@@ -807,14 +790,15 @@ void Graphics::DestroyIds() {
     glDeleteFramebuffers(FBOs::Count, fboIds);
     glDeleteRenderbuffers(RBOs::Count, rboIds);
     glDeleteTextures(Textures::Count, textureIds);
-    glDeleteTextures(SCREEN_LEVEL_COUNT, screenLevelIds);
-    glDeleteTextures(SCREEN_LEVEL_COUNT, screenLevelBlurIds);
+    glDeleteTextures(BLUR_LEVEL_COUNT, blurLevelIds);
+    glDeleteTextures(BLUR_LEVEL_COUNT, blurTempLevelIds);
     for (int i = 0; i < Shaders::Count; i++) {
         glDeleteProgram(shaders[i]->GetId());
     }
 }
 
 void Graphics::GenerateIds() {
+    glGenBuffers(EABs::Count, eabIds);
 	glGenVertexArrays(VAOs::Count, vaoIds);
 	glGenBuffers(VBOs::Count, vboIds);
 	glGenBuffers(SSBOs::Count, ssboIds);
@@ -824,8 +808,8 @@ void Graphics::GenerateIds() {
 	glGenFramebuffers(FBOs::Count, fboIds);
 	glGenRenderbuffers(RBOs::Count, rboIds);
     glGenTextures(Textures::Count, textureIds);
-    glGenTextures(SCREEN_LEVEL_COUNT, screenLevelIds);
-    glGenTextures(SCREEN_LEVEL_COUNT, screenLevelBlurIds);
+    glGenTextures(BLUR_LEVEL_COUNT, blurLevelIds);
+    glGenTextures(BLUR_LEVEL_COUNT, blurTempLevelIds);
 	
     shaders[Shaders::Geometry] = LoadShaderProgram(GEOMETRY_VERTEX_SHADER, GEOMETRY_FRAGMENT_SHADER);
 	shaders[Shaders::ShadowMap] = LoadShaderProgram(SHADOW_MAP_VERTEX_SHADER, SHADOW_MAP_FRAGMENT_SHADER);
@@ -908,24 +892,24 @@ void Graphics::InitializeGlowFramebuffer() {
     GLenum fboBuffers[] = { GL_COLOR_ATTACHMENT0 };
     glDrawBuffers(1, fboBuffers);
 
-    for (size_t i = 0; i < SCREEN_LEVEL_COUNT; ++i) {
+    for (size_t i = 0; i < BLUR_LEVEL_COUNT; ++i) {
         const float factor = 1.f / pow(2, i);
         
-        glBindTexture(GL_TEXTURE_2D, screenLevelIds[i]);
+        glBindTexture(GL_TEXTURE_2D, blurLevelIds[i]);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH * factor, SCREEN_HEIGHT * factor, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        glBindTexture(GL_TEXTURE_2D, screenLevelBlurIds[i]);
+        glBindTexture(GL_TEXTURE_2D, blurTempLevelIds[i]);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH * factor, SCREEN_HEIGHT * factor, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, screenLevelIds[i], 0);
+        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, blurLevelIds[i], 0);
     }
 
 //    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)

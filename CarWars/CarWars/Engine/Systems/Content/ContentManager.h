@@ -31,7 +31,7 @@ public:
 
 	static const std::string SHADERS_DIR_PATH;
 
-	static Mesh* GetMesh(std::string filePath);
+	static Mesh* GetMesh(std::string filePath, unsigned pFlags=0);
 	static Texture* GetTexture(std::string filePath);
 	static Material* GetMaterial(std::string filePath);
 	static physx::PxMaterial* GetPxMaterial(std::string filePath);

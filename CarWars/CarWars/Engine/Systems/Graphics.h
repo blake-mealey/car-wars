@@ -13,13 +13,12 @@
 #include "Content/Mesh.h"
 #include "Content/Texture.h"
 #include "../Components/Component.h"
-#include "Time.h"
 #include "Content/ShaderProgram.h"
 #include "../Components/PointLightComponent.h"
 #include "../Components/DirectionLightComponent.h"
 #include "Content/SpotLight.h"
 
-#define SCREEN_LEVEL_COUNT 6
+#define BLUR_LEVEL_COUNT 6
 
 class Material;
 class MeshComponent;
@@ -31,6 +30,10 @@ struct Camera {
 	glm::mat4 projectionMatrix;
 	glm::vec2 viewportPosition;
 	glm::vec2 viewportSize;
+};
+
+struct EABs {
+    enum { Triangles=0, Count };
 };
 
 struct VAOs {
@@ -126,6 +129,7 @@ private:
     Mesh *skyboxCube;
     Texture *sunTexture;
 
+	GLuint eabIds[EABs::Count];
 	GLuint vboIds[VBOs::Count];		// Screen and UV coordinates
 	GLuint vaoIds[VAOs::Count];
 	GLuint ssboIds[SSBOs::Count];
@@ -134,13 +138,14 @@ private:
 	GLuint textureIds[Textures::Count];
 	ShaderProgram* shaders[Shaders::Count];
 
-    GLuint screenLevelIds[SCREEN_LEVEL_COUNT];
-    GLuint screenLevelBlurIds[SCREEN_LEVEL_COUNT];
+    GLuint blurLevelIds[BLUR_LEVEL_COUNT];
+    GLuint blurTempLevelIds[BLUR_LEVEL_COUNT];
 
 	void LoadLights(std::vector<Component*> _pointLights, std::vector<Component*> _directionLights, std::vector<Component*> _spotLights);
 	void LoadLights(std::vector<PointLight> pointLights, std::vector<DirectionLight> directionLights, std::vector<SpotLight> spotLights);
 
 	void LoadMesh(Mesh *mesh);
+	void LoadTriangles(const Triangle *triangles, const size_t triangleCount);
 	void LoadVertices(const glm::vec3 *vertices, const size_t vertexCount);
 	void LoadUvs(const glm::vec2 *uvs, const size_t vertexCount);
 	void LoadNormals(const glm::vec3 *normals, const size_t vertexCount);

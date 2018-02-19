@@ -17,10 +17,11 @@ public:
 
     void RenderDebugGui() override;
 
+    physx::PxRigidDynamic *actor;
+
 protected:
     virtual void InitializeRigidbody() override;
 
-    physx::PxRigidDynamic *actor;
     float mass;
     glm::vec3 momentOfInertia;
     glm::vec3 centerOfMassOffset;

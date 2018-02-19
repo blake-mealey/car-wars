@@ -30,7 +30,7 @@
 #include "VehicleCreate.h"
 #include "VehicleTireFriction.h"
 #include "VehicleSceneQuery.h"
-#include "CollisionFilterShader.h"
+#include "CollisionGroups.h"
 #include "../../Components/RigidbodyComponents/VehicleComponent.h"
 
 

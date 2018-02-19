@@ -1,6 +1,9 @@
-#include "CollisionFilterShader.h"
+#include "CollisionGroups.h"
 
 using namespace physx;
+
+PxU32 CollisionGroups::nextFlagOffset = 0;
+std::unordered_map<std::string, CollisionGroup> CollisionGroups::groups;
 
 void CollisionGroups::AddCollisionGroup(std::string name, std::vector<std::string> collidesWith) {
     CollisionGroup group;

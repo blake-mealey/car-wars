@@ -7,6 +7,7 @@
 #include <PxFiltering.h>
 #include <json/json.hpp>
 #include "../../Entities/Transform.h"
+#include "../../Systems/Content/Mesh.h"
 
 enum ColliderType {
     Collider_Box,
@@ -24,6 +25,7 @@ public:
     void CreateShape(physx::PxRigidActor *actor);
 
     void RenderDebugGui();
+    virtual Mesh* GetRenderMesh() = 0;
 
     static std::string GetTypeName(ColliderType type);
 

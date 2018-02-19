@@ -14,7 +14,7 @@
 #include "Physics/VehicleCreate.h"
 #include "Game.h"
 #include "StateManager.h"
-#include "Physics/CollisionFilterShader.h"
+#include "Physics/CollisionGroups.h"
 #include "Content/ContentManager.h"
 #include <iostream>
 

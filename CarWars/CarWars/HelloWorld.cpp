@@ -8,7 +8,7 @@
 #include "Engine/Systems/InputManager.h"
 #include "Engine/Systems/Game.h"
 #include "Engine/Systems/Physics.h"
-#include "Engine/Systems/Physics/CollisionFilterShader.h"
+#include "Engine/Systems/Physics/CollisionGroups.h"
 #include "Engine/Systems/Content/ContentManager.h"
 
 using namespace std;
