@@ -5,7 +5,7 @@
 #include "imgui/imgui.h"
 
 const float CameraComponent::NEAR_CLIPPING_PLANE = 0.1f;
-const float CameraComponent::FAR_CLIPPING_PLANE = 1.f;
+const float CameraComponent::FAR_CLIPPING_PLANE = 200.f;
 const float CameraComponent::DEFAULT_FIELD_OF_VIEW = 60.f;		// In degrees
 
 ComponentType CameraComponent::GetType() {
