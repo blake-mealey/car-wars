@@ -153,7 +153,7 @@ void VehicleComponent::InitializeWheelsSimulationData(const PxVec3* wheelCenterA
         wheelsSimData->setSuspForceAppPointOffset(i, suspForceAppCMOffsets[i]);
         wheelsSimData->setTireForceAppPointOffset(i, tireForceAppCMOffsets[i]);
         wheelsSimData->setSceneQueryFilterData(i, qryFilterData);
-        wheelsSimData->setWheelShapeMapping(i, PxI32(i));
+        wheelsSimData->setWheelShapeMapping(i, PxI32(i + colliders.size() - (wheelCount + 1)));
     }
 
     //Add a front and rear anti-roll bar
