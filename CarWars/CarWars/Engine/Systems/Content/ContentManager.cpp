@@ -19,6 +19,7 @@
 #include "../../Components/DirectionLightComponent.h"
 #include "../../Components/SpotLightComponent.h"
 #include "../../Components/WeaponComponents/MachineGunComponent.h"
+#include "../../Components/WeaponComponents/RailGunComponent.h"
 #include "../Physics/CollisionGroups.h"
 #include "../Physics.h"
 #include "../../Components/RigidbodyComponents/RigidStaticComponent.h"
@@ -210,6 +211,7 @@ Component* ContentManager::LoadComponent(nlohmann::json data) {
         else if (type == "RigidDynamic") component = new RigidDynamicComponent(data);
         else if (type == "Vehicle") component = new VehicleComponent(data);
 		else if (type == "MachineGun") component = new MachineGunComponent();
+		else if (type == "RailGun") component = new RailGunComponent();
         else {
             std::cout << "Unsupported component type: " << type << std::endl;
             supportedType = false;

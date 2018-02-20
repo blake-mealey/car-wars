@@ -16,7 +16,9 @@ enum ComponentType {
 	ComponentType_RigidDynamic,
 	ComponentType_Vehicle,
 	ComponentType_Weapons,
-	ComponentType_MachineGun
+	ComponentType_MachineGun,
+	ComponentType_RailGun,
+	ComponentType_RocketLauncher
 };
 
 class Component {

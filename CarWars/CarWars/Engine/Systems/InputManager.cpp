@@ -13,6 +13,7 @@
 
 #include "vehicle/PxVehicleUtil.h"
 #include "../Components/WeaponComponents/MachineGunComponent.h"
+#include "../Components/WeaponComponents/RailGunComponent.h"
 
 vector<XboxController*> InputManager::xboxControllers;
 
@@ -388,9 +389,14 @@ void InputManager::HandleKeyboard() {
 
 	vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
 	VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[0]);
-	
+
+	if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+		static_cast<RailGunComponent*>(vehicle->GetEntity()->components[1])->Charge();
+	}
+
 	if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
-		static_cast<MachineGunComponent*>(vehicle->GetEntity()->components[1])->Shoot();
+		static_cast<RailGunComponent*>(vehicle->GetEntity()->components[1])->Shoot();
+		//static_cast<MachineGunComponent*>(vehicle->GetEntity()->components[1])->Shoot();
 	}
 
 	if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
