@@ -47,23 +47,23 @@
   "Children": [
 	  {
 		  "Prefab": "HeadLamp.json",
-          "Position": [0.86, -0.79, 2.69],
-          "Scale": [0.35, 0.35, 0.2]
+          "Position": [0.78, -0.815, 2.715],
+          "Scale": [0.38, 0.38, 0.1]
 	  },
 	  {
 		  "Prefab": "HeadLamp.json",
-		  "Position": [-0.86, -0.79, 2.69],
-          "Scale": [0.35, 0.35, 0.2]
+		  "Position": [-0.945, -0.815, 2.715],
+          "Scale": [0.38, 0.38, 0.1]
 	  },
       {
 		  "Prefab": "HeadLamp.json",
-          "Position": [0.41, -1.16, 2.73],
-          "Scale": [0.25, 0.25, 0.1]
+          "Position": [0.335, -1.19, 2.76],
+          "Scale": [0.27, 0.27, 0.1]
 	  },
 	  {
 		  "Prefab": "HeadLamp.json",
-		  "Position": [-0.41, -1.16, 2.73],
-          "Scale": [0.25, 0.25, 0.1]
+		  "Position": [-0.475, -1.19, 2.76],
+          "Scale": [0.27, 0.27, 0.1]
 	  },	  	
 	  {
 			"Position": [0, 0.32, 1],

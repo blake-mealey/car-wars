@@ -40,6 +40,8 @@ uniform uint diffuseTextureEnabled;
 
 uniform vec2 uvScale;
 
+uniform float bloomScale;
+
 in vec3 fragmentPosition_camera;
 in vec3 surfaceNormal_camera;
 in vec3 eyeDirection_camera;
@@ -116,5 +118,5 @@ void main() {
 	}
 
 	vec3 hsv = rgb2hsv(fragmentColor);
-	glowColor = fragmentColor * (0.1 + materialEmissiveness * 0.5) * hsv.z * hsv.z;
+	glowColor = fragmentColor * (bloomScale + materialEmissiveness * 0.5) * hsv.z * hsv.z;
 }

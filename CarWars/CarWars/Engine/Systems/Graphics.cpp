@@ -49,7 +49,7 @@ const glm::mat4 Graphics::BIAS_MATRIX = glm::mat4(
 );
 
 // Singleton
-Graphics::Graphics() { }
+Graphics::Graphics() : renderPhysicsColliders(false), bloomScale(0.1f) { }
 Graphics &Graphics::Instance() {
 	static Graphics instance;
 	return instance;
@@ -314,6 +314,8 @@ void Graphics::Update() {
         geometryProgram->LoadUniform(UniformName::ShadowsEnabled, false);
     }
 
+    geometryProgram->LoadUniform("bloomScale", bloomScale);
+
 	// Load our lights into the GPU
     geometryProgram->LoadUniform(UniformName::AmbientColor, AMBIENT_COLOR);
 	LoadLights(pointLights, directionLights, spotLights);
@@ -351,59 +353,61 @@ void Graphics::Update() {
 	}
 
     // -------------------------------------------------------------------------------------------------------------- //
-    // RENDER BOX COLLIDERS
+    // RENDER PHYSICS COLLIDERS
     // -------------------------------------------------------------------------------------------------------------- //
 
-    // Use wireframe polygon mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if (renderPhysicsColliders) {
+        // Use wireframe polygon mode
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    for (size_t j = 0; j < rigidbodyComponents.size(); j++) {
-        // Get enabled models
-        RigidbodyComponent* rigidbody = static_cast<RigidbodyComponent*>(rigidbodyComponents[j]);
-        if (!rigidbody->enabled) continue;
+        for (size_t j = 0; j < rigidbodyComponents.size(); j++) {
+            // Get enabled models
+            RigidbodyComponent* rigidbody = static_cast<RigidbodyComponent*>(rigidbodyComponents[j]);
+            if (!rigidbody->enabled) continue;
 
-        for (Collider *collider : rigidbody->colliders) {
-            // Check if the collider has a render mesh
-            Mesh *renderMesh = collider->GetRenderMesh();
-            if (!renderMesh) continue;
+            for (Collider *collider : rigidbody->colliders) {
+                // Check if the collider has a render mesh
+                Mesh *renderMesh = collider->GetRenderMesh();
+                if (!renderMesh) continue;
 
-            // Get the global transformation matrix of the collider
-            const glm::mat4 modelMatrix = collider->GetGlobalTransform().GetTransformationMatrix();
-            
-            // Load the model's vertices, uvs, normals, and textures into the GPU
-            LoadModel(
-                geometryProgram,
-                modelMatrix,
-                ContentManager::GetMaterial("PhysicsCollider.json"),
-                renderMesh
-            );
+                // Get the global transformation matrix of the collider
+                const glm::mat4 modelMatrix = collider->GetGlobalTransform().GetTransformationMatrix();
 
-            if (shadowCaster != nullptr) {
-                // Load the depth bias model view projection matrix into the GPU
-                const glm::mat4 depthModelMatrix = modelMatrix;
-                const glm::mat4 depthModelViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
-                const glm::mat4 depthBiasMVP = BIAS_MATRIX*depthModelViewProjectionMatrix;
-                geometryProgram->LoadUniform(UniformName::DepthBiasModelViewProjectionMatrix, depthBiasMVP);
-            }
+                // Load the model's vertices, uvs, normals, and textures into the GPU
+                LoadModel(
+                    geometryProgram,
+                    modelMatrix,
+                    ContentManager::GetMaterial("PhysicsCollider.json"),
+                    renderMesh
+                );
 
-            for (Camera camera : cameras) {
-                // Setup the viewport for each camera (split-screen)
-                glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+                if (shadowCaster != nullptr) {
+                    // Load the depth bias model view projection matrix into the GPU
+                    const glm::mat4 depthModelMatrix = modelMatrix;
+                    const glm::mat4 depthModelViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+                    const glm::mat4 depthBiasMVP = BIAS_MATRIX*depthModelViewProjectionMatrix;
+                    geometryProgram->LoadUniform(UniformName::DepthBiasModelViewProjectionMatrix, depthBiasMVP);
+                }
 
-                // Load the model view projection matrix into the GPU
-                const glm::mat4 modelViewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix * modelMatrix;
-                geometryProgram->LoadUniform(UniformName::ViewMatrix, camera.viewMatrix);
-                geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
+                for (Camera camera : cameras) {
+                    // Setup the viewport for each camera (split-screen)
+                    glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
 
-                // Render the model
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eabIds[EABs::Triangles]);
-                glDrawElements(GL_TRIANGLES, renderMesh->triangleCount * 3, GL_UNSIGNED_SHORT, static_cast<void*>(nullptr));
+                    // Load the model view projection matrix into the GPU
+                    const glm::mat4 modelViewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix * modelMatrix;
+                    geometryProgram->LoadUniform(UniformName::ViewMatrix, camera.viewMatrix);
+                    geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
+
+                    // Render the model
+                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eabIds[EABs::Triangles]);
+                    glDrawElements(GL_TRIANGLES, renderMesh->triangleCount * 3, GL_UNSIGNED_SHORT, static_cast<void*>(nullptr));
+                }
             }
         }
-    }
 
-    // Reset polygon mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        // Reset polygon mode
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 
     // -------------------------------------------------------------------------------------------------------------- //
     // RENDER SKYBOX
@@ -581,6 +585,17 @@ void Graphics::RenderDebugGui() {
         ImGui::Begin("Scene Graph", &showSceneGraph);
         ImGui::PushItemWidth(-100);
         EntityManager::GetRoot()->RenderDebugGui();
+        ImGui::End();
+    }
+
+    static bool showGraphicsMenu = true;
+    if (showGraphicsMenu) {
+        ImGui::Begin("Graphics", &showGraphicsMenu);
+        ImGui::PushItemWidth(-100);
+
+        ImGui::Checkbox("Render Colliders", &renderPhysicsColliders);
+        ImGui::DragFloat("Bloom Scale", &bloomScale, 0.01f);
+
         ImGui::End();
     }
 

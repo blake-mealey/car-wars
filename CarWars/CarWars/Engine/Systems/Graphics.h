@@ -141,6 +141,9 @@ private:
     GLuint blurLevelIds[BLUR_LEVEL_COUNT];
     GLuint blurTempLevelIds[BLUR_LEVEL_COUNT];
 
+    bool renderPhysicsColliders;
+    float bloomScale;
+
 	void LoadLights(std::vector<Component*> _pointLights, std::vector<Component*> _directionLights, std::vector<Component*> _spotLights);
 	void LoadLights(std::vector<PointLight> pointLights, std::vector<DirectionLight> directionLights, std::vector<SpotLight> spotLights);
 
