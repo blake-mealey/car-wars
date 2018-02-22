@@ -3,6 +3,8 @@
 #include "IO/Keyboard.h"
 #include "IO/Mouse.h"
 
+#include <glm/gtx/string_cast.hpp>
+
 #include <vector>
 #include <iostream>
 using namespace std;

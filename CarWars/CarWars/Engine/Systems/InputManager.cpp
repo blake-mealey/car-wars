@@ -399,6 +399,10 @@ void InputManager::HandleKeyboard() {
 		//static_cast<MachineGunComponent*>(vehicle->GetEntity()->components[1])->Shoot();
 	}
 
+	Entity* camera_tmp = EntityManager::FindEntities("Camera")[0];
+	CameraComponent* cameraComp = static_cast<CameraComponent*>(camera_tmp->components[0]);
+	EntityManager::GetChildren(vehicle->GetEntity())[5]->transform.SetRotation(cameraComp->GetTarget());
+
 	if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
 		cout << "Escape Key Pressed" << endl;
 		if (StateManager::GetState() == GameState_Playing) {
