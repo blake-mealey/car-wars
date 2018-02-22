@@ -33,6 +33,7 @@ physx::PxShape* Collider::GetShape() const {
 
 void Collider::CreateShape(PxRigidActor *actor) {
     shape = physx::PxRigidActorExt::createExclusiveShape(*actor, *geometry, *material);
+
     shape->setQueryFilterData(queryFilterData);                                         // For raycasts
     shape->setSimulationFilterData(CollisionGroups::GetFilterData(collisionGroup));     // For collisions
     shape->setLocalPose(Transform::ToPx(transform));
