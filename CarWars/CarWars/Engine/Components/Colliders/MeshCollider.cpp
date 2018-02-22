@@ -28,14 +28,15 @@ Mesh* MeshCollider::GetRenderMesh() {
 
 void MeshCollider::InitializeGeometry() {
     PxTriangleMeshDesc meshDesc;
+    meshDesc.flags |= PxMeshFlag::e16_BIT_INDICES;
+
     meshDesc.points.count = mesh->vertexCount;
     meshDesc.points.stride = sizeof(glm::vec3);
     meshDesc.points.data = mesh->vertices;
 
-    // This breaks it?????
-    //meshDesc.triangles.count = mesh->triangleCount;
-    //meshDesc.triangles.stride = sizeof(Triangle);
-    //meshDesc.triangles.data = mesh->triangles;
+    meshDesc.triangles.count = mesh->triangleCount;
+    meshDesc.triangles.stride = sizeof(Triangle);
+    meshDesc.triangles.data = mesh->triangles;
 
     Physics& physics = Physics::Instance();
 

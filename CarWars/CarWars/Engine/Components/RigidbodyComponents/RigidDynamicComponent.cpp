@@ -13,7 +13,7 @@ RigidDynamicComponent::RigidDynamicComponent(float _mass, glm::vec3 _momentOfInt
 
 RigidDynamicComponent::RigidDynamicComponent(nlohmann::json data) : RigidbodyComponent(data) {
     mass = ContentManager::GetFromJson<float>(data["Mass"], 100.f);
-    momentOfInertia = ContentManager::JsonToVec3(data["MomentOfIntertia"], glm::vec3(0.f));
+    momentOfInertia = ContentManager::JsonToVec3(data["MomentOfIntertia"], glm::vec3(20.f));
     centerOfMassOffset = ContentManager::JsonToVec3(data["CenterOfMassOffset"], glm::vec3(0.f));
     
     RigidDynamicComponent::InitializeRigidbody();

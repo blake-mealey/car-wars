@@ -16,6 +16,9 @@ public:
 
     Mesh* GetRenderMesh() override;
 private:
+    Mesh *renderMesh;
     void InitializeGeometry(Mesh *mesh);
     void InitializeGeometry(physx::PxConvexMesh *mesh);
+
+    void InitializeRenderMesh(physx::PxConvexMesh* mesh);
 };

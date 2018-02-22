@@ -20,9 +20,9 @@ public:
     void SetEntity(Entity *_entity) override;
 
     std::vector<Collider*> colliders;
+    physx::PxRigidActor* pxRigid;
 protected:
     virtual void InitializeRigidbody() = 0;
     void InitializeRigidbody(physx::PxRigidActor* actor);
 
-    physx::PxRigidActor* pxRigid;
 };

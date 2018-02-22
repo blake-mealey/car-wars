@@ -2,7 +2,6 @@
 #include "../Systems/Content/ContentManager.h"
 #include "../Entities/Entity.h"
 
-#include <iostream>
 #include "imgui/imgui.h"
 #include <glm/gtc/type_ptr.hpp>
 

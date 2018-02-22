@@ -1,6 +1,7 @@
 #pragma once
 #include "System.h"
 #include <vector>
+#include <PxRigidDynamic.h>
 
 enum Map {
 	Map_Cylinder = 0
@@ -41,6 +42,8 @@ private:
 
 	std::vector<Entity*> cameras;
 	std::vector<Entity*> cars;
+
+    physx::PxRigidDynamic *cylinderRigid;
 
 	Entity *boulder;
 	Entity *camera;

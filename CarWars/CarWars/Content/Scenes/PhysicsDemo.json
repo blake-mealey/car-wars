@@ -46,6 +46,9 @@
             "Scale": [40, 40, 40]
           }
         ]
+      },
+      {
+        "Type": "RigidStatic"
       }
     ]
   },

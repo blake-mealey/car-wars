@@ -23,6 +23,7 @@
 #include "StateManager.h"
 #include "../Components/DirectionLightComponent.h"
 #include "../Components/RigidbodyComponents/RigidDynamicComponent.h"
+#include "Physics.h"
 using namespace std;
 
 const unsigned int Game::MAX_VEHICLE_COUNT = 8;
@@ -61,19 +62,27 @@ void Game::Initialize() {
 	}
 
 
+    Physics &physics = Physics::Instance();
 
     Entity *cylinder = EntityManager::FindEntities("Cylinder")[0];
     RigidDynamicComponent *cylinderRigid = static_cast<RigidDynamicComponent*>(cylinder->components[1]);
+    RigidStaticComponent *cylinderStatic = static_cast<RigidStaticComponent*>(cylinder->components[2]);
+    this->cylinderRigid = cylinderRigid->actor;
 
-    // Don't fall with gravity
-    cylinderRigid->actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-
-    // Position and velocities cannot be changed by other factors
+    // Don't let forces rotate the cylinder
+    cylinderRigid->actor->setAngularDamping(0.f);
     cylinderRigid->actor->setMassSpaceInertiaTensor(PxVec3(0.f, 0.f, 0.f));
 
-    // Start rotating and don't stop
-    cylinderRigid->actor->setAngularDamping(0.f);
-    cylinderRigid->actor->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
+    // Lock the static rigidbody to the dynamic rigidbody so that the cylinder isn't affected
+    // by forces in the scene
+    PxFixedJoint *lock = PxFixedJointCreate(physics.GetApi(),
+        cylinderStatic->pxRigid, PxTransform(PxIdentity),
+        cylinderRigid->actor, PxTransform(PxIdentity));
+    
+    // Enable visual debugging for constraints
+    physics.GetScene().setVisualizationParameter(PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f);
+    physics.GetScene().setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
+    lock->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
     
 
 	// Load the scene and get some entities
@@ -131,10 +140,8 @@ void Game::Update() {
 		//EntityManager::FindChildren(vehicle, "MachineGunTurret")[0]->transform.SetRotationAxisAngles(glm::vec3(0.0f, 1.0f, 0.0f), gun->horizontalAngle + glm::radians(90.0f));
 
 
-
-        Entity *cylinder = EntityManager::FindEntities("Cylinder")[0];
-        RigidDynamicComponent *cylinderRigid = static_cast<RigidDynamicComponent*>(cylinder->components[1]);
-        cylinderRigid->actor->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
+        // Set the cylinder's rotation
+        cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
 
 
 		float t = glm::radians(45.5) + gameTime.GetTimeSeconds() / 10;

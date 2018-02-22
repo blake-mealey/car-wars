@@ -118,6 +118,7 @@ void Physics::Initialize() {
     PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
     pxPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
     pxPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *pxFoundation, PxTolerancesScale(), true, pxPvd);
+    PxInitExtensions(*pxPhysics, pxPvd);
 
     PxSceneDesc sceneDesc(pxPhysics->getTolerancesScale());
     sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
