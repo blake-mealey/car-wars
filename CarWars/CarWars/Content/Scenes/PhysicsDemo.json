@@ -37,13 +37,13 @@
       },
       {
         "Type": "RigidDynamic",
+        "Mass": 100000,
         "Colliders": [
           {
             "Type": "Mesh",
             "CollisionGroup": "Ground",
             "Mesh": "Cylinder.obj",
-            "Scale": [40, 40, 40],
-            "Mass": 0
+            "Scale": [40, 40, 40]
           }
         ]
       }

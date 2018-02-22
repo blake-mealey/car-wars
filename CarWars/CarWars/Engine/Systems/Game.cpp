@@ -68,13 +68,12 @@ void Game::Initialize() {
     // Don't fall with gravity
     cylinderRigid->actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 
-    // Start rotating and don't stop
-    cylinderRigid->actor->setAngularVelocity(PxVec3(0.f, 0.f, 0.1f));
-    cylinderRigid->actor->setAngularDamping(0.f);
-    
     // Position and velocities cannot be changed by other factors
-    cylinderRigid->actor->setMass(0.f);
     cylinderRigid->actor->setMassSpaceInertiaTensor(PxVec3(0.f, 0.f, 0.f));
+
+    // Start rotating and don't stop
+    cylinderRigid->actor->setAngularDamping(0.f);
+    cylinderRigid->actor->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
     
 
 	// Load the scene and get some entities
@@ -130,6 +129,13 @@ void Game::Update() {
 		//gun->SetTargetRotation(cameraC->GetCameraHorizontalAngle(), cameraC->GetCameraVerticalAngle());
 		//Entity* vehicle = EntityManager::FindEntities("Vehicle")[0];
 		//EntityManager::FindChildren(vehicle, "MachineGunTurret")[0]->transform.SetRotationAxisAngles(glm::vec3(0.0f, 1.0f, 0.0f), gun->horizontalAngle + glm::radians(90.0f));
+
+
+
+        Entity *cylinder = EntityManager::FindEntities("Cylinder")[0];
+        RigidDynamicComponent *cylinderRigid = static_cast<RigidDynamicComponent*>(cylinder->components[1]);
+        cylinderRigid->actor->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
+
 
 		float t = glm::radians(45.5) + gameTime.GetTimeSeconds() / 10;
         glm::vec3 sunPosition = glm::vec3(cos(t), 0.5f, sin(t));
