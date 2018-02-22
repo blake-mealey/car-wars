@@ -314,7 +314,8 @@ void Graphics::Update() {
         geometryProgram->LoadUniform(UniformName::ShadowsEnabled, false);
     }
 
-    geometryProgram->LoadUniform("bloomScale", bloomScale);
+    // Load bloom scale into GPU
+    geometryProgram->LoadUniform(UniformName::BloomScale, bloomScale);
 
 	// Load our lights into the GPU
     geometryProgram->LoadUniform(UniformName::AmbientColor, AMBIENT_COLOR);

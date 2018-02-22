@@ -39,6 +39,8 @@ const struct UniformName {
     static const char* ScreenTexture;
     static const char* ImageTexture;
     static const char* BlurOffset;
+    
+    static const char* BloomScale;
 };
 
 class ShaderProgram {

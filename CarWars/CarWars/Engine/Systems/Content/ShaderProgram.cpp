@@ -35,6 +35,8 @@ const char* UniformName::ScreenTexture = "screen";
 const char* UniformName::ImageTexture = "image";
 const char* UniformName::BlurOffset = "offset";
 
+const char* UniformName::BloomScale = "bloomScale";
+
 ShaderProgram::ShaderProgram() {}
 ShaderProgram::ShaderProgram(GLuint id) : programId(id) {}
 
