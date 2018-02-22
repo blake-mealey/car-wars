@@ -10,7 +10,7 @@
       "Position": [ 0, -0.85, 0.18 ]
     },
 	{
-		"Type": "RailGun"
+		"Type": "MachineGun"
 	},
     {
       "Type": "Vehicle",

@@ -9,6 +9,7 @@ class MachineGunComponent : public WeaponComponent {
 public:
 	MachineGunComponent();
 	void Shoot() override;
+	void Charge() override;
 
 	ComponentType GetType() override;
 	void HandleEvent(Event *event) override;
