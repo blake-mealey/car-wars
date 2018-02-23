@@ -5,6 +5,8 @@ AiComponent::AiComponent(nlohmann::json data) : targetEntity(nullptr) {
     std::string modeName = ContentManager::GetFromJson<std::string>(data["Mode"], "Waypoints");
     if (modeName == "Waypoints") {
         mode = AiMode_Waypoints;
+    } else if (modeName == "Chase") {
+        mode = AiMode_Chase;
     }
 }
 

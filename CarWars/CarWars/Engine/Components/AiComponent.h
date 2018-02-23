@@ -4,7 +4,8 @@
 #include <json/json.hpp>
 
 enum AiMode {
-    AiMode_Waypoints
+    AiMode_Waypoints,
+    AiMode_Chase
 };
 
 class AiComponent : public Component {

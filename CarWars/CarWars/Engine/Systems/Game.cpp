@@ -87,7 +87,14 @@ void Game::Initialize() {
     waypoints = EntityManager::FindEntities("Waypoint");
 
     for (AiComponent* ai : ais) {
-        ai->SetTargetEntity(waypoints[0]);
+        switch (ai->GetMode()) {
+        case AiMode_Waypoints:
+            ai->SetTargetEntity(waypoints[0]);
+            break;
+        case AiMode_Chase:
+            ai->SetTargetEntity(EntityManager::FindEntities("Vehicle")[0]);
+            break;
+        }
     }
 
     
@@ -153,35 +160,44 @@ void Game::Update() {
         // Update AIs
         static int waypointIndex = 0;
         for (AiComponent *ai : ais) {
+            if (!ai->enabled) continue;
             VehicleComponent* vehicle = static_cast<VehicleComponent*>(ai->GetEntity()->components[3]);
+
+            Transform &myTransform = ai->GetEntity()->transform;
+            const glm::vec3 position = myTransform.GetGlobalPosition();
+            const glm::vec3 forward = myTransform.GetForward();
+            const glm::vec3 right = myTransform.GetRight();
+
+            Transform &targetTransform = ai->GetTargetEntity()->transform;
+            const glm::vec3 targetPosition = targetTransform.GetGlobalPosition();
+
+            const glm::vec3 direction = targetPosition - position;
+            const float distance = glm::length(direction);
 
             switch(ai->GetMode()) {
             case AiMode_Waypoints:
-                Transform &myTransform = ai->GetEntity()->transform;
-                glm::vec3 position = myTransform.GetGlobalPosition();
-                glm::vec3 right = myTransform.GetRight();
+                if (distance <= 5.f) {
+                    waypointIndex = (waypointIndex + 1) % 4;
+                    ai->SetTargetEntity(waypoints[waypointIndex]);
+                }
+            case AiMode_Chase:
+                const float steer = glm::clamp(glm::dot(direction, right) / 5.f, -1.f, 1.f);
+                const bool reverse = glm::normalize(glm::dot(direction, forward)) > 0;
 
-                Transform &targetTransform = ai->GetTargetEntity()->transform;
-                glm::vec3 targetPosition = targetTransform.GetGlobalPosition();
-
-                glm::vec3 direction = targetPosition - position;
-                float dot = glm::dot(direction, right);
-                float steer = glm::clamp(dot / 5.f, -1.f, 1.f);
-
-                const float distance = glm::length(direction);
                 float accel = glm::clamp(distance / 20.f, 0.1f, 1.f);
 
                 if (abs(steer) >= 0.9f) {
                     accel /= 2.f;
                 }
 
-                vehicle->pxVehicleInputData.setAnalogSteer(steer);
-                vehicle->pxVehicleInputData.setAnalogAccel(accel);
-                
-                if (distance <= 5.f) {
-                    waypointIndex = (waypointIndex + 1) % 4;
-                    ai->SetTargetEntity(waypoints[waypointIndex]);
+                if (!reverse && vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
+                    vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+                } else if (reverse && vehicle->pxVehicle->mDriveDynData.getCurrentGear() != PxVehicleGearsData::eREVERSE) {
+                    vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
                 }
+
+                vehicle->pxVehicleInputData.setAnalogSteer(reverse ? -steer : steer);
+                vehicle->pxVehicleInputData.setAnalogAccel(accel);
 
                 break;
             }
