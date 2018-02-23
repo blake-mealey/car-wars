@@ -219,8 +219,8 @@ void VehicleComponent::CreateVehicle() {
 
         //Engine
         PxVehicleEngineData engine;
-        engine.mPeakTorque = 500.0f;
-        engine.mMaxOmega = 600.0f;//approx 6000 rpm
+        engine.mPeakTorque = 1000.0f;
+        engine.mMaxOmega = 800.0f;//approx 6000 rpm
         driveSimData.setEngineData(engine);
 
         //Gears
@@ -230,7 +230,7 @@ void VehicleComponent::CreateVehicle() {
 
         //Clutch
         PxVehicleClutchData clutch;
-        clutch.mStrength = 10.0f;
+        clutch.mStrength = 100.0f;
         driveSimData.setClutchData(clutch);
 
         //Ackermann steer accuracy

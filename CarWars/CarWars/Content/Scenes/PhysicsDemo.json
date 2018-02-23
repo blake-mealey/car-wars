@@ -2,7 +2,7 @@
   {
     "Tag": "Floor",
     "Position": [ 0, 0, 0 ],
-    "Scale": [ 80, 1, 40 ],
+    "Scale": [ 200, 1, 80 ],
     "Components": [
       {
         "Type": "Mesh",
@@ -15,9 +15,10 @@
         "Type": "RigidStatic",
         "Colliders": [
           {
-            "Type": "Box",
+            "Type": "Mesh",
             "CollisionGroup": "Ground",
-            "Size": [160, 0.01, 80]
+            "Mesh": "Plane.obj",
+            "Scale": [200, 1, 80]
           }
         ]
       }

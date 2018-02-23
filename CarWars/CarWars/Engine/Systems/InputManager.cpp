@@ -705,8 +705,17 @@ void InputManager::HandleController() {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed LEFT-SHOULDER" << endl;
 			} else if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " held LEFT-SHOULDER" << endl;
+
+                vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
+                VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
+                vehicle->pxVehicleInputData.setAnalogHandbrake(1.f);
+
 			} else if (releasedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " released LEFT-SHOULDER" << endl;
+
+                vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
+                VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
+                vehicle->pxVehicleInputData.setAnalogHandbrake(0.f);
 			}
 
 			//RIGHT-SHOULDER
