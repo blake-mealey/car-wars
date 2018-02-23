@@ -25,11 +25,15 @@
 #include "../../Components/RigidbodyComponents/RigidStaticComponent.h"
 #include "../../Components/RigidbodyComponents/RigidDynamicComponent.h"
 #include "../../Components/RigidbodyComponents/VehicleComponent.h"
+#include "../../Components/AiComponent.h"
+
+using namespace nlohmann;
+using namespace physx;
 
 std::map<std::string, Mesh*> ContentManager::meshes;
 std::map<std::string, Texture*> ContentManager::textures;
 std::map<std::string, Material*> ContentManager::materials;
-std::map<std::string, physx::PxMaterial*> ContentManager::pxMaterials;
+std::map<std::string, PxMaterial*> ContentManager::pxMaterials;
 GLuint ContentManager::skyboxCubemap;
 
 const std::string ContentManager::CONTENT_DIR_PATH = "./Content/";
@@ -147,7 +151,7 @@ Material* ContentManager::GetMaterial(const std::string filePath) {
 	Material* material = materials[filePath];
 	if (material != nullptr) return material;
 
-	nlohmann::json data = LoadJson(MATERIAL_DIR_PATH + filePath);
+	json data = LoadJson(MATERIAL_DIR_PATH + filePath);
 	const glm::vec3 diffuseColor = JsonToVec3(data["DiffuseColor"]);
 	const glm::vec3 specularColor = JsonToVec3(data["SpecularColor"]);
     const float specularity = GetFromJson<float>(data["Specularity"], 1);
@@ -159,11 +163,11 @@ Material* ContentManager::GetMaterial(const std::string filePath) {
     return material;
 }
 
-physx::PxMaterial* ContentManager::GetPxMaterial(std::string filePath) {
-    physx::PxMaterial* material = pxMaterials[filePath];
+PxMaterial* ContentManager::GetPxMaterial(std::string filePath) {
+    PxMaterial* material = pxMaterials[filePath];
     if (material != nullptr) return material;
 
-    nlohmann::json data = LoadJson(PX_MATERIAL_DIR_PATH + filePath);
+    json data = LoadJson(PX_MATERIAL_DIR_PATH + filePath);
     const float staticFriction = GetFromJson<float>(data["StaticFriction"], 0.5f);
     const float dynamicFriction = GetFromJson<float>(data["DynamicFriction"], 0.5f);
     const float restitution = GetFromJson<float>(data["Restitution"], 0.6f);
@@ -175,21 +179,21 @@ physx::PxMaterial* ContentManager::GetPxMaterial(std::string filePath) {
 }
 
 Component* ContentManager::LoadComponentPrefab(std::string filePath) {
-    const nlohmann::json data = LoadJson(COMPONENT_PREFAB_DIR_PATH + filePath);
+    const json data = LoadJson(COMPONENT_PREFAB_DIR_PATH + filePath);
     return LoadComponent(data);
 }
 
 std::vector<Entity*> ContentManager::LoadScene(std::string filePath) {
 	std::vector<Entity*> entities;
 
-	nlohmann::json data = LoadJson(SCENE_DIR_PATH + filePath);
-	for (nlohmann::json entityData : data) {
+	json data = LoadJson(SCENE_DIR_PATH + filePath);
+	for (json entityData : data) {
 		entities.push_back(LoadEntity(entityData));
 	}
 	return entities;
 }
 
-Component* ContentManager::LoadComponent(nlohmann::json data) {
+Component* ContentManager::LoadComponent(json data) {
     if (data.is_string()) {
         return LoadComponentPrefab(data.get<std::string>());
     }
@@ -212,6 +216,7 @@ Component* ContentManager::LoadComponent(nlohmann::json data) {
         else if (type == "Vehicle") component = new VehicleComponent(data);
 		else if (type == "MachineGun") component = new MachineGunComponent();
 		else if (type == "RailGun") component = new RailGunComponent();
+		else if (type == "AI") component = new AiComponent(data);
         else {
             std::cout << "Unsupported component type: " << type << std::endl;
             supportedType = false;
@@ -226,15 +231,15 @@ Component* ContentManager::LoadComponent(nlohmann::json data) {
     return nullptr;
 }
 
-Entity* ContentManager::LoadEntity(nlohmann::json data) {
+Entity* ContentManager::LoadEntity(json data) {
     if (data.is_string()) {
         data = LoadJson(ENTITY_PREFAB_DIR_PATH + data.get<std::string>());
     }
 
     Entity *entity = EntityManager::CreateDynamicEntity();		// TODO: Determine whether or not the entity is static
 	if (!data["Prefab"].is_null()) {
-		nlohmann::json prefabData = LoadJson(ENTITY_PREFAB_DIR_PATH + data["Prefab"].get<std::string>());
-        data.insert(prefabData.begin(), prefabData.end());
+		json prefabData = LoadJson(ENTITY_PREFAB_DIR_PATH + data["Prefab"].get<std::string>());
+        MergeJson(data, prefabData);
 	}
 
     if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);
@@ -255,15 +260,35 @@ Entity* ContentManager::LoadEntity(nlohmann::json data) {
 	return entity;
 }
 
-nlohmann::json ContentManager::LoadJson(const std::string filePath) {
+json ContentManager::LoadJson(const std::string filePath) {
 	std::ifstream file(filePath);		// TODO: Error check?
-	nlohmann::json object;
+	json object;
 	file >> object;
 	file.close();
 	return object;
 }
 
-glm::vec3 ContentManager::JsonToVec3(nlohmann::json data, glm::vec3 defaultValue) {
+json ContentManager::MergeJson(json &obj0, json &obj1, bool overwrite) {
+    if (obj0.is_object()) {
+        for (auto it = obj1.begin(); it != obj1.end(); ++it) {
+            if (obj0[it.key()].is_primitive()) {
+                if (overwrite || obj0[it.key()].is_null()) {
+                    obj0[it.key()] = it.value();
+                }
+            } else {
+                MergeJson(obj0[it.key()], it.value());
+            }
+        }
+    } else if (obj0.is_array()) {
+        for (json &value : obj1) {
+            obj0.push_back(value);
+        }
+    } else {
+        return obj1;
+    }
+}
+
+glm::vec3 ContentManager::JsonToVec3(json data, glm::vec3 defaultValue) {
     if (!data.is_array() || data.size() != 3) return defaultValue;
     return glm::vec3(
         GetFromJson<float>(data[0], defaultValue.x),
@@ -271,23 +296,23 @@ glm::vec3 ContentManager::JsonToVec3(nlohmann::json data, glm::vec3 defaultValue
         GetFromJson<float>(data[2], defaultValue.z));
 }
 
-glm::vec3 ContentManager::JsonToVec3(nlohmann::json data) {
+glm::vec3 ContentManager::JsonToVec3(json data) {
     return JsonToVec3(data, glm::vec3());
 }
 
-glm::vec2 ContentManager::JsonToVec2(nlohmann::json data, glm::vec2 defaultValue) {
+glm::vec2 ContentManager::JsonToVec2(json data, glm::vec2 defaultValue) {
     if (!data.is_array() || data.size() != 2) return defaultValue;
     return glm::vec2(
         GetFromJson<float>(data[0], defaultValue.x),
         GetFromJson<float>(data[1], defaultValue.y));
 }
 
-glm::vec2 ContentManager::JsonToVec2(nlohmann::json data) {
+glm::vec2 ContentManager::JsonToVec2(json data) {
     return JsonToVec2(data, glm::vec2());
 }
 
 void ContentManager::LoadCollisionGroups(std::string filePath) {
-    nlohmann::json data = LoadJson(COLLISION_GROUPS_DIR_PATH + filePath);
+    json data = LoadJson(COLLISION_GROUPS_DIR_PATH + filePath);
 
     for (auto group : data) {
         CollisionGroups::AddCollisionGroup(group["Name"], group["CollidesWith"]);

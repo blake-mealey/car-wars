@@ -1,20 +1,13 @@
 #include "Game.h"
 
-#include <iostream>
 #include "Content/ContentManager.h"
 #include "../Entities/EntityManager.h"
 #include "../Components/SpotLightComponent.h"
 #include "../Components/MeshComponent.h"
 #include "../Components/CameraComponent.h"
-#include "../Components/WeaponComponents/MachineGunComponent.h"
 #include "../Components/RigidbodyComponents/RigidStaticComponent.h"
 
 #include "Physics\VehicleCreate.h"
-#include "Physics\VehicleWheelQueryResult.h"
-#include "Physics\SnippetUtils.h"
-#include "Physics\VehicleConcurrency.h"
-#include "Physics\VehicleSceneQuery.h"
-#include "Physics\VehicleTireFriction.h"
 
 #include <glm/gtx/string_cast.hpp>
 
@@ -23,7 +16,9 @@
 #include "StateManager.h"
 #include "../Components/DirectionLightComponent.h"
 #include "../Components/RigidbodyComponents/RigidDynamicComponent.h"
+#include "../Components/RigidbodyComponents/VehicleComponent.h"
 #include "Physics.h"
+#include "../Components/AiComponent.h"
 using namespace std;
 
 const unsigned int Game::MAX_VEHICLE_COUNT = 8;
@@ -83,6 +78,18 @@ void Game::Initialize() {
     physics.GetScene().setVisualizationParameter(PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f);
     physics.GetScene().setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
     lock->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
+
+
+
+
+
+    ais = EntityManager::GetComponents<AiComponent>(ComponentType_AI);
+    waypoints = EntityManager::FindEntities("Waypoint");
+
+    for (AiComponent* ai : ais) {
+        ai->SetTargetEntity(waypoints[0]);
+    }
+
     
 
 	// Load the scene and get some entities
@@ -142,6 +149,37 @@ void Game::Update() {
 
         // Set the cylinder's rotation
         cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
+
+        // Update AIs
+        static int waypointIndex = 0;
+        for (AiComponent *ai : ais) {
+            VehicleComponent* vehicle = static_cast<VehicleComponent*>(ai->GetEntity()->components[3]);
+
+            switch(ai->GetMode()) {
+            case AiMode_Waypoints:
+                Transform &myTransform = ai->GetEntity()->transform;
+                glm::vec3 position = myTransform.GetGlobalPosition();
+                glm::vec3 forward = myTransform.GetForward();
+                glm::vec3 right = myTransform.GetRight();
+
+                Transform &targetTransform = ai->GetTargetEntity()->transform;
+                glm::vec3 targetPosition = targetTransform.GetGlobalPosition();
+
+                glm::vec3 direction = targetPosition - position;
+                float dot = glm::dot(direction, right);
+                cout << dot << endl;
+                vehicle->pxVehicleInputData.setAnalogSteer(glm::clamp(dot / 5.f, -1.f, 1.f));
+                
+                const float distance = glm::length(direction);
+                vehicle->pxVehicleInputData.setAnalogAccel(glm::clamp(distance / 50.f, 0.1f, 1.f));
+                if (distance <= 5.f) {
+                    waypointIndex = (waypointIndex + 1) % 4;
+                    ai->SetTargetEntity(waypoints[waypointIndex]);
+                }
+
+                break;
+            }
+        }
 
 
 		float t = glm::radians(45.5) + gameTime.GetTimeSeconds() / 10;

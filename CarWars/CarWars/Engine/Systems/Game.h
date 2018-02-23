@@ -2,6 +2,7 @@
 #include "System.h"
 #include <vector>
 #include <PxRigidDynamic.h>
+#include "../Components/AiComponent.h"
 
 enum Map {
 	Map_Cylinder = 0
@@ -44,6 +45,9 @@ private:
 	std::vector<Entity*> cars;
 
     physx::PxRigidDynamic *cylinderRigid;
+
+    std::vector<AiComponent*> ais;
+    std::vector<Entity*> waypoints;
 
 	Entity *boulder;
 	Entity *camera;

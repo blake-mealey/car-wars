@@ -2,7 +2,7 @@
   {
     "Tag": "Floor",
     "Position": [ 0, 0, 0 ],
-    "Scale": [ 40, 1, 40 ],
+    "Scale": [ 80, 1, 40 ],
     "Components": [
       {
         "Type": "Mesh",
@@ -17,12 +17,28 @@
           {
             "Type": "Box",
             "CollisionGroup": "Ground",
-            "Size": [80, 0.01, 80]
+            "Size": [160, 0.01, 80]
           }
         ]
       }
     ]
   },
+  {
+        "Prefab": "Waypoint.json",
+	    "Position": [ -50, 2, -20 ]
+    },
+    {
+        "Prefab": "Waypoint.json",
+	    "Position": [ -50, 2, 20 ]
+    },
+    {
+        "Prefab": "Waypoint.json",
+	    "Position": [ 50, 2, 20 ]
+    },
+    {
+        "Prefab": "Waypoint.json",
+	    "Position": [ 50, 2, -20 ]
+    },
   {
     "Tag": "Cylinder",
     "Position": [ 0, 20, 80 ],
@@ -40,7 +56,7 @@
         "Mass": 100000,
         "Colliders": [
           {
-            "Type": "Mesh",
+            "Type": "Box",
             "CollisionGroup": "Ground",
             "Mesh": "Cylinder.obj",
             "Scale": [40, 40, 40]
@@ -109,6 +125,17 @@
   {
     "Prefab": "Sewage.json",
     "Position": [ 0, 10, 0 ]
+  },
+  {
+    "Tag": "AiVehicle",
+    "Prefab": "Sewage.json",
+    "Position": [ 10, 10, 0 ],
+    "Components": [
+        {
+            "Type": "AI",
+            "Mode": "Waypoints"
+        }
+    ]
   },
   "Sun.json",
   {

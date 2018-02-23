@@ -147,6 +147,7 @@
     <ClCompile Include="Dependencies\imgui\imgui_demo.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui_draw.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui_impl_glfw_gl3.cpp" />
+    <ClCompile Include="Engine\Components\AiComponent.cpp" />
     <ClCompile Include="Engine\Components\Colliders\MeshCollider.cpp" />
     <ClCompile Include="Engine\Components\CameraComponent.cpp" />
     <ClCompile Include="Engine\Components\Colliders\BoxCollider.cpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="Dependencies\imgui\stb_rect_pack.h" />
     <ClInclude Include="Dependencies\imgui\stb_textedit.h" />
     <ClInclude Include="Dependencies\imgui\stb_truetype.h" />
+    <ClInclude Include="Engine\Components\AiComponent.h" />
     <ClInclude Include="Engine\Components\Colliders\MeshCollider.h" />
     <ClInclude Include="Engine\Components\CameraComponent.h" />
     <ClInclude Include="Engine\Components\Colliders\BoxCollider.h" />
@@ -247,6 +249,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\PhysicsMaterials\Default.json" />
+    <None Include="Content\Prefabs\Entities\Waypoint.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

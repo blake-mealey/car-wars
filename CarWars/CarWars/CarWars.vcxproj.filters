@@ -150,6 +150,9 @@
     <ClCompile Include="Engine\Systems\Physics\CollisionGroups.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Components\AiComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Components\CameraComponent.h">
@@ -314,8 +317,12 @@
     <ClInclude Include="Engine\Systems\Physics\CollisionGroups.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Components\AiComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\PhysicsMaterials\Default.json" />
+    <None Include="Content\Prefabs\Entities\Waypoint.json" />
   </ItemGroup>
 </Project>
