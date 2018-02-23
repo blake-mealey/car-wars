@@ -16,7 +16,9 @@ ComponentType AiComponent::GetType() {
 
 void AiComponent::HandleEvent(Event* event) { }
 
-void AiComponent::RenderDebugGui() { }
+void AiComponent::RenderDebugGui() {
+    Component::RenderDebugGui();
+}
 
 void AiComponent::SetTargetEntity(Entity* target) {
     targetEntity = target;
