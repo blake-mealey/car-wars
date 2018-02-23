@@ -20,6 +20,7 @@
 #include "../../Components/SpotLightComponent.h"
 #include "../../Components/WeaponComponents/MachineGunComponent.h"
 #include "../../Components/WeaponComponents/RailGunComponent.h"
+#include "../../Components/WeaponComponents//RocketLauncherComponent.h"
 #include "../Physics/CollisionGroups.h"
 #include "../Physics.h"
 #include "../../Components/RigidbodyComponents/RigidStaticComponent.h"
@@ -217,6 +218,7 @@ Component* ContentManager::LoadComponent(json data) {
 		else if (type == "MachineGun") component = new MachineGunComponent();
 		else if (type == "RailGun") component = new RailGunComponent();
 		else if (type == "AI") component = new AiComponent(data);
+		else if (type == "RocketLauncher") component = new RocketLauncherComponent();
         else {
             std::cout << "Unsupported component type: " << type << std::endl;
             supportedType = false;

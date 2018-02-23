@@ -21,7 +21,7 @@ CameraComponent::CameraComponent(nlohmann::json data) {
 	position = ContentManager::JsonToVec3(data["Position"], glm::vec3(0.f, 0.f, 1.f));
 	target = ContentManager::JsonToVec3(data["Target"]);
 	upVector = ContentManager::JsonToVec3(data["UpVector"], glm::vec3(0.f, 1.f, 0.f));
-    distanceFromCenter = ContentManager::GetFromJson<float>(data["CenterDistance"], 15.f);
+    distanceFromCenter = ContentManager::GetFromJson<float>(data["CenterDistance"], 5.f);
 
 	UpdateViewMatrix();
 }
@@ -92,6 +92,10 @@ float CameraComponent::GetCameraVerticalAngle() {
 void CameraComponent::SetCameraVerticalAngle(float _cameraLift) {
 	cameraLift = _cameraLift;
     UpdatePositionFromAngles();
+}
+
+float CameraComponent::GetCameraSpeed() {
+	return cameraSpeed;
 }
 
 void CameraComponent::RenderDebugGui() {
