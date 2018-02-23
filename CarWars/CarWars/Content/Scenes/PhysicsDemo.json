@@ -70,8 +70,8 @@
   },
     {
         "Tag": "Light",
-	    "Position": [ 10, 0, 10 ],
-        "Rotate": [0, 0, 45],
+	    "Position": [ 10, -2, 20 ],
+        "Rotate": [0, 0, 20],
         "Scale": [4, 4, 4],
         "Components": [
 	        {
