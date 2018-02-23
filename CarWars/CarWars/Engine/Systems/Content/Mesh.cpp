@@ -12,6 +12,14 @@ Mesh::Mesh(size_t _triangleCount, size_t _vertexCount, Triangle* _triangles, glm
     if (!normals) {     // Do we need this still? Taken care of by Assimp?
         GenerateNormals();
     }
+
+    InitializeBuffers();
+}
+
+Mesh::~Mesh() {
+    glDeleteBuffers(EABs::Count, eabs);
+    glDeleteBuffers(VBOs::Count, vbos);
+    glDeleteVertexArrays(VAOs::Count, vaos);
 }
 
 void Mesh::GenerateNormals() {
@@ -46,3 +54,83 @@ Mesh* Mesh::TransformMesh(Transform t) {
 
     return new Mesh(triangleCount, vertexCount, triangles, transformedVerts, uvs, normals);
 }
+
+void Mesh::InitializeBuffers() {
+    glGenBuffers(EABs::Count, eabs);
+    InitializeIndexBuffer();
+
+    glGenBuffers(VBOs::Count, vbos);
+    InitializeGeometryBuffers();
+
+    glGenVertexArrays(VAOs::Count, vaos);
+    InitializeGeometryVao();
+    InitializeVerticesVao();
+    InitializeUvsVao();
+}
+
+void Mesh::InitializeIndexBuffer() {
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eabs[EABs::Triangles]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Triangle) * triangleCount, triangles, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void Mesh::InitializeGeometryBuffers() {
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[VBOs::Vertices]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertexCount, vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[VBOs::UVs]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * vertexCount, uvs, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[VBOs::Normals]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertexCount, normals, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Mesh::InitializeGeometryVao() {
+    glBindVertexArray(vaos[VAOs::Geometry]);
+
+    // Vertices
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[VBOs::Vertices]);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(nullptr));
+
+    // UVs
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[VBOs::UVs]);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(nullptr));
+
+    // Normals
+    glEnableVertexAttribArray(2);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[VBOs::Normals]);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(nullptr));
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void Mesh::InitializeVerticesVao() {
+    glBindVertexArray(vaos[VAOs::Vertices]);
+
+    // Vertices
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[VBOs::Vertices]);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(nullptr));
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void Mesh::InitializeUvsVao() {
+    glBindVertexArray(vaos[VAOs::UVs]);
+
+    // UVs
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[VBOs::UVs]);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(nullptr));
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+

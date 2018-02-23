@@ -250,9 +250,8 @@ void Graphics::Update() {
 		depthProjectionMatrix = glm::ortho<float>(-80, 80, -80, 80, -80, 160);
 		depthViewMatrix = glm::lookAt(-shadowCaster->GetDirection(), glm::vec3(0), glm::vec3(0, 1, 0));
 
-        // Render to the shadow map framebuffer and bind the shadow map VAO
+        // Render to the shadow map framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, fboIds[FBOs::ShadowMap]);
-        glBindVertexArray(vaoIds[VAOs::ShadowMap]);
 
         // Clear the buffer and enable front-face culling
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -269,19 +268,18 @@ void Graphics::Update() {
 			MeshComponent* model = static_cast<MeshComponent*>(meshes[j]);
 			if (!model->enabled) continue;
 
-			// Load the mesh's vertices into the GPU
-			Mesh *mesh = model->GetMesh();
-            LoadTriangles(mesh->triangles, mesh->triangleCount);
-			LoadVertices(mesh->vertices, mesh->vertexCount);
-
 			// Load the depth model view projection matrix into the GPU
 			const glm::mat4 depthModelMatrix = model->transform.GetTransformationMatrix();
 			const glm::mat4 depthModelViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
             shadowProgram->LoadUniform(UniformName::DepthModelViewProjectionMatrix, depthModelViewProjectionMatrix);
 
+            // Load the mesh's triangles and vertices into the GPU
+            Mesh *mesh = model->GetMesh();
+            glBindVertexArray(mesh->vaos[VAOs::Vertices]);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eabs[EABs::Triangles]);
+
 			// Render the model
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eabIds[EABs::Triangles]);
-            glDrawElements(GL_TRIANGLES, model->GetMesh()->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
+            glDrawElements(GL_TRIANGLES, mesh->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
 		}
 	}
 
@@ -290,9 +288,8 @@ void Graphics::Update() {
 	// RENDER WORLD
 	// -------------------------------------------------------------------------------------------------------------- //
 
-	// Render to the default framebuffer and bind the geometry VAO
+	// Render to the default framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, fboIds[FBOs::Screen]);
-    glBindVertexArray(vaoIds[VAOs::Geometry]);
 
     // Clear the buffer and enable back-face culling
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -325,7 +322,7 @@ void Graphics::Update() {
 		MeshComponent* model = static_cast<MeshComponent*>(meshes[j]);
 		if (!model->enabled) continue;
 
-		// Load the model's vertices, uvs, normals, and textures into the GPU
+		// Load the model's triangles, vertices, uvs, normals, materials, and textures into the GPU
 		LoadModel(geometryProgram, model);
 
 		if (shadowCaster != nullptr) {
@@ -346,7 +343,6 @@ void Graphics::Update() {
             geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
 
 			// Render the model
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eabIds[EABs::Triangles]);
             glDrawElements(GL_TRIANGLES, model->GetMesh()->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
 		}
 	}
@@ -372,7 +368,7 @@ void Graphics::Update() {
                 // Get the global transformation matrix of the collider
                 const glm::mat4 modelMatrix = collider->GetGlobalTransform().GetTransformationMatrix();
 
-                // Load the model's vertices, uvs, normals, and textures into the GPU
+                // Load the model's triangles, vertices, uvs, normals, and textures into the GPU
                 LoadModel(
                     geometryProgram,
                     modelMatrix,
@@ -398,7 +394,6 @@ void Graphics::Update() {
                     geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
 
                     // Render the model
-                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eabIds[EABs::Triangles]);
                     glDrawElements(GL_TRIANGLES, renderMesh->triangleCount * 3, GL_UNSIGNED_SHORT, static_cast<void*>(nullptr));
                 }
             }
@@ -414,7 +409,6 @@ void Graphics::Update() {
 
     // Render to the default framebuffer and bind the skybox VAO
     glBindFramebuffer(GL_FRAMEBUFFER, fboIds[FBOs::Screen]);
-    glBindVertexArray(vaoIds[VAOs::Skybox]);
 
     // Use the skybox shader program
     ShaderProgram *skyboxProgram = shaders[Shaders::Skybox];
@@ -429,8 +423,8 @@ void Graphics::Update() {
     skyboxProgram->LoadUniform(UniformName::SkyboxColor, glm::vec3(1.5f, 1.2f, 1.2f));
 
     // Load the skybox geometry into the GPU
-    LoadTriangles(skyboxCube->triangles, skyboxCube->triangleCount);
-    LoadVertices(skyboxCube->vertices, skyboxCube->vertexCount);
+    glBindVertexArray(skyboxCube->vaos[VAOs::Vertices]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, skyboxCube->eabs[EABs::Triangles]);
 
     // Load the sun data into the GPU
     if (shadowCaster != nullptr) {
@@ -452,7 +446,6 @@ void Graphics::Update() {
         skyboxProgram->LoadUniform(UniformName::ViewProjectionMatrix, viewProjectionMatrix);
 
         // Render the skybox
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eabIds[EABs::Triangles]);
         glDrawElements(GL_TRIANGLES, skyboxCube->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
     }
 
@@ -462,16 +455,9 @@ void Graphics::Update() {
 
     // Render to the glow framebuffer and bind the screen VAO
     glBindFramebuffer(GL_FRAMEBUFFER, fboIds[FBOs::GlowEffect]);
-    glBindVertexArray(vaoIds[VAOs::Screen]);
 
     // Load the screen geometry (this will be used by all subsequent draw calls)
-    const glm::vec2 verts[4] = {
-        glm::vec2(-1, -1),
-        glm::vec2(1, -1),
-        glm::vec2(-1, 1),
-        glm::vec2(1, 1)
-    };
-    LoadUvs(verts, 4);
+    glBindVertexArray(screenVao);
 
     // Use the copy shader program
     ShaderProgram *copyProgram = shaders[Shaders::Copy];
@@ -633,7 +619,9 @@ void Graphics::LoadModel(ShaderProgram *shaderProgram, glm::mat4 modelMatrix, Ma
     shaderProgram->LoadUniform(UniformName::MaterialEmissiveness, material->emissiveness);
 
     // Load the mesh into the GPU
-    LoadMesh(mesh);
+    glBindVertexArray(mesh->vaos[VAOs::Geometry]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eabs[EABs::Triangles]);
+    //LoadMesh(mesh);
 
     // Load the texture into the GPU
     if (texture != nullptr) {
@@ -766,40 +754,9 @@ void Graphics::LoadLights(std::vector<PointLight> pointLights, std::vector<Direc
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
-void Graphics::LoadMesh(Mesh* mesh) {
-    LoadTriangles(mesh->triangles, mesh->triangleCount);
-	LoadVertices(mesh->vertices, mesh->vertexCount);
-	LoadUvs(mesh->uvs, mesh->vertexCount);
-	LoadNormals(mesh->normals, mesh->vertexCount);
-}
-
-void Graphics::LoadTriangles(const Triangle* triangles, const size_t triangleCount) {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eabIds[EABs::Triangles]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Triangle) * triangleCount, triangles, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
-void Graphics::LoadVertices(const glm::vec3 *vertices, const size_t vertexCount) {
-	glBindBuffer(GL_ARRAY_BUFFER, vboIds[VBOs::Vertices]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertexCount, vertices, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
-void Graphics::LoadUvs(const glm::vec2* uvs, const size_t vertexCount) {
-	glBindBuffer(GL_ARRAY_BUFFER, vboIds[VBOs::UVs]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * vertexCount, uvs, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
-void Graphics::LoadNormals(const glm::vec3* normals, const size_t vertexCount) {
-	glBindBuffer(GL_ARRAY_BUFFER, vboIds[VBOs::Normals]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertexCount, normals, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
 void Graphics::DestroyIds() {
-	glDeleteVertexArrays(VAOs::Count, vaoIds);
-	glDeleteBuffers(VBOs::Count, vboIds);
+    glDeleteVertexArrays(1, &screenVao);
+    glDeleteBuffers(1, &screenVbo);
     glDeleteBuffers(SSBOs::Count, ssboIds);
     glDeleteFramebuffers(FBOs::Count, fboIds);
     glDeleteRenderbuffers(RBOs::Count, rboIds);
@@ -812,9 +769,8 @@ void Graphics::DestroyIds() {
 }
 
 void Graphics::GenerateIds() {
-    glGenBuffers(EABs::Count, eabIds);
-	glGenVertexArrays(VAOs::Count, vaoIds);
-	glGenBuffers(VBOs::Count, vboIds);
+    glGenVertexArrays(1, &screenVao);
+    glGenBuffers(1, &screenVbo);
 	glGenBuffers(SSBOs::Count, ssboIds);
 	for (size_t i = 0; i < SSBOs::Count; i++) {
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, i, ssboIds[i]);
@@ -832,68 +788,34 @@ void Graphics::GenerateIds() {
 	shaders[Shaders::Blur] = LoadShaderProgram(BLUR_VERTEX_SHADER, BLUR_FRAGMENT_SHADER);
 	shaders[Shaders::Copy] = LoadShaderProgram(COPY_VERTEX_SHADER, COPY_FRAGMENT_SHADER);
 
-	InitializeGeometryVao();
-	InitializeShadowMapVao();
-	InitializeSkyboxVao();
     InitializeScreenVao();
+    InitializeScreenVbo();
 
     InitializeGlowFramebuffer();
     InitializeScreenFramebuffer();
 	InitializeShadowMapFramebuffer();
 }
 
-void Graphics::InitializeGeometryVao() {
-	glBindVertexArray(vaoIds[VAOs::Geometry]);
+void Graphics::InitializeScreenVbo() {
+    const glm::vec2 verts[4] = {
+        glm::vec2(-1, -1),
+        glm::vec2(1, -1),
+        glm::vec2(-1, 1),
+        glm::vec2(1, 1)
+    };
 
-	// Vertices
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vboIds[VBOs::Vertices]);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(nullptr));
-
-	// UVs
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, vboIds[VBOs::UVs]);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(nullptr));
-
-	// Normals
-	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, vboIds[VBOs::Normals]);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(nullptr));
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-}
-
-void Graphics::InitializeShadowMapVao() {
-	glBindVertexArray(vaoIds[VAOs::ShadowMap]);
-
-	// Vertices
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vboIds[VBOs::Vertices]);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(nullptr));
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-}
-
-void Graphics::InitializeSkyboxVao() {
-    glBindVertexArray(vaoIds[VAOs::Skybox]);
-
-    // Vertices
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vboIds[VBOs::Vertices]);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(nullptr));
-
+    glBindBuffer(GL_ARRAY_BUFFER, screenVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 4, verts, GL_STATIC_DRAW);
+    
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
 }
 
 void Graphics::InitializeScreenVao() {
-    glBindVertexArray(vaoIds[VAOs::Screen]);
+    glBindVertexArray(screenVao);
 
     // Vertices
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vboIds[VBOs::UVs]);
+    glBindBuffer(GL_ARRAY_BUFFER, screenVbo);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, static_cast<void*>(nullptr));
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -925,9 +847,6 @@ void Graphics::InitializeGlowFramebuffer() {
 
         //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, blurLevelIds[i], 0);
     }
-
-//    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-//        std::cout << "ERROR: Glow framebuffer incomplete!" << std::endl;
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
