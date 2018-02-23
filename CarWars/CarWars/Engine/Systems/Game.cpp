@@ -159,7 +159,6 @@ void Game::Update() {
             case AiMode_Waypoints:
                 Transform &myTransform = ai->GetEntity()->transform;
                 glm::vec3 position = myTransform.GetGlobalPosition();
-                glm::vec3 forward = myTransform.GetForward();
                 glm::vec3 right = myTransform.GetRight();
 
                 Transform &targetTransform = ai->GetTargetEntity()->transform;
@@ -167,11 +166,18 @@ void Game::Update() {
 
                 glm::vec3 direction = targetPosition - position;
                 float dot = glm::dot(direction, right);
-                cout << dot << endl;
-                vehicle->pxVehicleInputData.setAnalogSteer(glm::clamp(dot / 5.f, -1.f, 1.f));
-                
+                float steer = glm::clamp(dot / 5.f, -1.f, 1.f);
+
                 const float distance = glm::length(direction);
-                vehicle->pxVehicleInputData.setAnalogAccel(glm::clamp(distance / 50.f, 0.1f, 1.f));
+                float accel = glm::clamp(distance / 20.f, 0.1f, 1.f);
+
+                if (abs(steer) >= 0.9f) {
+                    accel /= 2.f;
+                }
+
+                vehicle->pxVehicleInputData.setAnalogSteer(steer);
+                vehicle->pxVehicleInputData.setAnalogAccel(accel);
+                
                 if (distance <= 5.f) {
                     waypointIndex = (waypointIndex + 1) % 4;
                     ai->SetTargetEntity(waypoints[waypointIndex]);

@@ -56,7 +56,7 @@
         "Mass": 100000,
         "Colliders": [
           {
-            "Type": "Box",
+            "Type": "Mesh",
             "CollisionGroup": "Ground",
             "Mesh": "Cylinder.obj",
             "Scale": [40, 40, 40]
