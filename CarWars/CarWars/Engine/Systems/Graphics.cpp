@@ -99,7 +99,6 @@ bool Graphics::Initialize(char* windowTitle) {
 
 
 	// Input callbacks
-	glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
 	glfwSetMouseButtonCallback(window, MouseButtonCallback);
 	glfwSetKeyCallback(window, KeyboardCallback);
 	//glfwSetJoystickCallback(Controller::ControllerCallback);
@@ -171,7 +170,6 @@ bool Graphics::InitializeFullScreen(char* windowTitle) {
 	glfwSwapInterval(1);	//Swap Buffer Every Frame (Double Buffering)
 
 							// Input callbacks
-	glfwSetCursorPosCallback(window, Mouse::MousePositionCallback);
 	glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
 	glfwSetKeyCallback(window, Keyboard::KeyboardCallback);
 	//glfwSetJoystickCallback(Controller::ControllerCallback);

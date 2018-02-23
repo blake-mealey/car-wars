@@ -17,6 +17,8 @@ std::string Component::GetTypeName(ComponentType type) {
         case ComponentType_Vehicle: return "Vehicle";
         case ComponentType_Weapons: return "Weapons";
         case ComponentType_MachineGun: return "MachineGun";
+		case ComponentType_RailGun: return "RailGun";
+		case ComponentType_RocketLauncher: return "RocketLauncher";
         default: return std::to_string(type);
     }
 }

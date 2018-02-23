@@ -40,12 +40,45 @@ void InputManager::HandleMouse() {
 
 	//Get Vehicle Component
 	VehicleComponent* vehicle = static_cast<VehicleComponent*>(EntityManager::GetComponents(ComponentType_Vehicle)[0]);
-	//Shoot Weapon
-	if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-		static_cast<WeaponComponent*>(vehicle->GetEntity()->components[1])->Charge();
-	}
-	if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
-		static_cast<WeaponComponent*>(vehicle->GetEntity()->components[1])->Shoot();
+	//Get Graphics Instance
+	Graphics& graphicsInstance = Graphics::Instance();
+	//Get Camera Component
+	CameraComponent* cameraComponent = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[0]);
+	switch (StateManager::GetState()) {
+	case GameState_Playing:
+		//Shoot Weapon
+		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
+			static_cast<WeaponComponent*>(vehicle->GetEntity()->components[1])->Charge();
+		}
+		if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+			static_cast<WeaponComponent*>(vehicle->GetEntity()->components[1])->Shoot();
+		}
+
+		//Cursor Inputs
+		glfwSetInputMode(graphicsInstance.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		int width, height;
+		glfwGetFramebufferSize(graphicsInstance.GetWindow(), &width, &height);
+		double xPos, yPos;
+		Mouse::GetCursorPosition(graphicsInstance.GetWindow(), &xPos, &yPos);
+
+		cameraComponent->SetCameraHorizontalAngle((cameraComponent->GetCameraHorizontalAngle() - ((float)(width / 2.0f) - xPos) * cameraComponent->GetCameraSpeed() * StateManager::deltaTime.GetTimeSeconds()));
+		cameraComponent->SetCameraVerticalAngle(cameraComponent->GetCameraVerticalAngle() + ((float)(height / 2.0f) - yPos) * cameraComponent->GetCameraSpeed() * StateManager::deltaTime.GetTimeSeconds());
+		
+		float maxAngle, minAngle;
+		maxAngle = M_PI / 2.0f;
+		minAngle = (2.0f / 3.0f) * M_PI / 2.0f;
+
+		if (cameraComponent->GetCameraVerticalAngle() < (minAngle)) {
+			cameraComponent->SetCameraVerticalAngle(minAngle);
+		} else if (cameraComponent->GetCameraVerticalAngle() > (maxAngle)) {
+			cameraComponent->SetCameraVerticalAngle(maxAngle);
+		}
+		
+		glfwSetCursorPos(graphicsInstance.GetWindow(), width / 2, height / 2);
+		break;
+	default:
+		glfwSetInputMode(graphicsInstance.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		break;
 	}
 }
 
