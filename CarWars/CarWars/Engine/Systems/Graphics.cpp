@@ -564,13 +564,10 @@ void Graphics::Update() {
     // Unbind shader program
     glUseProgram(0);
 
-    // Enable alpha blending
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     // Initialize stuff
     glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glDisable(GL_LIGHTING);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_DEPTH_TEST);
 
     // Set the color
@@ -591,7 +588,6 @@ void Graphics::Update() {
 
     // Reset stuff
     glPopAttrib();
-    glDisable(GL_BLEND);
 
 
     // -------------------------------------------------------------------------------------------------------------- //
