@@ -5,6 +5,8 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
 
+#include "FTGL/ftgl.h"
+
 #include <iostream>
 #include "Content/ContentManager.h"
 #include <glm/gtx/string_cast.hpp>
@@ -407,7 +409,7 @@ void Graphics::Update() {
     // RENDER SKYBOX
     // -------------------------------------------------------------------------------------------------------------- //
 
-    // Render to the default framebuffer and bind the skybox VAO
+    // Render to the default framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, fboIds[FBOs::Screen]);
 
     // Use the skybox shader program
@@ -453,7 +455,7 @@ void Graphics::Update() {
     // RENDER POST-PROCESSING EFFECTS (BLOOM)
     // -------------------------------------------------------------------------------------------------------------- //
 
-    // Render to the glow framebuffer and bind the screen VAO
+    // Render to the glow framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, fboIds[FBOs::GlowEffect]);
 
     // Load the screen geometry (this will be used by all subsequent draw calls)
@@ -552,6 +554,46 @@ void Graphics::Update() {
     glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);
 
+
+    // -------------------------------------------------------------------------------------------------------------- //
+    // GAME GUI
+    // -------------------------------------------------------------------------------------------------------------- //
+
+    // Render Fonts
+
+    // Unbind shader program
+    glUseProgram(0);
+
+    // Enable alpha blending
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Initialize stuff
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST);
+
+    // Set the color
+    glm::vec4 color = glm::vec4(1.f, 1.f, 0.f, 1.f);
+    glPixelTransferf(GL_RED_BIAS, color.r - 1.f);
+    glPixelTransferf(GL_GREEN_BIAS, color.g - 1.f);
+    glPixelTransferf(GL_BLUE_BIAS, color.b - 1.f);
+    glPixelTransferf(GL_ALPHA_BIAS, color.a - 1.f);
+
+    // Load the font
+    FTGLPixmapFont font("./Content/Fonts/Starjedi.ttf");
+
+    // Initialize the font
+    font.FaceSize(36);
+
+    // Render the text
+    font.Render("cAR wARS", -1, FTPoint(20, 20));
+
+    // Reset stuff
+    glPopAttrib();
+    glDisable(GL_BLEND);
+
+
     // -------------------------------------------------------------------------------------------------------------- //
     // DEBUG GUI
     // -------------------------------------------------------------------------------------------------------------- //
@@ -621,7 +663,6 @@ void Graphics::LoadModel(ShaderProgram *shaderProgram, glm::mat4 modelMatrix, Ma
     // Load the mesh into the GPU
     glBindVertexArray(mesh->vaos[VAOs::Geometry]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eabs[EABs::Triangles]);
-    //LoadMesh(mesh);
 
     // Load the texture into the GPU
     if (texture != nullptr) {

@@ -57,8 +57,6 @@ public:
 
 	// TODO: These guys
 	// static Audio*? GetAudio(std::string filePath);
-	// static Texture*? GetTexture(std::string filePath);
-	// static GameData*? GetDataFile(std::string filePath);
 
     template <class T>
     static T* LoadComponent(nlohmann::json data);
