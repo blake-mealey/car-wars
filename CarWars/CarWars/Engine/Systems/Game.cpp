@@ -183,13 +183,9 @@ void Game::Update() {
                 }
             case AiMode_Chase:
                 const float steer = glm::dot(direction, right);
-                const bool reverse = glm::dot(direction, forward) > -0.1;
+                const bool reverse = false; // glm::dot(direction, forward) > -0.1;
 
-                float accel = glm::clamp(distance / 20.f, 0.1f, 1.f);
-
-                if (abs(steer) >= 0.9f) {
-                    accel /= 2.f;
-                }
+                const float accel = glm::clamp(distance / 20.f, 0.1f, 0.8f) * reverse ? 0.8f : 1.f;
 
                 if (!reverse && vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
                     vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
