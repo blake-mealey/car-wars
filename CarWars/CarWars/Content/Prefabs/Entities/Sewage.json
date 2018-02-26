@@ -7,7 +7,7 @@
       "Texture": "Sewage.png",
       "Material": "Basic.json",
       "Rotate": [ 0, 180, 0 ],
-      "Position": [ 0, -0.85, 0.18 ]
+      "Position": [ 0.0825, -0.825, 0.18 ]
     },
 	{
 		"Type": "RocketLauncher"
@@ -47,22 +47,22 @@
   "Children": [
 	  {
 		  "Prefab": "HeadLamp.json",
-          "Position": [0.78, -0.815, 2.715],
+          "Position": [0.8625, -0.815, 2.715],
           "Scale": [0.38, 0.38, 0.1]
 	  },
 	  {
 		  "Prefab": "HeadLamp.json",
-		  "Position": [-0.945, -0.815, 2.715],
+		  "Position": [-0.8625, -0.815, 2.715],
           "Scale": [0.38, 0.38, 0.1]
 	  },
       {
 		  "Prefab": "HeadLamp.json",
-          "Position": [0.335, -1.19, 2.76],
+          "Position": [0.4175, -1.19, 2.76],
           "Scale": [0.27, 0.27, 0.1]
 	  },
 	  {
 		  "Prefab": "HeadLamp.json",
-		  "Position": [-0.475, -1.19, 2.76],
+		  "Position": [-0.3925, -1.19, 2.76],
           "Scale": [0.27, 0.27, 0.1]
 	  },	  	
 	  {
