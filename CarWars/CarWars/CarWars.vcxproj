@@ -182,7 +182,6 @@
     <ClCompile Include="Engine\Systems\IO\XboxController.cpp" />
     <ClCompile Include="Engine\Systems\Physics.cpp" />
     <ClCompile Include="Engine\Systems\Physics\CollisionGroups.cpp" />
-    <ClCompile Include="Engine\Systems\Physics\Vehicle4WCreate.cpp" />
     <ClCompile Include="Engine\Systems\Physics\VehicleCreate.cpp" />
     <ClCompile Include="Engine\Systems\Physics\VehicleSceneQuery.cpp" />
     <ClCompile Include="Engine\Systems\Physics\VehicleTireFriction.cpp" />
