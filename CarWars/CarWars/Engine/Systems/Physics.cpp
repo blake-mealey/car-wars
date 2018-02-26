@@ -121,7 +121,7 @@ void Physics::Initialize() {
     PxInitExtensions(*pxPhysics, pxPvd);
 
     PxSceneDesc sceneDesc(pxPhysics->getTolerancesScale());
-    sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+    sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f) * 2.f;
 
     const PxU32 numWorkers = 1;
     pxDispatcher = PxDefaultCpuDispatcherCreate(numWorkers);
