@@ -34,11 +34,11 @@
               "WheelInset": -0.2
           },
           {
-              "CenterOffset": -0.65,
+              "CenterOffset": -1.8,
               "WheelInset": -0.2
           },
           {
-              "CenterOffset": -1.8,
+              "CenterOffset": -0.65,
               "WheelInset": -0.2
           }
       ]
