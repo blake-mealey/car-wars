@@ -171,8 +171,9 @@ void Game::Update() {
             Transform &targetTransform = ai->GetTargetEntity()->transform;
             const glm::vec3 targetPosition = targetTransform.GetGlobalPosition();
 
-            const glm::vec3 direction = targetPosition - position;
+            glm::vec3 direction = targetPosition - position;
             const float distance = glm::length(direction);
+            direction = glm::normalize(direction);
 
             switch(ai->GetMode()) {
             case AiMode_Waypoints:
@@ -181,8 +182,8 @@ void Game::Update() {
                     ai->SetTargetEntity(waypoints[waypointIndex]);
                 }
             case AiMode_Chase:
-                const float steer = glm::clamp(glm::dot(direction, right) / 5.f, -1.f, 1.f);
-                const bool reverse = glm::normalize(glm::dot(direction, forward)) > 0;
+                const float steer = glm::dot(direction, right);
+                const bool reverse = glm::dot(direction, forward) > -0.1;
 
                 float accel = glm::clamp(distance / 20.f, 0.1f, 1.f);
 
