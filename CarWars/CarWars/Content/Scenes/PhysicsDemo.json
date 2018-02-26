@@ -54,7 +54,7 @@
       },
       {
         "Type": "RigidDynamic",
-        "Mass": 100000,
+        "Mass": 1000000000,
         "Colliders": [
           {
             "Type": "Mesh",
