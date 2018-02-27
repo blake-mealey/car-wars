@@ -88,14 +88,6 @@ void MeshComponent::MakeCylinder(Mesh* mesh) {
 			maxX = std::max(maxX, mesh->vertices[i].x);
 			minX = std::min(minX, mesh->vertices[i].x);
 		}
-		float circumfrence = (maxX - minX);
-		Transform::radius = circumfrence / 2.f / (float)M_PI;
+		Transform::radius = (maxX - minX) / 2.f;
 	}
-
-	for (size_t i = 0; i < mesh->vertexCount; ++i) {
-		glm::vec3 point = { mesh->vertices[i].x, mesh->vertices[i].y, mesh->vertices[i].z };
-		point = Transform().ToCylinder(point);
-		mesh->vertices[i] = point;
-	}
-	mesh->GenerateNormals();
 }

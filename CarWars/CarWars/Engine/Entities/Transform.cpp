@@ -19,14 +19,13 @@ float Transform::radius = 0;
 Transform::Transform() : Transform(nullptr, glm::vec3(), glm::vec3(1.f), glm::quat(), false) {}
 
 Transform::Transform(nlohmann::json data) : parent(nullptr) {
-    SetPosition(ContentManager::JsonToVec3(data["Position"], glm::vec3()));
+	connectedToCylinder = ContentManager::GetFromJson<bool>(data["CylinderPart"], false);
+	SetPosition(ContentManager::JsonToVec3(data["Position"], glm::vec3()));
     SetScale(ContentManager::JsonToVec3(data["Scale"], glm::vec3(1.f)));
     if (!data["Rotate"].is_null()) {
         const glm::vec3 rot = ContentManager::JsonToVec3(data["Rotate"]);
         SetRotationEulerAngles(glm::vec3(glm::radians(rot.x), glm::radians(rot.y), glm::radians(rot.z)));
     }
-
-    connectedToCylinder = ContentManager::GetFromJson<bool>(data["CylinderPart"], false);
 }
 
 Transform::Transform(physx::PxTransform t) : Transform(nullptr, FromPx(t.p), glm::vec3(1.f), FromPx(t.q), false) {}
