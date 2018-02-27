@@ -123,6 +123,31 @@
             }
 		]
 	},
+    {
+		"Tag": "Ball",
+		"Position": [ -10, 10, 10 ],
+		"Components": [
+			{
+				"Type": "Mesh",
+                "Scale": [2, 2, 2],
+				"Mesh": "Boulder.obj",
+				"Material": "Basic.json",
+                "Texture": "Boulder.jpg"
+			},
+            {
+                "Type": "RigidDynamic",
+                "Mass": 500,
+                "Colliders": [
+                    {
+                        "Type": "ConvexMesh",
+                        "Mesh": "Boulder.obj",
+                        "CollisionGroup": "DrivableObstacles",
+                        "Scale": [2, 2, 2]
+                    }
+                ]
+            }
+		]
+	},
   {
     "Prefab": "Sewage.json",
     "Position": [ 0, 10, 0 ]
@@ -146,7 +171,8 @@
     "Components": [
         {
             "Type": "AI",
-            "Mode": "Chase"
+            "Mode": "Chase",
+            "Enabled": true
         }
     ]
   },
