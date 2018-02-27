@@ -64,6 +64,7 @@ void InputManager::HandleMouse() {
 		cameraComponent->SetCameraHorizontalAngle((cameraComponent->GetCameraHorizontalAngle() - ((float)(width / 2.0f) - xPos) * cameraComponent->GetCameraSpeed() * StateManager::deltaTime.GetTimeSeconds()));
 		cameraComponent->SetCameraVerticalAngle(cameraComponent->GetCameraVerticalAngle() + ((float)(height / 2.0f) - yPos) * cameraComponent->GetCameraSpeed() * StateManager::deltaTime.GetTimeSeconds());
 		
+		/*
 		float maxAngle, minAngle;
 		maxAngle = M_PI / 2.0f;
 		minAngle = (2.0f / 3.0f) * M_PI / 2.0f;
@@ -73,6 +74,7 @@ void InputManager::HandleMouse() {
 		} else if (cameraComponent->GetCameraVerticalAngle() > (maxAngle)) {
 			cameraComponent->SetCameraVerticalAngle(maxAngle);
 		}
+		*/
 		
 		glfwSetCursorPos(graphicsInstance.GetWindow(), width / 2, height / 2);
 		break;
@@ -612,7 +614,7 @@ void InputManager::HandleController() {
 				Entity *camera = EntityManager::FindEntities("Camera")[controllerNum];
 				CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
 				float x = dt.GetTimeSeconds() * 3.f * (*controller)->GetState().Gamepad.sThumbRY / 30000.f;
-				cameraC->SetCameraVerticalAngle(std::min(std::max(cameraC->GetCameraVerticalAngle() + x,0.1f),static_cast<float>(M_PI) -0.1f));
+				cameraC->SetCameraVerticalAngle(std::min(std::max(cameraC->GetCameraVerticalAngle() + x, 0.1f),static_cast<float>(M_PI)-0.1f));
 
 
 			} else if (((*controller)->GetPreviousState().Gamepad.sThumbRY >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || (*controller)->GetPreviousState().Gamepad.sThumbRY <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) && (((*controller)->GetState().Gamepad.sThumbRY < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) && ((*controller)->GetState().Gamepad.sThumbRY > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE))) {

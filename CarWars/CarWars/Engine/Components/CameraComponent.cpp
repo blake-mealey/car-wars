@@ -5,7 +5,7 @@
 #include "imgui/imgui.h"
 
 const float CameraComponent::NEAR_CLIPPING_PLANE = 0.1f;
-const float CameraComponent::FAR_CLIPPING_PLANE = 200.f;
+const float CameraComponent::FAR_CLIPPING_PLANE = 1000.f;
 const float CameraComponent::DEFAULT_FIELD_OF_VIEW = 60.f;		// In degrees
 
 ComponentType CameraComponent::GetType() {
@@ -21,7 +21,7 @@ CameraComponent::CameraComponent(nlohmann::json data) {
 	position = ContentManager::JsonToVec3(data["Position"], glm::vec3(0.f, 0.f, 1.f));
 	target = ContentManager::JsonToVec3(data["Target"]);
 	upVector = ContentManager::JsonToVec3(data["UpVector"], glm::vec3(0.f, 1.f, 0.f));
-    distanceFromCenter = ContentManager::GetFromJson<float>(data["CenterDistance"], 8.f);
+    distanceFromCenter = ContentManager::GetFromJson<float>(data["CenterDistance"], 20.f);
 
 	UpdateViewMatrix();
 }
