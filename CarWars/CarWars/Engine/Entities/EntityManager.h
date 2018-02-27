@@ -33,6 +33,9 @@ public:
 	static void DestroyComponent(Component* component);
 	static std::vector<Component*> GetComponents(ComponentType type);
     static std::vector<Component*> GetComponents(std::vector<ComponentType> types);
+
+    template <class T>
+    static std::vector<T*> GetComponents(ComponentType type);
 	
 	// Contact entities
 	static void BroadcastEvent(Event *event);
@@ -54,3 +57,13 @@ private:
 
 	// TODO (if necessary): Object pools (under-the-hood, won't change interface of Create/Destroy)
 };
+
+template <class T>
+std::vector<T*> EntityManager::GetComponents(ComponentType type) {
+    std::vector<T*> result;
+    std::vector<Component*> temp = components[type];
+    for (Component* component : temp) {
+        result.push_back(static_cast<T*>(component));
+    }
+    return result;
+}

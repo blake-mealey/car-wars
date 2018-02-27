@@ -11,6 +11,10 @@ void MachineGunComponent::Shoot() {
 	}
 }
 
+void MachineGunComponent::Charge() {
+	Shoot();
+}
+
 ComponentType MachineGunComponent::GetType() {
 	return ComponentType_MachineGun;
 }

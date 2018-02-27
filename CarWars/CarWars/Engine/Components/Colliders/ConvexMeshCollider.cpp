@@ -20,7 +20,9 @@ ConvexMeshCollider::ConvexMeshCollider(std::string _collisionGroup, physx::PxMat
 }
 
 ConvexMeshCollider::ConvexMeshCollider(nlohmann::json data) : Collider(data) {
-    InitializeGeometry(ContentManager::GetMesh(data["Mesh"]));
+    Mesh *mesh = ContentManager::GetMesh(data["Mesh"]);
+    mesh = mesh->TransformMesh(Transform(nullptr, glm::vec3(0.f), transform.GetLocalScale(), glm::vec3(0.f), false));
+    InitializeGeometry(mesh);
 }
 
 ColliderType ConvexMeshCollider::GetType() const {
@@ -39,12 +41,9 @@ void ConvexMeshCollider::InitializeGeometry(Mesh *mesh) {
     convexDesc.points.stride = sizeof(glm::vec3);
     convexDesc.points.data = mesh->vertices;
 
-    /*convexDesc.indices
-    convexDesc.triangles.count = mesh->triangleCount;
-    convexDesc.triangles.stride = sizeof(Triangle);
-    convexDesc.triangles.data = mesh->triangles;
     convexDesc.indices.count = mesh->triangleCount;
-    convexDesc.indices.stride = mesh->triangleCount;*/
+    convexDesc.indices.stride = sizeof(Triangle);
+    convexDesc.indices.data = mesh->triangles;
 
     PxConvexMesh* convexMesh = nullptr;
     PxDefaultMemoryOutputStream buf;
@@ -62,37 +61,35 @@ void ConvexMeshCollider::InitializeGeometry(PxConvexMesh* mesh) {
     geometry = new PxConvexMeshGeometry(mesh);
 }
 
-void ConvexMeshCollider::InitializeRenderMesh(PxConvexMesh* mesh) {
-    /*const PxU32 triangleCount = mesh->getNbPolygons();
-    const PxU8 *indexBuffer = mesh->getIndexBuffer();
-    Triangle *triangles = new Triangle[triangleCount];
-    for (size_t i = 0; i < triangleCount; ++i) {
-        PxHullPolygon poly;
-        mesh->getPolygonData(i, poly);
-        assert(poly.mNbVerts == 3);
-        const PxU16 indexBase = poly.mIndexBase;
-        triangles[i] = Triangle(indexBuffer[indexBase + 0],
-                                indexBuffer[indexBase + 1],
-                                indexBuffer[indexBase + 2]);
-    }*/
+void ConvexMeshCollider::InitializeRenderMesh(PxConvexMesh* convexMesh) {
+    const PxU32 polygonCount = convexMesh->getNbPolygons();
+    const PxVec3 *convexVertices = convexMesh->getVertices();
+    const PxU8 *indexBuffer = convexMesh->getIndexBuffer();
 
+    std::vector<glm::vec3> vertices;
+    std::vector<Triangle> triangles;
 
-    /*const PxU32 triangleCount = mesh->getNbPolygons();
-    const PxU8 *indexBuffer = mesh->getIndexBuffer();
-    Triangle *triangles = new Triangle[triangleCount];
-    for (size_t i = 0; i < triangleCount * 3; ++i) {
-        triangles[i] = Triangle(indexBuffer[i * 3 + 0],
-            indexBuffer[i * 3 + 1],
-            indexBuffer[i * 3 + 2]);
+    for (PxU32 i = 0; i < polygonCount; ++i) {
+        PxHullPolygon face;
+        bool status = convexMesh->getPolygonData(i, face);
+        PX_ASSERT(status);
+
+        const size_t offset = vertices.size();
+        const PxU8 *faceIndices = indexBuffer + face.mIndexBase;
+        for (PxU32 j = 0; j < face.mNbVerts; ++j) {
+            vertices.push_back(Transform::FromPx(convexVertices[faceIndices[j]]));
+        }
+
+        for (PxU32 j = 2; j < face.mNbVerts; ++j) {
+            const Triangle triangle(
+                unsigned short(offset),
+                unsigned short(offset + j),
+                unsigned short(offset + j - 1)
+            );
+            
+            triangles.push_back(triangle);
+        }
     }
 
-    const PxU32 vertexCount = mesh->getNbVertices();
-    const PxVec3 *verts = mesh->getVertices();
-    glm::vec3 *vertices = new glm::vec3[vertexCount];
-    for (size_t i = 0; i < vertexCount; ++i) {
-        vertices[i] = Transform::FromPx(verts[i]);
-    }
-
-    renderMesh = new Mesh(triangleCount, vertexCount, triangles, vertices);*/
-    renderMesh = nullptr;
+    renderMesh = new Mesh(triangles.size(), vertices.size(), triangles.data(), vertices.data());
 }

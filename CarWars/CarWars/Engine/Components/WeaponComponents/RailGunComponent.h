@@ -9,7 +9,7 @@ class RailGunComponent : public WeaponComponent {
 public:
 	RailGunComponent();
 	void Shoot() override;
-	void Charge();
+	void Charge() override;
 
 	ComponentType GetType() override;
 	void HandleEvent(Event* event) override;

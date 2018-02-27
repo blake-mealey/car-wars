@@ -10,7 +10,7 @@
 
 #include "glm/glm.hpp"
 
-#include "Content/Mesh.h"
+//#include "Content/Mesh.h"
 #include "Content/Texture.h"
 #include "../Components/Component.h"
 #include "Content/ShaderProgram.h"
@@ -20,8 +20,10 @@
 
 #define BLUR_LEVEL_COUNT 6
 
+struct Triangle;
 class Material;
 class MeshComponent;
+class Mesh;
 
 struct Camera {
 	Camera(glm::mat4 _viewMatrix, glm::mat4 _projectionMatrix) : viewMatrix(_viewMatrix), projectionMatrix(_projectionMatrix) {}
@@ -37,7 +39,7 @@ struct EABs {
 };
 
 struct VAOs {
-	enum { Geometry=0, ShadowMap, Skybox, Screen, Count };
+	enum { Geometry=0, Vertices, UVs, Count };
 };
 
 struct VBOs {
@@ -129,9 +131,8 @@ private:
     Mesh *skyboxCube;
     Texture *sunTexture;
 
-	GLuint eabIds[EABs::Count];
-	GLuint vboIds[VBOs::Count];		// Screen and UV coordinates
-	GLuint vaoIds[VAOs::Count];
+    GLuint screenVao;
+    GLuint screenVbo;
 	GLuint ssboIds[SSBOs::Count];
 	GLuint fboIds[FBOs::Count];
 	GLuint rboIds[RBOs::Count];
@@ -147,18 +148,10 @@ private:
 	void LoadLights(std::vector<Component*> _pointLights, std::vector<Component*> _directionLights, std::vector<Component*> _spotLights);
 	void LoadLights(std::vector<PointLight> pointLights, std::vector<DirectionLight> directionLights, std::vector<SpotLight> spotLights);
 
-	void LoadMesh(Mesh *mesh);
-	void LoadTriangles(const Triangle *triangles, const size_t triangleCount);
-	void LoadVertices(const glm::vec3 *vertices, const size_t vertexCount);
-	void LoadUvs(const glm::vec2 *uvs, const size_t vertexCount);
-	void LoadNormals(const glm::vec3 *normals, const size_t vertexCount);
-
 	void DestroyIds();
 	void GenerateIds();
 
-	void InitializeGeometryVao();
-	void InitializeShadowMapVao();
-	void InitializeSkyboxVao();
+    void InitializeScreenVbo();
 	void InitializeScreenVao();
 
     void InitializeGlowFramebuffer();

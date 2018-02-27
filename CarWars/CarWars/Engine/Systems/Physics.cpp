@@ -101,10 +101,10 @@ const PxVehicleKeySmoothingData Physics::gKeySmoothingData =
 
 const PxF32 Physics::gSteerVsForwardSpeedData[2 * 8] =
 {
-    0.0f,		0.75f,
+    0.0f,		0.8f,
     5.0f,		0.75f,
-    30.0f,		0.125f,
-    120.0f,		0.1f,
+    30.0f,		0.35f,
+    120.0f,		0.2f,
     PX_MAX_F32, PX_MAX_F32,
     PX_MAX_F32, PX_MAX_F32,
     PX_MAX_F32, PX_MAX_F32,
@@ -121,7 +121,7 @@ void Physics::Initialize() {
     PxInitExtensions(*pxPhysics, pxPvd);
 
     PxSceneDesc sceneDesc(pxPhysics->getTolerancesScale());
-    sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+    sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f) * 2.f;
 
     const PxU32 numWorkers = 1;
     pxDispatcher = PxDefaultCpuDispatcherCreate(numWorkers);

@@ -38,11 +38,55 @@ void InputManager::Update() {
 void InputManager::HandleMouse() {
 	//Mouse Inputs
 
+	//Get Vehicle Component
+	VehicleComponent* vehicle = static_cast<VehicleComponent*>(EntityManager::GetComponents(ComponentType_Vehicle)[0]);
+	//Get Graphics Instance
+	Graphics& graphicsInstance = Graphics::Instance();
+	//Get Camera Component
+	CameraComponent* cameraComponent = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[0]);
+	switch (StateManager::GetState()) {
+	case GameState_Playing:
+		//Shoot Weapon
+		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
+			static_cast<WeaponComponent*>(vehicle->GetEntity()->components[1])->Charge();
+		}
+		if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+			static_cast<WeaponComponent*>(vehicle->GetEntity()->components[1])->Shoot();
+		}
+
+		//Cursor Inputs
+		glfwSetInputMode(graphicsInstance.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		int width, height;
+		glfwGetFramebufferSize(graphicsInstance.GetWindow(), &width, &height);
+		double xPos, yPos;
+		Mouse::GetCursorPosition(graphicsInstance.GetWindow(), &xPos, &yPos);
+
+		cameraComponent->SetCameraHorizontalAngle((cameraComponent->GetCameraHorizontalAngle() - ((float)(width / 2.0f) - xPos) * cameraComponent->GetCameraSpeed() * StateManager::deltaTime.GetTimeSeconds()));
+		cameraComponent->SetCameraVerticalAngle(cameraComponent->GetCameraVerticalAngle() + ((float)(height / 2.0f) - yPos) * cameraComponent->GetCameraSpeed() * StateManager::deltaTime.GetTimeSeconds());
+		
+		float maxAngle, minAngle;
+		maxAngle = M_PI / 2.0f;
+		minAngle = (2.0f / 3.0f) * M_PI / 2.0f;
+
+		if (cameraComponent->GetCameraVerticalAngle() < (minAngle)) {
+			cameraComponent->SetCameraVerticalAngle(minAngle);
+		} else if (cameraComponent->GetCameraVerticalAngle() > (maxAngle)) {
+			cameraComponent->SetCameraVerticalAngle(maxAngle);
+		}
+		
+		glfwSetCursorPos(graphicsInstance.GetWindow(), width / 2, height / 2);
+		break;
+	default:
+		glfwSetInputMode(graphicsInstance.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		break;
+	}
 }
 
 void InputManager::HandleKeyboard() {
 	//Keyboard Inputs
 
+	//Get Vehicle Component
+	VehicleComponent* vehicle = static_cast<VehicleComponent*>(EntityManager::GetComponents(ComponentType_Vehicle)[0]);
 	//Switch on Game State
 	switch (StateManager::GetState()) {
 	case GameState_Menu:
@@ -382,103 +426,56 @@ void InputManager::HandleKeyboard() {
 		}
 		break;
 	case GameState_Playing:
+		//Drive Forward
+		if (Keyboard::KeyDown(GLFW_KEY_W)) {
+			cout << (int)(vehicle->pxVehicle->mDriveDynData.getCurrentGear() - PxVehicleGearsData::eNEUTRAL) << endl;
+			if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
+				vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+			}
+			vehicle->pxVehicleInputData.setAnalogAccel(1.f);
+		}
+		if (Keyboard::KeyReleased(GLFW_KEY_W)) {
+			vehicle->pxVehicleInputData.setAnalogAccel(0.0f);
+		}
+		//Reverse
+		if (Keyboard::KeyDown(GLFW_KEY_S)) {
+			vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+			vehicle->pxVehicleInputData.setAnalogAccel(1.f);
+		}
+		if (Keyboard::KeyReleased(GLFW_KEY_S)) {
+			vehicle->pxVehicleInputData.setAnalogAccel(0.0f);
+		}
+		//Steer Left
+		if (Keyboard::KeyDown(GLFW_KEY_A)) {
+			vehicle->pxVehicleInputData.setAnalogSteer(1.f);
+		}
+		if (Keyboard::KeyReleased(GLFW_KEY_A)) {
+			vehicle->pxVehicleInputData.setAnalogSteer(0);
+		}
+		//Steer Right
+		if (Keyboard::KeyDown(GLFW_KEY_D)) {
+			vehicle->pxVehicleInputData.setAnalogSteer(-1.f);
+		}
+		if (Keyboard::KeyReleased(GLFW_KEY_D)) {
+			vehicle->pxVehicleInputData.setAnalogSteer(0);
+		}
+		//Go to Pause Screen
+		if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
+			StateManager::menuIndex = 0;
+			StateManager::SetState(GameState_Paused);
+			std::cout << "Game State: " << StateManager::GameStateToString() << " Index: " << StateManager::menuIndex << std::endl;
+		}
 		break;
 	case GameState_Paused:
+
+		//Go to Game Playing
+		if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
+			StateManager::menuIndex = 0;
+			StateManager::SetState(GameState_Playing);
+			std::cout << "Game State: " << StateManager::GameStateToString() << " Index: " << StateManager::menuIndex << std::endl;
+		}
 		break;
 	}
-
-	vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-	VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[0]);
-
-	if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
-		static_cast<RailGunComponent*>(vehicle->GetEntity()->components[1])->Charge();
-	}
-
-	if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
-		static_cast<RailGunComponent*>(vehicle->GetEntity()->components[1])->Shoot();
-		//static_cast<MachineGunComponent*>(vehicle->GetEntity()->components[1])->Shoot();
-	}
-
-	Entity* camera_tmp = EntityManager::FindEntities("Camera")[0];
-	CameraComponent* cameraComp = static_cast<CameraComponent*>(camera_tmp->components[0]);
-	EntityManager::GetChildren(vehicle->GetEntity())[5]->transform.SetRotation(cameraComp->GetTarget());
-
-	if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
-		cout << "Escape Key Pressed" << endl;
-		if (StateManager::GetState() == GameState_Playing) {
-			StateManager::SetState(GameState_Paused);
-		} else if (StateManager::GetState() == GameState_Paused) {
-			StateManager::SetState(GameState_Playing);
-		}
-	}
-	if (Keyboard::KeyDown(GLFW_KEY_W)) {
-		cout << (int)(vehicle->pxVehicle->mDriveDynData.getCurrentGear() - PxVehicleGearsData::eNEUTRAL) << endl;
-		if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
-			vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-		}
-		vehicle->pxVehicleInputData.setAnalogAccel(1.f);
-	}
-	if (Keyboard::KeyReleased(GLFW_KEY_W)) {
-		cout << "W Key Released" << endl;
-		vehicle->pxVehicleInputData.setAnalogAccel(0.0f);
-	}
-	if (Keyboard::KeyDown(GLFW_KEY_S)) {
-		cout << "S Key Held" << endl;
-		vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
-		vehicle->pxVehicleInputData.setAnalogAccel(1.f);
-	}
-	if (Keyboard::KeyReleased(GLFW_KEY_S)) {
-		cout << "S Key Released" << endl;
-		vehicle->pxVehicleInputData.setAnalogAccel(0.0f);
-	}
-	if (Keyboard::KeyDown(GLFW_KEY_A)) {
-		cout << "A Key Held" << endl;
-		vehicle->pxVehicleInputData.setAnalogSteer(1.f);
-	}
-	if (Keyboard::KeyReleased(GLFW_KEY_A)) {
-		cout << "A Key Released" << endl;
-		vehicle->pxVehicleInputData.setAnalogSteer(0);
-	}
-	if (Keyboard::KeyDown(GLFW_KEY_D)) {
-		cout << "D Key Held" << endl;
-		vehicle->pxVehicleInputData.setAnalogSteer(-1.f);
-	}
-	if (Keyboard::KeyReleased(GLFW_KEY_D)) {
-		cout << "D Key Released" << endl;
-		vehicle->pxVehicleInputData.setAnalogSteer(0);
-	}
-
-	Entity *camera = EntityManager::FindEntities("Camera")[0];
-	CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
-	if (Keyboard::KeyDown(GLFW_KEY_RIGHT)) {
-		float x = dt.GetTimeSeconds() * 4.f;
-		cameraC->SetCameraHorizontalAngle(cameraC->GetCameraHorizontalAngle() + x);
-		glm::vec3 pos = 20.0f * glm::vec3(cos(cameraC->GetCameraHorizontalAngle()) * sin(cameraC->GetCameraVerticalAngle()), cos(cameraC->GetCameraVerticalAngle()), sin(cameraC->GetCameraHorizontalAngle()) * sin(cameraC->GetCameraVerticalAngle()));
-		cameraC->SetPosition(pos);
-	}
-	if (Keyboard::KeyDown(GLFW_KEY_LEFT)) {
-		float x = dt.GetTimeSeconds() * -4.f;
-		cameraC->SetCameraHorizontalAngle(cameraC->GetCameraHorizontalAngle() + x);
-		glm::vec3 pos = 20.0f * glm::vec3(cos(cameraC->GetCameraHorizontalAngle()) * sin(cameraC->GetCameraVerticalAngle()), cos(cameraC->GetCameraVerticalAngle()), sin(cameraC->GetCameraHorizontalAngle()) * sin(cameraC->GetCameraVerticalAngle()));
-		cameraC->SetPosition(pos);
-	}
-	if (Keyboard::KeyDown(GLFW_KEY_UP)) {
-		std::cout << cameraC->GetCameraVerticalAngle() << std::endl;
-		float x = dt.GetTimeSeconds() * -4.f;
-		cameraC->SetCameraVerticalAngle(std::max(cameraC->GetCameraVerticalAngle() + x, .1f));
-		glm::vec3 pos = 20.0f * glm::vec3(cos(cameraC->GetCameraHorizontalAngle()) * sin(cameraC->GetCameraVerticalAngle()), cos(cameraC->GetCameraVerticalAngle()), sin(cameraC->GetCameraHorizontalAngle()) * sin(cameraC->GetCameraVerticalAngle()));
-		cameraC->SetPosition(pos);
-	}
-	if (Keyboard::KeyDown(GLFW_KEY_DOWN)) {
-		std::cout << cameraC->GetCameraVerticalAngle() << std::endl;
-		float x = dt.GetTimeSeconds() * 4.f;
-		cameraC->SetCameraVerticalAngle(std::min(cameraC->GetCameraVerticalAngle() + x,(float)M_PI-0.1f));
-		glm::vec3 pos = 20.0f * glm::vec3(cos(cameraC->GetCameraHorizontalAngle()) * sin(cameraC->GetCameraVerticalAngle()), cos(cameraC->GetCameraVerticalAngle()), sin(cameraC->GetCameraHorizontalAngle()) * sin(cameraC->GetCameraVerticalAngle()));
-		cameraC->SetPosition(pos);
-	}
-
-
-
 }
 
 void InputManager::HandleController() {
@@ -708,8 +705,17 @@ void InputManager::HandleController() {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed LEFT-SHOULDER" << endl;
 			} else if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " held LEFT-SHOULDER" << endl;
+
+                vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
+                VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
+                vehicle->pxVehicleInputData.setAnalogHandbrake(1.f);
+
 			} else if (releasedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " released LEFT-SHOULDER" << endl;
+
+                vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
+                VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
+                vehicle->pxVehicleInputData.setAnalogHandbrake(0.f);
 			}
 
 			//RIGHT-SHOULDER

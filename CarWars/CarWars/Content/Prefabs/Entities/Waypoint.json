@@ -1,0 +1,15 @@
+{
+	"Tag": "Waypoint",
+	"Components": [
+		{
+			"Type": "Mesh",
+			"Mesh": "Cube.obj",
+			"Material": "RedShiny.json"
+		},
+		{
+			"Type": "PointLight",
+			"Color": [1, 0, 0],
+			"Power": 10
+		}
+	]
+},

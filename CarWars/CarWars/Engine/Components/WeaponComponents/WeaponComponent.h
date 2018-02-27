@@ -12,6 +12,7 @@ class WeaponComponent : public Component {
 	friend class RailGunComponent;
 public:
 	virtual void Shoot() = 0;
+	virtual void Charge() = 0;
 
 	void SetTargetRotation(float _horizontalAngle, float _verticalAngle);
 

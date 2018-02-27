@@ -2,7 +2,7 @@
   {
     "Tag": "Floor",
     "Position": [ 0, 0, 0 ],
-    "Scale": [ 40, 1, 40 ],
+    "Scale": [ 200, 1, 80 ],
     "Components": [
       {
         "Type": "Mesh",
@@ -15,14 +15,31 @@
         "Type": "RigidStatic",
         "Colliders": [
           {
-            "Type": "Box",
+            "Type": "Mesh",
             "CollisionGroup": "Ground",
-            "Size": [80, 0.01, 80]
+            "Mesh": "Plane.obj",
+            "Scale": [200, 1, 80]
           }
         ]
       }
     ]
   },
+  {
+        "Prefab": "Waypoint.json",
+	    "Position": [ -50, 2, -20 ]
+    },
+    {
+        "Prefab": "Waypoint.json",
+	    "Position": [ -50, 2, 20 ]
+    },
+    {
+        "Prefab": "Waypoint.json",
+	    "Position": [ 50, 2, 20 ]
+    },
+    {
+        "Prefab": "Waypoint.json",
+	    "Position": [ 50, 2, -20 ]
+    },
   {
     "Tag": "Cylinder",
     "Position": [ 0, 20, 80 ],
@@ -37,7 +54,7 @@
       },
       {
         "Type": "RigidDynamic",
-        "Mass": 100000,
+        "Mass": 1000000000,
         "Colliders": [
           {
             "Type": "Mesh",
@@ -52,33 +69,11 @@
       }
     ]
   },
+    "Jump.json",
     {
-        "Tag": "Light",
-	    "Position": [ 10, 0, 10 ],
-        "Rotate": [0, 0, 45],
-        "Scale": [4, 4, 4],
-        "Components": [
-	        {
-		        "Type": "Mesh",
-                "Mesh": "Cube.obj",
-                "Material": "RedShiny.json"
-	        },
-	        {
-		        "Type": "PointLight",
-                "Color": [1, 0, 0],
-                "Power": 50
-	        },
-            {
-                "Type": "RigidStatic",
-                "Colliders": [
-                    {
-                        "Type": "Box",
-                        "CollisionGroup": "DrivableObstacles",
-                        "Size": [8, 8, 8]
-                    }
-                ]
-            }
-        ]
+        "Prefab": "Jump.json",
+        "Position": [ 14.8, -2.4, 20 ],
+	    "Rotate": [0, 0, -20]
     },
 	{
 		"Tag": "Light",
@@ -101,6 +96,31 @@
                         "Type": "Box",
                         "CollisionGroup": "DrivableObstacles",
                         "Size": [2, 2, 2]
+                    }
+                ]
+            }
+		]
+	},
+    {
+		"Tag": "Ball",
+		"Position": [ -10, 10, 10 ],
+		"Components": [
+			{
+				"Type": "Mesh",
+                "Scale": [2, 2, 2],
+				"Mesh": "Boulder.obj",
+				"Material": "Basic.json",
+                "Texture": "Boulder.jpg"
+			},
+            {
+                "Type": "RigidDynamic",
+                "Mass": 500,
+                "Colliders": [
+                    {
+                        "Type": "ConvexMesh",
+                        "Mesh": "Boulder.obj",
+                        "CollisionGroup": "DrivableObstacles",
+                        "Scale": [2, 2, 2]
                     }
                 ]
             }

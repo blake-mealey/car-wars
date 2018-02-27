@@ -1,20 +1,13 @@
 #include "Game.h"
 
-#include <iostream>
 #include "Content/ContentManager.h"
 #include "../Entities/EntityManager.h"
 #include "../Components/SpotLightComponent.h"
 #include "../Components/MeshComponent.h"
 #include "../Components/CameraComponent.h"
-#include "../Components/WeaponComponents/MachineGunComponent.h"
 #include "../Components/RigidbodyComponents/RigidStaticComponent.h"
 
 #include "Physics\VehicleCreate.h"
-#include "Physics\VehicleWheelQueryResult.h"
-#include "Physics\SnippetUtils.h"
-#include "Physics\VehicleConcurrency.h"
-#include "Physics\VehicleSceneQuery.h"
-#include "Physics\VehicleTireFriction.h"
 
 #include <glm/gtx/string_cast.hpp>
 
@@ -23,10 +16,12 @@
 #include "StateManager.h"
 #include "../Components/DirectionLightComponent.h"
 #include "../Components/RigidbodyComponents/RigidDynamicComponent.h"
+#include "../Components/RigidbodyComponents/VehicleComponent.h"
 #include "Physics.h"
+#include "../Components/AiComponent.h"
 using namespace std;
 
-const unsigned int Game::MAX_VEHICLE_COUNT = 8;
+const unsigned int Game::MAX_VEHICLE_COUNT = 20;
 
 Map Game::selectedMap = Map_Cylinder;
 GameMode Game::selectedGameMode = Team;
@@ -52,6 +47,11 @@ void Game::Initialize() {
     ContentManager::LoadSkybox("PurpleNebula/");
 
 	ContentManager::LoadScene("PhysicsDemo.json");
+
+    for (size_t i = 0; i < 5; ++i) {
+        Entity *ai = ContentManager::LoadEntity("AiSewage.json");
+        static_cast<VehicleComponent*>(ai->components[2])->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
+    }
 
 	cars = EntityManager::FindEntities("Vehicle");
 	cameras = EntityManager::FindEntities("Camera");
@@ -83,6 +83,25 @@ void Game::Initialize() {
     physics.GetScene().setVisualizationParameter(PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f);
     physics.GetScene().setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
     lock->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
+
+
+
+
+
+    ais = EntityManager::GetComponents<AiComponent>(ComponentType_AI);
+    waypoints = EntityManager::FindEntities("Waypoint");
+
+    for (AiComponent* ai : ais) {
+        switch (ai->GetMode()) {
+        case AiMode_Waypoints:
+            ai->SetTargetEntity(waypoints[0]);
+            break;
+        case AiMode_Chase:
+            ai->SetTargetEntity(EntityManager::FindEntities("Vehicle")[0]);
+            break;
+        }
+    }
+
     
 
 	// Load the scene and get some entities
@@ -143,6 +162,47 @@ void Game::Update() {
         // Set the cylinder's rotation
         cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
 
+        // Update AIs
+        for (AiComponent *ai : ais) {
+            if (!ai->enabled) continue;
+            VehicleComponent* vehicle = static_cast<VehicleComponent*>(ai->GetEntity()->components[2]);
+
+            Transform &myTransform = ai->GetEntity()->transform;
+            const glm::vec3 position = myTransform.GetGlobalPosition();
+            const glm::vec3 forward = myTransform.GetForward();
+            const glm::vec3 right = myTransform.GetRight();
+
+            Transform &targetTransform = ai->GetTargetEntity()->transform;
+            const glm::vec3 targetPosition = targetTransform.GetGlobalPosition();
+
+            glm::vec3 direction = targetPosition - position;
+            const float distance = glm::length(direction);
+            direction = glm::normalize(direction);
+
+            switch(ai->GetMode()) {
+            case AiMode_Waypoints:
+                if (distance <= 5.f) {
+                    ai->SetTargetEntity(waypoints[ai->NextWaypoint(4)]);
+                }
+            case AiMode_Chase:
+                const float steer = glm::dot(direction, right);
+                const bool reverse = false; // glm::dot(direction, forward) > -0.1;
+
+                const float accel = glm::clamp(distance / 20.f, 0.1f, 0.8f) * reverse ? 0.8f : 1.f;
+
+                if (!reverse && vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
+                    vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+                } else if (reverse && vehicle->pxVehicle->mDriveDynData.getCurrentGear() != PxVehicleGearsData::eREVERSE) {
+                    vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+                }
+
+                vehicle->pxVehicleInputData.setAnalogSteer(reverse ? -steer : steer);
+                vehicle->pxVehicleInputData.setAnalogAccel(accel);
+
+                break;
+            }
+        }
+
 
 		float t = glm::radians(45.5) + gameTime.GetTimeSeconds() / 10;
         glm::vec3 sunPosition = glm::vec3(cos(t), 0.5f, sin(t));
@@ -152,10 +212,10 @@ void Game::Update() {
 			Entity* camera = cameras[i];
 			Entity* car = cars[i];
 
-			//camera->transform.SetPosition(glm::mix(camera->transform.GetGlobalPosition(), boulder->transform.GetGlobalPosition(), 0.05f));
-			camera->transform.SetPosition(glm::mix(camera->transform.GetGlobalPosition(), car->transform.GetGlobalPosition(), 0.04f));
-			//static_cast<CameraComponent*>(camera->components[0])->SetTarget(boulder->transform.GetGlobalPosition());
-			static_cast<CameraComponent*>(camera->components[0])->SetTarget(car->transform.GetGlobalPosition() + glm::vec3(0.0f, 1.0f, 0.0f));
+			//"Camera Delay"
+			//camera->transform.SetPosition(glm::mix(camera->transform.GetGlobalPosition(), car->transform.GetGlobalPosition(), 0.04f));
+			camera->transform.SetPosition(car->transform.GetGlobalPosition());
+			static_cast<CameraComponent*>(camera->components[0])->SetTarget(car->transform.GetGlobalPosition() + glm::vec3(0.0f, 1.5f, 0.0f));
 		}
 
 		//camera->transform.SetPosition(boulder->transform.GetGlobalPosition());

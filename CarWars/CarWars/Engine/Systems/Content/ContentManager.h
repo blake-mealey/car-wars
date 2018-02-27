@@ -42,6 +42,7 @@ public:
 	template <typename T>
 	static T GetFromJson(nlohmann::json json, T defaultValue);
 	static nlohmann::json LoadJson(std::string filePath);
+	static void MergeJson(nlohmann::json &obj0, nlohmann::json &obj1, bool overwrite=true);
     static glm::vec3 JsonToVec3(nlohmann::json data, glm::vec3 defaultValue);
 	static glm::vec3 JsonToVec3(nlohmann::json data);
 	static glm::vec2 JsonToVec2(nlohmann::json data, glm::vec2 defaultValue);
@@ -56,8 +57,6 @@ public:
 
 	// TODO: These guys
 	// static Audio*? GetAudio(std::string filePath);
-	// static Texture*? GetTexture(std::string filePath);
-	// static GameData*? GetDataFile(std::string filePath);
 
     template <class T>
     static T* LoadComponent(nlohmann::json data);
