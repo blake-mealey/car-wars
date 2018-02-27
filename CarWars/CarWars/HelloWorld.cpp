@@ -8,6 +8,7 @@
 #include "Engine/Systems/InputManager.h"
 #include "Engine/Systems/Game.h"
 #include "Engine/Systems/Physics.h"
+#include "Engine/Systems/Audio.h"
 #include "Engine/Systems/Physics/CollisionGroups.h"
 #include "Engine/Systems/Content/ContentManager.h"
 
@@ -41,11 +42,18 @@ int main() {
     Game &gameManager = Game::Instance();
     gameManager.Initialize();
 
+    // Initialize audio
+    Audio &audioManager = Audio::Instance();
+    audioManager.Initialize();
+    audioManager.PlayAudio("Content/Sounds/engine-running.mp3");
+
 	// Add systems in desired order
 	systems.push_back(&inputManager);
 	systems.push_back(&physicsManager);
 	systems.push_back(&gameManager);
 	systems.push_back(&graphicsManager);
+    systems.push_back(&audioManager);
+
 
 	//Game Loop
 	Time lastFrame(0);

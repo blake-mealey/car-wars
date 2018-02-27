@@ -15,6 +15,7 @@ public:
     void Initialize();
 
     void Update() override;
+    void PlayAudio(const char *filename);
 
 private:
     FMOD::System *soundSystem;
