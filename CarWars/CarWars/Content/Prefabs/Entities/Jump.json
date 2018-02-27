@@ -1,0 +1,28 @@
+{
+	"Tag": "Jump",
+	"Position": [ 10, -2.4, 20 ],
+	"Rotate": [0, 0, 20],
+	"Scale": [4, 4, 4],
+	"Components": [
+		{
+			"Type": "Mesh",
+			"Mesh": "Cube.obj",
+			"Material": "RedShiny.json"
+		},
+		{
+			"Type": "PointLight",
+			"Color": [1, 0, 0],
+			"Power": 50
+		},
+		{
+			"Type": "RigidStatic",
+			"Colliders": [
+				{
+					"Type": "Box",
+					"CollisionGroup": "DrivableObstacles",
+					"Size": [8, 8, 8]
+				}
+			]
+		}
+	]
+}

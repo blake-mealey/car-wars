@@ -41,12 +41,9 @@ void ConvexMeshCollider::InitializeGeometry(Mesh *mesh) {
     convexDesc.points.stride = sizeof(glm::vec3);
     convexDesc.points.data = mesh->vertices;
 
-    /*convexDesc.indices
-    convexDesc.triangles.count = mesh->triangleCount;
-    convexDesc.triangles.stride = sizeof(Triangle);
-    convexDesc.triangles.data = mesh->triangles;
     convexDesc.indices.count = mesh->triangleCount;
-    convexDesc.indices.stride = mesh->triangleCount;*/
+    convexDesc.indices.stride = sizeof(Triangle);
+    convexDesc.indices.data = mesh->triangles;
 
     PxConvexMesh* convexMesh = nullptr;
     PxDefaultMemoryOutputStream buf;
@@ -94,5 +91,5 @@ void ConvexMeshCollider::InitializeRenderMesh(PxConvexMesh* convexMesh) {
         }
     }
 
-    renderMesh = new Mesh(triangles.size(), vertices.size(), triangles.data(), vertices.data(), nullptr);
+    renderMesh = new Mesh(triangles.size(), vertices.size(), triangles.data(), vertices.data());
 }

@@ -69,33 +69,11 @@
       }
     ]
   },
+    "Jump.json",
     {
-        "Tag": "Light",
-	    "Position": [ 10, -2, 20 ],
-        "Rotate": [0, 0, 20],
-        "Scale": [4, 4, 4],
-        "Components": [
-	        {
-		        "Type": "Mesh",
-                "Mesh": "Cube.obj",
-                "Material": "RedShiny.json"
-	        },
-	        {
-		        "Type": "PointLight",
-                "Color": [1, 0, 0],
-                "Power": 50
-	        },
-            {
-                "Type": "RigidStatic",
-                "Colliders": [
-                    {
-                        "Type": "Box",
-                        "CollisionGroup": "DrivableObstacles",
-                        "Size": [8, 8, 8]
-                    }
-                ]
-            }
-        ]
+        "Prefab": "Jump.json",
+        "Position": [ 14.8, -2.4, 20 ],
+	    "Rotate": [0, 0, -20]
     },
 	{
 		"Tag": "Light",
@@ -151,30 +129,6 @@
   {
     "Prefab": "Sewage.json",
     "Position": [ 0, 10, 0 ]
-  },
-  {
-    "Tag": "AiVehicle",
-    "Prefab": "Sewage.json",
-    "Position": [ 10, 10, 0 ],
-    "Components": [
-        {
-            "Type": "AI",
-            "Mode": "Waypoints",
-            "Enabled": true
-        }
-    ]
-  },
-  {
-    "Tag": "AiVehicle",
-    "Prefab": "Sewage.json",
-    "Position": [ 20, 10, 0 ],
-    "Components": [
-        {
-            "Type": "AI",
-            "Mode": "Chase",
-            "Enabled": true
-        }
-    ]
   },
   "Sun.json",
   {

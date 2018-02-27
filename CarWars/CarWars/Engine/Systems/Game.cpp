@@ -21,7 +21,7 @@
 #include "../Components/AiComponent.h"
 using namespace std;
 
-const unsigned int Game::MAX_VEHICLE_COUNT = 8;
+const unsigned int Game::MAX_VEHICLE_COUNT = 20;
 
 Map Game::selectedMap = Map_Cylinder;
 GameMode Game::selectedGameMode = Team;
@@ -47,6 +47,11 @@ void Game::Initialize() {
     ContentManager::LoadSkybox("PurpleNebula/");
 
 	ContentManager::LoadScene("PhysicsDemo.json");
+
+    for (size_t i = 0; i < 5; ++i) {
+        Entity *ai = ContentManager::LoadEntity("AiSewage.json");
+        static_cast<VehicleComponent*>(ai->components[2])->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
+    }
 
 	cars = EntityManager::FindEntities("Vehicle");
 	cameras = EntityManager::FindEntities("Camera");
@@ -158,10 +163,9 @@ void Game::Update() {
         cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
 
         // Update AIs
-        static int waypointIndex = 0;
         for (AiComponent *ai : ais) {
             if (!ai->enabled) continue;
-            VehicleComponent* vehicle = static_cast<VehicleComponent*>(ai->GetEntity()->components[3]);
+            VehicleComponent* vehicle = static_cast<VehicleComponent*>(ai->GetEntity()->components[2]);
 
             Transform &myTransform = ai->GetEntity()->transform;
             const glm::vec3 position = myTransform.GetGlobalPosition();
@@ -178,8 +182,7 @@ void Game::Update() {
             switch(ai->GetMode()) {
             case AiMode_Waypoints:
                 if (distance <= 5.f) {
-                    waypointIndex = (waypointIndex + 1) % 4;
-                    ai->SetTargetEntity(waypoints[waypointIndex]);
+                    ai->SetTargetEntity(waypoints[ai->NextWaypoint(4)]);
                 }
             case AiMode_Chase:
                 const float steer = glm::dot(direction, right);

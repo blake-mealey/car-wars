@@ -20,8 +20,12 @@ public:
     void SetTargetEntity(Entity* target);
     Entity* GetTargetEntity() const;
     AiMode GetMode() const;
+
+    size_t NextWaypoint(size_t waypointCount);
+    size_t GetWaypoint() const;
 private:
     AiMode mode;
     Entity *targetEntity;
+    size_t waypointIndex;
 };
 
