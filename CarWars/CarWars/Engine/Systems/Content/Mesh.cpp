@@ -7,13 +7,19 @@ Triangle::Triangle() : vertexIndex0(0), vertexIndex1(0), vertexIndex2(0) {}
 Triangle::Triangle(unsigned short _v0, unsigned short _v1, unsigned short _v2) : vertexIndex0(_v0), vertexIndex1(_v1), vertexIndex2(_v2) { }
 
 Mesh::Mesh(size_t _triangleCount, size_t _vertexCount, Triangle* _triangles, glm::vec3* _vertices, glm::vec2* _uvs,
-    glm::vec3* _normals) : triangleCount(_triangleCount), vertexCount(_vertexCount), triangles(_triangles), vertices(_vertices), uvs(_uvs), normals(_normals) {
+    glm::vec3* _normals) : triangleCount(_triangleCount), vertexCount(_vertexCount) {
     
-    if (!normals) {     // Do we need this still? Taken care of by Assimp?
-        GenerateNormals();
+	// Generate normals if they were not provided
+    if (!_normals) {
+		_normals = new glm::vec3[vertexCount];
+        GenerateNormals(_vertices, _normals);
     }
 
-    InitializeBuffers();
+	// Compute the radius in case this mesh is later attached to the cylinder (?)
+	CalculateRadius(_vertices);
+
+	// Initialize OpenGL buffers for the provided data
+    InitializeBuffers(_triangles, _vertices, _uvs, _normals);
 }
 
 Mesh::~Mesh() {
@@ -22,45 +28,44 @@ Mesh::~Mesh() {
     glDeleteVertexArrays(VAOs::Count, vaos);
 }
 
-void Mesh::GenerateNormals() {
-	glm::vec3 *_normals = new glm::vec3[vertexCount];
-
+void Mesh::GenerateNormals(glm::vec3 *vertices, glm::vec3 *normals) {
 	for (size_t i = 0; i < vertexCount; i++) {
-		_normals[i] = glm::vec3(0, 0, 0);;
+		normals[i] = glm::vec3(0, 0, 0);;
 	}
 
 	for (size_t i = 0; i < vertexCount; i+=3) {
 		const glm::vec3 v1 = vertices[i];
 		const glm::vec3 triangleNormal = glm::normalize(glm::cross(vertices[i + 1] - v1, vertices[i + 2] - v1));
 		for (size_t j = i; j < i + 3; j++) {
-			_normals[j] = _normals[j] + triangleNormal;
+			normals[j] = normals[j] + triangleNormal;
 		}
 	}
 
 	for (size_t i = 0; i < vertexCount; i++) {
-		_normals[i] = glm::normalize(_normals[i]);
+		normals[i] = glm::normalize(normals[i]);
 	}
-
-	normals = _normals;
 }
 
-Mesh* Mesh::TransformMesh(Transform t) {
-    glm::vec3 *transformedVerts = new glm::vec3[vertexCount];
-
-    const glm::mat4 matrix = t.GetTransformationMatrix();
-    for (size_t i = 0; i < vertexCount; ++i) {
-        transformedVerts[i] = matrix * glm::vec4(vertices[i], 1.f);
-    }
-
-    return new Mesh(triangleCount, vertexCount, triangles, transformedVerts, uvs, normals);
+float Mesh::GetRadius() const {
+	return radius;
 }
 
-void Mesh::InitializeBuffers() {
+void Mesh::CalculateRadius(glm::vec3 *vertices) {
+	float maxX = vertices[0].x;
+	float minX = vertices[0].x;
+	for (size_t i = 1; i < vertexCount; ++i) {
+		maxX = std::max(maxX, vertices[i].x);
+		minX = std::min(minX, vertices[i].x);
+	}
+	radius = (maxX - minX) / 2.f;
+}
+
+void Mesh::InitializeBuffers(Triangle *triangles, glm::vec3 *vertices, glm::vec2 *uvs, glm::vec3 *normals) {
     glGenBuffers(EABs::Count, eabs);
-    InitializeIndexBuffer();
+    InitializeIndexBuffer(triangles);
 
     glGenBuffers(VBOs::Count, vbos);
-    InitializeGeometryBuffers();
+    InitializeGeometryBuffers(vertices, uvs, normals);
 
     glGenVertexArrays(VAOs::Count, vaos);
     InitializeGeometryVao();
@@ -68,14 +73,14 @@ void Mesh::InitializeBuffers() {
     InitializeUvsVao();
 }
 
-void Mesh::InitializeIndexBuffer() {
+void Mesh::InitializeIndexBuffer(Triangle *triangles) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eabs[EABs::Triangles]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Triangle) * triangleCount, triangles, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Mesh::InitializeGeometryBuffers() {
+void Mesh::InitializeGeometryBuffers(glm::vec3 *vertices, glm::vec2 *uvs, glm::vec3 *normals) {
     glBindBuffer(GL_ARRAY_BUFFER, vbos[VBOs::Vertices]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertexCount, vertices, GL_STATIC_DRAW);
 
@@ -133,4 +138,3 @@ void Mesh::InitializeUvsVao() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
-

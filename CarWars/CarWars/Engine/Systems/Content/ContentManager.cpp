@@ -148,11 +148,20 @@ Texture* ContentManager::GetTexture(const std::string filePath) {
 	return texture;
 }
 
-Material* ContentManager::GetMaterial(const std::string filePath) {
-	Material* material = materials[filePath];
-	if (material != nullptr) return material;
+Material* ContentManager::GetMaterial(json data) {
+	Material *material;
+	
+	bool fromFile = data.is_string();
+	std::string filePath;
+	if (fromFile) {
+		filePath = data.get<std::string>();
+		
+		material = materials[filePath];
+		if (material != nullptr) return material;
 
-	json data = LoadJson(MATERIAL_DIR_PATH + filePath);
+		data = LoadJson(MATERIAL_DIR_PATH + filePath);
+	}
+
 	const glm::vec3 diffuseColor = JsonToVec3(data["DiffuseColor"]);
 	const glm::vec3 specularColor = JsonToVec3(data["SpecularColor"]);
     const float specularity = GetFromJson<float>(data["Specularity"], 1);
@@ -160,8 +169,11 @@ Material* ContentManager::GetMaterial(const std::string filePath) {
 
     material = new Material(diffuseColor, specularColor, specularity, emissiveness);
 
-    materials[filePath] = material;
-    return material;
+	if (fromFile) {
+		materials[filePath] = material;
+	}
+    
+	return material;
 }
 
 PxMaterial* ContentManager::GetPxMaterial(std::string filePath) {

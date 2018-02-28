@@ -67,7 +67,7 @@ bool Transform::RenderDebugGui() {
     return changed;
 }
 
-glm::vec3 Transform::GetLocalPosition() {
+glm::vec3 Transform::GetLocalPosition() const {
 	return position;
 }
 
@@ -76,11 +76,11 @@ glm::vec3 Transform::GetCylinderPosition() {
 	return FromCylinder(GetGlobalPosition());
 }
 
-glm::vec3 Transform::GetLocalScale() {
+glm::vec3 Transform::GetLocalScale() const {
 	return scale;
 }
 
-glm::quat Transform::GetLocalRotation() {
+glm::quat Transform::GetLocalRotation() const {
 	return rotation;
 }
 
@@ -89,7 +89,7 @@ glm::vec3 Transform::GetGlobalPosition() {
 }
 
 glm::vec3 Transform::GetGlobalScale() {
-	glm::vec3 globalScale;
+	glm::vec3 globalScale = glm::vec3(1.f);
 	Transform* transform = this;
 	do {
 		globalScale = transform->GetLocalScale() * globalScale;

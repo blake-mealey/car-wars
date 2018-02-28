@@ -60,9 +60,13 @@ std::string Collider::GetTypeName(ColliderType type) {
 }
 
 Transform Collider::GetLocalTransform() const {
-    return shape->getLocalPose();
+    Transform pose = shape->getLocalPose();
+	pose.SetScale(transform.GetLocalScale());
+	return pose;
 }
 
 Transform Collider::GetGlobalTransform() const {
-    return PxShapeExt::getGlobalPose(*shape, *shape->getActor());
+	Transform pose = PxShapeExt::getGlobalPose(*shape, *shape->getActor());
+	pose.SetScale(transform.GetLocalScale());
+	return pose;
 }

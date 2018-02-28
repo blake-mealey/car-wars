@@ -27,9 +27,9 @@ public:
     bool RenderDebugGui();
 
 	// Getters for basic data
-	glm::vec3 GetLocalPosition();
-	glm::vec3 GetLocalScale();
-	glm::quat GetLocalRotation();
+	glm::vec3 GetLocalPosition() const;
+	glm::vec3 GetLocalScale() const;
+	glm::quat GetLocalRotation() const;
 
 	glm::vec3 GetGlobalPosition();
 	glm::vec3 GetGlobalScale();

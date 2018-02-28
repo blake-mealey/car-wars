@@ -1,0 +1,21 @@
+{
+  "Tag": "DebugMarker",
+  "Scale": [0.5, 0.5, 0.5],
+  "Components": [
+    {
+      "Type": "Mesh",
+      "Mesh": "Sphere.obj",
+      "Material": {
+        "DiffuseColor": [ 0, 1, 0 ],
+        "SpecularColor": [ 0, 1, 0 ],
+        "Specularity": 1,
+        "Emissiveness": 1
+      }
+    },
+    {
+      "Type": "PointLight",
+      "Color": [ 0, 1, 0 ],
+      "Power": 10
+    }
+  ]
+}

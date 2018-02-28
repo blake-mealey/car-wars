@@ -9,7 +9,6 @@ using namespace physx;
 ConvexMeshCollider::ConvexMeshCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, Mesh *_mesh)
     : Collider(_collisionGroup, _material, _queryFilterData) {
     
-    _mesh = _mesh->TransformMesh(Transform(nullptr, glm::vec3(0.f), transform.GetLocalScale(), glm::vec3(0.f), false));
     InitializeGeometry(_mesh);
 }
 
@@ -20,9 +19,7 @@ ConvexMeshCollider::ConvexMeshCollider(std::string _collisionGroup, physx::PxMat
 }
 
 ConvexMeshCollider::ConvexMeshCollider(nlohmann::json data) : Collider(data) {
-    Mesh *mesh = ContentManager::GetMesh(data["Mesh"]);
-    mesh = mesh->TransformMesh(Transform(nullptr, glm::vec3(0.f), transform.GetLocalScale(), glm::vec3(0.f), false));
-    InitializeGeometry(mesh);
+    InitializeGeometry(ContentManager::GetMesh(data["Mesh"]));
 }
 
 ColliderType ConvexMeshCollider::GetType() const {
@@ -37,13 +34,21 @@ void ConvexMeshCollider::InitializeGeometry(Mesh *mesh) {
     PxConvexMeshDesc convexDesc;
     convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX | PxConvexFlag::e16_BIT_INDICES;
 
+	glm::vec3 *vertices = new glm::vec3[mesh->vertexCount];
+	glBindBuffer(GL_ARRAY_BUFFER, mesh->vbos[VBOs::Vertices]);
+	glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3) * mesh->vertexCount, vertices);
+
     convexDesc.points.count = mesh->vertexCount;
     convexDesc.points.stride = sizeof(glm::vec3);
-    convexDesc.points.data = mesh->vertices;
+    convexDesc.points.data = vertices;
+
+	glm::vec3 *triangles = new glm::vec3[mesh->triangleCount];
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eabs[EABs::Triangles]);
+	glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(Triangle) * mesh->triangleCount, triangles);
 
     convexDesc.indices.count = mesh->triangleCount;
     convexDesc.indices.stride = sizeof(Triangle);
-    convexDesc.indices.data = mesh->triangles;
+    convexDesc.indices.data = triangles;
 
     PxConvexMesh* convexMesh = nullptr;
     PxDefaultMemoryOutputStream buf;
@@ -53,12 +58,16 @@ void ConvexMeshCollider::InitializeGeometry(Mesh *mesh) {
         convexMesh = physics.GetApi().createConvexMesh(id);
     }
 
+	delete[] vertices;
+	delete[] triangles;
+
     InitializeGeometry(convexMesh);
 }
 
 void ConvexMeshCollider::InitializeGeometry(PxConvexMesh* mesh) {
     InitializeRenderMesh(mesh);
-    geometry = new PxConvexMeshGeometry(mesh);
+	PxMeshScale scale(Transform::ToPx(transform.GetGlobalScale()));
+    geometry = new PxConvexMeshGeometry(mesh, scale);
 }
 
 void ConvexMeshCollider::InitializeRenderMesh(PxConvexMesh* convexMesh) {

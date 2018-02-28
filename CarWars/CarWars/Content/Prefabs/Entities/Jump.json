@@ -20,7 +20,7 @@
 				{
 					"Type": "Box",
 					"CollisionGroup": "DrivableObstacles",
-					"Size": [8, 8, 8]
+					"Scale": [8, 8, 8]
 				}
 			]
 		}

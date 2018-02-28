@@ -85,7 +85,8 @@ void Game::Initialize() {
     lock->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 
 
-
+	Entity *marker = ContentManager::LoadEntity("Marker.json");
+	marker->transform.SetPosition(glm::vec3(0.f, 2.f, 5.f));
 
 
     ais = EntityManager::GetComponents<AiComponent>(ComponentType_AI);

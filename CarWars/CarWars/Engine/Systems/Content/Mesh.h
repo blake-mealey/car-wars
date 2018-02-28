@@ -20,25 +20,24 @@ public:
     Mesh(size_t _triangleCount, size_t _vertexCount, Triangle *_triangles, glm::vec3 *_vertices, glm::vec2 *_uvs = nullptr, glm::vec3 *_normals = nullptr);
     ~Mesh();
 
-    Triangle *triangles;
-	glm::vec3 *vertices;
-	glm::vec2 *uvs;
-	glm::vec3 *normals;
-
     GLuint eabs[EABs::Count];
     GLuint vbos[VBOs::Count];
     GLuint vaos[VAOs::Count];
 
 	const size_t triangleCount;
 	const size_t vertexCount;
-	void GenerateNormals();
 
-    Mesh* TransformMesh(Transform t);
+	float GetRadius() const;
 private:
-    void InitializeBuffers();
+	float radius;
 
-    void InitializeIndexBuffer();
-    void InitializeGeometryBuffers();
+	void GenerateNormals(glm::vec3 *vertices, glm::vec3 *normals);
+	void CalculateRadius(glm::vec3 *vertices);
+    
+	void InitializeBuffers(Triangle *triangles, glm::vec3 *vertices, glm::vec2 *uvs, glm::vec3 *normals);
+
+    void InitializeIndexBuffer(Triangle *triangles);
+    void InitializeGeometryBuffers(glm::vec3 *vertices, glm::vec2 *uvs, glm::vec3 *normals);
 
     void InitializeGeometryVao();
     void InitializeVerticesVao();
