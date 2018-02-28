@@ -215,7 +215,7 @@ void Game::Update() {
 			//"Camera Delay"
 			//camera->transform.SetPosition(glm::mix(camera->transform.GetGlobalPosition(), car->transform.GetGlobalPosition(), 0.04f));
 			camera->transform.SetPosition(car->transform.GetGlobalPosition());
-			static_cast<CameraComponent*>(camera->components[0])->SetTarget(car->transform.GetGlobalPosition() + glm::vec3(0.0f, 1.5f, 0.0f));
+			static_cast<CameraComponent*>(camera->components[0])->SetTarget(car->transform.GetGlobalPosition() + glm::vec3(0.0f, 2.f, 0.0f));
 		}
 
 		//camera->transform.SetPosition(boulder->transform.GetGlobalPosition());

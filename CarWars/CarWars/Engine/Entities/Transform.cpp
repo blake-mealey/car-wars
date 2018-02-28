@@ -98,6 +98,10 @@ glm::vec3 Transform::GetGlobalScale() {
 	return globalScale;
 }
 
+glm::vec3 Transform::GetLocalDirection(glm::vec3 globalDirection) {
+	return glm::inverse(GetTransformationMatrix()) * glm::vec4(globalDirection, 0.f);
+}
+
 glm::vec3 Transform::GetGlobalDirection(glm::vec3 localDirection) {
     return GetTransformationMatrix() * glm::vec4(localDirection, 0.f);
 }
@@ -177,7 +181,7 @@ void Transform::Scale(glm::vec3 scaleFactor) {
 }
 
 void Transform::Rotate(glm::vec3 axis, float radians) {
-	SetRotation(glm::rotate(rotation, glm::degrees(radians), axis));
+	SetRotation(glm::rotate(rotation, radians, axis));
 }
 
 void Transform::Rotate(glm::quat quaternion) {

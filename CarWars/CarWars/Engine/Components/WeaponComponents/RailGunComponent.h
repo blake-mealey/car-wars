@@ -15,6 +15,7 @@ public:
 	void HandleEvent(Event* event) override;
 
 	void RenderDebugGui() override;
+
 private:
 	Time timeBetweenShots = 1.0f;
 	Time chargeTime = 2.0f;

@@ -23,13 +23,15 @@ public:
 
 	float horizontalAngle;
 	float verticalAngle;
+
+	Time timeBetweenShots;
 private:
 
 	float targetHorizontalAngle;
 	float targetVerticalAngle;
 
 	Time nextShotTime = 0;
-	Time timeBetweenShots;
+	//Time timeBetweenShots;
 
 	float damage;
 };

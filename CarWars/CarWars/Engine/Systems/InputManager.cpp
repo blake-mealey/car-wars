@@ -44,6 +44,14 @@ void InputManager::HandleMouse() {
 	Graphics& graphicsInstance = Graphics::Instance();
 	//Get Camera Component
 	CameraComponent* cameraComponent = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[0]);
+
+	glm::vec3 direction;
+	glm::vec3 target;
+	Entity* vehicleWeapon;
+	glm::quat q;
+
+	bool side, down;
+
 	switch (StateManager::GetState()) {
 	case GameState_Playing:
 		//Shoot Weapon
@@ -64,7 +72,7 @@ void InputManager::HandleMouse() {
 		cameraComponent->SetCameraHorizontalAngle((cameraComponent->GetCameraHorizontalAngle() - ((float)(width / 2.0f) - xPos) * cameraComponent->GetCameraSpeed() * StateManager::deltaTime.GetTimeSeconds()));
 		cameraComponent->SetCameraVerticalAngle(cameraComponent->GetCameraVerticalAngle() + ((float)(height / 2.0f) - yPos) * cameraComponent->GetCameraSpeed() * StateManager::deltaTime.GetTimeSeconds());
 		
-		/*
+		
 		float maxAngle, minAngle;
 		maxAngle = M_PI / 2.0f;
 		minAngle = (2.0f / 3.0f) * M_PI / 2.0f;
@@ -74,8 +82,34 @@ void InputManager::HandleMouse() {
 		} else if (cameraComponent->GetCameraVerticalAngle() > (maxAngle)) {
 			cameraComponent->SetCameraVerticalAngle(maxAngle);
 		}
-		*/
 		
+		
+		vehicleWeapon = EntityManager::GetChildren(vehicle->GetEntity())[5];
+
+		side = glm::dot(vehicle->GetEntity()->transform.GetForward(), Transform::RIGHT) < 0;
+
+		vehicleWeapon->transform.SetRotationAxisAngles(Transform::UP, -cameraComponent->GetCameraHorizontalAngle() - M_PI * 0.5f +
+			acos(glm::dot(vehicle->GetEntity()->transform.GetForward(), Transform::FORWARD)) * (side ? -1.f : 1.f) +
+		0);
+		//std::cout << glm::degrees(acos(glm::dot(vehicle->GetEntity()->transform.GetForward(), Transform::FORWARD))) << std::endl;
+		//std::cout << glm::dot(vehicle->GetEntity()->transform.GetForward(), Transform::FORWARD) << std::endl;
+
+		down = glm::dot(vehicle->GetEntity()->transform.GetUp(), Transform::RIGHT) > 0;
+
+		vehicleWeapon->transform.Rotate(Transform::RIGHT, -cameraComponent->GetCameraVerticalAngle() + 
+			acos(glm::dot(vehicle->GetEntity()->transform.GetUp(), Transform::UP)) * (side ? 1.f : -1.f) * (down ? -1.f : 1.f) + M_PI / 2.f - M_PI / 8.f);
+
+		/*
+		direction = cameraComponent->GetPosition() - cameraComponent->GetTarget();
+		target = vehicleWeapon->transform.GetLocalPosition() + vehicle->GetEntity()->transform.GetLocalDirection(direction);
+
+		std::cout << to_string(direction) << std::endl;
+		std::cout << to_string(vehicle->GetEntity()->transform.GetLocalDirection(direction)) << std::endl;
+
+		q = glm::quat(glm::lookAt(vehicleWeapon->transform.GetLocalPosition(), target, Transform::UP));
+		vehicleWeapon->transform.SetRotation(q);
+		//vehicleWeapon->transform.SetRotation(glm::inverse(glm::quat(vehicle->GetEntity()->transform.GetRotationMatrix())) * q);
+		*/
 		glfwSetCursorPos(graphicsInstance.GetWindow(), width / 2, height / 2);
 		break;
 	default:
