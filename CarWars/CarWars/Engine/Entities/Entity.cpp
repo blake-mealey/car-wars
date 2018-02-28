@@ -2,23 +2,22 @@
 #include "../Events/Event.h"
 #include "imgui/imgui.h"
 
-Entity::Entity(size_t _id) : id(_id), components(std::vector<Component*>()), children(std::vector<Entity*>()),
-        parent(nullptr), transform(Transform()), tag(std::string()) { }
+#include "Entity.h"
+Entity::Entity(short i) : id(i) {}
 
-Entity::~Entity() {
-	for (size_t i = 0; i < components.size(); i++) {
-		delete components[i];
-	}
+short Entity::GetId() const {
+	return id;
 }
 
-void Entity::HandleEvent(Event* event) {
-	for (size_t i = 0; i < components.size(); i++) {
-		components[i]->HandleEvent(event);		// TODO: Not really correct, use Colton's code
-	}
+unsigned short Entity::GetIndex() {
+	return id & ~(infoMask << idEnd);
+}
+unsigned short Entity::GetComponentIndex(ComponentType t) const {
+	return components[t];
 }
 
 void Entity::RenderDebugGui() {
-    if (ImGui::TreeNode((void*)(intptr_t)GetId(), "Entity (%s)", GetTag().c_str())) {
+    /*if (ImGui::TreeNode((void*)(intptr_t)GetId(), "Entity (%s)", GetTag().c_str())) {
         if (ImGui::TreeNode("Properties")) {
             if (ImGui::TreeNode("Transform")) {
                 transform.RenderDebugGui();
@@ -47,33 +46,7 @@ void Entity::RenderDebugGui() {
         }
 
         ImGui::TreePop();
-    }
-}
-
-void Entity::AddComponent(Component* component) {
-	components.push_back(component);
-}
-
-void Entity::RemoveComponent(Component* component) {
-	auto it = std::find(components.begin(), components.end(), component);
-	if (it != components.end())
-		components.erase(it);
-}
-
-size_t Entity::GetId() const {
-	return id;
-}
-
-std::string Entity::GetTag() const {
-	return tag;
-}
-
-bool Entity::HasTag(std::string _tag) const {
-	return tag.compare(_tag) == 0;
-}
-
-void Entity::SetTag(std::string _tag) {
-	tag = _tag;
+    }*/
 }
 
 

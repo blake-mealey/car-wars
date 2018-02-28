@@ -2,6 +2,8 @@
 #include "../Systems/Content/ContentManager.h"
 #include "imgui/imgui.h"
 
+#include "../Entities/EntityManager.h"
+
 #include "glm/gtc/type_ptr.hpp"
 
 SpotLightComponent::SpotLightComponent(nlohmann::json data) {
@@ -27,16 +29,11 @@ glm::vec3 SpotLightComponent::GetDirection() const {
 }
 
 SpotLight SpotLightComponent::GetData() const {
-	return SpotLight(color, power, GetEntity()->transform.GetGlobalPosition(), angle, GetEntity()->transform.GetGlobalDirection(direction));
+	Transform& trans = EntityManager::GetTransform(entityID);
+	return SpotLight(color, power, trans.GetGlobalPosition(), angle, trans.GetGlobalDirection(direction));
 }
 
-ComponentType SpotLightComponent::GetType() {
-	return ComponentType_SpotLight;
-}
-
-void SpotLightComponent::HandleEvent(Event* event) {}
-
-void SpotLightComponent::RenderDebugGui() {
+void SpotLightComponent::InternalRenderDebugGui() {
     Component::RenderDebugGui();
     ImGui::SliderAngle("Angle", &angle);
     ImGui::DragFloat("Power", &power);

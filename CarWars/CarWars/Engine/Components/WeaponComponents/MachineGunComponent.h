@@ -5,15 +5,15 @@
 
 #include "WeaponComponent.h"
 
-class MachineGunComponent : public WeaponComponent {
+class MachineGunComponent : public WeaponComponent<MachineGunComponent> {
+	friend class WeaponComponent<MachineGunComponent>;
 public:
 	MachineGunComponent();
-	void Shoot() override;
+	void InternalShoot();
 
-	ComponentType GetType() override;
-	void HandleEvent(Event *event) override;
+	static constexpr ComponentType InternalGetType() { return ComponentType_MachineGun; }
 
-	void RenderDebugGui() override;
+	void InternalRenderDebugGui();
 private:
 	Time timeBetweenShots = 0.05f;
 

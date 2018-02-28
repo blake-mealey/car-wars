@@ -16,7 +16,9 @@
 #include "Content/ShaderProgram.h"
 #include "../Components/PointLightComponent.h"
 #include "../Components/DirectionLightComponent.h"
+#include "../Components/SpotLightComponent.h"
 #include "Content/SpotLight.h"
+#include "../Components/CameraComponent.h"
 
 #define BLUR_LEVEL_COUNT 6
 
@@ -107,7 +109,7 @@ public:
 
 	static void WindowSizeCallback(GLFWwindow *window, int width, int height);
 	void SetWindowDimensions(size_t width, size_t height);
-	void UpdateViewports(std::vector<Component*> cameraComponents) const;
+	void UpdateViewports(std::vector<CameraComponent>& cameraComponents) const;
 	glm::vec2 GetViewportSize() const;
 
 private:
@@ -119,7 +121,7 @@ private:
 	void LoadModel(ShaderProgram* shaderProgram, MeshComponent* model);
     void Graphics::LoadModel(ShaderProgram *shaderProgram, glm::mat4 modelMatrix, Material *material, Mesh* mesh, Texture *texture = nullptr, glm::vec2 uvScale = glm::vec2(1.f));
 
-	void LoadCameras(std::vector<Component*> cameraComponents);
+	void LoadCameras(std::vector<CameraComponent> cameraComponents);
 	std::vector<Camera> cameras;
 	
 	GLFWwindow* window;
@@ -141,8 +143,9 @@ private:
     GLuint blurLevelIds[BLUR_LEVEL_COUNT];
     GLuint blurTempLevelIds[BLUR_LEVEL_COUNT];
 
-	void LoadLights(std::vector<Component*> _pointLights, std::vector<Component*> _directionLights, std::vector<Component*> _spotLights);
-	void LoadLights(std::vector<PointLight> pointLights, std::vector<DirectionLight> directionLights, std::vector<SpotLight> spotLights);
+	//void LoadLights(std::vector<Component*> _pointLights, std::vector<Component*> _directionLights, std::vector<Component*> _spotLights);
+	void LoadLights(std::vector<PointLightComponent>& pointLights, std::vector<DirectionLightComponent>& directionLights, std::vector<SpotLightComponent>& spotLights);
+	void LoadLights(std::vector<PointLight>& pointLights, std::vector<DirectionLight>& directionLights, std::vector<SpotLight>& spotLights);
 
 	void LoadMesh(Mesh *mesh);
 	void LoadTriangles(const Triangle *triangles, const size_t triangleCount);

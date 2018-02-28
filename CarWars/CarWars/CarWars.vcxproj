@@ -219,6 +219,7 @@
     <ClInclude Include="Engine\Entities\EntityManager.h" />
     <ClInclude Include="Engine\Entities\Transform.h" />
     <ClInclude Include="Engine\Events\Event.h" />
+    <ClInclude Include="Engine\Events\EventHandler.h" />
     <ClInclude Include="Engine\Systems\Audio.h" />
     <ClInclude Include="Engine\Systems\Content\ContentManager.h" />
     <ClInclude Include="Engine\Systems\Content\DirectionLight.h" />

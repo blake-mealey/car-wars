@@ -5,7 +5,8 @@
 #include <glm/glm.hpp>
 #include "../Systems/Content/PointLight.h"
 
-class PointLightComponent : public Component {
+class PointLightComponent : public Component<PointLightComponent> {
+	friend class Component<PointLightComponent>;
 public:
 	PointLightComponent(nlohmann::json data);
 	PointLightComponent(glm::vec3 _color, float _power);
@@ -14,10 +15,9 @@ public:
 	float GetPower() const;
 	PointLight GetData() const;
 
-	ComponentType GetType() override;
-	void HandleEvent(Event* event) override;
+	static constexpr ComponentType InternalGetType() { return ComponentType_PointLight; }
 
-    void RenderDebugGui() override;
+    void InternalRenderDebugGui();
 private:
 	glm::vec3 color;
 	float power;

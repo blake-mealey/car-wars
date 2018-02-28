@@ -1,5 +1,4 @@
 #pragma once
-
 #include <vector>
 
 #include <vehicle/PxVehicleDrive4W.h>
@@ -22,16 +21,16 @@ public:
     VehicleComponent();
 
     ComponentType GetType();
-    void HandleEvent(Event *event);
+    //void HandleEvent(Event *event);
 
     bool inAir;
     physx::PxVehicleDrive4W* pxVehicle = nullptr;
     physx::PxVehicleDrive4WRawInputData pxVehicleInputData;
     bool inputTypeDigital;
 
-    void SetEntity(Entity* _entity) override;
+    void InternalSetEntity(Entity& _entity);
 
-    void UpdateFromPhysics(physx::PxTransform t) override;
+    void InternalUpdateFromPhysics(physx::PxTransform t);
     void UpdateWheelTransforms();
 
     float GetChassisMass() const;
@@ -47,7 +46,7 @@ public:
 
     std::vector<AxleData> GetAxleData() const;
 
-    void RenderDebugGui() override;
+    void InternalRenderDebugGui();
 
 private:
     MeshComponent* wheelMeshPrefab;

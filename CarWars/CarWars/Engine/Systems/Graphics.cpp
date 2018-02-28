@@ -15,6 +15,9 @@
 #include <glm/gtc/matrix_transform.inl>
 #include "../Components/RigidbodyComponents/RigidbodyComponent.h"
 #include "../Components/Colliders/BoxCollider.h"
+#include "../Components/RigidbodyComponents/RigidStaticComponent.h"
+#include "../Components/RigidbodyComponents/RigidDynamicComponent.h"
+
 
 // Constants
 const size_t Graphics::MAX_CAMERAS = 4;
@@ -214,19 +217,19 @@ void Graphics::Update() {
 	glfwPollEvents();			// Should this be here or in InputManager?
 
 	// Get components
-	const std::vector<Component*> pointLights = EntityManager::GetComponents(ComponentType_PointLight);
-	const std::vector<Component*> directionLights = EntityManager::GetComponents(ComponentType_DirectionLight);
-	const std::vector<Component*> spotLights = EntityManager::GetComponents(ComponentType_SpotLight);
-	const std::vector<Component*> meshes = EntityManager::GetComponents(ComponentType_Mesh);
-	const std::vector<Component*> cameraComponents = EntityManager::GetComponents(ComponentType_Camera);
-    const std::vector<Component*> rigidbodyComponents = EntityManager::GetComponents({
+	//const std::vector<PointLightComponent> pointLights = EntityManager::GetComponents(ComponentType_PointLight);
+	//const std::vector<DirectionLightComponent> directionLights = EntityManager::GetComponents(ComponentType_DirectionLight);
+	//const std::vector<SpotLightComponent> spotLights = EntityManager::GetComponents(ComponentType_SpotLight);
+	//const std::vector<MeshComponent> meshes = EntityManager::GetComponents(ComponentType_Mesh);
+	//const std::vector<CameraComponent> cameraComponents = EntityManager::GetComponents(ComponentType_Camera);
+    /*const std::vector<RigidbodyComponent> rigidbodyComponents = EntityManager::GetComponents({
         ComponentType_RigidDynamic,
         ComponentType_RigidStatic,
         ComponentType_Vehicle
-    });
+    });*/
 
     // Get the active cameras and setup their viewports
-    LoadCameras(cameraComponents);
+    LoadCameras(EntityManager::Components<CameraComponent>());
 
 
 	// -------------------------------------------------------------------------------------------------------------- //
@@ -235,11 +238,11 @@ void Graphics::Update() {
 
 	// Get the shadow caster
 	DirectionLightComponent* shadowCaster = nullptr;
-	for (Component* component : directionLights) {
-		DirectionLightComponent* light = static_cast<DirectionLightComponent*>(component);
-		if (!light->enabled) continue;
-		if (light->IsShadowCaster()) {
-			shadowCaster = light;
+	for (DirectionLightComponent& light : EntityManager::Components<DirectionLightComponent>()) {
+		//DirectionLightComponent* light = static_cast<DirectionLightComponent*>(component);
+		if (!light.enabled) continue;
+		if (light.IsShadowCaster()) {
+			shadowCaster = &light;
 			break;
 		}
 	}
@@ -266,9 +269,9 @@ void Graphics::Update() {
 
 		// Draw the scene
 		glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
-		for (size_t j = 0; j < meshes.size(); j++) {
+		for (size_t j = 0; j < EntityManager::Components<MeshComponent>().size(); j++) {
 			// Get enabled models
-			MeshComponent* model = static_cast<MeshComponent*>(meshes[j]);
+			MeshComponent* model = &EntityManager::Components<MeshComponent>()[j];
 			if (!model->enabled) continue;
 
 			// Load the mesh's vertices into the GPU
@@ -316,12 +319,12 @@ void Graphics::Update() {
 
 	// Load our lights into the GPU
     geometryProgram->LoadUniform(UniformName::AmbientColor, AMBIENT_COLOR);
-	LoadLights(pointLights, directionLights, spotLights);
+	LoadLights(EntityManager::Components<PointLightComponent>(), EntityManager::Components<DirectionLightComponent>(), EntityManager::Components<SpotLightComponent>());
 
 	// Draw the scene
-	for (size_t j = 0; j < meshes.size(); j++) {
+	for (size_t j = 0; j < EntityManager::Components<MeshComponent>().size(); j++) {
 		// Get enabled models
-		MeshComponent* model = static_cast<MeshComponent*>(meshes[j]);
+		MeshComponent* model = &EntityManager::Components<MeshComponent>()[j];
 		if (!model->enabled) continue;
 
 		// Load the model's vertices, uvs, normals, and textures into the GPU
@@ -357,9 +360,9 @@ void Graphics::Update() {
     // Use wireframe polygon mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    for (size_t j = 0; j < rigidbodyComponents.size(); j++) {
+    for (size_t j = 0; j < EntityManager::Components<RigidDynamicComponent>().size(); j++) {
         // Get enabled models
-        RigidbodyComponent* rigidbody = static_cast<RigidbodyComponent*>(rigidbodyComponents[j]);
+        RigidDynamicComponent* rigidbody = &EntityManager::Components<RigidDynamicComponent>()[j];
         if (!rigidbody->enabled) continue;
 
         for (Collider *collider : rigidbody->colliders) {
@@ -401,6 +404,51 @@ void Graphics::Update() {
             }
         }
     }
+
+	for (size_t j = 0; j < EntityManager::Components<RigidStaticComponent>().size(); j++) {
+		// Get enabled models
+		RigidStaticComponent* rigidbody = &EntityManager::Components<RigidStaticComponent>()[j];
+		if (!rigidbody->enabled) continue;
+
+		for (Collider *collider : rigidbody->colliders) {
+			// Check if the collider has a render mesh
+			Mesh *renderMesh = collider->GetRenderMesh();
+			if (!renderMesh) continue;
+
+			// Get the global transformation matrix of the collider
+			const glm::mat4 modelMatrix = collider->GetGlobalTransform().GetTransformationMatrix();
+
+			// Load the model's vertices, uvs, normals, and textures into the GPU
+			LoadModel(
+				geometryProgram,
+				modelMatrix,
+				ContentManager::GetMaterial("PhysicsCollider.json"),
+				renderMesh
+			);
+
+			if (shadowCaster != nullptr) {
+				// Load the depth bias model view projection matrix into the GPU
+				const glm::mat4 depthModelMatrix = modelMatrix;
+				const glm::mat4 depthModelViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+				const glm::mat4 depthBiasMVP = BIAS_MATRIX*depthModelViewProjectionMatrix;
+				geometryProgram->LoadUniform(UniformName::DepthBiasModelViewProjectionMatrix, depthBiasMVP);
+			}
+
+			for (Camera camera : cameras) {
+				// Setup the viewport for each camera (split-screen)
+				glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+
+				// Load the model view projection matrix into the GPU
+				const glm::mat4 modelViewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix * modelMatrix;
+				geometryProgram->LoadUniform(UniformName::ViewMatrix, camera.viewMatrix);
+				geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
+
+				// Render the model
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eabIds[EABs::Triangles]);
+				glDrawElements(GL_TRIANGLES, renderMesh->triangleCount * 3, GL_UNSIGNED_SHORT, static_cast<void*>(nullptr));
+			}
+		}
+	}
 
     // Reset polygon mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -635,14 +683,13 @@ void Graphics::LoadModel(ShaderProgram *shaderProgram, glm::mat4 modelMatrix, Ma
     }
 }
 
-void Graphics::LoadCameras(std::vector<Component*> cameraComponents) {
+void Graphics::LoadCameras(std::vector<CameraComponent> cameraComponents) {
 	// Find up to MAX_CAMERAS enabled cameras
 	const size_t lastCount = cameras.size();
 	cameras.clear();
-	for (Component *component: cameraComponents) {
-		if (component->enabled) {
-			CameraComponent *camera = static_cast<CameraComponent*>(component);
-			cameras.push_back(Camera(camera->GetViewMatrix(), camera->GetProjectionMatrix()));
+	for (CameraComponent camera: cameraComponents) {
+		if (camera.enabled) {
+			cameras.push_back(Camera(camera.GetViewMatrix(), camera.GetProjectionMatrix()));
 			if (cameras.size() == MAX_CAMERAS) break;
 		}
 	}
@@ -693,16 +740,15 @@ void Graphics::SetWindowDimensions(size_t width, size_t height) {
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-	UpdateViewports(EntityManager::GetComponents(ComponentType_Camera));
+	UpdateViewports(EntityManager::Components<CameraComponent>());
 }
 
-void Graphics::UpdateViewports(std::vector<Component*> cameraComponents) const {
+void Graphics::UpdateViewports(std::vector<CameraComponent>& cameraComponents) const {
 	const glm::vec2 viewportSize = GetViewportSize();
 	const float aspectRatio = viewportSize.x / viewportSize.y;
-	for (Component *component : cameraComponents) {
-		if (component->enabled) {
-			CameraComponent *camera = static_cast<CameraComponent*>(component);
-			camera->SetAspectRatio(aspectRatio);
+	for (CameraComponent camera : cameraComponents) {
+		if (camera.enabled) {
+			camera.SetAspectRatio(aspectRatio);
 		}
 	}
 }
@@ -712,34 +758,34 @@ glm::vec2 Graphics::GetViewportSize() const {
 	return glm::vec2(cameras.size() == 1 ? 1 : 0.5, cameras.size() < 3 ? 1 : 0.5) * windowSize;
 }
 
-void Graphics::LoadLights(std::vector<Component*> _pointLights,
-	std::vector<Component*> _directionLights, std::vector<Component*> _spotLights) {
+void Graphics::LoadLights(std::vector<PointLightComponent>& _pointLights,
+	std::vector<DirectionLightComponent>& _directionLights, std::vector<SpotLightComponent>& _spotLights) {
 
 	// Get the point light data which can be directly passed to the shader	
 	std::vector<PointLight> pointLights;
-	for (Component *component : _pointLights) {
-		if (component->enabled)
-			pointLights.push_back(static_cast<PointLightComponent*>(component)->GetData());
+	for (PointLightComponent component : _pointLights) {
+		if (component.enabled)
+			pointLights.push_back(component.GetData());
 	}
 
 	// Get the direction light data which can be directly passed to the shader
 	std::vector<DirectionLight> directionLights;
-	for (Component *component : _directionLights) {
-		if (component->enabled)
-			directionLights.push_back(static_cast<DirectionLightComponent*>(component)->GetData());
+	for (DirectionLightComponent component : _directionLights) {
+		if (component.enabled)
+			directionLights.push_back(component.GetData());
 	}
 
 	// Get the spot light data which can be directly passed to the shader
 	std::vector<SpotLight> spotLights;
-	for (Component *component : _spotLights) {
-		if (component->enabled)
-			spotLights.push_back(static_cast<SpotLightComponent*>(component)->GetData());
+	for (SpotLightComponent component : _spotLights) {
+		if (component.enabled)
+			spotLights.push_back(component.GetData());
 	}
 
 	LoadLights(pointLights, directionLights, spotLights);
 }
 
-void Graphics::LoadLights(std::vector<PointLight> pointLights, std::vector<DirectionLight> directionLights, std::vector<SpotLight> spotLights) {
+void Graphics::LoadLights(std::vector<PointLight>& pointLights, std::vector<DirectionLight>& directionLights, std::vector<SpotLight>& spotLights) {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboIds[SSBOs::PointLights]);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, pointLights.size() * sizeof(PointLight), pointLights.data(), GL_DYNAMIC_COPY);
 

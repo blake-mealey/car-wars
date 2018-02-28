@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../StateManager.h"
+#include "../../Entities/Entity.h"
 #include "../../Entities/EntityManager.h"
 #include "../../Components/CameraComponent.h"
 #include "../../Components/WeaponComponents/MachineGunComponent.h"

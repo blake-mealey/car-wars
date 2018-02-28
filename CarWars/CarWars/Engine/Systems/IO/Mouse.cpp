@@ -19,7 +19,7 @@ void Mouse::MousePositionCallback(GLFWwindow* window, double _x, double _y) {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		glfwSetCursorPos(window, width / 2, height / 2);
 		Entity *camera = EntityManager::FindEntities("Camera")[0];
-		CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
+		CameraComponent* cameraC = &EntityManager::Components<CameraComponent>()[camera->components[0]];
 		float cVerAngle;
 		cameraC->SetCameraHorizontalAngle((cameraC->GetCameraHorizontalAngle() - ((float)(width / 2) - _x) * 0.0016f));		
 		cameraC->SetCameraVerticalAngle(cameraC->GetCameraVerticalAngle() + ((float)(height / 2) - _y) * 0.0016f);

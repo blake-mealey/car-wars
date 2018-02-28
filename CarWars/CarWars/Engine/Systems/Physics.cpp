@@ -7,6 +7,7 @@
 #include "../Entities/Entity.h"
 #include "../Entities/EntityManager.h"
 #include "../Entities/Transform.h"
+#include "../Components/RigidbodyComponents/RigidStaticComponent.h"
 #include "../Components/RigidbodyComponents/VehicleComponent.h"
 
 #include "Physics/VehicleSceneQuery.h"
@@ -162,17 +163,16 @@ void Physics::Update() {
     const PxF32 timestep = 1.0f / 60.0f;
 
     //Raycasts.
-    vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
+    vector<VehicleComponent>& vehicleComponents = EntityManager::Components<VehicleComponent>();
     vector<PxVehicleWheels*> vehicles;
-    for (Component* component : vehicleComponents) {
-        VehicleComponent* vehicle = static_cast<VehicleComponent*>(component);
-        vehicles.push_back(vehicle->pxVehicle);
+    for (VehicleComponent& vehicle : vehicleComponents) {
+        vehicles.push_back(vehicle.pxVehicle);
 
         // Update vehicle inputs
-        if (vehicle->inputTypeDigital) {
-            PxVehicleDrive4WSmoothDigitalRawInputsAndSetAnalogInputs(gKeySmoothingData, gSteerVsForwardSpeedTable, vehicle->pxVehicleInputData, timestep, vehicle->inAir, *vehicle->pxVehicle);
+        if (vehicle.inputTypeDigital) {
+            PxVehicleDrive4WSmoothDigitalRawInputsAndSetAnalogInputs(gKeySmoothingData, gSteerVsForwardSpeedTable, vehicle.pxVehicleInputData, timestep, vehicle.inAir, *vehicle.pxVehicle);
         } else {
-            PxVehicleDrive4WSmoothAnalogRawInputsAndSetAnalogInputs(gPadSmoothingData, gSteerVsForwardSpeedTable, vehicle->pxVehicleInputData, timestep, vehicle->inAir, *vehicle->pxVehicle);
+            PxVehicleDrive4WSmoothAnalogRawInputsAndSetAnalogInputs(gPadSmoothingData, gSteerVsForwardSpeedTable, vehicle.pxVehicleInputData, timestep, vehicle.inAir, *vehicle.pxVehicle);
         }
     }
 
@@ -190,9 +190,8 @@ void Physics::Update() {
     PxVehicleUpdates(timestep, grav, *pxFrictionPairs, vehicles.size(), vehicles.data(), vehicleQueryResults.data());
 
     //Work out if the vehicle is in the air.
-    for (Component* component : vehicleComponents) {
-        VehicleComponent* vehicle = static_cast<VehicleComponent*>(component);
-        vehicle->inAir = vehicle->pxVehicle->getRigidDynamicActor()->isSleeping() ? false : PxVehicleIsInAir(vehicleQueryResults[0]);
+    for (VehicleComponent& vehicle : vehicleComponents) {
+        vehicle.inAir = vehicle.pxVehicle->getRigidDynamicActor()->isSleeping() ? false : PxVehicleIsInAir(vehicleQueryResults[0]);
     }
 
     //Scene update.
@@ -207,7 +206,7 @@ void Physics::Update() {
     for (PxU32 i = 0; i < nbActiveActors; ++i) {
         PxRigidActor* activeActor = static_cast<PxRigidActor*>(activeActors[i]);
 
-        Component* component = static_cast<Component*>(activeActor->userData);
+        RigidStaticComponent* component = static_cast<RigidStaticComponent*>(activeActor->userData);
         if (component) component->UpdateFromPhysics(activeActor->getGlobalPose());
     }
 }

@@ -36,7 +36,7 @@ public:
 	static Material* GetMaterial(std::string filePath);
 	static physx::PxMaterial* GetPxMaterial(std::string filePath);
 
-    static Component* LoadComponentPrefab(std::string filePath);
+    static bool LoadComponentPrefab(std::string filePath, Entity& entity);
 	static std::vector<Entity*> LoadScene(std::string filePath);
 
 	template <typename T>
@@ -60,8 +60,10 @@ public:
 	// static GameData*? GetDataFile(std::string filePath);
 
     template <class T>
-    static T* LoadComponent(nlohmann::json data);
-	static Component* LoadComponent(nlohmann::json data);
+    static void LoadComponent(nlohmann::json data, Entity& entity);
+	template <class T>
+	static void LoadComponent(Entity& entity);
+	static bool LoadComponent(nlohmann::json data, Entity& entity);
 	static Entity* LoadEntity(nlohmann::json data);
 
 private:
@@ -79,8 +81,14 @@ T ContentManager::GetFromJson(nlohmann::json json, T defaultValue) {
 }
 
 template <class T>
-T* ContentManager::LoadComponent(nlohmann::json data) {
-    T *component = new T(data);
-    component->enabled = GetFromJson<bool>(data["Enabled"], true);
-    return component;
+void ContentManager::LoadComponent(nlohmann::json data, Entity& entity) {
+	T component{ data };
+    component.enabled = GetFromJson<bool>(data["Enabled"], true);
+	EntityManager::AddComponent(entity, component);
+}
+
+template <class T>
+void ContentManager::LoadComponent(Entity& entity) {
+	T component;
+	EntityManager::AddComponent(entity, component);
 }

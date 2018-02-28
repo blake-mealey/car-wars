@@ -387,15 +387,15 @@ void InputManager::HandleKeyboard() {
 		break;
 	}
 
-	vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-	VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[0]);
+	vector<VehicleComponent>& vehicleComponents = EntityManager::Components<VehicleComponent>();
+	VehicleComponent* vehicle = &(vehicleComponents[0]);
 
 	if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
-		static_cast<RailGunComponent*>(vehicle->GetEntity()->components[1])->Charge();
+		//static_cast<RailGunComponent*>(vehicle->GetEntity()->components[1])->Charge();
 	}
 
 	if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
-		static_cast<RailGunComponent*>(vehicle->GetEntity()->components[1])->Shoot();
+		//static_cast<RailGunComponent*>(vehicle->GetEntity()->components[1])->Shoot();
 		//static_cast<MachineGunComponent*>(vehicle->GetEntity()->components[1])->Shoot();
 	}
 
@@ -445,7 +445,7 @@ void InputManager::HandleKeyboard() {
 	}
 
 	Entity *camera = EntityManager::FindEntities("Camera")[0];
-	CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
+	CameraComponent* cameraC = &EntityManager::Components<CameraComponent>()[(camera->components[ComponentType_Camera])];
 	if (Keyboard::KeyDown(GLFW_KEY_RIGHT)) {
 		float x = dt.GetTimeSeconds() * 4.f;
 		cameraC->SetCameraHorizontalAngle(cameraC->GetCameraHorizontalAngle() + x);
@@ -500,8 +500,8 @@ void InputManager::HandleController() {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " held L-TRIGGER" << endl;
 				//leftVibrate = 30000 * (*controller)->GetState().Gamepad.bLeftTrigger / 255;
 
-				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
+				vector<VehicleComponent>& vehicleComponents = EntityManager::Components<VehicleComponent>();
+				VehicleComponent* vehicle = &vehicleComponents[controllerNum];
 				
 				if (vehicle->pxVehicle->computeForwardSpeed() > 5.f) {
 					vehicle->pxVehicleInputData.setAnalogBrake(1.0f);
@@ -514,8 +514,8 @@ void InputManager::HandleController() {
 			} else if ((*controller)->GetPreviousState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD && (*controller)->GetState().Gamepad.bLeftTrigger < XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " released L-TRIGGER" << endl;
 
-				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
+				vector<VehicleComponent>& vehicleComponents = EntityManager::Components<VehicleComponent>();
+				VehicleComponent* vehicle = &vehicleComponents[controllerNum];
 				vehicle->pxVehicleInputData.setAnalogAccel(0.0f);
 			}
 
@@ -526,8 +526,8 @@ void InputManager::HandleController() {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " held R-TRIGGER" << endl;
 				//rightVibrate = 30000 * (*controller)->GetState().Gamepad.bRightTrigger / 255;
 
-				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
+				vector<VehicleComponent>& vehicleComponents = EntityManager::Components<VehicleComponent>();
+				VehicleComponent* vehicle = &vehicleComponents[controllerNum];
 
 
 				cout << vehicle->pxVehicle->computeForwardSpeed() << endl;
@@ -546,8 +546,8 @@ void InputManager::HandleController() {
 			} else if ((*controller)->GetPreviousState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD && (*controller)->GetState().Gamepad.bRightTrigger < XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " released R-TRIGGER" << endl;
 
-				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
+				vector<VehicleComponent> vehicleComponents = EntityManager::Components<VehicleComponent>();
+				VehicleComponent* vehicle = &vehicleComponents[controllerNum];
 				vehicle->pxVehicleInputData.setAnalogAccel(0.0f);
 			}
 
@@ -563,15 +563,15 @@ void InputManager::HandleController() {
 
 				std::cout << (*controller)->GetState().Gamepad.sThumbLX << std::endl;
 
-				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
+				vector<VehicleComponent> vehicleComponents = EntityManager::Components<VehicleComponent>();
+				VehicleComponent* vehicle = &vehicleComponents[controllerNum];
 				vehicle->pxVehicleInputData.setAnalogSteer(-(*controller)->GetState().Gamepad.sThumbLX / 32768.0f);
 
 			} else if (((*controller)->GetPreviousState().Gamepad.sThumbLX >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || (*controller)->GetPreviousState().Gamepad.sThumbLX <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) && (((*controller)->GetState().Gamepad.sThumbLX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) && ((*controller)->GetState().Gamepad.sThumbLX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE))) {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " released LEFT-JOYSTICK X-AXIS" << endl;
 
-				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
+				vector<VehicleComponent> vehicleComponents = EntityManager::Components<VehicleComponent>();
+				VehicleComponent* vehicle = &vehicleComponents[controllerNum];
 				vehicle->pxVehicleInputData.setAnalogSteer(0.0f);
 
 			}
@@ -592,7 +592,7 @@ void InputManager::HandleController() {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " held RIGHT-JOYSTICK X-AXIS" << endl;
 
 				Entity *camera = EntityManager::FindEntities("Camera")[controllerNum];
-				CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
+				CameraComponent* cameraC = &EntityManager::Components<CameraComponent>()[camera->components[ComponentType_Camera]];
 				float x = dt.GetTimeSeconds() * 3.f * (*controller)->GetState().Gamepad.sThumbRX / 30000.f;
 				cameraC->SetCameraHorizontalAngle(cameraC->GetCameraHorizontalAngle() + x);
 				
@@ -609,7 +609,7 @@ void InputManager::HandleController() {
 
 
 				Entity *camera = EntityManager::FindEntities("Camera")[controllerNum];
-				CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
+				CameraComponent* cameraC = &EntityManager::Components<CameraComponent>()[camera->components[ComponentType_Camera]];
 				float x = dt.GetTimeSeconds() * 3.f * (*controller)->GetState().Gamepad.sThumbRY / 30000.f;
 				cameraC->SetCameraVerticalAngle(std::min(std::max(cameraC->GetCameraVerticalAngle() + x,0.1f),static_cast<float>(M_PI) -0.1f));
 

@@ -2,15 +2,16 @@
 
 #include "RigidbodyComponent.h"
 
-class RigidStaticComponent : public RigidbodyComponent {
+class RigidStaticComponent : public RigidbodyComponent<RigidStaticComponent> {
+	friend class RigidbodyComponent<RigidStaticComponent>;
 public:
+	RigidStaticComponent();
     RigidStaticComponent(nlohmann::json data);
 
-    ComponentType GetType() override;
-    void HandleEvent(Event *event) override;
+	static constexpr ComponentType InternalGetType() { return ComponentType_RigidStatic; }
 
-    void RenderDebugGui() override;
+	void InternalRenderDebugGui();
 
 private:
-    void InitializeRigidbody() override;
+	void InternalInitializeRigidbody();
 };

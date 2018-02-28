@@ -6,14 +6,15 @@
 
 class Graphics;
 
-class CameraComponent : public Component {
+class CameraComponent : public Component<CameraComponent> {
+	friend class Component<CameraComponent>;
 public:
 	static const float NEAR_CLIPPING_PLANE;
 	static const float FAR_CLIPPING_PLANE;
 	static const float DEFAULT_FIELD_OF_VIEW;
 
-	ComponentType GetType() override;
-	void HandleEvent(Event* event) override;
+	static constexpr ComponentType InternalGetType() { return ComponentType_Camera; }
+	//void HandleEvent(Event* event);
 
 	CameraComponent();
 	CameraComponent(nlohmann::json data);
@@ -37,7 +38,7 @@ public:
 	float GetCameraVerticalAngle();
 	void SetCameraVerticalAngle(float _cameraLift);
 
-    void RenderDebugGui() override;
+    void InternalRenderDebugGui();
 
 private:
 	float fieldOfView;		// In degrees

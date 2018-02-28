@@ -2,6 +2,7 @@
 #include "../Systems/Content/ContentManager.h"
 #include <glm/gtc/type_ptr.hpp>
 #include "imgui/imgui.h"
+#include "../Entities/EntityManager.h"
 
 PointLightComponent::PointLightComponent(nlohmann::json data) {
 	color = ContentManager::JsonToVec3(data["Color"], glm::vec3(1.f));
@@ -19,16 +20,10 @@ float PointLightComponent::GetPower() const {
 }
 
 PointLight PointLightComponent::GetData() const {
-	return PointLight(color, power, GetEntity()->transform.GetGlobalPosition());
+	return PointLight(color, power, EntityManager::GetTransform(entityID).GetGlobalPosition());
 }
 
-ComponentType PointLightComponent::GetType() {
-	return ComponentType_PointLight;
-}
-
-void PointLightComponent::HandleEvent(Event* event) {}
-
-void PointLightComponent::RenderDebugGui() {
+void PointLightComponent::InternalRenderDebugGui() {
     Component::RenderDebugGui();
     ImGui::DragFloat("Power", &power);
     ImGui::ColorEdit3("Colour", glm::value_ptr(color));

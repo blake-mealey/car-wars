@@ -5,7 +5,8 @@
 #include <glm/glm.hpp>
 #include "../Systems/Content/DirectionLight.h"
 
-class DirectionLightComponent : public Component {
+class DirectionLightComponent : public Component<DirectionLightComponent> {
+	friend class Component<DirectionLightComponent>;
 public:
 	DirectionLightComponent(nlohmann::json data);
 	DirectionLightComponent(glm::vec3 _color, glm::vec3 _direction);
@@ -18,10 +19,9 @@ public:
 
     void SetDirection(glm::vec3 _direction);
 
-	ComponentType GetType() override;
-	void HandleEvent(Event* event) override;
+	static constexpr ComponentType InternalGetType() { return ComponentType_DirectionLight; }
 
-    void RenderDebugGui() override;
+    void InternalRenderDebugGui();
 private:
 	glm::vec3 color;
 	glm::vec3 direction;

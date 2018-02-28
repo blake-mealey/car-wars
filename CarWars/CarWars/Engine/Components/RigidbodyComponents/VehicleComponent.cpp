@@ -16,7 +16,9 @@ VehicleComponent::VehicleComponent(nlohmann::json data) : RigidDynamicComponent(
     inputTypeDigital = ContentManager::GetFromJson<bool>(data["DigitalInput"], false);
 
     if (!data["WheelMesh"].is_null()) {
-        wheelMeshPrefab = static_cast<MeshComponent*>(ContentManager::LoadComponent<MeshComponent>(data["WheelMesh"]));
+		wheelMeshPrefab = new MeshComponent(data);
+		wheelMeshPrefab->enabled = true;
+        //wheelMeshPrefab = static_cast<MeshComponent*>(ContentManager::LoadComponent<MeshComponent>(data["WheelMesh"], entityID));
     }
     else {
         wheelMeshPrefab = new MeshComponent("Boulder.obj", "Basic.json", "Boulder.jpg");
@@ -40,7 +42,7 @@ VehicleComponent::VehicleComponent(nlohmann::json data) : RigidDynamicComponent(
     Initialize();
 }
 
-VehicleComponent::VehicleComponent(size_t _wheelCount, bool _inputTypeDigital) : RigidDynamicComponent(),
+VehicleComponent::VehicleComponent(size_t _wheelCount, bool _inputTypeDigital) : RigidDynamicComponent(0),
     inputTypeDigital(_inputTypeDigital), chassisSize(glm::vec3(2.5f, 2.f, 5.f)),
     wheelMass(20.f), wheelRadius(0.5f), wheelWidth(0.4f), wheelCount(_wheelCount) {
 
@@ -330,23 +332,23 @@ std::vector<AxleData> VehicleComponent::GetAxleData() const {
     return axleData;
 }
 
-void VehicleComponent::RenderDebugGui() {
-    RigidDynamicComponent::RenderDebugGui();
+void VehicleComponent::InternalRenderDebugGui() {
+    RigidDynamicComponent::InternalRenderDebugGui();
 }
 
 ComponentType VehicleComponent::GetType() {
     return ComponentType_Vehicle;
 }
 
-void VehicleComponent::HandleEvent(Event *event) {}
+//void VehicleComponent::HandleEvent(Event *event) {}
 
-void VehicleComponent::SetEntity(Entity* _entity) {
-    RigidbodyComponent::SetEntity(_entity);
+void VehicleComponent::InternalSetEntity(Entity& _entity) {
+    //RigidbodyComponent::SetEntity(_entity);
     for (MeshComponent *component : wheelMeshes) {
         /*if (component->GetEntity() != nullptr) {
         EntityManager::RemoveComponent(component->GetEntity(), component);
         }*/
-        EntityManager::AddComponent(GetEntity(), component);
+        EntityManager::AddComponent<MeshComponent>(_entity, component);
     }
 
     //Set the vehicle to rest in first gear.
@@ -356,7 +358,6 @@ void VehicleComponent::SetEntity(Entity* _entity) {
     pxVehicle->mDriveDynData.setUseAutoGears(true);
 }
 
-void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
-    Component::UpdateFromPhysics(t);
+void VehicleComponent::InternalUpdateFromPhysics(physx::PxTransform t) {
     UpdateWheelTransforms();
 }

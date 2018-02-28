@@ -56,14 +56,14 @@ void Game::Initialize() {
 	cameras = EntityManager::FindEntities("Camera");
 
 	for (Entity* camera : cameras) {
-        static_cast<CameraComponent*>(camera->components[0])->SetCameraHorizontalAngle(-3.14 / 2);
-        static_cast<CameraComponent*>(camera->components[0])->SetCameraVerticalAngle(3.14 / 4);
+        EntityManager::Components<CameraComponent>()[camera->components[ComponentType_Camera]].SetCameraHorizontalAngle(-3.14 / 2);
+		EntityManager::Components<CameraComponent>()[camera->components[ComponentType_Camera]].SetCameraVerticalAngle(3.14 / 4);
 	}
 
 
 
     Entity *cylinder = EntityManager::FindEntities("Cylinder")[0];
-    RigidDynamicComponent *cylinderRigid = static_cast<RigidDynamicComponent*>(cylinder->components[1]);
+    RigidDynamicComponent *cylinderRigid = &EntityManager::Components<RigidDynamicComponent>()[cylinder->components[ComponentType_RigidDynamic]];
 
     // Don't fall with gravity
     cylinderRigid->actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
@@ -133,16 +133,18 @@ void Game::Update() {
 
 		float t = glm::radians(45.5) + gameTime.GetTimeSeconds() / 10;
         glm::vec3 sunPosition = glm::vec3(cos(t), 0.5f, sin(t));
-        static_cast<DirectionLightComponent*>(EntityManager::FindEntities("Sun")[0]->components[0])->SetDirection(-sunPosition);
+		EntityManager::Components<DirectionLightComponent>()[EntityManager::FindEntities("Sun")[0]->components[ComponentType_DirectionLight]].SetDirection(-sunPosition);
 		
 		for (int i = 0; i < cars.size(); i++) {
 			Entity* camera = cameras[i];
 			Entity* car = cars[i];
-
+			
+			Transform& camTrans = EntityManager::GetTransform(camera->GetId());
+			Transform& carTrans = EntityManager::GetTransform(car->GetId());
 			//camera->transform.SetPosition(glm::mix(camera->transform.GetGlobalPosition(), boulder->transform.GetGlobalPosition(), 0.05f));
-			camera->transform.SetPosition(glm::mix(camera->transform.GetGlobalPosition(), car->transform.GetGlobalPosition(), 0.04f));
+			camTrans.SetPosition(glm::mix(camTrans.GetGlobalPosition(), carTrans.GetGlobalPosition(), 0.04f));
 			//static_cast<CameraComponent*>(camera->components[0])->SetTarget(boulder->transform.GetGlobalPosition());
-			static_cast<CameraComponent*>(camera->components[0])->SetTarget(car->transform.GetGlobalPosition() + glm::vec3(0.0f, 1.0f, 0.0f));
+			EntityManager::Components<CameraComponent>()[camera->components[ComponentType_Camera]].SetTarget(carTrans.GetGlobalPosition() + glm::vec3(0.0f, 1.0f, 0.0f));
 		}
 
 		//camera->transform.SetPosition(boulder->transform.GetGlobalPosition());

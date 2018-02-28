@@ -1,18 +1,13 @@
 #include "CameraComponent.h"
 #include <glm/gtc/matrix_transform.inl>
 #include "../Entities/Entity.h"
+#include "../Entities/EntityManager.h"
 #include "../Systems/Content/ContentManager.h"
 #include "imgui/imgui.h"
 
 const float CameraComponent::NEAR_CLIPPING_PLANE = 0.1f;
 const float CameraComponent::FAR_CLIPPING_PLANE = 200.f;
 const float CameraComponent::DEFAULT_FIELD_OF_VIEW = 60.f;		// In degrees
-
-ComponentType CameraComponent::GetType() {
-	return ComponentType_Camera;
-}
-
-void CameraComponent::HandleEvent(Event* event) {}
 
 CameraComponent::CameraComponent() : CameraComponent(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)) {}
 
@@ -33,10 +28,11 @@ CameraComponent::CameraComponent(glm::vec3 _position, glm::vec3 _target, glm::ve
 }
 
 glm::vec3 CameraComponent::GetPosition() const {
-	if (entity == nullptr) {
+	if (!(entityID & (1 << 14))) {
 		return position;
 	}
-	return position + entity->transform.GetGlobalPosition();
+	return position + EntityManager::GetTransform(entityID).GetGlobalPosition();
+	//return position + entity->transform.GetGlobalPosition();
 }
 
 glm::vec3 CameraComponent::GetTarget() const {
@@ -94,7 +90,7 @@ void CameraComponent::SetCameraVerticalAngle(float _cameraLift) {
     UpdatePositionFromAngles();
 }
 
-void CameraComponent::RenderDebugGui() {
+void CameraComponent::InternalRenderDebugGui() {
     Component::RenderDebugGui();
     if (ImGui::DragFloat("FOV", &fieldOfView, 0, 180)) UpdateProjectionMatrix();
     if (ImGui::SliderAngle("Horizontal Angle", &cameraAngle)) UpdatePositionFromAngles();

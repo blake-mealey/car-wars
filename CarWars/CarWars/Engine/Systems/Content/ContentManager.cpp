@@ -174,9 +174,9 @@ physx::PxMaterial* ContentManager::GetPxMaterial(std::string filePath) {
     return material;
 }
 
-Component* ContentManager::LoadComponentPrefab(std::string filePath) {
+bool ContentManager::LoadComponentPrefab(std::string filePath, Entity& entity) {
     const nlohmann::json data = LoadJson(COMPONENT_PREFAB_DIR_PATH + filePath);
-    return LoadComponent(data);
+    return LoadComponent(data, entity);
 }
 
 std::vector<Entity*> ContentManager::LoadScene(std::string filePath) {
@@ -189,7 +189,7 @@ std::vector<Entity*> ContentManager::LoadScene(std::string filePath) {
 	return entities;
 }
 
-Component* ContentManager::LoadComponent(nlohmann::json data) {
+/*Component* ContentManager::LoadComponent(nlohmann::json data) {
     if (data.is_string()) {
         return LoadComponentPrefab(data.get<std::string>());
     }
@@ -224,27 +224,69 @@ Component* ContentManager::LoadComponent(nlohmann::json data) {
     }
 
     return nullptr;
+}*/
+
+bool ContentManager::LoadComponent(nlohmann::json data, Entity& entity) {
+	if (data.is_string()) {
+		return LoadComponentPrefab(data.get<std::string>(), entity);
+	}
+
+	//Component *component = nullptr;
+	bool supportedType;
+	if (!data["Prefab"].is_null()) {
+		LoadComponentPrefab(data["Prefab"], entity);
+		//supportedType = component != nullptr;
+	}
+	else {
+		//supportedType = true;
+		std::string type = data["Type"];
+		if (type == "Mesh")
+			LoadComponent<MeshComponent>(data, entity);
+		else if (type == "Camera")
+			LoadComponent<CameraComponent>(data, entity);
+		else if (type == "PointLight")
+			LoadComponent<PointLightComponent>(data, entity);
+		else if (type == "DirectionLight")
+			LoadComponent<DirectionLightComponent>(data, entity);
+		else if (type == "SpotLight")
+			LoadComponent<SpotLightComponent>(data, entity);
+		else if (type == "RigidStatic")
+			LoadComponent<RigidStaticComponent>(data, entity);
+		else if (type == "RigidDynamic")
+			LoadComponent<RigidDynamicComponent>(data, entity);
+		else if (type == "Vehicle")
+			LoadComponent<VehicleComponent>(data, entity);
+		else if (type == "MachineGun")
+			LoadComponent<MachineGunComponent>(entity);
+		else if (type == "RailGun")
+			LoadComponent<RailGunComponent>(entity);
+		else {
+			std::cout << "Unsupported component type: " << type << std::endl;
+			return false;
+		}
+		return true;
+	}
 }
+
 
 Entity* ContentManager::LoadEntity(nlohmann::json data) {
     if (data.is_string()) {
         data = LoadJson(ENTITY_PREFAB_DIR_PATH + data.get<std::string>());
     }
 
-    Entity *entity = EntityManager::CreateDynamicEntity();		// TODO: Determine whether or not the entity is static
+    Entity& entity = EntityManager::CreateDynamicEntity();		// TODO: Determine whether or not the entity is static
 	if (!data["Prefab"].is_null()) {
 		nlohmann::json prefabData = LoadJson(ENTITY_PREFAB_DIR_PATH + data["Prefab"].get<std::string>());
         data.insert(prefabData.begin(), prefabData.end());
 	}
 
     if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);
-    entity->transform = Transform(data);
+	EntityManager::transforms[entity.transformID] = Transform(data);
+	//EntityManager::transforms.push_back(Transform(data));
+	//entity.transformID = EntityManager::transforms.size() - 1;
 
     for (const auto componentData : data["Components"]) {
-        Component *component = LoadComponent(componentData);
-        if (component != nullptr) {
-            EntityManager::AddComponent(entity, component);
-        }
+        LoadComponent(componentData, entity);
     }
 
     for (const auto childData : data["Children"]) {
@@ -252,7 +294,7 @@ Entity* ContentManager::LoadEntity(nlohmann::json data) {
         EntityManager::SetParent(child, entity);
     }
 
-	return entity;
+	return &entity;
 }
 
 nlohmann::json ContentManager::LoadJson(const std::string filePath) {

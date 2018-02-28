@@ -2,7 +2,7 @@
 
 RailGunComponent::RailGunComponent() {}
 
-void RailGunComponent::Shoot() {
+void RailGunComponent::InternalShoot() {
 	if (StateManager::gameTime.GetTimeSeconds() >= nextShotTime.GetTimeSeconds()) {
 		nextChargeTime = StateManager::gameTime + timeBetweenShots;
 		std::cout << "Shoot Rail Gun" << std::endl;
@@ -23,14 +23,5 @@ void RailGunComponent::Charge() {
 	}
 }
 
-ComponentType RailGunComponent::GetType() {
-	return ComponentType_RailGun;
-}
-
-void RailGunComponent::HandleEvent(Event* event) {
-	return;
-}
-
-void RailGunComponent::RenderDebugGui() {
-	RailGunComponent::RenderDebugGui();
+void RailGunComponent::InternalRenderDebugGui() {
 }

@@ -1,16 +1,11 @@
 #include "MeshComponent.h"
 #include "../Systems/Content/ContentManager.h"
 #include "../Entities/Entity.h"
+#include "../Entities/EntityManager.h"
 
 #include <iostream>
 #include "imgui/imgui.h"
 #include <glm/gtc/type_ptr.hpp>
-
-ComponentType MeshComponent::GetType() {
-	return ComponentType_Mesh;
-}
-
-void MeshComponent::HandleEvent(Event* event) {}
 
 MeshComponent::MeshComponent(nlohmann::json data) {
 	mesh = ContentManager::GetMesh(data["Mesh"]);
@@ -42,7 +37,7 @@ MeshComponent::MeshComponent(const std::string meshPath, const std::string mater
 }
 
 MeshComponent::MeshComponent(std::string meshPath, Material *_material) : material(_material), uvScale(glm::vec2(1.f)), texture(nullptr) {
-	mesh = ContentManager::GetMesh(meshPath);
+	//mesh = ContentManager::GetMesh(meshPath);
 }
 
 Mesh* MeshComponent::GetMesh() const {
@@ -61,7 +56,7 @@ glm::vec2 MeshComponent::GetUvScale() const {
 	return uvScale;
 }
 
-void MeshComponent::RenderDebugGui() {
+void MeshComponent::InternalRenderDebugGui() {
     Component::RenderDebugGui();
     if (ImGui::TreeNode("Transform")) {
         transform.RenderDebugGui();
@@ -76,9 +71,8 @@ void MeshComponent::RenderDebugGui() {
     ImGui::DragFloat2("UV Scale", glm::value_ptr(uvScale), 0.1f);
 }
 
-void MeshComponent::SetEntity(Entity* _entity) {
-	Component::SetEntity(_entity);
-	transform.parent = &_entity->transform;
+void MeshComponent::InternalSetEntity(Entity& _entity) {
+	//transform.parent = &EntityManager::GetTransform(_entity.transformID);
 }
 
 void MeshComponent::MakeCylinder(Mesh* mesh) {
