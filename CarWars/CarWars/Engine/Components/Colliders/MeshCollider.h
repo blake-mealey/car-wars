@@ -14,6 +14,7 @@ public:
 
     Mesh* GetRenderMesh() override;
 private:
+	Mesh *mesh;
+
     void InitializeGeometry();
-    Mesh *mesh;
 };

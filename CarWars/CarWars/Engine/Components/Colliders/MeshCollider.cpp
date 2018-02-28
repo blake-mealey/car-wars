@@ -49,16 +49,17 @@ void MeshCollider::InitializeGeometry() {
 
     Physics& physics = Physics::Instance();
 
+	PxTriangleMesh *triangleMesh = nullptr;
     PxDefaultMemoryOutputStream writeBuffer;
     PxTriangleMeshCookingResult::Enum result;
-    const bool status = physics.GetCooking().cookTriangleMesh(meshDesc, writeBuffer, &result);
-    if (!status)
-        std::cout << "Failed to initialize mesh geometry";
+	if (physics.GetCooking().cookTriangleMesh(meshDesc, writeBuffer, &result)) {
+		PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+		triangleMesh = physics.GetApi().createTriangleMesh(readBuffer);
+	}
 
 	delete[] vertices;
 	delete[] triangles;
 
-    PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-	PxMeshScale scale(Transform::ToPx(transform.GetGlobalScale()));
-    geometry = new PxTriangleMeshGeometry(physics.GetApi().createTriangleMesh(readBuffer), scale);
+	PxMeshScale scale(Transform::ToPx(transform.GetGlobalScale()), PxQuat(PxIdentity));
+    geometry = new PxTriangleMeshGeometry(triangleMesh, scale);
 }

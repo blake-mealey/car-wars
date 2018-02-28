@@ -66,7 +66,7 @@ void ConvexMeshCollider::InitializeGeometry(Mesh *mesh) {
 
 void ConvexMeshCollider::InitializeGeometry(PxConvexMesh* mesh) {
     InitializeRenderMesh(mesh);
-	PxMeshScale scale(Transform::ToPx(transform.GetGlobalScale()));
+	PxMeshScale scale(Transform::ToPx(transform.GetGlobalScale()), PxQuat(PxIdentity));
     geometry = new PxConvexMeshGeometry(mesh, scale);
 }
 
