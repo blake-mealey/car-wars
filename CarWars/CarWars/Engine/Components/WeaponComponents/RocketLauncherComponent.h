@@ -2,6 +2,9 @@
 #include <iostream>
 
 #include "../../Systems/StateManager.h"
+#include "../../Entities/EntityManager.h"
+
+#include "../MeshComponent.h"
 
 #include "WeaponComponent.h"
 
