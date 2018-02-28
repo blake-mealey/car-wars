@@ -1,0 +1,11 @@
+{
+	"Tag": "AiVehicle",
+	"Prefab": "Sewage.json",
+	"Components": [
+		{
+			"Type": "AI",
+			"Mode": "Waypoints",
+			"Enabled": true
+		}
+	]
+}

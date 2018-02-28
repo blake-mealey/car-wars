@@ -55,7 +55,7 @@ void EntityManager::SetTag(Entity* entity, std::string tag) {
     // Find the list of entities with this entity's tag
     auto it = tagToEntities.find(entity->GetTag());
 	if (it != tagToEntities.end()) {
-		std::vector<Entity*> entities = it->second;
+		std::vector<Entity*> &entities = it->second;
         // Remove this entity from that list
 		auto it2 = std::find(entities.begin(), entities.end(), entity);
 		if (it2 != entities.end())

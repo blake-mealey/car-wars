@@ -234,14 +234,18 @@ Component* ContentManager::LoadComponent(json data) {
 }
 
 Entity* ContentManager::LoadEntity(json data) {
-    if (data.is_string()) {
+    while (data.is_string()) {
         data = LoadJson(ENTITY_PREFAB_DIR_PATH + data.get<std::string>());
     }
 
     Entity *entity = EntityManager::CreateDynamicEntity();		// TODO: Determine whether or not the entity is static
-	if (!data["Prefab"].is_null()) {
-		json prefabData = LoadJson(ENTITY_PREFAB_DIR_PATH + data["Prefab"].get<std::string>());
-        MergeJson(data, prefabData);
+
+    json prefab = data["Prefab"];
+	while (!prefab.is_null()) {
+		json prefabData = LoadJson(ENTITY_PREFAB_DIR_PATH + prefab.get<std::string>());
+        prefab = json(prefabData["Prefab"]);
+        MergeJson(prefabData, data);
+        data = prefabData;
 	}
 
     if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);
@@ -270,7 +274,7 @@ json ContentManager::LoadJson(const std::string filePath) {
 	return object;
 }
 
-json ContentManager::MergeJson(json &obj0, json &obj1, bool overwrite) {
+void ContentManager::MergeJson(json &obj0, json &obj1, bool overwrite) {
     if (obj0.is_object()) {
         for (auto it = obj1.begin(); it != obj1.end(); ++it) {
             if (obj0[it.key()].is_primitive()) {
@@ -282,11 +286,15 @@ json ContentManager::MergeJson(json &obj0, json &obj1, bool overwrite) {
             }
         }
     } else if (obj0.is_array()) {
-        for (json &value : obj1) {
-            obj0.push_back(value);
+        if (obj0.size() >= 2 && obj0.size() <= 4 && obj0[0].is_number()) {
+            obj0 = obj1;
+        } else {
+            for (json &value : obj1) {
+                obj0.push_back(value);
+            }
         }
     } else {
-        return obj1;
+        obj0 = overwrite ? obj1 : obj0;
     }
 }
 

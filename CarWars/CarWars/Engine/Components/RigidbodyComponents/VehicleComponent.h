@@ -54,6 +54,9 @@ private:
     std::vector<MeshComponent*> wheelMeshes;
     std::vector<Collider*> wheelColliders;
 
+    physx::PxVehicleDriveSimData4W driveSimData;
+    physx::PxVehicleWheelsSimData* wheelsSimData;
+
     glm::vec3 chassisSize;
 
     float wheelMass;
@@ -65,5 +68,5 @@ private:
 
     void Initialize();
     void CreateVehicle();
-    void InitializeWheelsSimulationData(const physx::PxVec3* wheelCenterActorOffsets, physx::PxVehicleWheelsSimData* wheelsSimData);
+    void InitializeWheelsSimulationData(const physx::PxVec3* wheelCenterActorOffsets);
 };

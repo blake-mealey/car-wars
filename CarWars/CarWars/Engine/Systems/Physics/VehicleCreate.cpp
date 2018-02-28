@@ -29,32 +29,11 @@
 
 #include <new>
 #include "VehicleCreate.h"
-#include "VehicleSceneQuery.h"
-#include "VehicleTireFriction.h"
 #include "PxPhysicsAPI.h"
-
 
 using namespace physx;
 
-PxRigidStatic* createDrivablePlane(const PxFilterData& simFilterData, PxMaterial* material, PxPhysics* physics)
-{
-	//Add a plane to the scene.
-	PxRigidStatic* groundPlane = PxCreatePlane(*physics, PxPlane(0,1,0,0), *material);
-
-	//Get the plane shape so we can set query and simulation filter data.
-	PxShape* shapes[1];
-	groundPlane->getShapes(shapes, 1);
-
-	//Set the query filter data of the ground plane so that the vehicle raycasts can hit the ground.
-	PxFilterData qryFilterData;
-	setupDrivableSurface(qryFilterData);
-	shapes[0]->setQueryFilterData(qryFilterData);
-
-	//Set the simulation filter data of the ground plane so that it collides with the chassis of a vehicle but not the wheels.
-	shapes[0]->setSimulationFilterData(simFilterData);
-
-	return groundPlane;
-}
+// TODO: Replace with Mesh and/or move to VehicleComponent
 
 static PxConvexMesh* createConvexMesh(const PxVec3* verts, const PxU32 numVerts, PxPhysics& physics, PxCooking& cooking)
 {
@@ -76,26 +55,6 @@ static PxConvexMesh* createConvexMesh(const PxVec3* verts, const PxU32 numVerts,
 	return convexMesh;
 }
 
-PxConvexMesh* createChassisMesh(const PxVec3 dims, PxPhysics& physics, PxCooking& cooking)
-{
-	const PxF32 x = dims.x*0.5f;
-	const PxF32 y = dims.y*0.5f;
-	const PxF32 z = dims.z*0.5f;
-	PxVec3 verts[8] =
-	{
-		PxVec3(x,y,-z), 
-		PxVec3(x,y,z),
-		PxVec3(x,-y,z),
-		PxVec3(x,-y,-z),
-		PxVec3(-x,y,-z), 
-		PxVec3(-x,y,z),
-		PxVec3(-x,-y,z),
-		PxVec3(-x,-y,-z)
-	};
-
-	return createConvexMesh(verts,8,physics,cooking);
-}
-
 PxConvexMesh* createWheelMesh(const PxF32 width, const PxF32 radius, PxPhysics& physics, PxCooking& cooking)
 {
 	PxVec3 points[2*16];
@@ -110,71 +69,6 @@ PxConvexMesh* createWheelMesh(const PxF32 width, const PxF32 radius, PxPhysics& 
 	}
 
 	return createConvexMesh(points,32,physics,cooking);
-}
-
-PxRigidDynamic* createVehicleActor
-(const PxVehicleChassisData& chassisData,
- PxMaterial** wheelMaterials, PxConvexMesh** wheelConvexMeshes, const PxU32 numWheels, const PxFilterData& wheelSimFilterData,
- PxMaterial** chassisMaterials, PxConvexMesh** chassisConvexMeshes, const PxU32 numChassisMeshes, const PxFilterData& chassisSimFilterData,
- PxPhysics& physics)
-{
-	//We need a rigid body actor for the vehicle.
-	//Don't forget to add the actor to the scene after setting up the associated vehicle.
-	PxRigidDynamic* vehActor = physics.createRigidDynamic(PxTransform(PxIdentity));
-
-	//Wheel and chassis query filter data.
-	//Optional: cars don't drive on other cars.
-	PxFilterData wheelQryFilterData;
-	setupNonDrivableSurface(wheelQryFilterData);
-	PxFilterData chassisQryFilterData;
-	setupNonDrivableSurface(chassisQryFilterData);
-
-	//Add all the wheel shapes to the actor.
-	for(PxU32 i = 0; i < numWheels; i++)
-	{
-		PxConvexMeshGeometry geom(wheelConvexMeshes[i]);
-		PxShape* wheelShape=PxRigidActorExt::createExclusiveShape(*vehActor, geom, *wheelMaterials[i]);
-		wheelShape->setQueryFilterData(wheelQryFilterData);
-		wheelShape->setSimulationFilterData(wheelSimFilterData);
-		wheelShape->setLocalPose(PxTransform(PxIdentity));
-	}
-
-	//Add the chassis shapes to the actor.
-	for(PxU32 i = 0; i < numChassisMeshes; i++)
-	{
-		PxShape* chassisShape=PxRigidActorExt::createExclusiveShape(*vehActor, PxConvexMeshGeometry(chassisConvexMeshes[i]), *chassisMaterials[i]);
-		chassisShape->setQueryFilterData(chassisQryFilterData);
-		chassisShape->setSimulationFilterData(chassisSimFilterData);
-		chassisShape->setLocalPose(PxTransform(PxIdentity));
-	}
-
-	vehActor->setMass(chassisData.mMass);
-	vehActor->setMassSpaceInertiaTensor(chassisData.mMOI);
-	vehActor->setCMassLocalPose(PxTransform(chassisData.mCMOffset,PxQuat(PxIdentity)));
-
-	return vehActor;
-}
-
-void configureUserData(PxVehicleWheels* vehicle, ActorUserData* actorUserData, ShapeUserData* shapeUserDatas)
-{
-	if(actorUserData)
-	{
-		vehicle->getRigidDynamicActor()->userData = actorUserData;
-		actorUserData->vehicle = vehicle;
-	}
-
-	if(shapeUserDatas)
-	{
-		PxShape* shapes[PX_MAX_NB_WHEELS + 1];
-		vehicle->getRigidDynamicActor()->getShapes(shapes, PX_MAX_NB_WHEELS + 1);
-		for(PxU32 i = 0; i < vehicle->mWheelsSimData.getNbWheels(); i++)
-		{
-			const PxI32 shapeId = vehicle->mWheelsSimData.getWheelShapeMapping(i);
-			shapes[shapeId]->userData = &shapeUserDatas[i];
-			shapeUserDatas[i].isWheel = true;
-			shapeUserDatas[i].wheelId = i;
-		}
-	}
 }
 
 void customizeVehicleToLengthScale(const PxReal lengthScale, PxRigidDynamic* rigidDynamic, PxVehicleWheelsSimData* wheelsSimData, PxVehicleDriveSimData* driveSimData)

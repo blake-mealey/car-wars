@@ -63,9 +63,6 @@
     <ClCompile Include="Engine\Systems\IO\XboxController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Systems\Physics\Vehicle4WCreate.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Systems\Physics\VehicleCreate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

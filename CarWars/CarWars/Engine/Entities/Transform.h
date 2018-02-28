@@ -36,6 +36,7 @@ public:
 
 	glm::vec3 GetCylinderPosition();
 
+	glm::vec3 GetLocalDirection(glm::vec3 globalDirection);
     glm::vec3 GetGlobalDirection(glm::vec3 localDirection);
 	glm::vec3 GetForward();
 	glm::vec3 GetRight();

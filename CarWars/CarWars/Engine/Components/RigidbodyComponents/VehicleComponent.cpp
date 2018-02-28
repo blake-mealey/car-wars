@@ -49,7 +49,7 @@ VehicleComponent::VehicleComponent(size_t _wheelCount, bool _inputTypeDigital) :
     Initialize();
 }
 
-void VehicleComponent::InitializeWheelsSimulationData(const PxVec3* wheelCenterActorOffsets, PxVehicleWheelsSimData* wheelsSimData) {
+void VehicleComponent::InitializeWheelsSimulationData(const PxVec3* wheelCenterActorOffsets) {
     //Set up the wheels.
     PxVehicleWheelData wheels[PX_MAX_NB_WHEELS]; {
         //Set up the wheel data structures with mass, moi, radius, width.
@@ -160,12 +160,12 @@ void VehicleComponent::InitializeWheelsSimulationData(const PxVec3* wheelCenterA
     PxVehicleAntiRollBarData barFront;
     barFront.mWheel0 = PxVehicleDrive4WWheelOrder::eFRONT_LEFT;
     barFront.mWheel1 = PxVehicleDrive4WWheelOrder::eFRONT_RIGHT;
-    barFront.mStiffness = 10000.0f;
+    barFront.mStiffness = 20000.0f;
     wheelsSimData->addAntiRollBarData(barFront);
     PxVehicleAntiRollBarData barRear;
     barRear.mWheel0 = PxVehicleDrive4WWheelOrder::eREAR_LEFT;
     barRear.mWheel1 = PxVehicleDrive4WWheelOrder::eREAR_RIGHT;
-    barRear.mStiffness = 10000.0f;
+    barRear.mStiffness = 20000.0f;
     wheelsSimData->addAntiRollBarData(barRear);
 }
 
@@ -194,7 +194,7 @@ void VehicleComponent::CreateVehicle() {
     }
 
     //Set up the sim data for the wheels.
-    PxVehicleWheelsSimData* wheelsSimData = PxVehicleWheelsSimData::allocate(wheelCount);
+    wheelsSimData = PxVehicleWheelsSimData::allocate(wheelCount);
     {
         //Compute the wheel center offsets from the origin.
         PxVec3 wheelCenterActorOffsets[PX_MAX_NB_WHEELS];
@@ -206,11 +206,10 @@ void VehicleComponent::CreateVehicle() {
         }
 
         //Set up the simulation data for all wheels.
-        InitializeWheelsSimulationData(wheelCenterActorOffsets, wheelsSimData);
+        InitializeWheelsSimulationData(wheelCenterActorOffsets);
     }
 
     //Set up the sim data for the vehicle drive model.
-    PxVehicleDriveSimData4W driveSimData;
     {
         //Diff
         PxVehicleDifferential4WData diff;
@@ -220,7 +219,7 @@ void VehicleComponent::CreateVehicle() {
         //Engine
         PxVehicleEngineData engine;
         engine.mPeakTorque = 1000.0f;
-        engine.mMaxOmega = 800.0f;//approx 6000 rpm
+        engine.mMaxOmega = 1200.0f;//approx x10 rpm
         driveSimData.setEngineData(engine);
 
         //Gears
@@ -332,6 +331,73 @@ std::vector<AxleData> VehicleComponent::GetAxleData() const {
 
 void VehicleComponent::RenderDebugGui() {
     RigidDynamicComponent::RenderDebugGui();
+    
+    if (ImGui::TreeNode("Drive")) {
+        if (ImGui::TreeNode("Differential")) {
+            PxVehicleDifferential4WData diffData = driveSimData.getDiffData();
+            bool changed = false;
+            changed = changed || ImGui::DragFloat("Centre Bias", &diffData.mCentreBias, 0.1f);
+            changed = changed || ImGui::DragFloat("Front Bias", &diffData.mFrontBias, 0.1f);
+            changed = changed || ImGui::DragFloat("Rear Bias", &diffData.mRearBias, 0.1f);
+            changed = changed || ImGui::DragFloat("Front Left-Right Split", &diffData.mFrontLeftRightSplit, 0.1f);
+            changed = changed || ImGui::DragFloat("Rear Left-Right Split", &diffData.mRearLeftRightSplit, 0.1f);
+            changed = changed || ImGui::DragFloat("Front-Rear Split", &diffData.mFrontRearSplit, 0.1f);
+            if (changed)
+                driveSimData.setDiffData(diffData);
+            ImGui::TreePop();
+        }
+
+        if (ImGui::TreeNode("Engine")) {
+            PxVehicleEngineData engineData = driveSimData.getEngineData();
+            bool changed = false;
+            changed = changed || ImGui::DragFloat("Peak Torque", &engineData.mPeakTorque, 1.f);
+            changed = changed || ImGui::DragFloat("Max Omega", &engineData.mMaxOmega, 1.f);
+            if (changed)
+                driveSimData.setEngineData(engineData);
+            ImGui::TreePop();
+        }
+
+        if (ImGui::TreeNode("Gears")) {
+            PxVehicleGearsData gearsData = driveSimData.getGearsData();
+            bool changed = false;
+            changed = changed || ImGui::DragFloat("Switch Time", &gearsData.mSwitchTime, 0.01f);
+            if (changed)
+                driveSimData.setGearsData(gearsData);
+            ImGui::TreePop();
+        }
+
+        if (ImGui::TreeNode("Clutch")) {
+            PxVehicleClutchData clutchData = driveSimData.getClutchData();
+            bool changed = false;
+            changed = changed || ImGui::DragFloat("Strength", &clutchData.mStrength, 1.f);
+            if (changed)
+                driveSimData.setClutchData(clutchData);
+            ImGui::TreePop();
+        }
+
+        ImGui::TreePop();
+    }
+
+    // TODO: Implement all of these
+    if (ImGui::TreeNode("Wheels")) {
+        if (ImGui::TreeNode("Wheels")) {
+            /*PxVehicleWheelData wheelData = wheelsSimData->getWheelData(0);
+            bool changed = false;
+            if (changed)
+                wheelsSimData->setWheelData(0, wheelData);*/
+            ImGui::TreePop();
+        }
+
+        if (ImGui::TreeNode("Tires")) {
+            ImGui::TreePop();
+        }
+
+        if (ImGui::TreeNode("Suspensions")) {
+            ImGui::TreePop();
+        }
+
+        ImGui::TreePop();
+    }
 }
 
 ComponentType VehicleComponent::GetType() {

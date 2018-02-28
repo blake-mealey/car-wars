@@ -19,14 +19,13 @@ float Transform::radius = 0;
 Transform::Transform() : Transform(nullptr, glm::vec3(), glm::vec3(1.f), glm::quat(), false) {}
 
 Transform::Transform(nlohmann::json data) : parent(nullptr) {
-    SetPosition(ContentManager::JsonToVec3(data["Position"], glm::vec3()));
+	connectedToCylinder = ContentManager::GetFromJson<bool>(data["CylinderPart"], false);
+	SetPosition(ContentManager::JsonToVec3(data["Position"], glm::vec3()));
     SetScale(ContentManager::JsonToVec3(data["Scale"], glm::vec3(1.f)));
     if (!data["Rotate"].is_null()) {
         const glm::vec3 rot = ContentManager::JsonToVec3(data["Rotate"]);
         SetRotationEulerAngles(glm::vec3(glm::radians(rot.x), glm::radians(rot.y), glm::radians(rot.z)));
     }
-
-    connectedToCylinder = ContentManager::GetFromJson<bool>(data["CylinderPart"], false);
 }
 
 Transform::Transform(physx::PxTransform t) : Transform(nullptr, FromPx(t.p), glm::vec3(1.f), FromPx(t.q), false) {}
@@ -97,6 +96,10 @@ glm::vec3 Transform::GetGlobalScale() {
 		transform = transform->parent;
 	} while (transform != nullptr);
 	return globalScale;
+}
+
+glm::vec3 Transform::GetLocalDirection(glm::vec3 globalDirection) {
+	return glm::inverse(GetTransformationMatrix()) * glm::vec4(globalDirection, 0.f);
 }
 
 glm::vec3 Transform::GetGlobalDirection(glm::vec3 localDirection) {
@@ -178,7 +181,7 @@ void Transform::Scale(glm::vec3 scaleFactor) {
 }
 
 void Transform::Rotate(glm::vec3 axis, float radians) {
-	SetRotation(glm::rotate(rotation, glm::degrees(radians), axis));
+	SetRotation(glm::rotate(rotation, radians, axis));
 }
 
 void Transform::Rotate(glm::quat quaternion) {
