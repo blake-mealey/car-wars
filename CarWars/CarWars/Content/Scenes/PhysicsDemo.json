@@ -17,8 +17,7 @@
           {
             "Type": "Mesh",
             "CollisionGroup": "Ground",
-            "Mesh": "Plane.obj",
-            "Scale": [200, 1, 80]
+            "Mesh": "Plane.obj"
           }
         ]
       }
@@ -59,8 +58,7 @@
           {
             "Type": "Mesh",
             "CollisionGroup": "Ground",
-            "Mesh": "Cylinder.obj",
-            "Scale": [40, 40, 40]
+            "Mesh": "Cylinder.obj"
           }
         ]
       },

@@ -24,7 +24,7 @@ RigidbodyComponent::RigidbodyComponent(nlohmann::json data) : RigidbodyComponent
 
 void RigidbodyComponent::AddCollider(Collider* collider) {
     colliders.push_back(collider);
-    if (pxRigid) collider->CreateShape(pxRigid);
+	if (pxRigid) collider->CreateShape(pxRigid);
 }
 
 void RigidbodyComponent::InitializeRigidbody(physx::PxRigidActor* actor) {
@@ -67,4 +67,8 @@ void RigidbodyComponent::SetEntity(Entity* _entity) {
     Component::SetEntity(_entity);
     pxRigid->setGlobalPose(Transform::ToPx(_entity->transform));
     Physics::Instance().GetScene().addActor(*pxRigid);
+
+	for (Collider *collider : colliders) {
+		collider->Scale(_entity->transform.GetLocalScale());
+	}
 }

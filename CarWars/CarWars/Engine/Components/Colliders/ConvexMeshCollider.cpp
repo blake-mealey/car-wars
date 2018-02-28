@@ -10,16 +10,19 @@ ConvexMeshCollider::ConvexMeshCollider(std::string _collisionGroup, physx::PxMat
     : Collider(_collisionGroup, _material, _queryFilterData) {
     
     InitializeGeometry(_mesh);
+	InitializeRenderMesh();
 }
 
 ConvexMeshCollider::ConvexMeshCollider(std::string _collisionGroup, physx::PxMaterial* _material, physx::PxFilterData _queryFilterData, physx::PxConvexMesh* _mesh)
-    : Collider(_collisionGroup, _material, _queryFilterData) {
+    : Collider(_collisionGroup, _material, _queryFilterData), convexMesh(_mesh) {
     
-    InitializeGeometry(_mesh);
+    InitializeGeometry();
+	InitializeRenderMesh();
 }
 
 ConvexMeshCollider::ConvexMeshCollider(nlohmann::json data) : Collider(data) {
     InitializeGeometry(ContentManager::GetMesh(data["Mesh"]));
+	InitializeRenderMesh();
 }
 
 ColliderType ConvexMeshCollider::GetType() const {
@@ -50,7 +53,7 @@ void ConvexMeshCollider::InitializeGeometry(Mesh *mesh) {
     convexDesc.indices.stride = sizeof(Triangle);
     convexDesc.indices.data = triangles;
 
-    PxConvexMesh* convexMesh = nullptr;
+    convexMesh = nullptr;
     PxDefaultMemoryOutputStream buf;
     Physics& physics = Physics::Instance();
     if (physics.GetCooking().cookConvexMesh(convexDesc, buf)) {
@@ -61,16 +64,16 @@ void ConvexMeshCollider::InitializeGeometry(Mesh *mesh) {
 	delete[] vertices;
 	delete[] triangles;
 
-    InitializeGeometry(convexMesh);
+    InitializeGeometry();
 }
 
-void ConvexMeshCollider::InitializeGeometry(PxConvexMesh* mesh) {
-    InitializeRenderMesh(mesh);
+void ConvexMeshCollider::InitializeGeometry() {
+	if (geometry != nullptr) delete geometry;
 	PxMeshScale scale(Transform::ToPx(transform.GetGlobalScale()), PxQuat(PxIdentity));
-    geometry = new PxConvexMeshGeometry(mesh, scale);
+    geometry = new PxConvexMeshGeometry(convexMesh, scale);
 }
 
-void ConvexMeshCollider::InitializeRenderMesh(PxConvexMesh* convexMesh) {
+void ConvexMeshCollider::InitializeRenderMesh() {
     const PxU32 polygonCount = convexMesh->getNbPolygons();
     const PxVec3 *convexVertices = convexMesh->getVertices();
     const PxU8 *indexBuffer = convexMesh->getIndexBuffer();

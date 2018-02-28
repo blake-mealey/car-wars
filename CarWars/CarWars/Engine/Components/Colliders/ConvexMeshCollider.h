@@ -15,11 +15,13 @@ public:
     ColliderType GetType() const override;
 
     Mesh* GetRenderMesh() override;
+protected:
+	void InitializeGeometry() override;
 private:
+	physx::PxConvexMesh* convexMesh;
     Mesh *renderMesh;
 
     void InitializeGeometry(Mesh *mesh);
-    void InitializeGeometry(physx::PxConvexMesh *mesh);
 
-    void InitializeRenderMesh(physx::PxConvexMesh* mesh);
+    void InitializeRenderMesh();
 };

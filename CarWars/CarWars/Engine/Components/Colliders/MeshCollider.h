@@ -13,8 +13,13 @@ public:
     ColliderType GetType() const override;
 
     Mesh* GetRenderMesh() override;
-private:
-	Mesh *mesh;
 
-    void InitializeGeometry();
+protected:
+	void InitializeGeometry() override;
+
+private:
+	physx::PxTriangleMesh *triangleMesh;
+	Mesh *mesh;
+	
+    void InitializeGeometry(Mesh *renderMesh);
 };

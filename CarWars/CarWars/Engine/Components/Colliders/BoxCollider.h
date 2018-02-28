@@ -15,6 +15,6 @@ public:
 
     Transform GetLocalTransform() const override;
     Transform GetGlobalTransform() const override;
-private:
-    void InitializeGeometry();
+protected:
+    void InitializeGeometry() override;
 };

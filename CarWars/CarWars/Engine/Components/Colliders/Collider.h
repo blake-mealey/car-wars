@@ -33,7 +33,12 @@ public:
 
     virtual Transform GetLocalTransform() const;
     virtual Transform GetGlobalTransform() const;
+
+	void Scale(glm::vec3 scaleFactor);
+	void UpdateScale(glm::vec3 scale);
 protected:
+	virtual void InitializeGeometry() = 0;
+
     Transform transform;
     std::string collisionGroup;
     physx::PxShape *shape;

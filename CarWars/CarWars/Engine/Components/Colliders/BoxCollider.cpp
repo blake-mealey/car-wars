@@ -37,5 +37,6 @@ Transform BoxCollider::GetGlobalTransform() const {
 }
 
 void BoxCollider::InitializeGeometry() {
+	if (geometry != nullptr) delete geometry;
     geometry = new PxBoxGeometry(Transform::ToPx(transform.GetLocalScale()) * 0.5f);
 }
