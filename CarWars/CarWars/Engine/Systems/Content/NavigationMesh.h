@@ -5,7 +5,7 @@
 #include "../../Components/RigidbodyComponents/RigidbodyComponent.h"
 
 struct NavigationVertex {
-    NavigationVertex() : score(1.f), position(glm::vec3(0.f)) {}
+    NavigationVertex() : score(0.5f), position(glm::vec3(0.f)) {}
 
     float score;
 	glm::vec3 position;
@@ -24,18 +24,22 @@ public:
     void UpdateMesh();
     void UpdateMesh(std::vector<Component*> rigidbodies);
 
-    size_t FindClosestVertex(glm::vec3 worldPosition);
+    size_t FindClosestVertex(glm::vec3 worldPosition) const;
 
     NavigationVertex GetVertex(size_t index) const;
     glm::vec3 GetPosition(size_t index) const;
     float GetScore(size_t index) const;
 
+    NavigationVertex GetVertex(size_t row, size_t col) const;
+    glm::vec3 GetPosition(size_t row, size_t col) const;
+    float GetScore(size_t row, size_t col) const;
+
     std::vector<size_t> GetNeighbours(size_t index);
 
-    int GetForward(size_t index);
-    int GetBackward(size_t index);
-    int GetLeft(size_t index);
-    int GetRight(size_t index);
+    int GetForward(size_t index) const;
+    int GetBackward(size_t index) const;
+    int GetLeft(size_t index) const;
+    int GetRight(size_t index) const;
 
 private:
     void UpdateMesh(RigidbodyComponent* rigidbody);

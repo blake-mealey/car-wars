@@ -26,7 +26,7 @@ const unsigned int Game::MAX_VEHICLE_COUNT = 20;
 
 Map Game::selectedMap = Map_Cylinder;
 GameMode Game::selectedGameMode = Team;
-size_t Game::numberOfAi = 0;
+size_t Game::numberOfAi = 5;
 size_t Game::numberOfLives = 3;
 size_t Game::killLimit = 10;
 size_t Game::timeLimitMinutes = 10;
@@ -49,7 +49,7 @@ void Game::Initialize() {
 
 	ContentManager::LoadScene("PhysicsDemo.json");
 
-    for (size_t i = 0; i < 5; ++i) {
+    for (size_t i = 0; i < numberOfAi; ++i) {
         Entity *ai = ContentManager::LoadEntity("AiSewage.json");
         static_cast<VehicleComponent*>(ai->components[2])->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
     }
@@ -176,11 +176,15 @@ void Game::Update() {
             const glm::vec3 forward = myTransform.GetForward();
             const glm::vec3 right = myTransform.GetRight();
 
-            const glm::vec3 targetPosition = ai->NodeInPath();
+            const glm::vec3 targetPosition = ai->GetTargetEntity()->transform.GetGlobalPosition();
+            const glm::vec3 nodePosition = ai->NodeInPath();
 
-            glm::vec3 direction = targetPosition - position;
+            glm::vec3 direction = nodePosition - position;
             const float distance = glm::length(direction);
             direction = glm::normalize(direction);
+
+            // TODO: When AI has "trouble" getting to next node, update the path
+            // TODO: Define "trouble"
 
             if (distance <= navigationMesh->GetSpacing()) {
                 ai->NextNodeInPath();
@@ -188,7 +192,7 @@ void Game::Update() {
 
             switch(ai->GetMode()) {
             case AiMode_Waypoints:
-                if (ai->FinishedPath()) {
+                if (glm::length(targetPosition - position) <= navigationMesh->GetSpacing()) {
                     ai->SetTargetEntity(waypoints[ai->NextWaypoint(4)]);
                 }
             case AiMode_Chase:

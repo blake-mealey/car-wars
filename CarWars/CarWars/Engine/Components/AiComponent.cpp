@@ -2,6 +2,7 @@
 #include "../Systems/Content/ContentManager.h"
 #include "../Systems/Pathfinder.h"
 #include "../Systems/Game.h"
+#include <iostream>
 
 AiComponent::AiComponent(nlohmann::json data) : targetEntity(nullptr), waypointIndex(0) {
     std::string modeName = ContentManager::GetFromJson<std::string>(data["Mode"], "Waypoints");
@@ -40,10 +41,13 @@ size_t AiComponent::GetWaypoint() const {
 }
 
 void AiComponent::UpdatePath() {
-    path = Pathfinder::FindPath(
+    std::deque<glm::vec3> newPath = Pathfinder::FindPath(
         Game::Instance().GetNavigationMesh(),
         GetEntity()->transform.GetGlobalPosition() - GetEntity()->transform.GetForward() * Game::Instance().GetNavigationMesh()->GetSpacing() * 2.f,
         GetTargetEntity()->transform.GetGlobalPosition());
+    if (!newPath.empty() || FinishedPath()) {
+        path = newPath;
+    }
     marker->transform.SetPosition(path[0]);
 }
 

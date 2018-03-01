@@ -446,7 +446,7 @@ void InputManager::HandleKeyboard() {
 	case GameState_Playing:
 		//Drive Forward
 		if (Keyboard::KeyDown(GLFW_KEY_W)) {
-			cout << (int)(vehicle->pxVehicle->mDriveDynData.getCurrentGear() - PxVehicleGearsData::eNEUTRAL) << endl;
+			//cout << (int)(vehicle->pxVehicle->mDriveDynData.getCurrentGear() - PxVehicleGearsData::eNEUTRAL) << endl;
 			if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
 				vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 			}
@@ -580,7 +580,7 @@ void InputManager::HandleController() {
 				//float x = -0.1f * (*controller)->GetState().Gamepad.sThumbLX / 30000.f;
 				//boulder->transform.Rotate(Transform::UP, dt.GetTimeSeconds() * x);
 
-				std::cout << (*controller)->GetState().Gamepad.sThumbLX << std::endl;
+				//std::cout << (*controller)->GetState().Gamepad.sThumbLX << std::endl;
 
 				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
 				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);

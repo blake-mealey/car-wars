@@ -60,19 +60,61 @@ void NavigationMesh::UpdateMesh(RigidbodyComponent* rigidbody) {
     }
 }
 
-size_t NavigationMesh::FindClosestVertex(glm::vec3 worldPosition) {     // TODO: improve efficiency
-    size_t closest = 0;
-    float distance = std::numeric_limits<float>::max();
-    for (size_t i = 1; i < GetVertexCount(); i++) {
-        const glm::vec3 vertex = vertices[i].position;
-        const float dist = glm::length(vertex - worldPosition);
-        if (dist < distance) {
-            closest = i;
-            distance = dist;
+size_t NavigationMesh::FindClosestVertex(glm::vec3 worldPosition) const {
+    // Binary search over rows
+    size_t left = 0;
+    size_t right = rowCount - 1;
+    size_t row = 0;
+    glm::vec3 position;
+    while (left < right) {
+        row = (left + right) / 2;
+        position = GetPosition(row, 0);
+        if (position.x < worldPosition.x) {
+            left = row + 1;
+        } else if (position.x > worldPosition.x) {
+            right = row - 1;
+        } else {
+            break;
         }
     }
-    std::cout << closest << std::endl;
-    return closest;
+
+    // Find shortest distance from best guess row
+    float shortestDist = abs(position.x - worldPosition.x);
+    for (size_t r = row - 2; r < row + 2; ++r) {
+        const float dist = abs(GetPosition(r, 0).x - worldPosition.x);
+        if (dist < shortestDist) {
+            shortestDist = dist;
+            row = r;
+        }
+    }
+
+    // Binary search over columns
+    left = 0;
+    right = columnCount - 1;
+    size_t column = 0;
+    while (left < right) {
+        column = (left + right) / 2;
+        const glm::vec3 position = GetPosition(row, column);
+        if (position.z < worldPosition.z) {
+            left = column + 1;
+        } else if (position.z > worldPosition.z) {
+            right = column - 1;
+        } else {
+            break;
+        }
+    }
+
+    // Find shortest distance from best guess column
+    shortestDist = abs(position.z - worldPosition.z);
+    for (size_t c = column - 2; c < column + 2; ++c) {
+        const float dist = abs(GetPosition(row, c).z - worldPosition.z);
+        if (dist < shortestDist) {
+            shortestDist = dist;
+            column = c;
+        }
+    }
+
+    return row * columnCount + column;
 }
 
 glm::vec3 NavigationMesh::GetPosition(size_t index) const {
@@ -83,14 +125,38 @@ float NavigationMesh::GetScore(size_t index) const {
     return GetVertex(index).score;
 }
 
+NavigationVertex NavigationMesh::GetVertex(size_t row, size_t col) const {
+    return GetVertex(row * columnCount + col);
+}
+
+glm::vec3 NavigationMesh::GetPosition(size_t row, size_t col) const {
+    return GetVertex(row, col).position;
+}
+
+float NavigationMesh::GetScore(size_t row, size_t col) const {
+    return GetVertex(row, col).score;
+}
+
 std::vector<size_t> NavigationMesh::GetNeighbours(size_t index) {
     std::vector<size_t> neighbours;
     
     const int left = GetLeft(index);
     if (left != -1) neighbours.push_back(left);
 
+    const int forwardLeft = GetForward(left);
+    if (forwardLeft != -1) neighbours.push_back(forwardLeft);
+
+    const int backwardLeft = GetBackward(left);
+    if (backwardLeft != -1) neighbours.push_back(backwardLeft);
+
     const int right = GetRight(index);
     if (right != -1) neighbours.push_back(right);
+
+    const int forwardRight = GetForward(right);
+    if (forwardRight != -1) neighbours.push_back(forwardRight);
+
+    const int backwardRight = GetBackward(right);
+    if (backwardRight != -1) neighbours.push_back(backwardRight);
 
     const int forward = GetForward(index);
     if (forward != -1) neighbours.push_back(forward);
@@ -173,24 +239,24 @@ std::vector<size_t> NavigationMesh::FindAllContainedBy(physx::PxBounds3 bounds) 
     return contained;
 }
 
-int NavigationMesh::GetForward(size_t index) {
+int NavigationMesh::GetForward(size_t index) const {
     const int forward = index + columnCount;
     return forward < GetVertexCount() ? forward : -1;
 }
 
-int NavigationMesh::GetBackward(size_t index) {
+int NavigationMesh::GetBackward(size_t index) const {
     const int backward = index - columnCount;
     return backward >= 0 ? backward : -1;
 }
 
-int NavigationMesh::GetLeft(size_t index) {        // TODO: Error check
+int NavigationMesh::GetLeft(size_t index) const {
     const int left = index - 1;
-    return left;
+    return left % columnCount != columnCount - 1 ? left : -1;
 }
 
-int NavigationMesh::GetRight(size_t index) {        // TODO: Error check
+int NavigationMesh::GetRight(size_t index) const {
     const int right = index + 1;
-    return right;
+    return right % columnCount != 0 ? right : -1;
 }
 
 void NavigationMesh::InitializeRenderBuffers() {

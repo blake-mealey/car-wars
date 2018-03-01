@@ -5,6 +5,11 @@ std::deque<glm::vec3> Pathfinder::FindPath(NavigationMesh* navigationMesh, glm::
 
     const size_t startIndex = navigationMesh->FindClosestVertex(startPosition);
     const size_t goalIndex = navigationMesh->FindClosestVertex(goalPosition);
+
+    // Unreachable goal or start
+    if (navigationMesh->GetScore(startIndex) == 0.f || navigationMesh->GetScore(goalIndex) == 0.f) {
+        return {};
+    }
     
     std::vector<size_t> closedSet;
     std::vector<size_t> openSet = {startIndex};
@@ -38,8 +43,9 @@ std::deque<glm::vec3> Pathfinder::FindPath(NavigationMesh* navigationMesh, glm::
                 openSet.push_back(neighbour);
             }
 
-            // TODO: Does this make sense? :P
-            const float tentativeGScore = GetScore(gScore, current) + 1.f + ((1.f - navigationMesh->GetScore(current)) * 100000.f);
+            const float score = navigationMesh->GetScore(current);
+            const float cost = score == 0.f ? INFINITY : (1.f - score) * HeuristicCostEstimate(navigationMesh, current, neighbour);
+            const float tentativeGScore = GetScore(gScore, current) + cost;
 
             if (tentativeGScore >= GetScore(gScore, neighbour))
                 continue;
@@ -78,7 +84,7 @@ size_t Pathfinder::GetCurrent(std::vector<size_t>& openSet, std::unordered_map<s
 float Pathfinder::GetScore(std::unordered_map<size_t, float>& scoreMap, size_t index) {
     const auto it = scoreMap.find(index);
     if (it == scoreMap.end()) {
-        return std::numeric_limits<float>::max();
+        return INFINITY;
     }
     return it->second;
 }
