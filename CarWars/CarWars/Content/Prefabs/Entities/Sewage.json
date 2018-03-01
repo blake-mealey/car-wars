@@ -10,7 +10,7 @@
       "Position": [ 0.0825, -0.825, 0.18 ]
     },
 	{
-		"Type": "MachineGun"
+		"Type": "RocketLauncher"
 	},
     {
       "Type": "Vehicle",
@@ -85,7 +85,7 @@
 			"Components": [
 				{
 					"Type": "Mesh",
-					"Mesh": "machine_gun_turret.obj",
+					"Mesh": "rocket_launcher_turret.obj",
 					"Texture": "TileableDiamondPlate.jpg",
 					"Material": "Basic.json",
 					"UvScale": [0.5, 0.5],

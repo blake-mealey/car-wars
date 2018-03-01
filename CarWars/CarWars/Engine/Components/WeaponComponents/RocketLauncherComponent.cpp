@@ -13,7 +13,7 @@ void RocketLauncherComponent::Shoot() {
 		Entity* vehicle = EntityManager::FindEntities("Vehicle")[0];
 		missile->transform.SetPosition(EntityManager::FindChildren(vehicle, "GunTurret")[0]->transform.GetGlobalPosition());
 		missile->transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
-		missile->transform.SetRotation(EntityManager::FindChildren(vehicle, "GunTurret")[0]->transform.GetLocalRotation());
+		missile->transform.SetRotation(vehicle->transform.GetLocalRotation() * EntityManager::FindChildren(vehicle, "GunTurret")[0]->transform.GetLocalRotation());
 
 		nextShotTime = StateManager::gameTime.GetTimeSeconds() + timeBetweenShots.GetTimeSeconds();
 
