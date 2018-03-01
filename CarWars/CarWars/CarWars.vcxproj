@@ -173,6 +173,7 @@
     <ClCompile Include="Engine\Systems\Content\ContentManager.cpp" />
     <ClCompile Include="Engine\Systems\Content\Material.cpp" />
     <ClCompile Include="Engine\Systems\Content\Mesh.cpp" />
+    <ClCompile Include="Engine\Systems\Content\NavigationMesh.cpp" />
     <ClCompile Include="Engine\Systems\Content\ShaderProgram.cpp" />
     <ClCompile Include="Engine\Systems\Game.cpp" />
     <ClCompile Include="Engine\Systems\Graphics.cpp" />
@@ -225,6 +226,7 @@
     <ClInclude Include="Engine\Systems\Content\DirectionLight.h" />
     <ClInclude Include="Engine\Systems\Content\Material.h" />
     <ClInclude Include="Engine\Systems\Content\Mesh.h" />
+    <ClInclude Include="Engine\Systems\Content\NavigationMesh.h" />
     <ClInclude Include="Engine\Systems\Content\PointLight.h" />
     <ClInclude Include="Engine\Systems\Content\ShaderProgram.h" />
     <ClInclude Include="Engine\Systems\Content\SpotLight.h" />
