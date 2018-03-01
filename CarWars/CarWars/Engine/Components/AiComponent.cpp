@@ -1,5 +1,7 @@
 #include "AiComponent.h"
 #include "../Systems/Content/ContentManager.h"
+#include "../Systems/Pathfinder.h"
+#include "../Systems/Game.h"
 
 AiComponent::AiComponent(nlohmann::json data) : targetEntity(nullptr), waypointIndex(0) {
     std::string modeName = ContentManager::GetFromJson<std::string>(data["Mode"], "Waypoints");
@@ -8,6 +10,7 @@ AiComponent::AiComponent(nlohmann::json data) : targetEntity(nullptr), waypointI
     } else if (modeName == "Chase") {
         mode = AiMode_Chase;
     }
+    marker = ContentManager::LoadEntity("Marker.json");
 }
 
 ComponentType AiComponent::GetType() {
@@ -34,6 +37,29 @@ AiMode AiComponent::GetMode() const {
 
 size_t AiComponent::GetWaypoint() const {
     return waypointIndex;
+}
+
+void AiComponent::UpdatePath() {
+    path = Pathfinder::FindPath(
+        Game::Instance().GetNavigationMesh(),
+        GetEntity()->transform.GetGlobalPosition() - GetEntity()->transform.GetForward() * Game::Instance().GetNavigationMesh()->GetSpacing() * 2.f,
+        GetTargetEntity()->transform.GetGlobalPosition());
+    marker->transform.SetPosition(path[0]);
+}
+
+void AiComponent::NextNodeInPath() {
+    path.pop_front();
+    if (!FinishedPath()) {
+        marker->transform.SetPosition(path[0]);
+    }
+}
+
+glm::vec3 AiComponent::NodeInPath() const {
+    return path[0];
+}
+
+bool AiComponent::FinishedPath() const {
+    return path.size() == 0;
 }
 
 size_t AiComponent::NextWaypoint(size_t waypointCount) {

@@ -7,7 +7,7 @@
 		{
 			"Type": "Mesh",
 			"Mesh": "Cube.obj",
-      "Material": "RedShiny.json"
+            "Material": "RedShiny.json"
 		},
 		{
 			"Type": "PointLight",

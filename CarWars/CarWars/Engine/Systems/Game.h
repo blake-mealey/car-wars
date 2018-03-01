@@ -3,6 +3,7 @@
 #include <vector>
 #include <PxRigidDynamic.h>
 #include "../Components/AiComponent.h"
+#include "Content/NavigationMesh.h"
 
 enum Map {
 	Map_Cylinder = 0
@@ -35,6 +36,8 @@ public:
 	std::string MapToString();
 	std::string GameModeToString();
 
+    NavigationMesh *GetNavigationMesh();
+
 private:
 	// No instantiation or copying
 	Game();
@@ -56,4 +59,6 @@ private:
 	Entity *baby;
 
 	Entity *car;
+
+    NavigationMesh *navigationMesh;
 };
