@@ -63,7 +63,7 @@ struct Textures {
 };
 
 struct Shaders {
-	enum { Geometry=0, ShadowMap, Skybox, Screen, Blur, Copy, Count };
+	enum { Geometry=0, ShadowMap, Skybox, Screen, Blur, Copy, NavMesh, Count };
 };
 
 class Graphics : public System {
@@ -84,6 +84,9 @@ public:
     static const std::string BLUR_FRAGMENT_SHADER;
     static const std::string COPY_VERTEX_SHADER;
     static const std::string COPY_FRAGMENT_SHADER;
+    static const std::string NAV_VERTEX_SHADER;
+    static const std::string NAV_GEOMETRY_SHADER;
+    static const std::string NAV_FRAGMENT_SHADER;
 
 	static const size_t MAX_CAMERAS;
 
@@ -143,6 +146,8 @@ private:
     GLuint blurTempLevelIds[BLUR_LEVEL_COUNT];
 
     bool renderPhysicsColliders;
+    bool renderPhysicsBoundingBoxes;
+    bool renderNavigationMesh;
     float bloomScale;
 
 	void LoadLights(std::vector<Component*> _pointLights, std::vector<Component*> _directionLights, std::vector<Component*> _spotLights);
@@ -158,4 +163,5 @@ private:
     void InitializeScreenFramebuffer();
 	void InitializeShadowMapFramebuffer();
 	ShaderProgram* LoadShaderProgram(std::string vertexShaderFile, std::string fragmentShaderFile) const;
+    ShaderProgram* LoadShaderProgram(std::string vertexShaderFile, std::string fragmentShaderFile, std::string geometryShaderFile) const;
 };

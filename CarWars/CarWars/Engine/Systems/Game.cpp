@@ -103,6 +103,10 @@ void Game::Initialize() {
         }
     }
 
+    navigationMesh = new NavigationMesh({
+        { "ColumnCount", 100 },
+        { "RowCount", 100 }
+    });
     
 
 	// Load the scene and get some entities
@@ -246,4 +250,8 @@ std::string Game::GameModeToString() {
 	case 1:
 		return "FFA";
 	}
+}
+
+NavigationMesh* Game::GetNavigationMesh() {
+    return navigationMesh;
 }

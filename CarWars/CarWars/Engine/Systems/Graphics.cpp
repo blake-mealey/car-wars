@@ -17,6 +17,7 @@
 #include <glm/gtc/matrix_transform.inl>
 #include "../Components/RigidbodyComponents/RigidbodyComponent.h"
 #include "../Components/Colliders/BoxCollider.h"
+#include "Game.h"
 
 // Constants
 const size_t Graphics::MAX_CAMERAS = 4;
@@ -34,6 +35,9 @@ const std::string Graphics::BLUR_VERTEX_SHADER = SCREEN_VERTEX_SHADER;
 const std::string Graphics::BLUR_FRAGMENT_SHADER = "blur.frag";
 const std::string Graphics::COPY_VERTEX_SHADER = SCREEN_VERTEX_SHADER;
 const std::string Graphics::COPY_FRAGMENT_SHADER = SCREEN_FRAGMENT_SHADER;
+const std::string Graphics::NAV_VERTEX_SHADER = "navMesh.vert";
+const std::string Graphics::NAV_FRAGMENT_SHADER = "navMesh.frag";
+const std::string Graphics::NAV_GEOMETRY_SHADER = "navMesh.geom";
 
 // Initial Screen Dimensions
 const size_t Graphics::SCREEN_WIDTH = 1024;
@@ -51,7 +55,7 @@ const glm::mat4 Graphics::BIAS_MATRIX = glm::mat4(
 );
 
 // Singleton
-Graphics::Graphics() : renderPhysicsColliders(false), bloomScale(0.1f) { }
+Graphics::Graphics() : renderPhysicsColliders(false), renderPhysicsBoundingBoxes(true), renderNavigationMesh(true), bloomScale(0.1f) { }
 Graphics &Graphics::Instance() {
 	static Graphics instance;
 	return instance;
@@ -353,7 +357,7 @@ void Graphics::Update() {
     // RENDER PHYSICS COLLIDERS
     // -------------------------------------------------------------------------------------------------------------- //
 
-    if (renderPhysicsColliders) {
+    if (renderPhysicsColliders || renderPhysicsBoundingBoxes) {
         // Use wireframe polygon mode
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -362,20 +366,61 @@ void Graphics::Update() {
             RigidbodyComponent* rigidbody = static_cast<RigidbodyComponent*>(rigidbodyComponents[j]);
             if (!rigidbody->enabled) continue;
 
-            for (Collider *collider : rigidbody->colliders) {
-                // Check if the collider has a render mesh
-                Mesh *renderMesh = collider->GetRenderMesh();
-                if (!renderMesh) continue;
+            if (renderPhysicsColliders) {
+                for (Collider *collider : rigidbody->colliders) {
+                    // Check if the collider has a render mesh
+                    Mesh *renderMesh = collider->GetRenderMesh();
+                    if (!renderMesh) continue;
 
-                // Get the global transformation matrix of the collider
-                const glm::mat4 modelMatrix = collider->GetGlobalTransform().GetTransformationMatrix();
+                    // Get the global transformation matrix of the collider
+                    const glm::mat4 modelMatrix = collider->GetGlobalTransform().GetTransformationMatrix();
 
-                // Load the model's triangles, vertices, uvs, normals, and textures into the GPU
+                    // Load the model's triangles, vertices, uvs, normals, and textures into the GPU
+                    LoadModel(
+                        geometryProgram,
+                        modelMatrix,
+                        ContentManager::GetMaterial("PhysicsCollider.json"),
+                        renderMesh
+                    );
+
+                    if (shadowCaster != nullptr) {
+                        // Load the depth bias model view projection matrix into the GPU
+                        const glm::mat4 depthModelMatrix = modelMatrix;
+                        const glm::mat4 depthModelViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+                        const glm::mat4 depthBiasMVP = BIAS_MATRIX*depthModelViewProjectionMatrix;
+                        geometryProgram->LoadUniform(UniformName::DepthBiasModelViewProjectionMatrix, depthBiasMVP);
+                    }
+
+                    for (Camera camera : cameras) {
+                        // Setup the viewport for each camera (split-screen)
+                        glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+
+                        // Load the model view projection matrix into the GPU
+                        const glm::mat4 modelViewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix * modelMatrix;
+                        geometryProgram->LoadUniform(UniformName::ViewMatrix, camera.viewMatrix);
+                        geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
+
+                        // Render the model
+                        glDrawElements(GL_TRIANGLES, renderMesh->triangleCount * 3, GL_UNSIGNED_SHORT, static_cast<void*>(nullptr));
+                    }
+                }
+            }
+
+            if (renderPhysicsBoundingBoxes) {
+                Mesh *cubeMesh = skyboxCube;
+                
+                PxBounds3 bounds = rigidbody->pxRigid->getWorldBounds(0.5f);
+                Transform transform = Transform(nullptr,
+                    Transform::FromPx(bounds.getCenter()),
+                    Transform::FromPx(bounds.getDimensions()), glm::vec3(0.f), false);
+                
+                const glm::mat4 modelMatrix = transform.GetTransformationMatrix();
+                
                 LoadModel(
                     geometryProgram,
                     modelMatrix,
-                    ContentManager::GetMaterial("PhysicsCollider.json"),
-                    renderMesh
+                    ContentManager::GetMaterial("PhysicsBoundingBox.json"),
+                    cubeMesh
                 );
 
                 if (shadowCaster != nullptr) {
@@ -396,13 +441,49 @@ void Graphics::Update() {
                     geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
 
                     // Render the model
-                    glDrawElements(GL_TRIANGLES, renderMesh->triangleCount * 3, GL_UNSIGNED_SHORT, static_cast<void*>(nullptr));
+                    glDrawElements(GL_TRIANGLES, cubeMesh->triangleCount * 3, GL_UNSIGNED_SHORT, static_cast<void*>(nullptr));
                 }
             }
         }
 
         // Reset polygon mode
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
+    // -------------------------------------------------------------------------------------------------------------- //
+    // RENDER NAVIGATION MESH
+    // -------------------------------------------------------------------------------------------------------------- //
+
+
+    if (renderNavigationMesh) {
+        Game &game = Game::Instance();
+        NavigationMesh *mesh = game.GetNavigationMesh();
+        if (mesh) {
+            // Use the geometry shader program
+            ShaderProgram *navProgram = shaders[Shaders::NavMesh];
+            glUseProgram(navProgram->GetId());
+
+            // Load the vertices to the GPU
+            glBindVertexArray(mesh->vao);
+
+            // Load the texture to the GPU
+            Texture *texture = ContentManager::GetTexture("NavMeshStrip.png");
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texture->textureId);
+            navProgram->LoadUniform(UniformName::DiffuseTexture, 0);
+
+            for (Camera camera : cameras) {
+                // Setup the viewport for each camera (split-screen)
+                glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+
+                // Load the model view projection matrix into the GPU
+                const glm::mat4 viewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix;
+                navProgram->LoadUniform(UniformName::ViewProjectionMatrix, viewProjectionMatrix);
+
+                // Draw the nav mesh's points
+                glDrawArrays(GL_POINTS, 0, mesh->GetVertexCount());
+            }
+        }
     }
 
     // -------------------------------------------------------------------------------------------------------------- //
@@ -617,6 +698,8 @@ void Graphics::RenderDebugGui() {
         ImGui::PushItemWidth(-100);
 
         ImGui::Checkbox("Render Colliders", &renderPhysicsColliders);
+        ImGui::Checkbox("Render Bounding Boxes", &renderPhysicsBoundingBoxes);
+        ImGui::Checkbox("Render Nav Mesh", &renderNavigationMesh);
         ImGui::DragFloat("Bloom Scale", &bloomScale, 0.01f);
 
         ImGui::End();
@@ -824,6 +907,7 @@ void Graphics::GenerateIds() {
 	shaders[Shaders::Screen] = LoadShaderProgram(SCREEN_VERTEX_SHADER, SCREEN_FRAGMENT_SHADER);
 	shaders[Shaders::Blur] = LoadShaderProgram(BLUR_VERTEX_SHADER, BLUR_FRAGMENT_SHADER);
 	shaders[Shaders::Copy] = LoadShaderProgram(COPY_VERTEX_SHADER, COPY_FRAGMENT_SHADER);
+	shaders[Shaders::NavMesh] = LoadShaderProgram(NAV_VERTEX_SHADER, NAV_FRAGMENT_SHADER, NAV_GEOMETRY_SHADER);
 
     InitializeScreenVao();
     InitializeScreenVbo();
@@ -978,3 +1062,37 @@ ShaderProgram* Graphics::LoadShaderProgram(std::string vertexShaderFile, std::st
 	// Return the program's ID
 	return new ShaderProgram(programId);
 }
+
+// TODO: Fix this uglyness lol
+ShaderProgram* Graphics::LoadShaderProgram(std::string vertexShaderFile, std::string fragmentShaderFile, std::string geometryShaderFile) const {
+    // Load and compile shaders from source
+    const GLuint vertexId = ContentManager::LoadShader(vertexShaderFile, GL_VERTEX_SHADER);
+    const GLuint fragmentId = ContentManager::LoadShader(fragmentShaderFile, GL_FRAGMENT_SHADER);
+    const GLuint geometryId = ContentManager::LoadShader(geometryShaderFile, GL_GEOMETRY_SHADER);
+
+    // Link the shaders into a program
+    const GLuint programId = glCreateProgram();
+    glAttachShader(programId, vertexId);
+    glAttachShader(programId, fragmentId);
+    glAttachShader(programId, geometryId);
+    glLinkProgram(programId);
+
+    // Check link status and print errors
+    GLint status;
+    glGetProgramiv(programId, GL_LINK_STATUS, &status);
+    if (status == GL_FALSE) {
+        GLint length;
+        glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &length);
+        std::string info(length, ' ');
+        glGetProgramInfoLog(programId, info.length(), &length, &info[0]);
+        std::cout << "ERROR linking shader program:" << std::endl << info << std::endl;
+    }
+
+    glDeleteShader(vertexId);
+    glDeleteShader(fragmentId);
+    glDeleteShader(geometryId);
+
+    // Return the program's ID
+    return new ShaderProgram(programId);
+}
+

@@ -205,10 +205,16 @@ void Physics::Update() {
     PxActor** activeActors = pxScene->getActiveActors(nbActiveActors);
 
     // Update each render object with the new transform
+    vector<Component*> updatedComponents;
     for (PxU32 i = 0; i < nbActiveActors; ++i) {
         PxRigidActor* activeActor = static_cast<PxRigidActor*>(activeActors[i]);
 
         Component* component = static_cast<Component*>(activeActor->userData);
-        if (component) component->UpdateFromPhysics(activeActor->getGlobalPose());
+        if (component) {
+            component->UpdateFromPhysics(activeActor->getGlobalPose());
+            updatedComponents.push_back(component);
+        }
     }
+
+    Game::Instance().GetNavigationMesh()->UpdateMesh(updatedComponents);
 }
