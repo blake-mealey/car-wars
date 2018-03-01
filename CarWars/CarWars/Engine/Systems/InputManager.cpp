@@ -37,29 +37,17 @@ void InputManager::Update() {
 
 void InputManager::HandleMouse() {
 	//Mouse Inputs
-
-	//Get Vehicle Component
-	VehicleComponent* vehicle = static_cast<VehicleComponent*>(EntityManager::GetComponents(ComponentType_Vehicle)[0]);
 	//Get Graphics Instance
 	Graphics& graphicsInstance = Graphics::Instance();
-	//Get Camera Component
-	CameraComponent* cameraComponent = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[0]);
+	if (StateManager::GetState() == GameState_Playing) {
+		//Get Vehicle Entity
+		Entity* vehicle = EntityManager::FindEntities("Vehicle")[0];
 
-	glm::vec3 direction;
-	glm::vec3 target;
-	Entity* vehicleWeapon;
-	glm::quat q;
-
-	bool side, down;
-
-	switch (StateManager::GetState()) {
-	case GameState_Playing:
 		//Shoot Weapon
 		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-			static_cast<WeaponComponent*>(vehicle->GetEntity()->components[1])->Charge();
-		}
-		if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
-			static_cast<WeaponComponent*>(vehicle->GetEntity()->components[1])->Shoot();
+			static_cast<WeaponComponent*>(vehicle->components[1])->Charge();
+		} else if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+			static_cast<WeaponComponent*>(vehicle->components[1])->Shoot();
 		}
 
 		//Cursor Inputs
@@ -69,52 +57,46 @@ void InputManager::HandleMouse() {
 		double xPos, yPos;
 		Mouse::GetCursorPosition(graphicsInstance.GetWindow(), &xPos, &yPos);
 
-		cameraComponent->SetCameraHorizontalAngle((cameraComponent->GetCameraHorizontalAngle() - ((float)(width / 2.0f) - xPos) * cameraComponent->GetCameraSpeed() * StateManager::deltaTime.GetTimeSeconds()));
-		cameraComponent->SetCameraVerticalAngle(cameraComponent->GetCameraVerticalAngle() + ((float)(height / 2.0f) - yPos) * cameraComponent->GetCameraSpeed() * StateManager::deltaTime.GetTimeSeconds());
-		
-		
-		float maxAngle, minAngle;
-		maxAngle = M_PI / 2.0f;
-		minAngle = (2.0f / 3.0f) * M_PI / 2.0f;
-
-		if (cameraComponent->GetCameraVerticalAngle() < (minAngle)) {
+		//Get Camera Component
+		CameraComponent* cameraComponent = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[0]);
+		//Get Weapon Child
+		Entity* vehicleGunTurret = EntityManager::FindChildren(vehicle, "GunTurret")[0];
+		glm::vec3 vehicleForward = vehicle->transform.GetForward();
+		glm::vec3 vehicleUp = vehicle->transform.GetUp();
+		float dotFR = glm::dot(vehicleForward, Transform::RIGHT);
+		float dotUR = glm::dot(vehicleUp, Transform::RIGHT);
+		float dotFF = glm::dot(vehicleForward, Transform::FORWARD);
+		float dotUU = glm::dot(vehicleUp, Transform::UP);
+		bool correctForward = dotFR > 0;
+		bool correctUp = dotUR < 0;
+		//Update Camera Angles
+		float cameraHor = cameraComponent->GetCameraHorizontalAngle();
+		float cameraVer = cameraComponent->GetCameraVerticalAngle();
+		float cameraSpd = cameraComponent->GetCameraSpeed();
+		float cursorHor = ((float)(width / 2.0f) - xPos);
+		float cursorVer = ((float)(height / 2.0f) - yPos);
+		cameraComponent->SetCameraHorizontalAngle(cameraHor - cursorHor * cameraSpd * StateManager::deltaTime.GetTimeSeconds());
+		cameraComponent->SetCameraVerticalAngle(cameraVer + cursorVer * cameraSpd * StateManager::deltaTime.GetTimeSeconds());
+		//Clamp Camera Angles
+		float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
+		float minAngle = ((2.0f / 3.0f) * (M_PI_2)) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
+		float maxAngle = (float)(M_PI_2) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
+		if (cameraComponent->GetCameraVerticalAngle() < minAngle) {
 			cameraComponent->SetCameraVerticalAngle(minAngle);
-		} else if (cameraComponent->GetCameraVerticalAngle() > (maxAngle)) {
+		} else if (cameraComponent->GetCameraVerticalAngle() > maxAngle) {
 			cameraComponent->SetCameraVerticalAngle(maxAngle);
 		}
-		
-		
-		vehicleWeapon = EntityManager::GetChildren(vehicle->GetEntity())[5];
+		//Set Weapon Angle
+		float gunHor = -cameraHor - M_PI_2 + acos(dotFF) * (correctForward ? 1.0f : -1.0f);
+		vehicleGunTurret->transform.SetRotationAxisAngles(Transform::UP, gunHor);
+		float gunVer = -cameraVer + acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f) + M_PI_2 - (M_PI_4 / 2.0f);
+		vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
 
-		side = glm::dot(vehicle->GetEntity()->transform.GetForward(), Transform::RIGHT) < 0;
-
-		vehicleWeapon->transform.SetRotationAxisAngles(Transform::UP, -cameraComponent->GetCameraHorizontalAngle() - M_PI * 0.5f +
-			acos(glm::dot(vehicle->GetEntity()->transform.GetForward(), Transform::FORWARD)) * (side ? -1.f : 1.f) +
-		0);
-		//std::cout << glm::degrees(acos(glm::dot(vehicle->GetEntity()->transform.GetForward(), Transform::FORWARD))) << std::endl;
-		//std::cout << glm::dot(vehicle->GetEntity()->transform.GetForward(), Transform::FORWARD) << std::endl;
-
-		down = glm::dot(vehicle->GetEntity()->transform.GetUp(), Transform::RIGHT) > 0;
-
-		vehicleWeapon->transform.Rotate(Transform::RIGHT, -cameraComponent->GetCameraVerticalAngle() + 
-			acos(glm::dot(vehicle->GetEntity()->transform.GetUp(), Transform::UP)) * (side ? 1.f : -1.f) * (down ? -1.f : 1.f) + M_PI / 2.f - M_PI / 8.f);
-
-		/*
-		direction = cameraComponent->GetPosition() - cameraComponent->GetTarget();
-		target = vehicleWeapon->transform.GetLocalPosition() + vehicle->GetEntity()->transform.GetLocalDirection(direction);
-
-		std::cout << to_string(direction) << std::endl;
-		std::cout << to_string(vehicle->GetEntity()->transform.GetLocalDirection(direction)) << std::endl;
-
-		q = glm::quat(glm::lookAt(vehicleWeapon->transform.GetLocalPosition(), target, Transform::UP));
-		vehicleWeapon->transform.SetRotation(q);
-		//vehicleWeapon->transform.SetRotation(glm::inverse(glm::quat(vehicle->GetEntity()->transform.GetRotationMatrix())) * q);
-		*/
+		//Set Cursor to Middle
 		glfwSetCursorPos(graphicsInstance.GetWindow(), width / 2, height / 2);
-		break;
-	default:
+	} else {
+		//Set Cursor Visible
 		glfwSetInputMode(graphicsInstance.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		break;
 	}
 }
 

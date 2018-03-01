@@ -9,10 +9,11 @@ void RocketLauncherComponent::Shoot() {
 		Entity* missile = EntityManager::CreateDynamicEntity();
 		MeshComponent* missileMesh = new MeshComponent("Missile.obj", "Basic.json", "Boulder.jpg");
 		EntityManager::AddComponent(missile, missileMesh);
+
 		Entity* vehicle = EntityManager::FindEntities("Vehicle")[0];
 		missile->transform.SetPosition(EntityManager::FindChildren(vehicle, "GunTurret")[0]->transform.GetGlobalPosition());
 		missile->transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
-		missile->transform.SetRotation(EntityManager::FindChildren(vehicle, "GunTurret")[0]->transform.GetRotationMatrix());
+		missile->transform.SetRotation(EntityManager::FindChildren(vehicle, "GunTurret")[0]->transform.GetLocalRotation());
 
 		nextShotTime = StateManager::gameTime.GetTimeSeconds() + timeBetweenShots.GetTimeSeconds();
 

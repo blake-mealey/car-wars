@@ -128,10 +128,6 @@
     "Prefab": "Sewage.json",
     "Position": [ 0, 10, 0 ]
   },
-    {
-    "Prefab": "Sewage.json",
-    "Position": [ 10, 10, 0 ]
-  },
   "Sun.json",
   {
     "Tag": "Camera",

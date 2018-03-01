@@ -45,7 +45,7 @@ int main() {
     // Initialize audio
     Audio &audioManager = Audio::Instance();
     audioManager.Initialize();
-    audioManager.PlayAudio("Content/Sounds/engine-running.mp3");
+	//audioManager.PlayAudio("Content/Sounds/engine-running.mp3");
 
 	// Add systems in desired order
 	systems.push_back(&inputManager);
