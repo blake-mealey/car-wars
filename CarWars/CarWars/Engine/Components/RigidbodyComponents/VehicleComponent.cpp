@@ -426,3 +426,11 @@ void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
     Component::UpdateFromPhysics(t);
     UpdateWheelTransforms();
 }
+
+
+void VehicleComponent::TakeDamage(float _damageValue) {
+	health -= _damageValue * resistance;
+	if (health <= 0) {
+		this->GetEntity()->~Entity();
+	}
+}

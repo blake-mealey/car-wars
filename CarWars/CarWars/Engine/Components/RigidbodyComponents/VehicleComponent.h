@@ -49,6 +49,8 @@ public:
 
     void RenderDebugGui() override;
 
+	void TakeDamage(float _damageValue);
+
 private:
     MeshComponent* wheelMeshPrefab;
     std::vector<MeshComponent*> wheelMeshes;
@@ -65,6 +67,9 @@ private:
     size_t wheelCount;
 
     std::vector<AxleData> axleData;
+
+	float health = 1000.f;
+	float resistance = 0.5f;
 
     void Initialize();
     void CreateVehicle();

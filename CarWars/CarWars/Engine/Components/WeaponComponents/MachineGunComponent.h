@@ -1,7 +1,16 @@
 #pragma once
 #include <iostream>
+#include <string>
+
+#include <glm/gtx/string_cast.hpp>
 
 #include "../../Systems/StateManager.h"
+#include "../../Systems/Physics.h"
+#include "../../Entities/EntityManager.h"
+
+#include "../RigidbodyComponents/VehicleComponent.h"
+#include "../RigidbodyComponents/RigidbodyComponent.h"
+#include "../RigidbodyComponents/RigidDynamicComponent.h"
 
 #include "WeaponComponent.h"
 
