@@ -3,6 +3,7 @@
 #include "json/json.hpp"
 #include "Mesh.h"
 #include "../../Components/RigidbodyComponents/RigidbodyComponent.h"
+#include <unordered_set>
 
 struct NavigationVertex {
     NavigationVertex() : score(0.5f), position(glm::vec3(0.f)) {}
@@ -42,7 +43,6 @@ public:
     int GetRight(size_t index) const;
 
 private:
-    void UpdateMesh(RigidbodyComponent* rigidbody);
 	void Initialize();
     void InitializeRenderBuffers();
 
@@ -54,5 +54,7 @@ private:
 	size_t columnCount;
 	size_t rowCount;
 
+    std::unordered_set<size_t> coveredVertices;
+    std::unordered_set<RigidbodyComponent*> *coveringBodies;
     NavigationVertex *vertices;
 };

@@ -216,5 +216,5 @@ void Physics::Update() {
         }
     }
 
-    //Game::Instance().GetNavigationMesh()->UpdateMesh(updatedComponents);
+    Game::Instance().GetNavigationMesh()->UpdateMesh(updatedComponents);
 }

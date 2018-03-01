@@ -48,17 +48,16 @@ void AiComponent::UpdatePath() {
     if (!newPath.empty() || FinishedPath()) {
         path = newPath;
     }
-    marker->transform.SetPosition(path[0]);
+    marker->transform.SetPosition(NodeInPath());
 }
 
 void AiComponent::NextNodeInPath() {
     path.pop_front();
-    if (!FinishedPath()) {
-        marker->transform.SetPosition(path[0]);
-    }
+    marker->transform.SetPosition(NodeInPath());
 }
 
 glm::vec3 AiComponent::NodeInPath() const {
+    if (FinishedPath()) return targetEntity->transform.GetGlobalPosition();
     return path[0];
 }
 
