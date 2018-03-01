@@ -49,7 +49,7 @@ void Game::Initialize() {
 
 	ContentManager::LoadScene("PhysicsDemo.json");
 
-    for (size_t i = 0; i < 1; ++i) {
+    for (size_t i = 0; i < 5; ++i) {
         Entity *ai = ContentManager::LoadEntity("AiSewage.json");
         static_cast<VehicleComponent*>(ai->components[2])->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
     }
