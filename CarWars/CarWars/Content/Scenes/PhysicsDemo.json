@@ -56,7 +56,7 @@
         "Mass": 1000000000,
         "Colliders": [
           {
-            "Type": "Box",
+            "Type": "Mesh",
             "CollisionGroup": "Ground",
             "Mesh": "Cylinder.obj"
           }
@@ -85,10 +85,10 @@
             },
             {
                 "Type": "RigidStatic",
-                "CollisionGroup": "DrivableObstacles",
                 "Colliders": [
                     {
-                        "Type": "Box"
+                        "Type": "Box",
+                        "CollisionGroup": "DrivableObstacles"
                     }
                 ]
             }
