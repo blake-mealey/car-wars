@@ -2,6 +2,8 @@
 
 #include "Component.h"
 #include <json/json.hpp>
+#include <glm/detail/type_vec3.hpp>
+#include <deque>
 
 enum AiMode {
     AiMode_Waypoints,
@@ -23,7 +25,16 @@ public:
 
     size_t NextWaypoint(size_t waypointCount);
     size_t GetWaypoint() const;
+
+    void UpdatePath();
+    void NextNodeInPath();
+    glm::vec3 NodeInPath() const;
+    bool FinishedPath() const;
 private:
+
+    Entity *marker;
+    std::deque<glm::vec3> path;
+
     AiMode mode;
     Entity *targetEntity;
     size_t waypointIndex;

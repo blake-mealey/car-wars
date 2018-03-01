@@ -19,6 +19,7 @@
 #include "../Components/RigidbodyComponents/VehicleComponent.h"
 #include "Physics.h"
 #include "../Components/AiComponent.h"
+#include "Pathfinder.h"
 using namespace std;
 
 const unsigned int Game::MAX_VEHICLE_COUNT = 20;
@@ -48,7 +49,7 @@ void Game::Initialize() {
 
 	ContentManager::LoadScene("PhysicsDemo.json");
 
-    for (size_t i = 0; i < 5; ++i) {
+    for (size_t i = 0; i < 1; ++i) {
         Entity *ai = ContentManager::LoadEntity("AiSewage.json");
         static_cast<VehicleComponent*>(ai->components[2])->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
     }
@@ -85,12 +86,14 @@ void Game::Initialize() {
     lock->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 
 
-	Entity *marker = ContentManager::LoadEntity("Marker.json");
-	marker->transform.SetPosition(glm::vec3(0.f, 2.f, 5.f));
-
-
     ais = EntityManager::GetComponents<AiComponent>(ComponentType_AI);
     waypoints = EntityManager::FindEntities("Waypoint");
+
+    navigationMesh = new NavigationMesh({
+        { "ColumnCount", 50 },
+        { "RowCount", 50 },
+        { "Spacing", 5.f }
+    });
 
     for (AiComponent* ai : ais) {
         switch (ai->GetMode()) {
@@ -101,12 +104,8 @@ void Game::Initialize() {
             ai->SetTargetEntity(EntityManager::FindEntities("Vehicle")[0]);
             break;
         }
+        ai->UpdatePath();
     }
-
-    navigationMesh = new NavigationMesh({
-        { "ColumnCount", 100 },
-        { "RowCount", 100 }
-    });
     
 
 	// Load the scene and get some entities
@@ -177,23 +176,26 @@ void Game::Update() {
             const glm::vec3 forward = myTransform.GetForward();
             const glm::vec3 right = myTransform.GetRight();
 
-            Transform &targetTransform = ai->GetTargetEntity()->transform;
-            const glm::vec3 targetPosition = targetTransform.GetGlobalPosition();
+            const glm::vec3 targetPosition = ai->NodeInPath();
 
             glm::vec3 direction = targetPosition - position;
             const float distance = glm::length(direction);
             direction = glm::normalize(direction);
 
+            if (distance <= navigationMesh->GetSpacing()) {
+                ai->NextNodeInPath();
+            }
+
             switch(ai->GetMode()) {
             case AiMode_Waypoints:
-                if (distance <= 5.f) {
+                if (ai->FinishedPath()) {
                     ai->SetTargetEntity(waypoints[ai->NextWaypoint(4)]);
                 }
             case AiMode_Chase:
                 const float steer = glm::dot(direction, right);
                 const bool reverse = false; // glm::dot(direction, forward) > -0.1;
 
-                const float accel = glm::clamp(distance / 20.f, 0.1f, 0.8f) * reverse ? 0.8f : 1.f;
+                const float accel = glm::clamp(distance / 20.f, 0.1f, 0.8f) * reverse ? 0.8f : 0.5f;
 
                 if (!reverse && vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
                     vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
@@ -205,6 +207,10 @@ void Game::Update() {
                 vehicle->pxVehicleInputData.setAnalogAccel(accel);
 
                 break;
+            }
+
+            if (ai->FinishedPath()) {
+                ai->UpdatePath();
             }
         }
 

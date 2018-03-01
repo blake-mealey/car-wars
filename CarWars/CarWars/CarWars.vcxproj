@@ -181,6 +181,7 @@
     <ClCompile Include="Engine\Systems\IO\Keyboard.cpp" />
     <ClCompile Include="Engine\Systems\IO\Mouse.cpp" />
     <ClCompile Include="Engine\Systems\IO\XboxController.cpp" />
+    <ClCompile Include="Engine\Systems\Pathfinder.cpp" />
     <ClCompile Include="Engine\Systems\Physics.cpp" />
     <ClCompile Include="Engine\Systems\Physics\CollisionGroups.cpp" />
     <ClCompile Include="Engine\Systems\Physics\VehicleCreate.cpp" />
@@ -237,6 +238,7 @@
     <ClInclude Include="Engine\Systems\IO\Keyboard.h" />
     <ClInclude Include="Engine\Systems\IO\Mouse.h" />
     <ClInclude Include="Engine\Systems\IO\XboxController.h" />
+    <ClInclude Include="Engine\Systems\Pathfinder.h" />
     <ClInclude Include="Engine\Systems\Physics.h" />
     <ClInclude Include="Engine\Systems\Physics\CollisionGroups.h" />
     <ClInclude Include="Engine\Systems\Physics\VehicleConcurrency.h" />

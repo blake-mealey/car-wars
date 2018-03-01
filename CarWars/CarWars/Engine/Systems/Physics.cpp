@@ -102,9 +102,9 @@ const PxVehicleKeySmoothingData Physics::gKeySmoothingData =
 const PxF32 Physics::gSteerVsForwardSpeedData[2 * 8] =
 {
     0.0f,		0.8f,
-    5.0f,		0.5f,
-    30.0f,		0.15f,
-    120.0f,		0.05f,
+    5.0f,		0.75f,
+    30.0f,		0.35f,
+    120.0f,		0.2f,
     PX_MAX_F32, PX_MAX_F32,
     PX_MAX_F32, PX_MAX_F32,
     PX_MAX_F32, PX_MAX_F32,
@@ -216,5 +216,5 @@ void Physics::Update() {
         }
     }
 
-    Game::Instance().GetNavigationMesh()->UpdateMesh(updatedComponents);
+    //Game::Instance().GetNavigationMesh()->UpdateMesh(updatedComponents);
 }

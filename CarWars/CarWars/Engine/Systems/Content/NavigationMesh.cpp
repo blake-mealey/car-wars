@@ -18,6 +18,10 @@ size_t NavigationMesh::GetVertexCount() const {
     return columnCount * rowCount;
 }
 
+float NavigationMesh::GetSpacing() const {
+    return spacing;
+}
+
 void NavigationMesh::Initialize() {
     vertices = new NavigationVertex[GetVertexCount()];
 
@@ -69,6 +73,36 @@ size_t NavigationMesh::FindClosestVertex(glm::vec3 worldPosition) {     // TODO:
     }
     std::cout << closest << std::endl;
     return closest;
+}
+
+glm::vec3 NavigationMesh::GetPosition(size_t index) const {
+    return GetVertex(index).position;
+}
+
+float NavigationMesh::GetScore(size_t index) const {
+    return GetVertex(index).score;
+}
+
+std::vector<size_t> NavigationMesh::GetNeighbours(size_t index) {
+    std::vector<size_t> neighbours;
+    
+    const int left = GetLeft(index);
+    if (left != -1) neighbours.push_back(left);
+
+    const int right = GetRight(index);
+    if (right != -1) neighbours.push_back(right);
+
+    const int forward = GetForward(index);
+    if (forward != -1) neighbours.push_back(forward);
+
+    const int backward = GetBackward(index);
+    if (backward != -1) neighbours.push_back(backward);
+
+    return neighbours;
+}
+
+NavigationVertex NavigationMesh::GetVertex(size_t index) const {
+    return vertices[index];
 }
 
 // TODO: Make less ugly (split into sub-functions)
@@ -163,7 +197,7 @@ void NavigationMesh::InitializeRenderBuffers() {
     glGenBuffers(1, &vbo);
     UpdateRenderBuffers();
 
-    glGenVertexArrays(VAOs::Count, &vao);
+    glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
