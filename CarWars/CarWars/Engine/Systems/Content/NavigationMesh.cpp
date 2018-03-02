@@ -26,11 +26,26 @@ void NavigationMesh::Initialize() {
     vertices = new NavigationVertex[GetVertexCount()];
     coveringBodies = new std::unordered_set<RigidbodyComponent*>[GetVertexCount()];
 
+    const float radius = 40.f - 1.f;
+
 	for (size_t row = 0; row < rowCount; ++row) {
         for (size_t col = 0; col < columnCount; ++col) {
             const size_t index = row*columnCount + col;
-            // TODO: Cylinder positions
-            vertices[index].position = glm::vec3((spacing + rowCount) * -0.5f*spacing + row*spacing, 1.f, (spacing + columnCount) * -0.5f*spacing + col*spacing);
+            
+            const float r = static_cast<float>(row) / static_cast<float>(rowCount);
+            const float theta = -(1.f - r) * physx::PxPi;
+
+            vertices[index].position = glm::vec3(
+                radius * cos(theta),
+                radius * sin(theta),
+                (spacing + columnCount) * -0.5f*spacing + col*spacing
+            );
+            
+            /*vertices[index].position = glm::vec3(
+                (spacing + rowCount) * -0.5f*spacing + row*spacing,
+                1.f,
+                (spacing + columnCount) * -0.5f*spacing + col*spacing
+            );*/
 		}
 	}
 
@@ -73,6 +88,7 @@ void NavigationMesh::UpdateMesh(std::vector<Component*> rigidbodies) {
     // Check if any of the bodies that were updated this frame are covering new vertices
     for (Component* component : rigidbodies) {
         RigidbodyComponent *rigidbody = static_cast<RigidbodyComponent*>(component);
+        if (!rigidbody->enabled || !rigidbody->DoesBlockNavigationMesh()) continue;
 
         // Find all the vertices this body covers
         const physx::PxBounds3 bounds = rigidbody->pxRigid->getWorldBounds(1.f);
@@ -94,56 +110,71 @@ void NavigationMesh::UpdateMesh(std::vector<Component*> rigidbodies) {
 }
 
 size_t NavigationMesh::FindClosestVertex(glm::vec3 worldPosition) const {
-    // Binary search over rows
-    size_t left = 0;
-    size_t right = rowCount - 1;
+    // Bounds-check rows
     size_t row = 0;
-    glm::vec3 position;
-    while (left < right) {
-        row = (left + right) / 2;
-        position = GetPosition(row, 0);
-        if (position.x < worldPosition.x) {
-            left = row + 1;
-        } else if (position.x > worldPosition.x) {
-            right = row - 1;
-        } else {
-            break;
+    if (worldPosition.x < GetPosition(0, 0).x) {
+        row = 0;
+    } else if (worldPosition.x > GetPosition(rowCount - 1, 0).x) {
+        row = rowCount - 1;
+    } else {
+        // Binary search over rows
+        size_t left = 0;
+        size_t right = rowCount - 1;
+        glm::vec3 position;
+        while (left < right) {
+            row = (left + right) / 2;
+            position = GetPosition(row, 0);
+            if (position.x < worldPosition.x) {
+                left = row + 1;
+            } else if (position.x > worldPosition.x) {
+                right = row - 1;
+            } else {
+                break;
+            }
+        }
+
+        // Find shortest distance from best guess row
+        float shortestDist = abs(position.x - worldPosition.x);
+        for (size_t r = row - 2; r < row + 2; ++r) {
+            const float dist = abs(GetPosition(r, 0).x - worldPosition.x);
+            if (dist < shortestDist) {
+                shortestDist = dist;
+                row = r;
+            }
         }
     }
 
-    // Find shortest distance from best guess row
-    float shortestDist = abs(position.x - worldPosition.x);
-    for (size_t r = row - 2; r < row + 2; ++r) {
-        const float dist = abs(GetPosition(r, 0).x - worldPosition.x);
-        if (dist < shortestDist) {
-            shortestDist = dist;
-            row = r;
-        }
-    }
-
-    // Binary search over columns
-    left = 0;
-    right = columnCount - 1;
+    // Bounds-check columns
     size_t column = 0;
-    while (left < right) {
-        column = (left + right) / 2;
-        position = GetPosition(row, column);
-        if (position.z < worldPosition.z) {
-            left = column + 1;
-        } else if (position.z > worldPosition.z) {
-            right = column - 1;
-        } else {
-            break;
+    if (worldPosition.z < GetPosition(row, 0).z) {
+        column = 0;
+    } else if (worldPosition.z > GetPosition(row, columnCount - 1).z) {
+        column = columnCount - 1;
+    } else {
+        // Binary search over columns
+        size_t left = 0;
+        size_t right = columnCount - 1;
+        glm::vec3 position;
+        while (left < right) {
+            column = (left + right) / 2;
+            position = GetPosition(row, column);
+            if (position.z < worldPosition.z) {
+                left = column + 1;
+            } else if (position.z > worldPosition.z) {
+                right = column - 1;
+            } else {
+                break;
+            }
         }
-    }
 
-    // Find shortest distance from best guess column
-    shortestDist = abs(position.z - worldPosition.z);
-    for (size_t c = column - 2; c < column + 2; ++c) {
-        const float dist = abs(GetPosition(row, c).z - worldPosition.z);
-        if (dist < shortestDist) {
-            shortestDist = dist;
-            column = c;
+        // Find shortest distance from best guess column
+        float shortestDist = abs(position.z - worldPosition.z);
+        for (size_t c = column - 2; c < column + 2; ++c) {
+            const float dist = abs(GetPosition(row, c).z - worldPosition.z);
+            if (dist < shortestDist) {
+                shortestDist = dist;
+                column = c;
+            }
         }
     }
 

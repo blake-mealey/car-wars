@@ -26,7 +26,7 @@ const unsigned int Game::MAX_VEHICLE_COUNT = 20;
 
 Map Game::selectedMap = Map_Cylinder;
 GameMode Game::selectedGameMode = Team;
-size_t Game::numberOfAi = 5;
+size_t Game::numberOfAi = 1;
 size_t Game::numberOfLives = 3;
 size_t Game::killLimit = 10;
 size_t Game::timeLimitMinutes = 10;
@@ -47,7 +47,7 @@ float unitRand() {
 void Game::Initialize() {
     ContentManager::LoadSkybox("PurpleNebula/");
 
-	ContentManager::LoadScene("PhysicsDemo.json");
+	ContentManager::LoadScene("GameDemo.json");
 
     for (size_t i = 0; i < numberOfAi; ++i) {
         Entity *ai = ContentManager::LoadEntity("AiSewage.json");
@@ -213,7 +213,7 @@ void Game::Update() {
 
                 const bool reverse = ai->IsReversing();// speed < 1.f; // glm::dot(direction, forward) > -0.1;
 
-                const float accel = glm::clamp(distance / 20.f, 0.1f, 0.8f) * reverse ? 0.8f : 0.5f;
+                const float accel = glm::clamp(distance / 20.f, 0.1f, 0.8f) * reverse ? 0.8f : 0.8f;
 
                 if (!reverse && vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
                     vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);

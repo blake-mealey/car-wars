@@ -7,9 +7,11 @@
 #include "../Colliders/MeshCollider.h"
 #include "imgui/imgui.h"
 
-RigidbodyComponent::RigidbodyComponent() : pxRigid(nullptr) {}
+RigidbodyComponent::RigidbodyComponent() : pxRigid(nullptr), blocksNavigationMesh(true) {}
 
 RigidbodyComponent::RigidbodyComponent(nlohmann::json data) : RigidbodyComponent() {
+    blocksNavigationMesh = ContentManager::GetFromJson<bool>(data["BlocksNavMesh"], true);
+
     for (nlohmann::json colliderData : data["Colliders"]) {
         std::string type = colliderData["Type"];
         Collider *collider = nullptr;
@@ -71,4 +73,8 @@ void RigidbodyComponent::SetEntity(Entity* _entity) {
 	for (Collider *collider : colliders) {
 		collider->Scale(_entity->transform.GetLocalScale());
 	}
+}
+
+bool RigidbodyComponent::DoesBlockNavigationMesh() const {
+    return blocksNavigationMesh;
 }
