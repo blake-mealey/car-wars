@@ -47,7 +47,7 @@ size_t AiComponent::GetWaypoint() const {
 }
 
 void AiComponent::UpdatePath() {
-    if (!FinishedPath() && StateManager::gameTime - lastPathUpdate < 0.1f) return;
+    if (!FinishedPath() && StateManager::gameTime - lastPathUpdate < 0.01f) return;
     lastPathUpdate = StateManager::gameTime;
 
     const glm::vec3 currentPosition = GetEntity()->transform.GetGlobalPosition();

@@ -45,7 +45,8 @@ ComponentType RigidbodyComponent::GetType() {
 void RigidbodyComponent::HandleEvent(Event *event) {}
 
 void RigidbodyComponent::RenderDebugGui() {
-    Component::RenderDebugGui();
+	Component::RenderDebugGui();
+
     if (ImGui::TreeNode("Transform")) {
         Transform t = pxRigid->getGlobalPose();
         if (t.RenderDebugGui()) pxRigid->setGlobalPose(Transform::ToPx(t), true);
