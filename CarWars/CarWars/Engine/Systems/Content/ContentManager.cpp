@@ -27,6 +27,9 @@
 #include "../../Components/RigidbodyComponents/RigidDynamicComponent.h"
 #include "../../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../../Components/AiComponent.h"
+#include "../../Components/PowerUpComponents/SpeedPowerUp.h"
+#include "../../Components/PowerUpComponents/DefencePowerUp.h"
+#include "../../Components/PowerUpComponents/DamagePowerUp.h"
 
 using namespace nlohmann;
 using namespace physx;
@@ -218,7 +221,10 @@ Component* ContentManager::LoadComponent(json data) {
 		else if (type == "MachineGun") component = new MachineGunComponent();
 		else if (type == "RailGun") component = new RailGunComponent();
 		else if (type == "AI") component = new AiComponent(data);
-		else if (type == "RocketLauncher") component = new RocketLauncherComponent();
+        else if (type == "RocketLauncher") component = new RocketLauncherComponent();
+        else if (type == "SpeedPowerUp") component = new SpeedPowerUp();
+        else if (type == "DefencePowerUp") component = new DefencePowerUp();
+        else if (type == "DamagePowerUp") component = new DamagePowerUp();
         else {
             std::cout << "Unsupported component type: " << type << std::endl;
             supportedType = false;

@@ -1,5 +1,6 @@
 #include "Audio.h"
 #include "../Entities/EntityManager.h"
+#include "StateManager.h"
 
 // Singleton
 Audio::Audio() { }
@@ -33,7 +34,12 @@ void Audio::PlayAudio(const char *filename) {
     soundSystem->playSound(soundToPlay, 0, false, &channel);
 }
 
+FMOD_VECTOR GlmToFmodVector(glm::vec3 v) {
+    return {v.x, v.y, v.z};
+}
+
 void Audio::Update() { 
+    float timePassed = StateManager::deltaTime.GetTimeMilliSeconds();
     glm::vec3 vehiclePos = EntityManager::FindEntities("Vehicle")[0]->transform.GetGlobalPosition();
     glm::vec3 cameraPos = EntityManager::FindEntities("Vehicle")[0]->transform.GetGlobalPosition();
     //Transform vehiclePos = EntityManager::FindEntities("Vehicle")[0]->transform;

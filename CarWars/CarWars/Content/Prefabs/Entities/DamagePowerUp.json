@@ -1,0 +1,19 @@
+{
+  "Tag": "PowerUp",
+	"Components": [
+		{
+			"Type": "Mesh",
+			"Mesh": "Sphere.obj",
+			"Material": "RedShiny.json"
+		},
+    {
+      "Type": "PointLight",
+      "Color": [ 1, 0, 0 ],
+      "Power": 10
+    },
+    {
+      "Type": "DamagePowerUp",
+      "Multiplier":  0.25
+    }
+	]
+}

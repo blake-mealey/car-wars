@@ -157,6 +157,10 @@
     <ClCompile Include="Engine\Components\Colliders\ConvexMeshCollider.cpp" />
     <ClCompile Include="Engine\Components\MeshComponent.cpp" />
     <ClCompile Include="Engine\Components\PointLightComponent.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\DamagePowerUp.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\DefencePowerUp.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\PowerUp.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\SpeedPowerUp.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\RigidDynamicComponent.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\RigidStaticComponent.cpp" />
@@ -207,6 +211,10 @@
     <ClInclude Include="Engine\Components\Colliders\ConvexMeshCollider.h" />
     <ClInclude Include="Engine\Components\MeshComponent.h" />
     <ClInclude Include="Engine\Components\PointLightComponent.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\DamagePowerUp.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\DefencePowerUp.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\PowerUp.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\SpeedPowerUp.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\RigidDynamicComponent.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\RigidStaticComponent.h" />
@@ -247,7 +255,11 @@
     <ClInclude Include="Engine\Systems\Time.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Content\Materials\YellowShiny.json" />
     <None Include="Content\PhysicsMaterials\Default.json" />
+    <None Include="Content\Prefabs\Entities\DamagePowerUp.json" />
+    <None Include="Content\Prefabs\Entities\DefencePowerUp.json" />
+    <None Include="Content\Prefabs\Entities\SpeedPowerUp.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

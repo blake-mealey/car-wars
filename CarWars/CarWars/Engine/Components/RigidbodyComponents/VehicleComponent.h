@@ -49,6 +49,8 @@ public:
 
     void RenderDebugGui() override;
 
+    float speedMutliplier = 1.f;
+    float defenceMultiplier = 1.f;
 private:
     MeshComponent* wheelMeshPrefab;
     std::vector<MeshComponent*> wheelMeshes;
