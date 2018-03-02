@@ -6,6 +6,8 @@
 #include "../Colliders/ConvexMeshCollider.h"
 #include "../Colliders/MeshCollider.h"
 #include "imgui/imgui.h"
+#include "../../Entities/EntityManager.h"
+#include "RigidDynamicComponent.h"
 
 RigidbodyComponent::RigidbodyComponent() : pxRigid(nullptr), blocksNavigationMesh(true) {}
 
@@ -72,6 +74,21 @@ void RigidbodyComponent::SetEntity(Entity* _entity) {
 
 	for (Collider *collider : colliders) {
 		collider->Scale(_entity->transform.GetLocalScale());
+	}
+	if (_entity->connectedToCylinder) {
+		Entity* cylinder = EntityManager::FindEntities("Cylinder")[0];
+		Physics &physics = Physics::Instance();
+
+		PxFixedJoint* joint = PxFixedJointCreate(physics.GetApi(),
+			static_cast<RigidDynamicComponent*>(cylinder->components[1])->actor, PxTransform(PxIdentity),
+			pxRigid, Transform::ToPx(_entity->transform));
+
+		// compute new transform
+		// x -> 0
+		// y -> add radius
+		// z -> same
+
+		// rotation based on x
 	}
 }
 
