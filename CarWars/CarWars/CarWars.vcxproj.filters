@@ -156,6 +156,9 @@
     <ClCompile Include="Engine\Systems\Pathfinder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Components\GuiComponents\GuiComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Components\CameraComponent.h">
@@ -327,6 +330,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Systems\Pathfinder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\GuiComponents\GuiComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

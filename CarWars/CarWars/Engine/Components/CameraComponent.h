@@ -41,7 +41,13 @@ public:
 
     void RenderDebugGui() override;
 
+	Entity* GetGuiRoot();
+	//std::vector<Entity*>& GetGuiEntities();
+
 private:
+	//std::vector<Entity*> guiEntities;
+	Entity *guiRoot;
+
 	float fieldOfView;		// In degrees
 	glm::vec3 position;
 	glm::vec3 target;

@@ -3,6 +3,8 @@
 #include "Entity.h"
 #include <map>
 
+class CameraComponent;
+
 class EntityManager {
 public:
 	// Access entities
@@ -15,6 +17,7 @@ public:
 	static Entity* CreateDynamicEntity();
 	static void DestroyStaticEntity(size_t id);
 	static void DestroyDynamicEntity(size_t id);
+	//static Entity* CreateGuiEntity(CameraComponent *camera);
 
 	static void SetTag(size_t entityId, std::string tag);
 	static void SetTag(Entity *entity, std::string tag);
@@ -40,7 +43,7 @@ public:
 	// Contact entities
 	static void BroadcastEvent(Event *event);
 private:
-	static Entity* CreateEntity(std::vector<Entity*> &entities);
+	static Entity* CreateEntity(std::vector<Entity*> &entities, Entity* parent);
 	static void DestroyEntity(size_t id, std::vector<Entity*> &entities);
 
 	// Store entities

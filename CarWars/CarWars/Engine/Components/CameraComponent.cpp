@@ -1,4 +1,5 @@
 #include "CameraComponent.h"
+#include "../Entities/EntityManager.h"
 #include <glm/gtc/matrix_transform.inl>
 #include "../Entities/Entity.h"
 #include "../Systems/Content/ContentManager.h"
@@ -16,7 +17,7 @@ void CameraComponent::HandleEvent(Event* event) {}
 
 CameraComponent::CameraComponent() : CameraComponent(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)) {}
 
-CameraComponent::CameraComponent(nlohmann::json data) {
+CameraComponent::CameraComponent(nlohmann::json data) : guiRoot(nullptr) {
 	fieldOfView = ContentManager::GetFromJson(data["FOV"], DEFAULT_FIELD_OF_VIEW);
 	position = ContentManager::JsonToVec3(data["Position"], glm::vec3(0.f, 0.f, 1.f));
 	target = ContentManager::JsonToVec3(data["Target"]);
@@ -27,7 +28,7 @@ CameraComponent::CameraComponent(nlohmann::json data) {
 }
 
 CameraComponent::CameraComponent(glm::vec3 _position, glm::vec3 _target, glm::vec3 _upVector) :
-	position(_position), target(_target), upVector(_upVector), fieldOfView(DEFAULT_FIELD_OF_VIEW), distanceFromCenter(15.f) {
+	position(_position), target(_target), upVector(_upVector), fieldOfView(DEFAULT_FIELD_OF_VIEW), distanceFromCenter(15.f), guiRoot(nullptr) {
 	
 	UpdateViewMatrix();
 }
@@ -120,3 +121,15 @@ void CameraComponent::UpdateViewMatrix() {
 void CameraComponent::UpdateProjectionMatrix() {
 	projectionMatrix = glm::perspective(glm::radians(fieldOfView), aspectRatio, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE);
 }
+
+Entity* CameraComponent::GetGuiRoot() {
+	if (guiRoot == nullptr) {
+		guiRoot = EntityManager::CreateStaticEntity();
+		EntityManager::SetTag(guiRoot, "GuiRoot");
+	}
+	return guiRoot;
+}
+
+/*std::vector<Entity*>& CameraComponent::GetGuiEntities() {
+	return guiEntities;
+}*/

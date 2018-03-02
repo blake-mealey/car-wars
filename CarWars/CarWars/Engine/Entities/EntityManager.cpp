@@ -1,4 +1,5 @@
 #include "EntityManager.h"
+#include "../Components/CameraComponent.h"
 
 Entity* EntityManager::root = new Entity(0);
 std::vector<Entity*> EntityManager::staticEntities;
@@ -24,20 +25,24 @@ std::vector<Entity*> EntityManager::FindEntities(std::string tag) {
 	return ret;
 }
 
+/*Entity* EntityManager::CreateGuiEntity(CameraComponent *camera) {
+	CreateEntity(camera->GetGuiEntities(), camera->GetGuiRoot());
+}*/
+
 Entity* EntityManager::CreateDynamicEntity() {
-	return CreateEntity(dynamicEntities);
+	return CreateEntity(dynamicEntities, root);
 }
 
 Entity* EntityManager::CreateStaticEntity() {
-	return CreateEntity(staticEntities);
+	return CreateEntity(staticEntities, root);
 }
 
-Entity* EntityManager::CreateEntity(std::vector<Entity*> &entities) {
+Entity* EntityManager::CreateEntity(std::vector<Entity*> &entities, Entity *parent) {
 	size_t id = nextEntityId++;
 	Entity* entity = new Entity(id);
 	entities.push_back(entity);
 	idToEntity[id] = entity;
-    SetParent(entity, root);
+    SetParent(entity, parent);
 	return entity;
 }
 

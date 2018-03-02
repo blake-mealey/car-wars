@@ -26,12 +26,13 @@ class MeshComponent;
 class Mesh;
 
 struct Camera {
-	Camera(glm::mat4 _viewMatrix, glm::mat4 _projectionMatrix) : viewMatrix(_viewMatrix), projectionMatrix(_projectionMatrix) {}
+	Camera(glm::mat4 _viewMatrix, glm::mat4 _projectionMatrix, Entity *_guiRoot) : viewMatrix(_viewMatrix), projectionMatrix(_projectionMatrix), guiRoot(_guiRoot) {}
 	
 	glm::mat4 viewMatrix;
 	glm::mat4 projectionMatrix;
 	glm::vec2 viewportPosition;
 	glm::vec2 viewportSize;
+	Entity *guiRoot;
 };
 
 struct EABs {

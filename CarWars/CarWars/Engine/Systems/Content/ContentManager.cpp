@@ -310,6 +310,19 @@ void ContentManager::MergeJson(json &obj0, json &obj1, bool overwrite) {
     }
 }
 
+glm::vec4 ContentManager::JsonToVec4(json data, glm::vec4 defaultValue) {
+	if (!data.is_array() || data.size() != 4) return defaultValue;
+	return glm::vec4(
+		GetFromJson<float>(data[0], defaultValue.x),
+		GetFromJson<float>(data[1], defaultValue.y),
+		GetFromJson<float>(data[2], defaultValue.z),
+		GetFromJson<float>(data[3], defaultValue.w));
+}
+
+glm::vec4 ContentManager::JsonToVec4(json data) {
+	return JsonToVec4(data, glm::vec4());
+}
+
 glm::vec3 ContentManager::JsonToVec3(json data, glm::vec3 defaultValue) {
     if (!data.is_array() || data.size() != 3) return defaultValue;
     return glm::vec3(

@@ -43,6 +43,8 @@ public:
 	static T GetFromJson(nlohmann::json json, T defaultValue);
 	static nlohmann::json LoadJson(std::string filePath);
 	static void MergeJson(nlohmann::json &obj0, nlohmann::json &obj1, bool overwrite=true);
+	static glm::vec4 JsonToVec4(nlohmann::json data, glm::vec4 defaultValue);
+	static glm::vec4 JsonToVec4(nlohmann::json data);
     static glm::vec3 JsonToVec3(nlohmann::json data, glm::vec3 defaultValue);
 	static glm::vec3 JsonToVec3(nlohmann::json data);
 	static glm::vec2 JsonToVec2(nlohmann::json data, glm::vec2 defaultValue);

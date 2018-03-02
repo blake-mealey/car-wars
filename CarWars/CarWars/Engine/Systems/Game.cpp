@@ -5,6 +5,7 @@
 #include "../Components/SpotLightComponent.h"
 #include "../Components/MeshComponent.h"
 #include "../Components/CameraComponent.h"
+#include "../Components/GuiComponents/GuiComponent.h"
 #include "../Components/RigidbodyComponents/RigidStaticComponent.h"
 
 #include "Physics\VehicleCreate.h"
@@ -58,8 +59,18 @@ void Game::Initialize() {
 	cameras = EntityManager::FindEntities("Camera");
 
 	for (Entity* camera : cameras) {
-        static_cast<CameraComponent*>(camera->components[0])->SetCameraHorizontalAngle(-3.14 / 2);
-        static_cast<CameraComponent*>(camera->components[0])->SetCameraVerticalAngle(3.14 / 4);
+		CameraComponent *cameraComponent = static_cast<CameraComponent*>(camera->components[0]);
+        cameraComponent->SetCameraHorizontalAngle(-3.14 / 2);
+        cameraComponent->SetCameraVerticalAngle(3.14 / 4);
+
+		GuiComponent *carWarsTitle = new GuiComponent({
+			{ "Text", "cAR wARS" },
+			{ "Font", "Starjedi.ttf" },
+			{ "FontColor", { 1, 1, 0, 1 } },
+			{ "FontSize", 36 },
+			{ "Position", { 20, 20, 0 } }
+		});
+		EntityManager::AddComponent(cameraComponent->GetGuiRoot(), carWarsTitle);
 	}
 
 

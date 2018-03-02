@@ -11,6 +11,7 @@
 #include "Content/ContentManager.h"
 #include <glm/gtx/string_cast.hpp>
 #include "../Entities/EntityManager.h"
+#include "../Components/GuiComponents/GuiComponent.h"
 #include "../Components/CameraComponent.h"
 #include "../Components/MeshComponent.h"
 #include "../Components/SpotLightComponent.h"
@@ -227,6 +228,7 @@ void Graphics::Update() {
 	const std::vector<Component*> meshes = EntityManager::GetComponents(ComponentType_Mesh);
 	const std::vector<Component*> cameraComponents = EntityManager::GetComponents(ComponentType_Camera);
 	const std::vector<Component*> aiComponents = EntityManager::GetComponents(ComponentType_AI);
+	const std::vector<Component*> guiComponents = EntityManager::GetComponents(ComponentType_GUI);
     const std::vector<Component*> rigidbodyComponents = EntityManager::GetComponents({
         ComponentType_RigidDynamic,
         ComponentType_RigidStatic,
@@ -677,36 +679,46 @@ void Graphics::Update() {
     // GAME GUI
     // -------------------------------------------------------------------------------------------------------------- //
 
-    // Render Fonts
+	// Render fonts
+	for (Camera camera : cameras) {
+		// Setup the viewport for each camera (split-screen)
+		glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
 
-    // Unbind shader program
-    glUseProgram(0);
+		for (Component *component : guiComponents) {
+			if (!component->enabled) continue;
+			GuiComponent *gui = static_cast<GuiComponent*>(component);
+			
+			Entity *guiRoot = gui->GetGuiRoot();
+			if (!guiRoot || guiRoot != camera.guiRoot) continue;
 
-    // Initialize stuff
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_DEPTH_TEST);
+			// Unbind shader program
+			glUseProgram(0);
 
-    // Set the color
-    glm::vec4 color = glm::vec4(1.f, 1.f, 0.f, 1.f);
-    glPixelTransferf(GL_RED_BIAS, color.r - 1.f);
-    glPixelTransferf(GL_GREEN_BIAS, color.g - 1.f);
-    glPixelTransferf(GL_BLUE_BIAS, color.b - 1.f);
-    glPixelTransferf(GL_ALPHA_BIAS, color.a - 1.f);
+			// Initialize stuff
+			glPushAttrib(GL_ALL_ATTRIB_BITS);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glDisable(GL_DEPTH_TEST);
 
-    // Load the font
-    FTGLPixmapFont font("./Content/Fonts/Starjedi.ttf");
+			// Set the color
+			glm::vec4 color = gui->GetFontColor();
+			glPixelTransferf(GL_RED_BIAS, color.r - 1.f);
+			glPixelTransferf(GL_GREEN_BIAS, color.g - 1.f);
+			glPixelTransferf(GL_BLUE_BIAS, color.b - 1.f);
+			glPixelTransferf(GL_ALPHA_BIAS, color.a - 1.f);
 
-    // Initialize the font
-    font.FaceSize(36);
+			// Render the text
+			FTFont *font = gui->GetFont();
 
-    // Render the text
-    font.Render("cAR wARS", -1, FTPoint(20, 20));
+			glm::vec3 position = gui->transform.GetGlobalPosition();
+			glm::vec2 screenPosition = camera.viewportPosition + glm::vec2(position.x, camera.viewportSize.y - position.y - font->Ascender()*0.5f);
 
-    // Reset stuff
-    glPopAttrib();
+			font->Render(gui->GetText().c_str(), -1, FTPoint(screenPosition.x, screenPosition.y));
 
+			// Reset stuff
+			glPopAttrib();
+		}
+	}
 
     // -------------------------------------------------------------------------------------------------------------- //
     // DEBUG GUI
@@ -803,7 +815,7 @@ void Graphics::LoadCameras(std::vector<Component*> cameraComponents) {
 	for (Component *component: cameraComponents) {
 		if (component->enabled) {
 			CameraComponent *camera = static_cast<CameraComponent*>(component);
-			cameras.push_back(Camera(camera->GetViewMatrix(), camera->GetProjectionMatrix()));
+			cameras.push_back(Camera(camera->GetViewMatrix(), camera->GetProjectionMatrix(), camera->GetGuiRoot()));
 			if (cameras.size() == MAX_CAMERAS) break;
 		}
 	}
