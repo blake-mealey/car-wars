@@ -90,9 +90,9 @@ void Game::Initialize() {
     waypoints = EntityManager::FindEntities("Waypoint");
 
     navigationMesh = new NavigationMesh({
-        { "ColumnCount", 50 },
-        { "RowCount", 50 },
-        { "Spacing", 5.f }
+        { "ColumnCount", 100 },
+        { "RowCount", 100 },
+        { "Spacing", 2.5f }
     });
 
     for (AiComponent* ai : ais) {
@@ -186,6 +186,7 @@ void Game::Update() {
             // TODO: When AI has "trouble" getting to next node, update the path
             // TODO: Define "trouble"
 
+            ai->UpdatePath();
             if (distance <= navigationMesh->GetSpacing()) {
                 ai->NextNodeInPath();
             }

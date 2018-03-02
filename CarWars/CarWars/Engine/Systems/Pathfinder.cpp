@@ -1,6 +1,6 @@
 #include "Pathfinder.h"
 
-std::deque<glm::vec3> Pathfinder::FindPath(NavigationMesh* navigationMesh, glm::vec3 startPosition,
+std::vector<glm::vec3> Pathfinder::FindPath(NavigationMesh* navigationMesh, glm::vec3 startPosition,
     glm::vec3 goalPosition) {
 
     const size_t startIndex = navigationMesh->FindClosestVertex(startPosition);
@@ -89,14 +89,14 @@ float Pathfinder::GetScore(std::unordered_map<size_t, float>& scoreMap, size_t i
     return it->second;
 }
 
-std::deque<glm::vec3> Pathfinder::ReconstructPath(NavigationMesh *navigationMesh, std::unordered_map<size_t, size_t>& cameFrom, size_t goal) {
-    std::deque<glm::vec3> totalPath = { navigationMesh->GetPosition(goal) };
+std::vector<glm::vec3> Pathfinder::ReconstructPath(NavigationMesh *navigationMesh, std::unordered_map<size_t, size_t>& cameFrom, size_t goal) {
+    std::vector<glm::vec3> totalPath = { navigationMesh->GetPosition(goal) };
 
     while (true) {
         const auto it = cameFrom.find(goal);
         if (it == cameFrom.end()) break;
         goal = it->second;
-        totalPath.push_front(navigationMesh->GetPosition(goal));
+        totalPath.push_back(navigationMesh->GetPosition(goal));
     }
 
     return totalPath;

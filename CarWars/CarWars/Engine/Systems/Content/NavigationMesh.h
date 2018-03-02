@@ -1,7 +1,6 @@
 #pragma once
 
 #include "json/json.hpp"
-#include "Mesh.h"
 #include "../../Components/RigidbodyComponents/RigidbodyComponent.h"
 #include <unordered_set>
 

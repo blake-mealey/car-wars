@@ -38,6 +38,8 @@ const std::string Graphics::COPY_FRAGMENT_SHADER = SCREEN_FRAGMENT_SHADER;
 const std::string Graphics::NAV_VERTEX_SHADER = "navMesh.vert";
 const std::string Graphics::NAV_FRAGMENT_SHADER = "navMesh.frag";
 const std::string Graphics::NAV_GEOMETRY_SHADER = "navMesh.geom";
+const std::string Graphics::PATH_VERTEX_SHADER = "path.vert";
+const std::string Graphics::PATH_FRAGMENT_SHADER = "path.frag";
 
 // Initial Screen Dimensions
 const size_t Graphics::SCREEN_WIDTH = 1024;
@@ -55,7 +57,8 @@ const glm::mat4 Graphics::BIAS_MATRIX = glm::mat4(
 );
 
 // Singleton
-Graphics::Graphics() : renderPhysicsColliders(false), renderPhysicsBoundingBoxes(false), renderNavigationMesh(false), bloomScale(0.1f) { }
+Graphics::Graphics() : renderPhysicsColliders(false), renderPhysicsBoundingBoxes(false),
+    renderNavigationMesh(false), renderNavigationPaths(true), bloomScale(0.1f) { }
 Graphics &Graphics::Instance() {
 	static Graphics instance;
 	return instance;
@@ -223,6 +226,7 @@ void Graphics::Update() {
 	const std::vector<Component*> spotLights = EntityManager::GetComponents(ComponentType_SpotLight);
 	const std::vector<Component*> meshes = EntityManager::GetComponents(ComponentType_Mesh);
 	const std::vector<Component*> cameraComponents = EntityManager::GetComponents(ComponentType_Camera);
+	const std::vector<Component*> aiComponents = EntityManager::GetComponents(ComponentType_AI);
     const std::vector<Component*> rigidbodyComponents = EntityManager::GetComponents({
         ComponentType_RigidDynamic,
         ComponentType_RigidStatic,
@@ -486,6 +490,37 @@ void Graphics::Update() {
         }
     }
 
+    
+    // -------------------------------------------------------------------------------------------------------------- //
+    // RENDER NAVIGATION PATHS
+    // -------------------------------------------------------------------------------------------------------------- //
+
+    if (renderNavigationPaths) {
+        for (Component *component : aiComponents) {
+            if (!component->enabled) continue;
+            AiComponent *ai = static_cast<AiComponent*>(component);
+
+            // Use the geometry shader program
+            ShaderProgram *pathProgram = shaders[Shaders::Path];
+            glUseProgram(pathProgram->GetId());
+
+            // Load the vertices to the GPU
+            glBindVertexArray(ai->pathVao);
+
+            for (Camera camera : cameras) {
+                // Setup the viewport for each camera (split-screen)
+                glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+
+                // Load the model view projection matrix into the GPU
+                const glm::mat4 viewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix;
+                pathProgram->LoadUniform(UniformName::ViewProjectionMatrix, viewProjectionMatrix);
+
+                // Draw the nav mesh's points
+                glDrawArrays(GL_LINE_STRIP, 0, ai->GetPathLength());
+            }
+        }
+    }
+
     // -------------------------------------------------------------------------------------------------------------- //
     // RENDER SKYBOX
     // -------------------------------------------------------------------------------------------------------------- //
@@ -700,6 +735,7 @@ void Graphics::RenderDebugGui() {
         ImGui::Checkbox("Render Colliders", &renderPhysicsColliders);
         ImGui::Checkbox("Render Bounding Boxes", &renderPhysicsBoundingBoxes);
         ImGui::Checkbox("Render Nav Mesh", &renderNavigationMesh);
+        ImGui::Checkbox("Render Nav Paths", &renderNavigationPaths);
         ImGui::DragFloat("Bloom Scale", &bloomScale, 0.01f);
 
         ImGui::End();
@@ -908,6 +944,7 @@ void Graphics::GenerateIds() {
 	shaders[Shaders::Blur] = LoadShaderProgram(BLUR_VERTEX_SHADER, BLUR_FRAGMENT_SHADER);
 	shaders[Shaders::Copy] = LoadShaderProgram(COPY_VERTEX_SHADER, COPY_FRAGMENT_SHADER);
 	shaders[Shaders::NavMesh] = LoadShaderProgram(NAV_VERTEX_SHADER, NAV_FRAGMENT_SHADER, NAV_GEOMETRY_SHADER);
+	shaders[Shaders::Path] = LoadShaderProgram(PATH_VERTEX_SHADER, PATH_FRAGMENT_SHADER);
 
     InitializeScreenVao();
     InitializeScreenVbo();

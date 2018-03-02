@@ -5,7 +5,7 @@
 
 class Pathfinder {
 public:
-    static std::deque<glm::vec3> FindPath(NavigationMesh *navigationMesh, glm::vec3 startPosition, glm::vec3 goalPosition);
+    static std::vector<glm::vec3> FindPath(NavigationMesh *navigationMesh, glm::vec3 startPosition, glm::vec3 goalPosition);
 
 private:
     static float HeuristicCostEstimate(NavigationMesh *navigationMesh, size_t index0, size_t index1);
@@ -15,5 +15,5 @@ private:
 
     static float GetScore(std::unordered_map<size_t, float> &scoreMap, size_t index);
 
-    static std::deque<glm::vec3> ReconstructPath(NavigationMesh *navigationMesh, std::unordered_map<size_t, size_t> &cameFrom, size_t goal);
+    static std::vector<glm::vec3> ReconstructPath(NavigationMesh *navigationMesh, std::unordered_map<size_t, size_t> &cameFrom, size_t goal);
 };
