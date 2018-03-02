@@ -143,26 +143,6 @@ void Game::Initialize() {
 void Game::Update() {
 	if (StateManager::GetState() == GameState_Playing) {
 
-		//boulder->transform.Translate(glm::vec3(0.0f, sin(currentTime.GetTimeSeconds()), 0.0f));
-	    //const glm::vec3 pos = boulder->transform.GetLocalPosition();
-        //boulder->transform.SetPosition(glm::vec3(pos.x, sin(gameTime.GetTimeMilliSeconds() / 500), pos.z));
-		//boulder->transform.Rotate(glm::vec3(0, 1, 0), deltaTime.GetTimeMilliSeconds() * 0.00002);
-
-		//boulder->transform.Translate(boulder->transform.GetForward() * 0.1f);
-
-		//camera->transform.SetPosition(10.f * glm::vec3(
-			//sin(gameTime.GetTimeMilliSeconds() / 1000), 0.5,
-			//cos(gameTime.GetTimeMilliSeconds() / 1000)));
-
-		//Rotate The Weapon along the horizonal
-		//Entity *camera = EntityManager::FindEntities("Camera")[0];
-		//CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
-		//MachineGunComponent* gun = static_cast<MachineGunComponent*>(EntityManager::FindEntities("Vehicle")[0]->components[1]);
-		//gun->SetTargetRotation(cameraC->GetCameraHorizontalAngle(), cameraC->GetCameraVerticalAngle());
-		//Entity* vehicle = EntityManager::FindEntities("Vehicle")[0];
-		//EntityManager::FindChildren(vehicle, "MachineGunTurret")[0]->transform.SetRotationAxisAngles(glm::vec3(0.0f, 1.0f, 0.0f), gun->horizontalAngle + glm::radians(90.0f));
-
-
         // Set the cylinder's rotation
         cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
 
@@ -246,12 +226,6 @@ void Game::Update() {
 			camera->transform.SetPosition(EntityManager::FindChildren(car, "GunTurret")[0]->transform.GetGlobalPosition());
 			static_cast<CameraComponent*>(camera->components[0])->SetTarget(car->transform.GetGlobalPosition() + car->transform.GetUp() * 2.f + car->transform.GetForward() * -1.25f);
 		}
-
-		//camera->transform.SetPosition(boulder->transform.GetGlobalPosition());
-
-		//floor->transform.Rotate({ 0,0,1 }, deltaTime.GetTimeMilliSeconds() * 0.00002);
-		//baby->transform.Translate(glm::vec3(.01, 0, 0));
-		//baby->transform.Rotate(glm::vec3(1,0,0),.01f);
 	} else if (StateManager::GetState() == GameState_Paused) {
 
         // PAUSED
