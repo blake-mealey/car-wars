@@ -26,7 +26,7 @@ const unsigned int Game::MAX_VEHICLE_COUNT = 20;
 
 Map Game::selectedMap = Map_Cylinder;
 GameMode Game::selectedGameMode = Team;
-size_t Game::numberOfAi = 1;
+size_t Game::numberOfAi = 5;
 size_t Game::numberOfLives = 3;
 size_t Game::killLimit = 10;
 size_t Game::timeLimitMinutes = 10;
