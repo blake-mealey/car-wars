@@ -418,7 +418,7 @@ void Graphics::Update() {
                 PxBounds3 bounds = rigidbody->pxRigid->getWorldBounds(0.5f);
                 Transform transform = Transform(nullptr,
                     Transform::FromPx(bounds.getCenter()),
-                    Transform::FromPx(bounds.getDimensions()), glm::vec3(0.f), false);
+                    Transform::FromPx(bounds.getDimensions()), glm::vec3(0.f));
                 
                 const glm::mat4 modelMatrix = transform.GetTransformationMatrix();
                 
