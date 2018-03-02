@@ -67,7 +67,7 @@ void Game::Initialize() {
 			{ "Text", "cAR wARS" },
 			{ "Font", "Starjedi.ttf" },
 			{ "FontColor", { 1, 1, 0, 1 } },
-			{ "FontSize", 36 },
+			{ "FontSize", 24 },
 			{ "Position", { 20, 20, 0 } }
 		});
 		EntityManager::AddComponent(cameraComponent->GetGuiRoot(), carWarsTitle);
