@@ -260,6 +260,8 @@ Entity* ContentManager::LoadEntity(json data) {
         data = prefabData;
 	}
 
+	entity->connectedToCylinder = GetFromJson<float>(data["CylinderPart"], false);
+
     if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);
     entity->transform = Transform(data);
 

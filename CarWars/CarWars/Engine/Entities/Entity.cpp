@@ -3,7 +3,7 @@
 #include "imgui/imgui.h"
 
 Entity::Entity(size_t _id) : id(_id), components(std::vector<Component*>()), children(std::vector<Entity*>()),
-        parent(nullptr), transform(Transform()), tag(std::string()) { }
+        parent(nullptr), transform(Transform()), tag(std::string()), connectedToCylinder(false) { }
 
 Entity::~Entity() {
 	for (size_t i = 0; i < components.size(); i++) {

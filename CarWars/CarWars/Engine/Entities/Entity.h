@@ -22,6 +22,9 @@ public:
 	size_t GetId() const;
 	std::string GetTag() const;
 	bool HasTag(std::string _tag) const;
+
+	bool connectedToCylinder;
+
 private:
 	Entity(size_t _id);
 	void AddComponent(Component *component);
