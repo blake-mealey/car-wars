@@ -9,6 +9,7 @@
 #include "imgui/imgui.h"
 #include <glm/gtc/type_ptr.hpp>
 #include "../Systems/Content/ContentManager.h"
+#include "EntityManager.h"
 
 const glm::vec3 Transform::FORWARD = glm::vec3(0, 0, -1);
 const glm::vec3 Transform::RIGHT = glm::vec3(1, 0, 0);
@@ -16,10 +17,9 @@ const glm::vec3 Transform::UP = glm::vec3(0, 1, 0);
 
 float Transform::radius = 0;
 
-Transform::Transform() : Transform(nullptr, glm::vec3(), glm::vec3(1.f), glm::quat(), false) {}
+Transform::Transform() : Transform(nullptr, glm::vec3(), glm::vec3(1.f), glm::quat()) {}
 
 Transform::Transform(nlohmann::json data) : parent(nullptr) {
-	connectedToCylinder = ContentManager::GetFromJson<bool>(data["CylinderPart"], false);
 	SetPosition(ContentManager::JsonToVec3(data["Position"], glm::vec3()));
     SetScale(ContentManager::JsonToVec3(data["Scale"], glm::vec3(1.f)));
     if (!data["Rotate"].is_null()) {
@@ -28,17 +28,15 @@ Transform::Transform(nlohmann::json data) : parent(nullptr) {
     }
 }
 
-Transform::Transform(physx::PxTransform t) : Transform(nullptr, FromPx(t.p), glm::vec3(1.f), FromPx(t.q), false) {}
+Transform::Transform(physx::PxTransform t) : Transform(nullptr, FromPx(t.p), glm::vec3(1.f), FromPx(t.q)) {}
 
-Transform::Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::vec3 pEulerRotation, bool connected) : parent(pParent) {
-	connectedToCylinder = connected;
+Transform::Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::vec3 pEulerRotation) : parent(pParent) {
 	SetPosition(pPosition);
 	SetScale(pScale);
 	SetRotationEulerAngles(pEulerRotation);
 }
 
-Transform::Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::quat pRotation, bool connected) : parent(pParent) {
-	connectedToCylinder = connected;
+Transform::Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::quat pRotation) : parent(pParent) {
 	SetPosition(pPosition);
 	SetScale(pScale);
 	SetRotation(pRotation);
@@ -48,10 +46,6 @@ void Transform::Update() {
 	SetPosition(position);
 	SetScale(scale);
 	SetRotation(rotation);
-}
-
-void Transform::ConnectToCylinder() {
-	connectedToCylinder = true;
 }
 
 bool Transform::RenderDebugGui() {
@@ -72,7 +66,6 @@ glm::vec3 Transform::GetLocalPosition() const {
 }
 
 glm::vec3 Transform::GetCylinderPosition() {
-	if (connectedToCylinder) return position;
 	return FromCylinder(GetGlobalPosition());
 }
 
@@ -124,22 +117,7 @@ void Transform::UpdateTransformationMatrix() {
 
 void Transform::SetPosition(glm::vec3 pPosition) {
 	position = pPosition;
-	if (connectedToCylinder && radius > 0) {
-		// bound to the location on the rectangle part of the cylinder
-		while (position.x > M_PI * radius) {
-			position.x -= 2.f * (float)M_PI * radius;
-		}
-		while (position.x < -M_PI * radius) {
-			position.x += 4.f * (float)M_PI * radius;
-		}
-		translationMatrix = glm::translate(glm::mat4(), ToCylinder(position));
-		//rotate accordingly
-		float rotBy = position.x / radius + (float)M_PI/2.f;
-		rotationMatrix = glm::toMat4(glm::rotate(glm::quat(), rotBy, glm::vec3(0,0,1)))*glm::toMat4(rotation);
-	}
-	else {
-		translationMatrix = glm::translate(glm::mat4(), position);
-	}
+	translationMatrix = glm::translate(glm::mat4(), position);
 	UpdateTransformationMatrix();
 }
 
@@ -151,13 +129,8 @@ void Transform::SetScale(glm::vec3 pScale) {
 
 void Transform::SetRotation(glm::quat pRotation) {
 	rotation = pRotation;
-	if (connectedToCylinder && radius > 0) {
-		rotationMatrix = glm::toMat4(glm::rotate(glm::quat(), position.x/radius, glm::vec3(0, 0, 1)))*glm::toMat4(rotation);
-	}
-	else {
-		rotationMatrix = glm::toMat4(rotation);
-		UpdateTransformationMatrix();
-	}
+	rotationMatrix = glm::toMat4(rotation);
+	UpdateTransformationMatrix();
 }
 
 void Transform::SetRotationEulerAngles(glm::vec3 eulerAngles) {

@@ -11,8 +11,8 @@ public:
 	Transform();
 	Transform(nlohmann::json data);
 	Transform(physx::PxTransform transform);
-	Transform(Transform *parent, glm::vec3 pPosition, glm::vec3 pScale, glm::vec3 pEulerRotation, bool connectedToCylinder);
-	Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::quat pRotation, bool connectedToCylinder);
+	Transform(Transform *parent, glm::vec3 pPosition, glm::vec3 pScale, glm::vec3 pEulerRotation);
+	Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::quat pRotation);
 
 	void Update();
 
@@ -66,9 +66,6 @@ public:
 
 	static glm::vec3 ToCylinder(glm::vec3 point);
 	static glm::vec3 FromCylinder(glm::vec3 point);
-	void ConnectToCylinder();
-
-	bool connectedToCylinder;
 
 	static glm::vec4 FromPx(physx::PxVec4 v);
 	static glm::vec3 FromPx(physx::PxVec3 v);
