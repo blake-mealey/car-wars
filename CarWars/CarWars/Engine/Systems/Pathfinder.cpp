@@ -1,4 +1,6 @@
 #include "Pathfinder.h"
+#include <iostream>
+#include <glm/gtx/string_cast.hpp>
 
 std::vector<glm::vec3> Pathfinder::FindPath(NavigationMesh* navigationMesh, glm::vec3 startPosition,
     glm::vec3 goalPosition) {
@@ -99,5 +101,47 @@ std::vector<glm::vec3> Pathfinder::ReconstructPath(NavigationMesh *navigationMes
         totalPath.push_back(navigationMesh->GetPosition(goal));
     }
 
+    SimplifyPath(totalPath);
+    SmoothPath(totalPath, 3);
+
     return totalPath;
+}
+
+glm::vec3 Pathfinder::CatmullRom(float t, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
+    return 0.5f * ((2.f * p1) + (-p0 + p2)*t + (2.f * p0 - 5.f*p1 + 4.f*p2 - p3)*t*t + (-p0 + 3.f*p1 - 3.f*p2 + p3)*t*t*t);
+}
+
+void Pathfinder::SimplifyPath(std::vector<glm::vec3>& path) {
+    if (path.size() <= 2) return;
+
+    // Remove redundant nodes
+    for (auto it = path.begin() + 1; it != path.end(); ) {
+        const glm::vec3 previous = *(it - 1);
+        const glm::vec3 current = *it;
+        const glm::vec3 next = *(it + 1);
+
+        if (current - previous == next - current) {
+            it = path.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+void Pathfinder::SmoothPath(std::vector<glm::vec3>& path, size_t iterations) {
+    size_t size = path.size();
+    if (size <= 3) return;
+
+    // Add smoothing nodes
+    for (size_t i = 2; i < size - 1; ++i) {
+        const glm::vec3 p0 = path[i - 2];
+        const glm::vec3 p1 = path[i - 1];
+        const glm::vec3 p2 = path[i];
+        const glm::vec3 p3 = path[i + 1];
+        for (float j = 0.f; j < iterations; ++j) {
+            path.insert(path.begin() + i, CatmullRom((j + 1.f) / (iterations + 2.f), p0, p1, p2, p3));
+            ++i;
+            ++size;
+        }
+    }
 }

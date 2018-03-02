@@ -30,7 +30,7 @@ void NavigationMesh::Initialize() {
         for (size_t col = 0; col < columnCount; ++col) {
             const size_t index = row*columnCount + col;
             // TODO: Cylinder positions
-            vertices[index].position = glm::vec3(rowCount * -0.5f*spacing + row*spacing, 1.f, columnCount * -0.5f*spacing + col*spacing);
+            vertices[index].position = glm::vec3((spacing + rowCount) * -0.5f*spacing + row*spacing, 1.f, (spacing + columnCount) * -0.5f*spacing + col*spacing);
 		}
 	}
 
@@ -39,8 +39,8 @@ void NavigationMesh::Initialize() {
 }
 
 void NavigationMesh::UpdateMesh() {
-    UpdateMesh(EntityManager::GetComponents(ComponentType_RigidDynamic));
     UpdateMesh(EntityManager::GetComponents(ComponentType_RigidStatic));
+    UpdateMesh(EntityManager::GetComponents(ComponentType_RigidDynamic));
     UpdateMesh(EntityManager::GetComponents(ComponentType_Vehicle));
 }
 
@@ -54,7 +54,7 @@ void NavigationMesh::UpdateMesh(std::vector<Component*> rigidbodies) {
         auto &vertexCoveringBodies = coveringBodies[index];
         for (auto it2 = vertexCoveringBodies.begin(); it2 != vertexCoveringBodies.end(); ) {
             const physx::PxBounds3 bounds = (*it2)->pxRigid->getWorldBounds(1.f);
-            if (!bounds.contains(Transform::ToPx(vertex.position))) {
+            if (!IsContainedBy(index, bounds)) {
                 it2 = vertexCoveringBodies.erase(it2);
             } else {
                 ++it2;
@@ -209,64 +209,57 @@ std::vector<size_t> NavigationMesh::FindAllContainedBy(physx::PxBounds3 bounds) 
     std::vector<size_t> contained;
 
     const size_t closest = FindClosestVertex(Transform::FromPx(bounds.getCenter()));
-    const physx::PxVec3 position = Transform::ToPx(vertices[closest].position);
-    if (!bounds.contains(position)) return contained;
+    if (!bounds.contains(Transform::ToPx(vertices[closest].position))) return contained;
     contained.push_back(closest);
-    
+
     int left = closest;
     while ((left = GetLeft(left)) != -1) {
-        const physx::PxVec3 position = Transform::ToPx(vertices[left].position);
-        if (!bounds.contains(position)) break;
         contained.push_back(left);
 
         int forward = left;
         while ((forward = GetForward(forward)) != -1) {
-            const physx::PxVec3 position = Transform::ToPx(vertices[forward].position);
-            if (!bounds.contains(position)) break;
             contained.push_back(forward);
+            if (!bounds.contains(Transform::ToPx(vertices[forward].position))) break;
         }
 
         int backward = left;
         while ((backward = GetBackward(backward)) != -1) {
-            const physx::PxVec3 position = Transform::ToPx(vertices[backward].position);
-            if (!bounds.contains(position)) break;
             contained.push_back(backward);
+            if (!bounds.contains(Transform::ToPx(vertices[backward].position))) break;
         }
+
+        if (!bounds.contains(Transform::ToPx(vertices[left].position))) break;
     }
 
     int right = closest;
     while ((right = GetRight(right)) != -1) {
-        const physx::PxVec3 position = Transform::ToPx(vertices[right].position);
-        if (!bounds.contains(position)) break;
         contained.push_back(right);
 
         int forward = right;
         while ((forward = GetForward(forward)) != -1) {
-            const physx::PxVec3 position = Transform::ToPx(vertices[forward].position);
-            if (!bounds.contains(position)) break;
             contained.push_back(forward);
+            if (!bounds.contains(Transform::ToPx(vertices[forward].position))) break;
         }
 
         int backward = right;
         while ((backward = GetBackward(backward)) != -1) {
-            const physx::PxVec3 position = Transform::ToPx(vertices[backward].position);
-            if (!bounds.contains(position)) break;
             contained.push_back(backward);
+            if (!bounds.contains(Transform::ToPx(vertices[backward].position))) break;
         }
+
+        if (!bounds.contains(Transform::ToPx(vertices[right].position))) break;
     }
 
     int forward = closest;
     while ((forward = GetForward(forward)) != -1) {
-        const physx::PxVec3 position = Transform::ToPx(vertices[forward].position);
-        if (!bounds.contains(position)) break;
         contained.push_back(forward);
+        if (!bounds.contains(Transform::ToPx(vertices[forward].position))) break;
     }
 
     int backward = closest;
     while ((backward = GetBackward(backward)) != -1) {
-        const physx::PxVec3 position = Transform::ToPx(vertices[backward].position);
-        if (!bounds.contains(position)) break;
         contained.push_back(backward);
+        if (!bounds.contains(Transform::ToPx(vertices[backward].position))) break;
     }
 
     return contained;
@@ -314,4 +307,15 @@ void NavigationMesh::UpdateRenderBuffers() const {
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * rowCount * columnCount, vertices, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+bool NavigationMesh::IsContainedBy(size_t index, physx::PxBounds3 bounds) {
+    if (bounds.contains(Transform::ToPx(GetPosition(index)))) return true;
+    
+    std::vector<size_t> neighbours = GetNeighbours(index);
+    for (size_t neighbour : neighbours) {
+        if (bounds.contains(Transform::ToPx(GetPosition(neighbour)))) return true;
+    }
+
+    return false;
 }

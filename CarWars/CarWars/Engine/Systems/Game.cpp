@@ -176,6 +176,7 @@ void Game::Update() {
             const glm::vec3 forward = myTransform.GetForward();
             const glm::vec3 right = myTransform.GetRight();
 
+            ai->UpdatePath();       // Will only update every x seconds
             const glm::vec3 targetPosition = ai->GetTargetEntity()->transform.GetGlobalPosition();
             const glm::vec3 nodePosition = ai->NodeInPath();
 
@@ -183,11 +184,7 @@ void Game::Update() {
             const float distance = glm::length(direction);
             direction = glm::normalize(direction);
 
-            // TODO: When AI has "trouble" getting to next node, update the path
-            // TODO: Define "trouble"
-
-            ai->UpdatePath();
-            if (distance <= navigationMesh->GetSpacing()) {
+            if (distance <= navigationMesh->GetSpacing() * 2.f) {
                 ai->NextNodeInPath();
             }
 
@@ -198,7 +195,23 @@ void Game::Update() {
                 }
             case AiMode_Chase:
                 const float steer = glm::dot(direction, right);
-                const bool reverse = false; // glm::dot(direction, forward) > -0.1;
+                const PxReal speed = vehicle->pxVehicle->computeForwardSpeed();
+
+                if (!ai->IsStuck() && abs(speed) <= 0.5f) {
+                    ai->SetStuck(true);
+                } else if (ai->IsStuck() && abs(speed) >= 1.f) {
+                    ai->SetStuck(false);
+                }
+
+                if (!ai->IsReversing() && ai->IsStuck() && ai->GetStuckDuration().GetTimeSeconds() >= 1.f) {
+                    ai->StartReversing();
+                }
+
+                if (ai->IsReversing() && ai->GetReversingDuration().GetTimeSeconds() >= 2.f) {
+                    ai->StopReversing();
+                }
+
+                const bool reverse = ai->IsReversing();// speed < 1.f; // glm::dot(direction, forward) > -0.1;
 
                 const float accel = glm::clamp(distance / 20.f, 0.1f, 0.8f) * reverse ? 0.8f : 0.5f;
 

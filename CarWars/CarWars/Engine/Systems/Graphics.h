@@ -147,6 +147,7 @@ private:
     GLuint blurLevelIds[BLUR_LEVEL_COUNT];
     GLuint blurTempLevelIds[BLUR_LEVEL_COUNT];
 
+    bool renderMeshes;
     bool renderPhysicsColliders;
     bool renderPhysicsBoundingBoxes;
     bool renderNavigationMesh;

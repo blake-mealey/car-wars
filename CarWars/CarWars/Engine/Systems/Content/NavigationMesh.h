@@ -47,6 +47,7 @@ private:
 
     void UpdateRenderBuffers() const;
 
+    bool IsContainedBy(size_t index, physx::PxBounds3 bounds);
     std::vector<size_t> FindAllContainedBy(physx::PxBounds3 bounds);
 
     float spacing;

@@ -57,7 +57,7 @@ const glm::mat4 Graphics::BIAS_MATRIX = glm::mat4(
 );
 
 // Singleton
-Graphics::Graphics() : renderPhysicsColliders(false), renderPhysicsBoundingBoxes(false),
+Graphics::Graphics() : renderMeshes(true), renderPhysicsColliders(false), renderPhysicsBoundingBoxes(false),
     renderNavigationMesh(false), renderNavigationPaths(false), bloomScale(0.1f) { }
 Graphics &Graphics::Instance() {
 	static Graphics instance;
@@ -327,35 +327,37 @@ void Graphics::Update() {
 	LoadLights(pointLights, directionLights, spotLights);
 
 	// Draw the scene
-	for (size_t j = 0; j < meshes.size(); j++) {
-		// Get enabled models
-		MeshComponent* model = static_cast<MeshComponent*>(meshes[j]);
-		if (!model->enabled) continue;
+    if (renderMeshes) {
+        for (size_t j = 0; j < meshes.size(); j++) {
+            // Get enabled models
+            MeshComponent* model = static_cast<MeshComponent*>(meshes[j]);
+            if (!model->enabled) continue;
 
-		// Load the model's triangles, vertices, uvs, normals, materials, and textures into the GPU
-		LoadModel(geometryProgram, model);
+            // Load the model's triangles, vertices, uvs, normals, materials, and textures into the GPU
+            LoadModel(geometryProgram, model);
 
-		if (shadowCaster != nullptr) {
-			// Load the depth bias model view projection matrix into the GPU
-			const glm::mat4 depthModelMatrix = model->transform.GetTransformationMatrix();
-			const glm::mat4 depthModelViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
-		    const glm::mat4 depthBiasMVP = BIAS_MATRIX*depthModelViewProjectionMatrix;
-            geometryProgram->LoadUniform(UniformName::DepthBiasModelViewProjectionMatrix, depthBiasMVP);
-		}
+            if (shadowCaster != nullptr) {
+                // Load the depth bias model view projection matrix into the GPU
+                const glm::mat4 depthModelMatrix = model->transform.GetTransformationMatrix();
+                const glm::mat4 depthModelViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+                const glm::mat4 depthBiasMVP = BIAS_MATRIX*depthModelViewProjectionMatrix;
+                geometryProgram->LoadUniform(UniformName::DepthBiasModelViewProjectionMatrix, depthBiasMVP);
+            }
 
-		for (Camera camera : cameras) {
-			// Setup the viewport for each camera (split-screen)
-			glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+            for (Camera camera : cameras) {
+                // Setup the viewport for each camera (split-screen)
+                glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
 
-			// Load the model view projection matrix into the GPU
-			const glm::mat4 modelViewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix * model->transform.GetTransformationMatrix();
-            geometryProgram->LoadUniform(UniformName::ViewMatrix, camera.viewMatrix);
-            geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
+                // Load the model view projection matrix into the GPU
+                const glm::mat4 modelViewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix * model->transform.GetTransformationMatrix();
+                geometryProgram->LoadUniform(UniformName::ViewMatrix, camera.viewMatrix);
+                geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
 
-			// Render the model
-            glDrawElements(GL_TRIANGLES, model->GetMesh()->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
-		}
-	}
+                // Render the model
+                glDrawElements(GL_TRIANGLES, model->GetMesh()->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
+            }
+        }
+    }
 
     // -------------------------------------------------------------------------------------------------------------- //
     // RENDER PHYSICS COLLIDERS
@@ -732,6 +734,7 @@ void Graphics::RenderDebugGui() {
         ImGui::Begin("Graphics", &showGraphicsMenu);
         ImGui::PushItemWidth(-100);
 
+        ImGui::Checkbox("Render Meshes", &renderMeshes);
         ImGui::Checkbox("Render Colliders", &renderPhysicsColliders);
         ImGui::Checkbox("Render Bounding Boxes", &renderPhysicsBoundingBoxes);
         ImGui::Checkbox("Render Nav Mesh", &renderNavigationMesh);

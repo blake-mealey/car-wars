@@ -36,10 +36,24 @@ public:
     void NextNodeInPath();
     glm::vec3 NodeInPath() const;
     bool FinishedPath() const;
+
+    void StartReversing();
+    void StopReversing();
+    Time GetReversingDuration() const;
+    bool IsReversing() const;
+
+    void SetStuck(bool _stuck);
+    Time GetStuckDuration() const;
+    bool IsStuck() const;
 private:
     Time lastPathUpdate;
 
-    Entity *marker;
+    Time startedStuck;
+    bool stuck;
+
+    Time startedReversing;
+    bool reversing;
+
     std::vector<glm::vec3> path;
 
     AiMode mode;

@@ -12,7 +12,6 @@ AiComponent::AiComponent(nlohmann::json data) : targetEntity(nullptr), waypointI
     } else if (modeName == "Chase") {
         mode = AiMode_Chase;
     }
-    marker = ContentManager::LoadEntity("Marker.json");
 
     InitializeRenderBuffers();
 }
@@ -48,24 +47,27 @@ size_t AiComponent::GetWaypoint() const {
 }
 
 void AiComponent::UpdatePath() {
-    if (!FinishedPath() && StateManager::gameTime - lastPathUpdate < 1.f) return;
+    if (!FinishedPath() && StateManager::gameTime - lastPathUpdate < 0.1f) return;
     lastPathUpdate = StateManager::gameTime;
 
+    const glm::vec3 currentPosition = GetEntity()->transform.GetGlobalPosition();
+    const glm::vec3 targetPosition = GetTargetEntity()->transform.GetGlobalPosition();
+    const glm::vec3 offsetDirection = normalize(-GetEntity()->transform.GetForward() * 1.f + normalize(targetPosition - currentPosition));
+//    const glm::vec3 offsetDirection = -GetEntity()->transform.GetForward();
     auto newPath = Pathfinder::FindPath(
         Game::Instance().GetNavigationMesh(),
-        GetEntity()->transform.GetGlobalPosition() - GetEntity()->transform.GetForward() * Game::Instance().GetNavigationMesh()->GetSpacing() * 2.f,
-        GetTargetEntity()->transform.GetGlobalPosition());
+        currentPosition + offsetDirection * Game::Instance().GetNavigationMesh()->GetSpacing() * 2.f,
+        targetPosition);
+
     if (!newPath.empty() || FinishedPath()) {
         path = newPath;
+        UpdateRenderBuffers();
     }
-    UpdateRenderBuffers();
-    marker->transform.SetPosition(NodeInPath());
 }
 
 void AiComponent::NextNodeInPath() {
     if (FinishedPath()) return;
     path.pop_back();
-    marker->transform.SetPosition(NodeInPath());
 }
 
 glm::vec3 AiComponent::NodeInPath() const {
@@ -75,6 +77,36 @@ glm::vec3 AiComponent::NodeInPath() const {
 
 bool AiComponent::FinishedPath() const {
     return path.size() == 0;
+}
+
+void AiComponent::StartReversing() {
+    reversing = true;
+    startedReversing = StateManager::gameTime;
+}
+
+void AiComponent::StopReversing() {
+    reversing = false;
+}
+
+Time AiComponent::GetReversingDuration() const {
+    return StateManager::gameTime - startedReversing;
+}
+
+bool AiComponent::IsReversing() const {
+    return reversing;
+}
+
+void AiComponent::SetStuck(bool _stuck) {
+    stuck = _stuck;
+    if (stuck) startedStuck = StateManager::gameTime;
+}
+
+Time AiComponent::GetStuckDuration() const {
+    return StateManager::gameTime - startedStuck;
+}
+
+bool AiComponent::IsStuck() const {
+    return stuck;
 }
 
 void AiComponent::InitializeRenderBuffers() {
