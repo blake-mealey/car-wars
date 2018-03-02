@@ -58,7 +58,7 @@ const glm::mat4 Graphics::BIAS_MATRIX = glm::mat4(
 
 // Singleton
 Graphics::Graphics() : renderPhysicsColliders(false), renderPhysicsBoundingBoxes(false),
-    renderNavigationMesh(false), renderNavigationPaths(true), bloomScale(0.1f) { }
+    renderNavigationMesh(false), renderNavigationPaths(false), bloomScale(0.1f) { }
 Graphics &Graphics::Instance() {
 	static Graphics instance;
 	return instance;
