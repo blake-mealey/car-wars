@@ -257,7 +257,7 @@ void Graphics::Update() {
 	glm::mat4 depthViewMatrix;
 	if (shadowCaster != nullptr) {
         // Define depth transformation matrices
-		depthProjectionMatrix = glm::ortho<float>(-80, 80, -80, 80, -80, 160);
+		depthProjectionMatrix = glm::ortho<float>(-80, 80, -80, 80, -80, 160) * 2.f;
 		depthViewMatrix = glm::lookAt(-shadowCaster->GetDirection(), glm::vec3(0), glm::vec3(0, 1, 0));
 
         // Render to the shadow map framebuffer

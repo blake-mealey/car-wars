@@ -233,7 +233,7 @@ void Game::Update() {
         }
 
 
-		float t = glm::radians(45.5) + gameTime.GetTimeSeconds() / 10;
+		float t = glm::radians(45.5) + StateManager::gameTime.GetTimeSeconds() / 10;
         glm::vec3 sunPosition = glm::vec3(cos(t), 0.5f, sin(t));
         static_cast<DirectionLightComponent*>(EntityManager::FindEntities("Sun")[0]->components[0])->SetDirection(-sunPosition);
 		
