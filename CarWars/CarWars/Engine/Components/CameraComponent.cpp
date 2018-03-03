@@ -68,6 +68,10 @@ void CameraComponent::SetAspectRatio(const float _aspectRatio) {
 	UpdateProjectionMatrix();
 }
 
+void CameraComponent::SetUpVector(glm::vec3 _up) {
+	upVector = _up;
+}
+
 glm::mat4 CameraComponent::GetViewMatrix() {
 	UpdateViewMatrix();
 	return viewMatrix;
