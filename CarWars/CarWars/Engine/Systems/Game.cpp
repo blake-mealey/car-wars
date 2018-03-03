@@ -64,11 +64,13 @@ void Game::Initialize() {
         cameraComponent->SetCameraVerticalAngle(3.14 / 4);
 
 		GuiComponent *carWarsTitle = new GuiComponent({
+			{ "Position", { 20, 20, 0 } },
+			{ "Scale", { 150, 40, 1 } },
 			{ "Text", "cAR wARS" },
 			{ "Font", "Starjedi.ttf" },
 			{ "FontColor", { 1, 1, 0, 1 } },
 			{ "FontSize", 24 },
-			{ "Position", { 20, 20, 0 } }
+			{ "Texture", "DiamondPlate.jpg" }
 		});
 		EntityManager::AddComponent(cameraComponent->GetGuiRoot(), carWarsTitle);
 	}

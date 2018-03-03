@@ -585,6 +585,9 @@ void Graphics::Update() {
     ShaderProgram *copyProgram = shaders[Shaders::Copy];
     glUseProgram(copyProgram->GetId());
 
+	// Load the identity matrix as the model matrix to the GPU
+	copyProgram->LoadUniform(UniformName::ModelMatrix, glm::mat4(1.f));
+
     // Load the glow buffer into the GPU
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureIds[Textures::ScreenGlow]);
@@ -654,6 +657,9 @@ void Graphics::Update() {
     glBindTexture(GL_TEXTURE_2D, textureIds[Textures::Screen]);
     screenProgram->LoadUniform(UniformName::ScreenTexture, 0);
 
+	// Use the identity model matrix
+	screenProgram->LoadUniform(UniformName::ModelMatrix, glm::mat4(1.f));
+
     // Render it
     glViewport(0, 0, windowWidth, windowHeight);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -676,10 +682,9 @@ void Graphics::Update() {
 
 
     // -------------------------------------------------------------------------------------------------------------- //
-    // GAME GUI
+    // RENDER GAME GUI
     // -------------------------------------------------------------------------------------------------------------- //
 
-	// Render fonts
 	for (Camera camera : cameras) {
 		// Setup the viewport for each camera (split-screen)
 		glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
@@ -691,10 +696,52 @@ void Graphics::Update() {
 			Entity *guiRoot = gui->GetGuiRoot();
 			if (!guiRoot || guiRoot != camera.guiRoot) continue;
 
+			// RENDER THE FRAME
+
+			Texture *frameTexture = gui->GetTexture();
+			if (frameTexture) {
+				// Use the screen program
+				glUseProgram(screenProgram->GetId());
+
+				// Send the screen to the GPU
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, frameTexture->textureId);
+				screenProgram->LoadUniform(UniformName::ScreenTexture, 0);
+
+				// Use the GUI's transformation matrix for the frame
+				//Transform transform = Transform(gui->transform);
+				//transform.Scale(0.5f);
+
+				glm::vec3 toScreenScale = 0.5f * glm::vec3(
+					1.f / camera.viewportSize.x,
+					1.f / camera.viewportSize.y,
+					1.f
+				);
+
+				glm::vec3 scale = gui->transform.GetGlobalScale();
+				glm::vec3 screenScale = toScreenScale * scale;
+
+				glm::vec3 position = gui->transform.GetGlobalPosition();
+				glm::vec3 screenPosition = glm::vec3(-1.f, -1.f, 0.f) + toScreenScale *
+					(glm::vec3(camera.viewportPosition, 0.f)*2.f +
+						glm::vec3(0.f, camera.viewportSize.y, 0.f)*2.f -
+						glm::vec3(-position.x, position.y, 0.f) -
+						glm::vec3(-scale.x, scale.y, 0.f)*0.5f);
+
+				Transform transform = Transform(screenPosition, screenScale);
+				screenProgram->LoadUniform(UniformName::ModelMatrix, transform.GetTransformationMatrix());
+
+				// Render it
+				glViewport(0, 0, windowWidth, windowHeight);
+				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			}
+
+			// RENDER THE FONT
+
 			// Unbind shader program
 			glUseProgram(0);
 
-			// Initialize stuff
+			// Set stuff
 			glPushAttrib(GL_ALL_ATTRIB_BITS);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -721,7 +768,7 @@ void Graphics::Update() {
 	}
 
     // -------------------------------------------------------------------------------------------------------------- //
-    // DEBUG GUI
+    // RENDER DEBUG GUI
     // -------------------------------------------------------------------------------------------------------------- //
 
     RenderDebugGui();

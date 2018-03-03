@@ -1,14 +1,16 @@
 #include "GuiComponent.h"
 #include "../../Entities/EntityManager.h"
 #include "../../Systems/Content/ContentManager.h"
+#include "imgui/imgui.h"
 #include <iostream>
 
-GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr) {
+GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr), texture(nullptr) {
 	transform = Transform(data);
 	text = ContentManager::GetFromJson<std::string>(data["Text"], "");
 	SetFont(ContentManager::GetFromJson<std::string>(data["Font"], "arial.ttf"));
 	SetFontSize(ContentManager::GetFromJson<int>(data["FontSize"], 36));
 	fontColor = ContentManager::JsonToVec4(data["FontColor"], glm::vec4(0.f));
+	if (data["Texture"].is_string()) texture = ContentManager::GetTexture(data["Texture"].get<std::string>());
 }
 
 ComponentType GuiComponent::GetType() {
@@ -19,6 +21,10 @@ void GuiComponent::HandleEvent(Event *event) { }
 
 void GuiComponent::RenderDebugGui() {
 	Component::RenderDebugGui();
+	if (ImGui::TreeNode("Transform")) {
+		transform.RenderDebugGui();
+		ImGui::TreePop();
+	}
 }
 
 void GuiComponent::SetText(std::string _text) {

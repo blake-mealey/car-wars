@@ -11,6 +11,7 @@ public:
 	Transform();
 	Transform(nlohmann::json data);
 	Transform(physx::PxTransform transform);
+	Transform(glm::vec3 _position, glm::vec3 _scale);
 	Transform(Transform *parent, glm::vec3 pPosition, glm::vec3 pScale, glm::vec3 pEulerRotation, bool connectedToCylinder);
 	Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::quat pRotation, bool connectedToCylinder);
 
