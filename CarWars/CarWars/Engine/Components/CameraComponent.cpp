@@ -87,7 +87,7 @@ float CameraComponent::GetCameraHorizontalAngle() {
 
 void CameraComponent::SetCameraHorizontalAngle(float _cameraAngle) {
 	cameraAngle = _cameraAngle;
-    UpdatePositionFromAngles();
+    //UpdatePositionFromAngles();
 }
 
 float CameraComponent::GetCameraVerticalAngle() {
@@ -96,7 +96,7 @@ float CameraComponent::GetCameraVerticalAngle() {
 
 void CameraComponent::SetCameraVerticalAngle(float _cameraLift) {
 	cameraLift = _cameraLift;
-    UpdatePositionFromAngles();
+    //UpdatePositionFromAngles();
 }
 
 float CameraComponent::GetCameraSpeed() {

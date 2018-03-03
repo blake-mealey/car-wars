@@ -75,8 +75,12 @@ void InputManager::HandleMouse() {
 		float cameraSpd = cameraComponent->GetCameraSpeed();
 		float cursorHor = ((float)(width / 2.0f) - xPos);
 		float cursorVer = ((float)(height / 2.0f) - yPos);
+
 		cameraComponent->SetCameraHorizontalAngle(cameraHor - (cursorHor * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
 		cameraComponent->SetCameraVerticalAngle(cameraVer + (cursorVer * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
+		cameraComponent->SetPosition(10.0f * (-vehicle->transform.GetForward() * (cos(cameraHor)) * (sin(cameraVer)) +
+										vehicle->transform.GetUp() * cos(cameraVer) +
+										-vehicle->transform.GetRight() * (sin(cameraHor)) * (sin(cameraVer))));
 		//Clamp Camera Angles
 		/*
 		float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));

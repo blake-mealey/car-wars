@@ -210,7 +210,7 @@ void Physics::Update() {
         PxRigidActor* activeActor = static_cast<PxRigidActor*>(activeActors[i]);
 
         Component* component = static_cast<Component*>(activeActor->userData);
-        if (component) {
+        if (component != NULL) {
             component->UpdateFromPhysics(activeActor->getGlobalPose());
             updatedComponents.push_back(component);
         }

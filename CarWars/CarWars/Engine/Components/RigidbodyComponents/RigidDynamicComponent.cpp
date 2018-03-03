@@ -19,6 +19,10 @@ RigidDynamicComponent::RigidDynamicComponent(nlohmann::json data) : RigidbodyCom
     RigidDynamicComponent::InitializeRigidbody();
 }
 
+RigidDynamicComponent::~RigidDynamicComponent() {
+	pxRigid->release();
+}
+
 void RigidDynamicComponent::SetMass(float _mass) {
     mass = _mass;
     actor->setMass(mass);
