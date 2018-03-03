@@ -75,12 +75,10 @@ void InputManager::HandleMouse() {
 		float cameraSpd = cameraComponent->GetCameraSpeed();
 		float cursorHor = ((float)(width / 2.0f) - xPos);
 		float cursorVer = ((float)(height / 2.0f) - yPos);
-
-		cameraComponent->SetCameraHorizontalAngle(cameraHor - (cursorHor * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
-		cameraComponent->SetCameraVerticalAngle(cameraVer + (cursorVer * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
-		cameraComponent->SetPosition(10.0f * (-vehicle->transform.GetForward() * (cos(cameraHor)) * (sin(cameraVer)) +
-										vehicle->transform.GetUp() * cos(cameraVer) +
-										-vehicle->transform.GetRight() * (sin(cameraHor)) * (sin(cameraVer))));
+		float cameraNewHor = (cameraHor - (cursorHor * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
+		float cameraNewVer = (cameraVer + (cursorVer * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
+		cameraComponent->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
+		cameraComponent->SetUpVector(vehicle->transform.GetUp());
 		//Clamp Camera Angles
 		/*
 		float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
@@ -93,12 +91,18 @@ void InputManager::HandleMouse() {
 			cameraComponent->SetCameraVerticalAngle(maxAngle);
 		}
 		*/
-		cameraComponent->SetUpVector(vehicle->transform.GetUp());
 		//Set Weapon Angle
+		float gunHor = -cameraNewHor + M_PI + (acos(dotFF) * (correctForward ? 1.0f : -1.0f));
+		vehicleGunTurret->transform.SetRotationAxisAngles(Transform::UP, gunHor);
+		float gunVer = -cameraNewVer + (M_PI_2 - (M_PI_4 / 2.0f)) + (acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f));
+		vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
+		/*
 		float gunHor = -cameraHor - M_PI_2 + acos(dotFF) * (correctForward ? 1.0f : -1.0f);
 		vehicleGunTurret->transform.SetRotationAxisAngles(Transform::UP, gunHor);
 		float gunVer = -cameraVer + acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f) + M_PI_2 - (M_PI_4 / 2.0f);
 		vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
+
+		*/
 
 		//Set Cursor to Middle
 		glfwSetCursorPos(graphicsInstance.GetWindow(), width / 2, height / 2);

@@ -111,6 +111,16 @@ void CameraComponent::RenderDebugGui() {
     if (ImGui::DragFloat("Distance", &distanceFromCenter, 1, 0, FAR_CLIPPING_PLANE)) UpdatePositionFromAngles();
 }
 
+void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, float _cameraVer) {
+	SetCameraHorizontalAngle(_cameraHor);
+	SetCameraVerticalAngle(_cameraVer);
+
+	SetPosition(distanceFromCenter * (
+		-Transform::FORWARD * cos(GetCameraHorizontalAngle()) * sin(GetCameraVerticalAngle()) +
+		Transform::UP * cos(GetCameraVerticalAngle()) +
+		-Transform::RIGHT * (sin(GetCameraHorizontalAngle())) * (sin(GetCameraVerticalAngle()))));
+}
+
 void CameraComponent::UpdatePositionFromAngles() {
     SetPosition(distanceFromCenter * glm::vec3(
         cos(GetCameraHorizontalAngle()) * sin(GetCameraVerticalAngle()),

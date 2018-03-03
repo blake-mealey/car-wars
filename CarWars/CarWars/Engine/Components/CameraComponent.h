@@ -38,6 +38,8 @@ public:
 	float GetCameraVerticalAngle();
 	void SetCameraVerticalAngle(float _cameraLift);
 
+	void UpdateCameraPosition(Entity* _vehicle, float _cameraHor, float _cameraVer);
+
 	float GetCameraSpeed();
 
     void RenderDebugGui() override;
