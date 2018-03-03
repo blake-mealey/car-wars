@@ -48,7 +48,7 @@ float unitRand() {
 void Game::Initialize() {
     ContentManager::LoadSkybox("PurpleNebula/");
 
-	ContentManager::LoadScene("GameDemo.json");
+	ContentManager::LoadScene("PhysicsDemo.json");
 
     for (size_t i = 0; i < numberOfAi; ++i) {
         Entity *ai = ContentManager::LoadEntity("AiSewage.json");

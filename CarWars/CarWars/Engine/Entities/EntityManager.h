@@ -10,6 +10,7 @@ public:
 	// Access entities
     static Entity* GetRoot();
 	static Entity* FindEntity(size_t id);
+	static Entity* FindEntity(physx::PxRigidActor* _actor);
 	static std::vector<Entity*> FindEntities(std::string tag);
 
 	// Manage entities
