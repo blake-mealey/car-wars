@@ -56,13 +56,13 @@ void Transform::ConnectToCylinder() {
 	connectedToCylinder = true;
 }
 
-bool Transform::RenderDebugGui() {
+bool Transform::RenderDebugGui(float positionIncrement, float scaleIncrement) {
     bool changed = false;
-    if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.01f)) {
+    if (ImGui::DragFloat3("Position", glm::value_ptr(position), positionIncrement)) {
         changed = true;
         SetPosition(position);
     }
-    if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.05f)) {
+    if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), scaleIncrement)) {
         changed = true;
         SetScale(scale);
     }

@@ -115,7 +115,7 @@ void Pathfinder::SimplifyPath(std::vector<glm::vec3>& path) {
     if (path.size() <= 2) return;
 
     // Remove redundant nodes
-    for (auto it = path.begin() + 1; it != path.end(); ) {
+    for (auto it = path.begin() + 1; it != path.end() - 1; ) {
         const glm::vec3 previous = *(it - 1);
         const glm::vec3 current = *it;
         const glm::vec3 next = *(it + 1);

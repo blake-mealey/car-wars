@@ -33,7 +33,7 @@
         "BlocksNavMesh": false,
         "Colliders": [
           {
-            "Type": "Mesh",
+            "Type": "Box",
             "CollisionGroup": "Ground",
             "Mesh": "Cylinder.obj"
           }

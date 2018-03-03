@@ -4,7 +4,8 @@
 #include "imgui/imgui.h"
 #include <iostream>
 
-GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr), texture(nullptr) {
+GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr), texture(nullptr),
+		textXAlignment(TextXAlignment::Centre), textYAlignment(TextYAlignment::Centre) {
 	transform = Transform(data);
 	text = ContentManager::GetFromJson<std::string>(data["Text"], "");
 	SetFont(ContentManager::GetFromJson<std::string>(data["Font"], "arial.ttf"));
@@ -22,7 +23,7 @@ void GuiComponent::HandleEvent(Event *event) { }
 void GuiComponent::RenderDebugGui() {
 	Component::RenderDebugGui();
 	if (ImGui::TreeNode("Transform")) {
-		transform.RenderDebugGui();
+		transform.RenderDebugGui(1.f, 1.f);
 		ImGui::TreePop();
 	}
 }
@@ -67,6 +68,22 @@ glm::vec4 GuiComponent::GetFontColor() const {
 
 Entity* GuiComponent::GetGuiRoot() {
 	return guiRoot;
+}
+
+void GuiComponent::SetTextXAlignment(size_t alignment) {
+	textXAlignment = alignment;
+}
+
+void GuiComponent::SetTextYAlignment(size_t alignment) {
+	textYAlignment = alignment;
+}
+
+size_t GuiComponent::GetTextXAlignment() const {
+	return textXAlignment;
+}
+
+size_t GuiComponent::GetTextYAlignment() const {
+	return textYAlignment;
 }
 
 void GuiComponent::SetEntity(Entity *_entity) {

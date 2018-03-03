@@ -696,6 +696,25 @@ void Graphics::Update() {
 			Entity *guiRoot = gui->GetGuiRoot();
 			if (!guiRoot || guiRoot != camera.guiRoot) continue;
 
+			// Convert from pixel to screen space
+			glm::vec3 toScreenScale = glm::vec3(
+				1.f / camera.viewportSize.x,
+				1.f / camera.viewportSize.y,
+				1.f
+			);
+
+			// Get the screen-space scale
+			glm::vec3 scale = gui->transform.GetGlobalScale();
+			glm::vec3 screenScale = 0.5f * toScreenScale * scale;
+
+			// Get the screen-space position
+			glm::vec3 position = gui->transform.GetGlobalPosition();
+			glm::vec3 screenPosition = glm::vec3(-1.f, -1.f, 0.f) + toScreenScale *
+				glm::vec3(
+					camera.viewportPosition.x + scale.x*0.5f + position.x,
+					camera.viewportPosition.y + camera.viewportSize.y - scale.y*0.5f - position.y,
+					0.f);
+
 			// RENDER THE FRAME
 
 			Texture *frameTexture = gui->GetTexture();
@@ -707,26 +726,6 @@ void Graphics::Update() {
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, frameTexture->textureId);
 				screenProgram->LoadUniform(UniformName::ScreenTexture, 0);
-
-				// Use the GUI's transformation matrix for the frame
-				//Transform transform = Transform(gui->transform);
-				//transform.Scale(0.5f);
-
-				glm::vec3 toScreenScale = 0.5f * glm::vec3(
-					1.f / camera.viewportSize.x,
-					1.f / camera.viewportSize.y,
-					1.f
-				);
-
-				glm::vec3 scale = gui->transform.GetGlobalScale();
-				glm::vec3 screenScale = toScreenScale * scale;
-
-				glm::vec3 position = gui->transform.GetGlobalPosition();
-				glm::vec3 screenPosition = glm::vec3(-1.f, -1.f, 0.f) + toScreenScale *
-					(glm::vec3(camera.viewportPosition, 0.f)*2.f +
-						glm::vec3(0.f, camera.viewportSize.y, 0.f)*2.f -
-						glm::vec3(-position.x, position.y, 0.f) -
-						glm::vec3(-scale.x, scale.y, 0.f)*0.5f);
 
 				Transform transform = Transform(screenPosition, screenScale);
 				screenProgram->LoadUniform(UniformName::ModelMatrix, transform.GetTransformationMatrix());
@@ -757,10 +756,42 @@ void Graphics::Update() {
 			// Render the text
 			FTFont *font = gui->GetFont();
 
-			glm::vec3 position = gui->transform.GetGlobalPosition();
-			glm::vec2 screenPosition = camera.viewportPosition + glm::vec2(position.x, camera.viewportSize.y - position.y - font->Ascender()*0.5f);
+			FTBBox bbox = font->BBox(gui->GetText().c_str());
 
-			font->Render(gui->GetText().c_str(), -1, FTPoint(screenPosition.x, screenPosition.y));
+			float fontHeight = font->Ascender() * 0.5f;
+
+			glm::vec3 fontPosition = position;
+			glm::vec2 fontScreenPosition = camera.viewportPosition + glm::vec2(fontPosition.x, camera.viewportSize.y - fontPosition.y - fontHeight);
+			
+			glm::vec2 alignmentXOffset = glm::vec2(scale.x - (bbox.Upper().X() - bbox.Lower().X()), 0.f);
+			switch (gui->GetTextXAlignment()) {
+				case TextXAlignment::Left:
+					alignmentXOffset *= 0.f;
+					break;
+				case TextXAlignment::Centre:
+					alignmentXOffset *= 0.5f;
+					break;
+				case TextXAlignment::Right:
+					alignmentXOffset *= 1.f;
+					break;
+			}
+
+			glm::vec2 alignmentYOffset = -glm::vec2(0.f, scale.y - fontHeight);
+			switch (gui->GetTextYAlignment()) {
+				case TextYAlignment::Top:
+					alignmentYOffset *= 0.f;
+					break;
+				case TextYAlignment::Centre:
+					alignmentYOffset *= 0.5f;
+					break;
+				case TextYAlignment::Bottom:
+					alignmentYOffset *= 1.f;
+					break;
+			}
+
+			fontScreenPosition += alignmentXOffset + alignmentYOffset;
+
+			font->Render(gui->GetText().c_str(), -1, FTPoint(fontScreenPosition.x, fontScreenPosition.y));
 
 			// Reset stuff
 			glPopAttrib();

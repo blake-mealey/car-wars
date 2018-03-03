@@ -25,7 +25,7 @@ public:
 	static const glm::vec3 RIGHT;
 	static const glm::vec3 UP;
 
-    bool RenderDebugGui();
+    bool RenderDebugGui(float positionIncrement=0.01f, float scaleIncrement=0.05f);
 
 	// Getters for basic data
 	glm::vec3 GetLocalPosition() const;

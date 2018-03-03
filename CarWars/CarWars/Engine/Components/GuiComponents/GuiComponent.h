@@ -8,6 +8,14 @@
 
 #include "FTGL/ftgl.h"
 
+struct TextXAlignment {
+	enum { Left=0, Centre, Right };
+};
+
+struct TextYAlignment {
+	enum { Top=0, Centre, Bottom };
+};
+
 class GuiComponent : public Component {
 public:
 	GuiComponent(nlohmann::json data);
@@ -34,10 +42,19 @@ public:
 
 	Entity* GetGuiRoot();
 
+	void SetTextXAlignment(size_t alignment);
+	void SetTextYAlignment(size_t alignment);
+
+	size_t GetTextXAlignment() const;
+	size_t GetTextYAlignment() const;
+
 	void SetEntity(Entity *_entity) override;
 
 private:
 	Entity *guiRoot;
+
+	size_t textXAlignment;
+	size_t textYAlignment;
 
 	FTFont *font;		// TODO: Decide which kind of font to use
 	glm::vec4 fontColor;
