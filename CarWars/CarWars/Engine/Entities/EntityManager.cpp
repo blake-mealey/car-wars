@@ -25,20 +25,18 @@ std::vector<Entity*> EntityManager::FindEntities(std::string tag) {
 	return ret;
 }
 
-/*Entity* EntityManager::CreateGuiEntity(CameraComponent *camera) {
-	CreateEntity(camera->GetGuiEntities(), camera->GetGuiRoot());
-}*/
-
-Entity* EntityManager::CreateDynamicEntity() {
-	return CreateEntity(dynamicEntities, root);
+Entity* EntityManager::CreateDynamicEntity(Entity *parent) {
+    if (!parent) parent = root;
+	return CreateEntity(dynamicEntities, parent);
 }
 
-Entity* EntityManager::CreateStaticEntity() {
-	return CreateEntity(staticEntities, root);
+Entity* EntityManager::CreateStaticEntity(Entity *parent) {
+    if (!parent) parent = root;
+	return CreateEntity(staticEntities, parent);
 }
 
 Entity* EntityManager::CreateEntity(std::vector<Entity*> &entities, Entity *parent) {
-	size_t id = nextEntityId++;
+	const size_t id = nextEntityId++;
 	Entity* entity = new Entity(id);
 	entities.push_back(entity);
 	idToEntity[id] = entity;
@@ -62,7 +60,7 @@ void EntityManager::SetTag(Entity* entity, std::string tag) {
 	if (it != tagToEntities.end()) {
 		std::vector<Entity*> &entities = it->second;
         // Remove this entity from that list
-		auto it2 = std::find(entities.begin(), entities.end(), entity);
+		const auto it2 = std::find(entities.begin(), entities.end(), entity);
 		if (it2 != entities.end())
 			entities.erase(it2);
 	}

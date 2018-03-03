@@ -13,11 +13,10 @@ public:
 	static std::vector<Entity*> FindEntities(std::string tag);
 
 	// Manage entities
-	static Entity* CreateStaticEntity();
-	static Entity* CreateDynamicEntity();
+	static Entity* CreateStaticEntity(Entity *parent=nullptr);
+	static Entity* CreateDynamicEntity(Entity *parent = nullptr);
 	static void DestroyStaticEntity(size_t id);
 	static void DestroyDynamicEntity(size_t id);
-	//static Entity* CreateGuiEntity(CameraComponent *camera);
 
 	static void SetTag(size_t entityId, std::string tag);
 	static void SetTag(Entity *entity, std::string tag);

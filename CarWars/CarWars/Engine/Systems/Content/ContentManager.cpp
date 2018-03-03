@@ -196,12 +196,12 @@ Component* ContentManager::LoadComponentPrefab(std::string filePath) {
     return LoadComponent(data);
 }
 
-std::vector<Entity*> ContentManager::LoadScene(std::string filePath) {
+std::vector<Entity*> ContentManager::LoadScene(std::string filePath, Entity *parent) {
 	std::vector<Entity*> entities;
 
 	json data = LoadJson(SCENE_DIR_PATH + filePath);
 	for (json entityData : data) {
-		entities.push_back(LoadEntity(entityData));
+		entities.push_back(LoadEntity(entityData, parent));
 	}
 	return entities;
 }
@@ -245,12 +245,13 @@ Component* ContentManager::LoadComponent(json data) {
     return nullptr;
 }
 
-Entity* ContentManager::LoadEntity(json data) {
+Entity* ContentManager::LoadEntity(json data, Entity *parent) {
     while (data.is_string()) {
         data = LoadJson(ENTITY_PREFAB_DIR_PATH + data.get<std::string>());
     }
-
-    Entity *entity = EntityManager::CreateDynamicEntity();		// TODO: Determine whether or not the entity is static
+    
+    // TODO: Determine whether or not the entity is static (parameter?)
+    Entity *entity = EntityManager::CreateDynamicEntity(parent);
 
     json prefab = data["Prefab"];
 	while (!prefab.is_null()) {
@@ -262,6 +263,7 @@ Entity* ContentManager::LoadEntity(json data) {
 
     if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);
     entity->transform = Transform(data);
+    if (parent) entity->transform.parent = &parent->transform;
 
     for (const auto componentData : data["Components"]) {
         Component *component = LoadComponent(componentData);
@@ -271,8 +273,7 @@ Entity* ContentManager::LoadEntity(json data) {
     }
 
     for (const auto childData : data["Children"]) {
-        Entity *child = LoadEntity(childData);
-        EntityManager::SetParent(child, entity);
+        Entity *child = LoadEntity(childData, entity);
     }
 
 	return entity;

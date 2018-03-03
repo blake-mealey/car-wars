@@ -37,7 +37,7 @@ public:
 	static physx::PxMaterial* GetPxMaterial(std::string filePath);
 
     static Component* LoadComponentPrefab(std::string filePath);
-	static std::vector<Entity*> LoadScene(std::string filePath);
+	static std::vector<Entity*> LoadScene(std::string filePath, Entity *parent=nullptr);
 
 	template <typename T>
 	static T GetFromJson(nlohmann::json json, T defaultValue);
@@ -63,7 +63,7 @@ public:
     template <class T>
     static T* LoadComponent(nlohmann::json data);
 	static Component* LoadComponent(nlohmann::json data);
-	static Entity* LoadEntity(nlohmann::json data);
+	static Entity* LoadEntity(nlohmann::json data, Entity *parent=nullptr);
 
 private:
 	static std::map<std::string, Mesh*> meshes;
