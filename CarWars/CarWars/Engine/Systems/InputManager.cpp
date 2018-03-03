@@ -77,15 +77,6 @@ void InputManager::HandleMouse() {
 		float cursorVer = ((float)(height / 2.0f) - yPos);
 		cameraComponent->SetCameraHorizontalAngle(cameraHor - cursorHor * cameraSpd * StateManager::deltaTime.GetTimeSeconds());
 		cameraComponent->SetCameraVerticalAngle(cameraVer + cursorVer * cameraSpd * StateManager::deltaTime.GetTimeSeconds());
-		//Clamp Camera Angles
-		float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
-		float minAngle = ((2.0f / 3.0f) * (M_PI_2)) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
-		float maxAngle = (float)(M_PI_2) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
-		if (cameraComponent->GetCameraVerticalAngle() < minAngle) {
-			cameraComponent->SetCameraVerticalAngle(minAngle);
-		} else if (cameraComponent->GetCameraVerticalAngle() > maxAngle) {
-			cameraComponent->SetCameraVerticalAngle(maxAngle);
-		}
 		//Set Weapon Angle
 		float gunHor = -cameraHor - M_PI_2 + acos(dotFF) * (correctForward ? 1.0f : -1.0f);
 		vehicleGunTurret->transform.SetRotationAxisAngles(Transform::UP, gunHor);
@@ -576,12 +567,6 @@ void InputManager::HandleController() {
 			} else if ((((*controller)->GetPreviousState().Gamepad.sThumbLX >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) || ((*controller)->GetPreviousState().Gamepad.sThumbLX <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) && (((*controller)->GetState().Gamepad.sThumbLX >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) || ((*controller)->GetState().Gamepad.sThumbLX <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE))) {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " held LEFT-JOYSTICK X-AXIS" << endl;
 
-				//Entity *boulder = EntityManager::FindEntities("Boulder")[0];
-				//float x = -0.1f * (*controller)->GetState().Gamepad.sThumbLX / 30000.f;
-				//boulder->transform.Rotate(Transform::UP, dt.GetTimeSeconds() * x);
-
-				//std::cout << (*controller)->GetState().Gamepad.sThumbLX << std::endl;
-
 				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
 				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
 				vehicle->pxVehicleInputData.setAnalogSteer(-(*controller)->GetState().Gamepad.sThumbLX / 32768.0f);
@@ -642,6 +627,7 @@ void InputManager::HandleController() {
 			// -------------------------------------------------------------------------------------------------------------- //
 
 			//Manage Button States
+			int buttons = (*controller)->GetState().Gamepad.wButtons;
 			int heldButtons = (*controller)->GetState().Gamepad.wButtons & (*controller)->GetPreviousState().Gamepad.wButtons;
 			int pressedButtons = ((*controller)->GetState().Gamepad.wButtons ^ (*controller)->GetPreviousState().Gamepad.wButtons) & (*controller)->GetState().Gamepad.wButtons;
 			int releasedButtons = ((*controller)->GetState().Gamepad.wButtons ^ (*controller)->GetPreviousState().Gamepad.wButtons) & (*controller)->GetPreviousState().Gamepad.wButtons;
@@ -721,17 +707,15 @@ void InputManager::HandleController() {
 			//LEFT-SHOULDER
 			if (pressedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed LEFT-SHOULDER" << endl;
-			} else if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+			} else if (buttons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
 				cout << "Controller: " << (*controller)->GetControllerNumber() << " held LEFT-SHOULDER" << endl;
 
                 vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
                 VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
                 vehicle->pxVehicleInputData.setAnalogHandbrake(1.f);
 
-			} else if (releasedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released LEFT-SHOULDER" << endl;
-
-                vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
+			} else {
+				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
                 VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
                 vehicle->pxVehicleInputData.setAnalogHandbrake(0.f);
 			}
