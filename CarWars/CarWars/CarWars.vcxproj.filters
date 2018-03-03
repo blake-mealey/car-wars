@@ -377,5 +377,6 @@
     <None Include="Engine\Shaders\shadowMap.vert" />
     <None Include="Engine\Shaders\skybox.frag" />
     <None Include="Engine\Shaders\skybox.vert" />
+    <None Include="Engine\Shaders\gui.frag" />
   </ItemGroup>
 </Project>

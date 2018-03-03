@@ -282,6 +282,7 @@
     <None Include="Engine\Shaders\blur.frag" />
     <None Include="Engine\Shaders\geometry.frag" />
     <None Include="Engine\Shaders\geometry.vert" />
+    <None Include="Engine\Shaders\gui.frag" />
     <None Include="Engine\Shaders\navMesh.frag" />
     <None Include="Engine\Shaders\navMesh.geom" />
     <None Include="Engine\Shaders\navMesh.vert" />

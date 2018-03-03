@@ -41,6 +41,8 @@ const std::string Graphics::NAV_FRAGMENT_SHADER = "navMesh.frag";
 const std::string Graphics::NAV_GEOMETRY_SHADER = "navMesh.geom";
 const std::string Graphics::PATH_VERTEX_SHADER = "path.vert";
 const std::string Graphics::PATH_FRAGMENT_SHADER = "path.frag";
+const std::string Graphics::GUI_VERTEX_SHADER = SCREEN_VERTEX_SHADER;
+const std::string Graphics::GUI_FRAGMENT_SHADER = "gui.frag";
 
 // Initial Screen Dimensions
 const size_t Graphics::SCREEN_WIDTH = 1024;
@@ -685,6 +687,9 @@ void Graphics::Update() {
     // RENDER GAME GUI
     // -------------------------------------------------------------------------------------------------------------- //
 
+    // Get the GUI program
+    ShaderProgram *guiProgram = shaders[Shaders::GUI];
+
 	for (Camera camera : cameras) {
 		// Setup the viewport for each camera (split-screen)
 		glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
@@ -693,42 +698,52 @@ void Graphics::Update() {
 			if (!component->enabled) continue;
 			GuiComponent *gui = static_cast<GuiComponent*>(component);
 			
+            // Get a GUI for this camera
 			Entity *guiRoot = gui->GetGuiRoot();
 			if (!guiRoot || guiRoot != camera.guiRoot) continue;
 
-			// Convert from pixel to screen space
-			glm::vec3 toScreenScale = glm::vec3(
-				1.f / camera.viewportSize.x,
-				1.f / camera.viewportSize.y,
-				1.f
-			);
-
-			// Get the screen-space scale
-			glm::vec3 scale = gui->transform.GetGlobalScale();
-			glm::vec3 screenScale = 0.5f * toScreenScale * scale;
-
-			// Get the screen-space position
-			glm::vec3 position = gui->transform.GetGlobalPosition();
-			glm::vec3 screenPosition = glm::vec3(-1.f, -1.f, 0.f) + toScreenScale *
-				glm::vec3(
-					camera.viewportPosition.x + scale.x*0.5f + position.x,
-					camera.viewportPosition.y + camera.viewportSize.y - scale.y*0.5f - position.y,
-					0.f);
+            // Get the scale and position of the GUI
+            const glm::vec3 scale = gui->transform.GetGlobalScale();
+            const glm::vec3 position = gui->transform.GetGlobalPosition();
 
 			// RENDER THE FRAME
 
 			Texture *frameTexture = gui->GetTexture();
 			if (frameTexture) {
-				// Use the screen program
-				glUseProgram(screenProgram->GetId());
+                // Convert from pixel to screen space
+                const glm::vec3 toScreenScale = glm::vec3(
+                    1.f / camera.viewportSize.x,
+                    1.f / camera.viewportSize.y,
+                    1.f
+                );
+
+                // Pixel size ratio
+                const glm::vec2 viewportRatio = glm::vec2(
+                    camera.viewportSize.x / static_cast<float>(windowWidth),
+                    camera.viewportSize.y / static_cast<float>(windowHeight));
+
+                // Get the screen-space scale and position of the GUI
+                const glm::vec3 screenScale = toScreenScale * scale * glm::vec3(viewportRatio, 1.f);
+                const glm::vec3 screenPosition = glm::vec3(-1.f, -1.f, 0.f) + toScreenScale *
+                    2.f * glm::vec3(
+                        viewportRatio.x * (camera.viewportPosition.x + scale.x*0.5f + position.x),
+                        viewportRatio.y * (camera.viewportPosition.y + camera.viewportSize.y - scale.y*0.5f - position.y),
+                        0.f);
+
+				// Use the GUI program
+				glUseProgram(guiProgram->GetId());
 
 				// Send the screen to the GPU
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, frameTexture->textureId);
-				screenProgram->LoadUniform(UniformName::ScreenTexture, 0);
+                guiProgram->LoadUniform(UniformName::DiffuseTexture, 0);
 
+                // Send the UV scale to the GPU
+                guiProgram->LoadUniform(UniformName::UvScale, gui->GetUvScale());
+
+                // Send the transform to the GPU
 				Transform transform = Transform(screenPosition, screenScale);
-				screenProgram->LoadUniform(UniformName::ModelMatrix, transform.GetTransformationMatrix());
+                guiProgram->LoadUniform(UniformName::ModelMatrix, transform.GetTransformationMatrix());
 
 				// Render it
 				glViewport(0, 0, windowWidth, windowHeight);
@@ -756,14 +771,15 @@ void Graphics::Update() {
 			// Render the text
 			FTFont *font = gui->GetFont();
 
+            // Font dimensions
 			FTBBox bbox = font->BBox(gui->GetText().c_str());
+            const float fontWidth = bbox.Upper().X() - bbox.Lower().X();
+			const float fontHeight = font->Ascender() * 0.5f;
 
-			float fontHeight = font->Ascender() * 0.5f;
-
-			glm::vec3 fontPosition = position;
+			const glm::vec3 fontPosition = position;
 			glm::vec2 fontScreenPosition = camera.viewportPosition + glm::vec2(fontPosition.x, camera.viewportSize.y - fontPosition.y - fontHeight);
 			
-			glm::vec2 alignmentXOffset = glm::vec2(scale.x - (bbox.Upper().X() - bbox.Lower().X()), 0.f);
+			glm::vec2 alignmentXOffset = glm::vec2(scale.x - fontWidth, 0.f);
 			switch (gui->GetTextXAlignment()) {
 				case TextXAlignment::Left:
 					alignmentXOffset *= 0.f;
@@ -1031,6 +1047,7 @@ void Graphics::GenerateIds() {
     glGenTextures(BLUR_LEVEL_COUNT, blurTempLevelIds);
 	
     shaders[Shaders::Geometry] = LoadShaderProgram(GEOMETRY_VERTEX_SHADER, GEOMETRY_FRAGMENT_SHADER);
+    shaders[Shaders::GUI] = LoadShaderProgram(GUI_VERTEX_SHADER, GUI_FRAGMENT_SHADER);
 	shaders[Shaders::ShadowMap] = LoadShaderProgram(SHADOW_MAP_VERTEX_SHADER, SHADOW_MAP_FRAGMENT_SHADER);
 	shaders[Shaders::Skybox] = LoadShaderProgram(SKYBOX_VERTEX_SHADER, SKYBOX_FRAGMENT_SHADER);
 	shaders[Shaders::Screen] = LoadShaderProgram(SCREEN_VERTEX_SHADER, SCREEN_FRAGMENT_SHADER);

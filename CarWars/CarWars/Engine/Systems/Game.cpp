@@ -65,12 +65,13 @@ void Game::Initialize() {
 
 		GuiComponent *carWarsTitle = new GuiComponent({
 			{ "Position", { 20, 20, 0 } },
-			{ "Scale", { 150, 40, 1 } },
+			{ "Scale", { 220, 60, 1 } },
 			{ "Text", "cAR wARS" },
 			{ "Font", "Starjedi.ttf" },
 			{ "FontColor", { 1, 1, 0, 1 } },
-			{ "FontSize", 24 },
-			{ "Texture", "DiamondPlate.jpg" }
+			{ "FontSize", 36 },
+			{ "Texture", "DiamondPlate.jpg" },
+            { "UvScale", { 1.125f, 0.3f } }
 		});
 		EntityManager::AddComponent(cameraComponent->GetGuiRoot(), carWarsTitle);
 	}

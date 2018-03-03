@@ -50,14 +50,18 @@ public:
 
 	void SetEntity(Entity *_entity) override;
 
+    void SetUvScale(glm::vec2 _uvScale);
+    glm::vec2 GetUvScale() const;
+
 private:
 	Entity *guiRoot;
 
-	size_t textXAlignment;
-	size_t textYAlignment;
+    int textAlignment[2];
 
 	FTFont *font;		// TODO: Decide which kind of font to use
 	glm::vec4 fontColor;
 	std::string text;
+
 	Texture *texture;
+    glm::vec2 uvScale;
 };
