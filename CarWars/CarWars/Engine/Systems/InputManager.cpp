@@ -119,6 +119,9 @@ void InputManager::HandleKeyboard() {
         case GameState_Menu_Start:
             buttonGroupName = "StartMenu_Buttons";
             break;
+        case GameState_Menu_Settings:
+            buttonGroupName = "OptionsMenu_Buttons";
+            break;
         default:
             noNavigation = true;
         }
@@ -141,9 +144,11 @@ void InputManager::HandleKeyboard() {
             }
         }
     } else if (gameState == GameState_Menu_Settings) {
-        //Press Escape to Go Back a Screen
-        if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
-            StateManager::SetState(GameState_Menu);
+        if (Keyboard::KeyPressed(GLFW_KEY_ENTER)) {
+            GuiComponent *selected = GuiHelper::GetSelectedGui("OptionsMenu_Buttons");
+            if (selected->HasText("back")) {
+                StateManager::SetState(GameState_Menu);
+            }
         }
     } else if (gameState == GameState_Menu_Start) {
         //Press Enter to Go to Confirm

@@ -288,6 +288,7 @@
     <None Include="Content\Scenes\GUIs\HUD.json" />
     <None Include="Content\Scenes\GUIs\MainMenu_GUI.json" />
     <None Include="Content\Scenes\GUIs\CharacterSelectMenu_GUI.json" />
+    <None Include="Content\Scenes\GUIs\OptionsMenu_GUI.json" />
     <None Include="Content\Scenes\GUIs\StartMenu_GUI.json" />
     <None Include="Content\Scenes\MainMenu.json" />
     <None Include="Content\Scenes\Menu.json" />

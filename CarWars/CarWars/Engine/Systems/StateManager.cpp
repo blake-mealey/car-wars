@@ -37,6 +37,10 @@ void StateManager::SetState(GameState state) {
             GuiHelper::LoadGuiSceneToCamera(i, "GUIs/CharacterSelectMenu_GUI.json");      // Load gui to new cameras
         }
         break;
+    case GameState_Menu_Settings:
+        ContentManager::DestroySceneAndLoadScene("Menu.json");
+        GuiHelper::LoadGuiSceneToCamera(0, "GUIs/OptionsMenu_GUI.json");
+        break;
     case GameState_Playing:
         if (previousState < __GameState_Menu_End) {
             Game::Instance().InitializeGame();
