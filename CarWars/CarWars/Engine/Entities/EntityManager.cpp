@@ -44,8 +44,34 @@ Entity* EntityManager::CreateEntity(std::vector<Entity*> &entities, Entity *pare
 	return entity;
 }
 
-void EntityManager::DestroyDynamicEntity(size_t id) {
-	DestroyEntity(id, dynamicEntities);
+void EntityManager::DestroyDynamicEntity(Entity *entity) {
+	DestroyEntity(entity, dynamicEntities);
+}
+
+void EntityManager::DestroyStaticEntity(Entity *entity) {
+    DestroyEntity(entity, staticEntities);
+}
+
+void EntityManager::DestroyEntity(Entity *entity, std::vector<Entity*> &entities) {
+    if (!entity) return;
+    ClearTag(entity);
+    SetParent(entity, nullptr);
+    idToEntity.erase(entity->id);
+    const auto it = std::find(entities.begin(), entities.end(), entity);
+    entities.erase(it);
+    delete entity;
+}
+
+void EntityManager::DestroyScene() {
+    while (!dynamicEntities.empty()) {
+        Entity *entity = dynamicEntities.back();
+        DestroyDynamicEntity(entity);
+    }
+
+    while (!staticEntities.empty()) {
+        Entity *entity = staticEntities.back();
+        DestroyStaticEntity(entity);
+    }
 }
 
 void EntityManager::SetTag(size_t entityId, std::string tag) {
@@ -55,19 +81,25 @@ void EntityManager::SetTag(size_t entityId, std::string tag) {
 void EntityManager::SetTag(Entity* entity, std::string tag) {
     if (entity->HasTag(tag)) return;
 	
-    // Find the list of entities with this entity's tag
-    auto it = tagToEntities.find(entity->GetTag());
-	if (it != tagToEntities.end()) {
-		std::vector<Entity*> &entities = it->second;
-        // Remove this entity from that list
-		const auto it2 = std::find(entities.begin(), entities.end(), entity);
-		if (it2 != entities.end())
-			entities.erase(it2);
-	}
+    // Clear the current tag from the entity
+    ClearTag(entity);
 
     // Set this entity's tag and add this entity to the list of entities with this tag
 	entity->SetTag(tag);
 	tagToEntities[tag].push_back(entity);
+}
+
+void EntityManager::ClearTag(Entity* entity) {
+    // Find the list of entities with this entity's tag
+    auto it = tagToEntities.find(entity->GetTag());
+    if (it != tagToEntities.end()) {
+        std::vector<Entity*> &entities = it->second;
+        // Remove this entity from that list
+        const auto it2 = std::find(entities.begin(), entities.end(), entity);
+        if (it2 != entities.end())
+            entities.erase(it2);
+    }
+    entity->SetTag("");
 }
 
 void EntityManager::SetParent(Entity* child, Entity* parent) {
@@ -124,21 +156,6 @@ std::vector<Entity*> EntityManager::GetChildren(Entity* entity) {
     return entity->children;
 }
 
-void EntityManager::DestroyStaticEntity(size_t id) {
-	DestroyEntity(id, staticEntities);
-}
-
-void EntityManager::DestroyEntity(size_t id, std::vector<Entity*> &entities) {
-	Entity* entity = FindEntity(id);
-    SetParent(entity, nullptr);
-	if (entity != nullptr) {
-		idToEntity.erase(id);
-		auto it = std::find(entities.begin(), entities.end(), entity);
-		entities.erase(it);
-	}
-	delete entity;
-}
-
 void EntityManager::AddComponent(size_t entityId, Component* component) {
 	AddComponent(FindEntity(entityId), component);
 }
@@ -150,11 +167,12 @@ void EntityManager::AddComponent(Entity* entity, Component* component) {
 }
 
 void EntityManager::DestroyComponent(Component* component) {
-	auto list = components[component->GetType()];
-	auto it = std::find(list.begin(), list.end(), component);
+	std::vector<Component*>& list = components[component->GetType()];
+	const auto it = std::find(list.begin(), list.end(), component);
 	if (it != list.end())
 		list.erase(it);
-	component->GetEntity()->RemoveComponent(component);
+    if (component->GetEntity())
+	    component->GetEntity()->RemoveComponent(component);
 	delete component;
 }
 

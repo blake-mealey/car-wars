@@ -274,8 +274,13 @@ Entity* ContentManager::LoadEntity(json data, Entity *parent) {
         }
     }
 
-    for (const auto childData : data["Children"]) {
-        Entity *child = LoadEntity(childData, entity);
+    json children = data["Children"];
+    if (children.is_array()) {
+        for (const auto childData : data["Children"]) {
+            Entity *child = LoadEntity(childData, entity);
+        }
+    } else if (children.is_string()) {
+        LoadScene(children.get<std::string>(), entity);
     }
 
 	return entity;

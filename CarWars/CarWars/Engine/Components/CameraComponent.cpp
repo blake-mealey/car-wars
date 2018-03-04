@@ -4,6 +4,7 @@
 #include "../Entities/Entity.h"
 #include "../Systems/Content/ContentManager.h"
 #include "imgui/imgui.h"
+#include <glm/gtc/type_ptr.hpp>
 
 const float CameraComponent::NEAR_CLIPPING_PLANE = 0.1f;
 const float CameraComponent::FAR_CLIPPING_PLANE = 1000.f;
@@ -20,7 +21,7 @@ CameraComponent::CameraComponent() : CameraComponent(glm::vec3(0, 0, -5), glm::v
 CameraComponent::CameraComponent(nlohmann::json data) : guiRoot(nullptr) {
 	fieldOfView = ContentManager::GetFromJson(data["FOV"], DEFAULT_FIELD_OF_VIEW);
 	position = ContentManager::JsonToVec3(data["Position"], glm::vec3(0.f, 0.f, 1.f));
-	target = ContentManager::JsonToVec3(data["Target"]);
+	target = ContentManager::JsonToVec3(data["Target"], glm::vec3(0.f, 0.f, 0.f));
 	upVector = ContentManager::JsonToVec3(data["UpVector"], glm::vec3(0.f, 1.f, 0.f));
     distanceFromCenter = ContentManager::GetFromJson<float>(data["CenterDistance"], 20.f);
 
@@ -105,6 +106,8 @@ void CameraComponent::RenderDebugGui() {
     if (ImGui::SliderAngle("Horizontal Angle", &cameraAngle)) UpdatePositionFromAngles();
     if (ImGui::SliderAngle("Vertical Angle", &cameraLift, 5, 175)) UpdatePositionFromAngles();
     if (ImGui::DragFloat("Distance", &distanceFromCenter, 1, 0, FAR_CLIPPING_PLANE)) UpdatePositionFromAngles();
+    if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.1f)) UpdateViewMatrix();
+    if (ImGui::DragFloat3("Target", glm::value_ptr(target), 0.1f)) UpdateViewMatrix();
 }
 
 void CameraComponent::UpdatePositionFromAngles() {

@@ -25,6 +25,8 @@ public:
 	void Initialize();
 	void Update() override;
 
+    void InitializeGame();
+
 	//Game Creation Variables
 	static Map selectedMap;
 	static GameMode selectedGameMode;

@@ -53,7 +53,21 @@ public:
     void SetUvScale(glm::vec2 _uvScale);
     glm::vec2 GetUvScale() const;
 
+    glm::vec2 GetScaledScale() const;
+    void SetScaledScale(glm::vec2 scale);
+
+    glm::vec2 GetScaledPosition() const;
+    void SetScaledPosition(glm::vec2 position);
+
+    glm::vec2 GetAnchorPoint() const;
+    void SetAnchorPoint(glm::vec2 _anchorPoint);
+
 private:
+    glm::vec2 anchorPoint;
+
+    glm::vec2 scaledPosition;
+    glm::vec2 scaledScale;
+
 	Entity *guiRoot;
 
     int textAlignment[2];

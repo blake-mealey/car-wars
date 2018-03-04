@@ -1,0 +1,13 @@
+[
+	"Sun.json",
+	{
+		"Tag": "Camera",
+		"Components": [
+			{
+				"Type": "Camera",
+				"Positon": [0, 0, 1],
+				"Target": [0, 0, 0]
+			}
+		]
+	}
+]

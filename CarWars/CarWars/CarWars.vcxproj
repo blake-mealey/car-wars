@@ -279,7 +279,8 @@
     <None Include="Content\Scenes\GameDemo.json" />
     <None Include="Content\Scenes\GraphicsDemo.json" />
     <None Include="Content\Scenes\GUIs\HUD.json" />
-    <None Include="Content\Scenes\GUIs\MainMenu.json" />
+    <None Include="Content\Scenes\GUIs\MainMenu_GUI.json" />
+    <None Include="Content\Scenes\MainMenu.json" />
     <None Include="Content\Scenes\PhysicsDemo.json" />
     <None Include="Engine\Shaders\blur.frag" />
     <None Include="Engine\Shaders\geometry.frag" />

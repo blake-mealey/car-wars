@@ -379,6 +379,7 @@
     <None Include="Engine\Shaders\skybox.vert" />
     <None Include="Engine\Shaders\gui.frag" />
     <None Include="Content\Scenes\GUIs\HUD.json" />
-    <None Include="Content\Scenes\GUIs\MainMenu.json" />
+    <None Include="Content\Scenes\MainMenu.json" />
+    <None Include="Content\Scenes\GUIs\MainMenu_GUI.json" />
   </ItemGroup>
 </Project>

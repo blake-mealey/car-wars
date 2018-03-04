@@ -108,6 +108,8 @@ public:
 	bool Initialize(char* windowTitle);
 	bool InitializeFullScreen(char* windowTitle); // don't use when debugging
 	void Update() override;
+
+    void SceneChanged();
     
     // Debug gui
     void RenderDebugGui();

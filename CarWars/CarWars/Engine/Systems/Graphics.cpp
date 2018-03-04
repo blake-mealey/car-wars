@@ -703,8 +703,11 @@ void Graphics::Update() {
 			if (!guiRoot || guiRoot != camera.guiRoot) continue;
 
             // Get the scale and position of the GUI
-            const glm::vec3 scale = gui->transform.GetGlobalScale();
-            const glm::vec3 position = gui->transform.GetGlobalPosition();
+            const glm::vec2 anchorPoint = gui->GetAnchorPoint();
+            const glm::vec3 scale = gui->transform.GetGlobalScale() +
+                glm::vec3(camera.viewportSize * gui->GetScaledScale(), 0.f);
+            const glm::vec3 position = gui->transform.GetGlobalPosition() +
+                glm::vec3(camera.viewportSize * gui->GetScaledPosition(), 0.f);
 
 			// RENDER THE FRAME
 
@@ -726,8 +729,8 @@ void Graphics::Update() {
                 const glm::vec3 screenScale = toScreenScale * scale * glm::vec3(viewportRatio, 1.f);
                 const glm::vec3 screenPosition = glm::vec3(-1.f, -1.f, 0.f) + toScreenScale *
                     2.f * glm::vec3(
-                        viewportRatio.x * (camera.viewportPosition.x + scale.x*0.5f + position.x),
-                        viewportRatio.y * (camera.viewportPosition.y + camera.viewportSize.y - scale.y*0.5f - position.y),
+                        viewportRatio.x * (camera.viewportPosition.x + position.x + scale.x*(0.5f - anchorPoint.x)),
+                        viewportRatio.y * (camera.viewportPosition.y + camera.viewportSize.y - position.y - scale.y*(0.5f - anchorPoint.y)),
                         0.f);
 
 				// Use the GUI program
@@ -762,7 +765,7 @@ void Graphics::Update() {
 			glDisable(GL_DEPTH_TEST);
 
 			// Set the color
-			glm::vec4 color = gui->GetFontColor();
+			const glm::vec4 color = gui->GetFontColor();
 			glPixelTransferf(GL_RED_BIAS, color.r - 1.f);
 			glPixelTransferf(GL_GREEN_BIAS, color.g - 1.f);
 			glPixelTransferf(GL_BLUE_BIAS, color.b - 1.f);
@@ -777,7 +780,8 @@ void Graphics::Update() {
 			const float fontHeight = font->Ascender() * 0.5f;
 
 			const glm::vec3 fontPosition = position;
-			glm::vec2 fontScreenPosition = camera.viewportPosition + glm::vec2(fontPosition.x, camera.viewportSize.y - fontPosition.y - fontHeight);
+			glm::vec2 fontScreenPosition = camera.viewportPosition +
+                glm::vec2(fontPosition.x, camera.viewportSize.y - fontPosition.y - fontHeight);
 			
 			glm::vec2 alignmentXOffset = glm::vec2(scale.x - fontWidth, 0.f);
 			switch (gui->GetTextXAlignment()) {
@@ -805,7 +809,7 @@ void Graphics::Update() {
 					break;
 			}
 
-			fontScreenPosition += alignmentXOffset + alignmentYOffset;
+			fontScreenPosition += alignmentXOffset + alignmentYOffset - glm::vec2(scale.x, scale.y) * anchorPoint;
 
 			font->Render(gui->GetText().c_str(), -1, FTPoint(fontScreenPosition.x, fontScreenPosition.y));
 
@@ -822,6 +826,10 @@ void Graphics::Update() {
 
 	//Swap Buffers to Display New Frame
 	glfwSwapBuffers(window);
+}
+
+void Graphics::SceneChanged() {
+    UpdateViewports(EntityManager::GetComponents(ComponentType_Camera));
 }
 
 void Graphics::RenderDebugGui() {

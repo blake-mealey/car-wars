@@ -1,13 +1,14 @@
 #include "Entity.h"
 #include "../Events/Event.h"
 #include "imgui/imgui.h"
+#include "EntityManager.h"
 
 Entity::Entity(size_t _id) : id(_id), components(std::vector<Component*>()), children(std::vector<Entity*>()),
         parent(nullptr), transform(Transform()), tag(std::string()) { }
 
 Entity::~Entity() {
 	for (size_t i = 0; i < components.size(); i++) {
-		delete components[i];
+        EntityManager::DestroyComponent(components[i]);
 	}
 }
 
