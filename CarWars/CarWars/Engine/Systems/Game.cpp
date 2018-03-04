@@ -106,38 +106,6 @@ void Game::Initialize() {
         }
         ai->UpdatePath();
     }
-    
-
-	// Load the scene and get some entities
-	/*ContentManager::LoadScene("GraphicsDemo.json");
-	boulder = EntityManager::FindEntities("Boulder")[0];
-	sun = EntityManager::FindEntities("Sun")[0];
-	floor = EntityManager::FindEntities("Floor")[0];
-	baby = EntityManager::FindEntities("Baby")[0];
-
-
-
-
-	//camera->transform.SetPosition(glm::vec3(0, 5, 10));
-
-	const int lightCount = 5;
-	for (int i = 0; i < lightCount; ++i) {
-		Entity *entity = EntityManager::CreateStaticEntity();
-
-		const float angle = i * ((2 * M_PI) / lightCount);
-		const glm::vec3 position = 6.f * glm::vec3(sin(angle), 0, cos(angle));
-		entity->transform.SetPosition(position);
-		entity->transform.SetScale(glm::vec3(0.1f));
-
-		const glm::vec3 color = glm::vec3(unitRand(), unitRand(), unitRand());
-
-		//PointLightComponent *light = new PointLightComponent(color, 10);
-		SpotLightComponent *light = new SpotLightComponent(color, 20, glm::radians(20.f), -position - glm::vec3(0, 2, 0));
-		EntityManager::AddComponent(entity, light);
-
-		MeshComponent *mesh = new MeshComponent("Sphere.obj", new Material(color, color, 1));
-		EntityManager::AddComponent(entity, mesh);
-	}*/
 }
 
 void Game::Update() {

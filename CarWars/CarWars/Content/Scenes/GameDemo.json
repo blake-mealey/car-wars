@@ -18,18 +18,19 @@
   {
     "Tag": "Cylinder",
     "Position": [ 0, 0, 0 ],
-    "Scale": [ 40, 40, 160 ],
+    "Scale": [ 50, 50, 400 ],
     "Components": [
       {
         "Type": "Mesh",
         "Mesh": "Cylinder.obj",
         "Texture": "DiamondPlate.jpg",
         "Material": "Basic.json",
-        "UvScale": [ 10, 10 ]
+        "UvScale": [ 10, 10 ],
+        "CylinderMesh": true
       },
       {
         "Type": "RigidDynamic",
-        "Mass": 1000000000,
+        "Mass": 10000000000,
         "BlocksNavMesh": false,
         "Colliders": [
           {
@@ -44,30 +45,34 @@
       }
     ]
   },
-    {
-        "Tag": "Wall",
-        "Position": [-20.5, -40, 0.5],
-        "Scale": [10, 20, 40],
-        "Components": [
-            {
-                "Type": "Mesh",
-                "Mesh": "Cube.obj",
-                "Texture": "DiamondPlate.jpg",
-                "Material": "Basic.json",
-                "UvScale": [10, 10],
-                "Scale": [0.5, 0.5, 0.5]
-            },
-            {
-                "Type": "RigidStatic",
-                "Colliders": [
-                    {
-                        "Type": "Box",
-                        "CollisionGroup": "DrivableObstacles"
-                    }
-                ]
-            }
+  {
+    "Tag": "Wall",
+    "Position": [ 0, 0, 0 ],
+    "Scale": [ 20, 1, 20 ],
+    "CylinderPart": true,
+    "Components": [
+      {
+        "Type": "Mesh",
+        "Mesh": "Cube.obj",
+        "Texture": "Sweage.jpg",
+        "Material": "Basic.json",
+        "UvScale": [ 10, 10 ],
+        "Scale": [ 0.5, 0.5, 0.5 ]
+      },
+      {
+        "Type": "RigidDynamic",
+        "Mass": 100000000000,
+        "BlocksNavMesh": false,
+        "Colliders": [
+          {
+            "Type": "Box",
+
+            "CollisionGroup": "DrivableObstacles"
+          }
         ]
-    },
+      }
+    ]
+  },
 	{
 		"Tag": "Light",
 		"Position": [ -10, 2, 10 ],
