@@ -2,6 +2,7 @@
 
 #include "System.h"
 
+#include "Physics/CollisionCallback.h"
 #include "PxPhysicsAPI.h"
 #include "Physics/VehicleSceneQuery.h"
 #include "Physics/VehicleCreate.h"
@@ -27,6 +28,8 @@ private:
 	Physics();
 	Physics(const Physics&) = delete;
 	Physics& operator= (const Physics&) = delete;
+
+	CollisionCallback collisionCallbackInstance;
 
     void InitializeVehicles();
 

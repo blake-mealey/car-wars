@@ -73,6 +73,10 @@ void CameraComponent::SetAspectRatio(const float _aspectRatio) {
 	UpdateProjectionMatrix();
 }
 
+void CameraComponent::SetUpVector(glm::vec3 _up) {
+	upVector = _up;
+}
+
 glm::mat4 CameraComponent::GetViewMatrix() {
 	UpdateViewMatrix();
 	return viewMatrix;
@@ -88,7 +92,7 @@ float CameraComponent::GetCameraHorizontalAngle() {
 
 void CameraComponent::SetCameraHorizontalAngle(float _cameraAngle) {
 	cameraAngle = _cameraAngle;
-    UpdatePositionFromAngles();
+    //UpdatePositionFromAngles();
 }
 
 float CameraComponent::GetCameraVerticalAngle() {
@@ -97,7 +101,7 @@ float CameraComponent::GetCameraVerticalAngle() {
 
 void CameraComponent::SetCameraVerticalAngle(float _cameraLift) {
 	cameraLift = _cameraLift;
-    UpdatePositionFromAngles();
+    //UpdatePositionFromAngles();
 }
 
 float CameraComponent::GetCameraSpeed() {
@@ -112,6 +116,16 @@ void CameraComponent::RenderDebugGui() {
     if (ImGui::DragFloat("Distance", &distanceFromCenter, 1, 0, FAR_CLIPPING_PLANE)) UpdatePositionFromAngles();
     if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.1f)) UpdateViewMatrix();
     if (ImGui::DragFloat3("Target", glm::value_ptr(target), 0.1f)) UpdateViewMatrix();
+}
+
+void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, float _cameraVer) {
+	SetCameraHorizontalAngle(_cameraHor);
+	SetCameraVerticalAngle(_cameraVer);
+
+	SetPosition(distanceFromCenter * (
+		-Transform::FORWARD * cos(GetCameraHorizontalAngle()) * sin(GetCameraVerticalAngle()) +
+		Transform::UP * cos(GetCameraVerticalAngle()) +
+		-Transform::RIGHT * (sin(GetCameraHorizontalAngle())) * (sin(GetCameraVerticalAngle()))));
 }
 
 void CameraComponent::UpdatePositionFromAngles() {

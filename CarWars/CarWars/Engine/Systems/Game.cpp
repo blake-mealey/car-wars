@@ -54,6 +54,7 @@ void Game::Initialize() {
 
 void Game::InitializeGame() {
     ContentManager::DestroySceneAndLoadScene("GameDemo.json");
+	ContentManager::LoadScene("PhysicsDemo.json");
 
     for (size_t i = 0; i < numberOfAi; ++i) {
         Entity *ai = ContentManager::LoadEntity("AiSewage.json");

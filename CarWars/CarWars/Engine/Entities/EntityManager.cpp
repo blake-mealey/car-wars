@@ -1,6 +1,9 @@
 #include "EntityManager.h"
 #include "../Components/CameraComponent.h"
 #include "../Systems/Graphics.h"
+#include "../Components/RigidbodyComponents/RigidbodyComponent.h"
+#include "../Components/RigidbodyComponents/VehicleComponent.h"
+#include <PxRigidActor.h>
 
 Entity* EntityManager::root = new Entity(0);
 std::vector<Entity*> EntityManager::staticEntities;
@@ -18,6 +21,19 @@ Entity* EntityManager::GetRoot() {
 
 Entity* EntityManager::FindEntity(size_t id) {
 	return idToEntity[id];
+}
+
+Entity* EntityManager::FindEntity(physx::PxRigidActor* _actor) {
+	for (size_t i = 0; i < dynamicEntities.size(); i++) {
+		for (size_t j = 0; j < dynamicEntities[i]->components.size(); j++) {
+			if (dynamicEntities[i]->components[j]->GetType() == ComponentType_Vehicle) {
+				if (static_cast<VehicleComponent*>(dynamicEntities[i]->components[j])->pxRigid == _actor) {
+					return dynamicEntities[i];
+				}
+			}
+		}
+	}
+	return nullptr;
 }
 
 std::vector<Entity*> EntityManager::FindEntities(std::string tag) {

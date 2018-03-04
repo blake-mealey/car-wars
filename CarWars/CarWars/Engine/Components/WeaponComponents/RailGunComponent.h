@@ -2,6 +2,10 @@
 #include <iostream>
 
 #include "../../Systems/StateManager.h"
+#include "../../Systems/Physics.h"
+#include "../../Entities/EntityManager.h"
+
+#include "../RigidbodyComponents/VehicleComponent.h"
 
 #include "WeaponComponent.h"
 

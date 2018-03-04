@@ -28,6 +28,7 @@ public:
 	void SetTarget(glm::vec3 _target);
 	void SetFieldOfView(float _fieldOfView);
 	void SetAspectRatio(float _aspectRatio);
+	void SetUpVector(glm::vec3 _up);
 
 	glm::mat4 GetViewMatrix();
 	glm::mat4 GetProjectionMatrix() const;
@@ -37,6 +38,8 @@ public:
 
 	float GetCameraVerticalAngle();
 	void SetCameraVerticalAngle(float _cameraLift);
+
+	void UpdateCameraPosition(Entity* _vehicle, float _cameraHor, float _cameraVer);
 
 	float GetCameraSpeed();
 

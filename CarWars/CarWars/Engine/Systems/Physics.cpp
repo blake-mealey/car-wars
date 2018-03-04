@@ -9,6 +9,7 @@
 #include "../Entities/Transform.h"
 #include "../Components/RigidbodyComponents/VehicleComponent.h"
 
+#include "Physics/CollisionCallback.h"
 #include "Physics/VehicleSceneQuery.h"
 #include "Physics/VehicleTireFriction.h"
 #include "Physics/VehicleCreate.h"
@@ -141,6 +142,9 @@ void Physics::Initialize() {
 
     pxCooking = PxCreateCooking(PX_PHYSICS_VERSION, *pxFoundation, PxCookingParams(PxTolerancesScale()));
 
+	
+	pxScene->setSimulationEventCallback(&collisionCallbackInstance);
+
     InitializeVehicles();
 }
 
@@ -210,7 +214,7 @@ void Physics::Update() {
         PxRigidActor* activeActor = static_cast<PxRigidActor*>(activeActors[i]);
 
         Component* component = static_cast<Component*>(activeActor->userData);
-        if (component) {
+        if (component != NULL) {
             component->UpdateFromPhysics(activeActor->getGlobalPose());
             updatedComponents.push_back(component);
         }

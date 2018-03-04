@@ -66,22 +66,30 @@ void InputManager::HandleMouse() {
 		Entity* vehicleGunTurret = EntityManager::FindChildren(vehicle, "GunTurret")[0];
 		glm::vec3 vehicleForward = vehicle->transform.GetForward();
 		glm::vec3 vehicleUp = vehicle->transform.GetUp();
+		glm::vec3 vehicleRight = vehicle->transform.GetRight();
 		float dotFR = glm::dot(vehicleForward, Transform::RIGHT);
 		float dotUR = glm::dot(vehicleUp, Transform::RIGHT);
+		float dotFU = glm::dot(vehicleForward, Transform::UP);
 		float dotFF = glm::dot(vehicleForward, Transform::FORWARD);
 		float dotUU = glm::dot(vehicleUp, Transform::UP);
+		float dotRR = glm::dot(vehicleRight, Transform::RIGHT);
 		bool correctForward = dotFR > 0;
 		bool correctUp = dotUR < 0;
+		bool correctRight = dotFU < 0;
 		//Update Camera Angles
 		float cameraHor = cameraComponent->GetCameraHorizontalAngle();
 		float cameraVer = cameraComponent->GetCameraVerticalAngle();
 		float cameraSpd = cameraComponent->GetCameraSpeed();
 		float cursorHor = ((float)(width / 2.0f) - xPos);
 		float cursorVer = ((float)(height / 2.0f) - yPos);
-		cameraComponent->SetCameraHorizontalAngle(cameraHor - cursorHor * cameraSpd * StateManager::deltaTime.GetTimeSeconds());
-		cameraComponent->SetCameraVerticalAngle(cameraVer + cursorVer * cameraSpd * StateManager::deltaTime.GetTimeSeconds());
+		float cameraNewHor = (cameraHor - (cursorHor * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
+		float cameraNewVer = (cameraVer + (cursorVer * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
+		cameraComponent->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
+		cameraComponent->SetUpVector(vehicle->transform.GetUp());
 		//Clamp Camera Angles
+		/*
 		float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
+		
 		float minAngle = ((2.0f / 3.0f) * (M_PI_2)) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
 		float maxAngle = (float)(M_PI_2) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
 		if (cameraComponent->GetCameraVerticalAngle() < minAngle) {
@@ -89,11 +97,19 @@ void InputManager::HandleMouse() {
 		} else if (cameraComponent->GetCameraVerticalAngle() > maxAngle) {
 			cameraComponent->SetCameraVerticalAngle(maxAngle);
 		}
+		*/
 		//Set Weapon Angle
+		float gunHor = -cameraNewHor + M_PI + (acos(dotFF) * (correctForward ? 1.0f : -1.0f));
+		vehicleGunTurret->transform.SetRotationAxisAngles(vehicle->transform.GetUp(), gunHor);
+		float gunVer = -cameraNewVer + (M_PI_2 - (M_PI_4 / 2.0f)) + (acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f));
+		vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
+		/*
 		float gunHor = -cameraHor - M_PI_2 + acos(dotFF) * (correctForward ? 1.0f : -1.0f);
 		vehicleGunTurret->transform.SetRotationAxisAngles(Transform::UP, gunHor);
 		float gunVer = -cameraVer + acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f) + M_PI_2 - (M_PI_4 / 2.0f);
 		vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
+
+		*/
 
 		//Set Cursor to Middle
 		glfwSetCursorPos(graphicsInstance.GetWindow(), width / 2, height / 2);
