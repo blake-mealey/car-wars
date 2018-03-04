@@ -1,0 +1,16 @@
+[
+	{
+		"Tag": "CharacterMenu_Buttons",
+		"Components": [
+			{
+				"Prefab": "GUIs/MenuButton.json",
+				"Text": "a to join",
+                "ScaledPosition": [0.5, 1],
+                "AnchorPoint": [0.5, 1],
+				"Position": [0, -20, 0],
+                "SelectedFontColor": [1, 1, 0, 1],
+                "Selected": true
+			}
+		]
+	}
+]

@@ -49,6 +49,8 @@ private:
 	//std::vector<Entity*> guiEntities;
 	Entity *guiRoot;
 
+    bool targetInLocalSpace;
+
 	float fieldOfView;		// In degrees
 	glm::vec3 position;
 	glm::vec3 target;

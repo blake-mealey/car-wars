@@ -37,6 +37,7 @@ public:
 	static physx::PxMaterial* GetPxMaterial(std::string filePath);
 
 	static std::vector<Entity*> LoadScene(std::string filePath, Entity *parent=nullptr);
+    static std::vector<Entity*> DestroySceneAndLoadScene(std::string filePath, Entity *parent = nullptr);
 
 	template <typename T>
 	static T GetFromJson(nlohmann::json json, T defaultValue);

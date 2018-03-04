@@ -28,25 +28,25 @@ CameraComponent::CameraComponent(nlohmann::json data) : guiRoot(nullptr) {
 	target = ContentManager::JsonToVec3(data["Target"], glm::vec3(0.f, 0.f, 0.f));
 	upVector = ContentManager::JsonToVec3(data["UpVector"], glm::vec3(0.f, 1.f, 0.f));
     distanceFromCenter = ContentManager::GetFromJson<float>(data["CenterDistance"], 20.f);
+    targetInLocalSpace = ContentManager::GetFromJson<bool>(data["TargetInLocalSpace"], false);
 
 	UpdateViewMatrix();
 }
 
-CameraComponent::CameraComponent(glm::vec3 _position, glm::vec3 _target, glm::vec3 _upVector) :
+CameraComponent::CameraComponent(glm::vec3 _position, glm::vec3 _target, glm::vec3 _upVector) : targetInLocalSpace(false),
 	position(_position), target(_target), upVector(_upVector), fieldOfView(DEFAULT_FIELD_OF_VIEW), distanceFromCenter(15.f), guiRoot(nullptr) {
 	
 	UpdateViewMatrix();
 }
 
 glm::vec3 CameraComponent::GetPosition() const {
-	if (entity == nullptr) {
-		return position;
-	}
+	if (!entity) return position;
 	return position + entity->transform.GetGlobalPosition();
 }
 
 glm::vec3 CameraComponent::GetTarget() const {
-	return target;
+    if (!entity || !targetInLocalSpace) return target;
+	return target + entity->transform.GetGlobalPosition();
 }
 
 float CameraComponent::GetFieldOfView() const {

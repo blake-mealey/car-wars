@@ -14,7 +14,8 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
 	text = ContentManager::GetFromJson<std::string>(data["Text"], "");
 	SetFont(ContentManager::GetFromJson<std::string>(data["Font"], "arial.ttf"));
 	SetFontSize(ContentManager::GetFromJson<int>(data["FontSize"], 36));
-	fontColor = ContentManager::JsonToVec4(data["FontColor"], glm::vec4(0.f));
+	fontColor = ContentManager::JsonToVec4(data["FontColor"], glm::vec4(0.f, 0.f, 0.f, 1.f));
+	selectedFontColor = ContentManager::JsonToVec4(data["SelectedFontColor"], glm::vec4(1.f, 1.f, 1.f, 1.f));
 	if (data["Texture"].is_string()) texture = ContentManager::GetTexture(data["Texture"].get<std::string>());
     uvScale = ContentManager::JsonToVec2(data["UvScale"], glm::vec2(1.f));
 
@@ -22,6 +23,8 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
     scaledScale = ContentManager::JsonToVec2(data["ScaledScale"], glm::vec2(0.f, 0.f));
 
     anchorPoint = ContentManager::JsonToVec2(data["AnchorPoint"], glm::vec2(0.f, 0.f));
+    
+    selected = ContentManager::GetFromJson<bool>(data["Selected"], false);
 
     std::string textXAlignment = ContentManager::GetFromJson<std::string>(data["TextXAlignment"], "Centre");
     if (textXAlignment == "Left") {
@@ -72,6 +75,10 @@ void GuiComponent::SetText(std::string _text) {
 
 std::string GuiComponent::GetText() const {
 	return text;
+}
+
+bool GuiComponent::HasText(std::string _text) const {
+    return text.compare(_text) == 0;
 }
 
 void GuiComponent::SetTexture(Texture *_texture) {
@@ -163,4 +170,20 @@ glm::vec2 GuiComponent::GetAnchorPoint() const {
 
 void GuiComponent::SetAnchorPoint(glm::vec2 _anchorPoint) {
     anchorPoint = _anchorPoint;
+}
+
+glm::vec4 GuiComponent::GetSelectedFontColor() const {
+    return selectedFontColor;
+}
+
+void GuiComponent::SetSelectedFontColor(glm::vec4 color) {
+    selectedFontColor = color;
+}
+
+bool GuiComponent::IsSelected() const {
+    return selected;
+}
+
+void GuiComponent::SetSelected(bool _selected) {
+    selected = _selected;
 }

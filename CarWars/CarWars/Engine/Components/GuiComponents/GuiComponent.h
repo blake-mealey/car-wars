@@ -30,6 +30,7 @@ public:
 
 	void SetText(std::string _text);
 	std::string GetText() const;
+    bool HasText(std::string _text) const;
 
 	void SetTexture(Texture *_texture);
 	Texture* GetTexture() const;
@@ -63,7 +64,15 @@ public:
     glm::vec2 GetAnchorPoint() const;
     void SetAnchorPoint(glm::vec2 _anchorPoint);
 
+    bool IsSelected() const;
+    void SetSelected(bool _selected);
+
+    glm::vec4 GetSelectedFontColor() const;
+    void SetSelectedFontColor(glm::vec4 color);
+
 private:
+    bool selected;
+
     glm::vec2 anchorPoint;
 
     glm::vec2 scaledPosition;
@@ -75,6 +84,7 @@ private:
 
 	FTFont *font;		// TODO: Decide which kind of font to use
 	glm::vec4 fontColor;
+    glm::vec4 selectedFontColor;
 	std::string text;
 
 	Texture *texture;

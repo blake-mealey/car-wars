@@ -1,11 +1,11 @@
 {
 	"Type": "GUI",
-	"ScaledPosition": [0.75, 0.25],
-	"ScaledScale": [0, 0],
-	"Scale": [200, 50, 1],
-	"AnchorPoint": [0.5, 0],
+	"ScaledPosition": [0.5, 0.5],
+	"Scale": [400, 50, 1],
+	"AnchorPoint": [0.5, 0.5],
 	"Font": "Starjedi.ttf",
 	"FontColor": [1, 1, 0, 1],
+    "SelectedFontColor": [1, 0, 0, 1],
 	"FontSize": 36,
 	"Texture": "DiamondPlate.jpg",
 	"UvScale": [1.125, 0.3]

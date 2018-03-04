@@ -19,6 +19,8 @@ public:
 	void HandleMouse();
 	void HandleKeyboard();
 	void HandleController();
+
+    size_t GetControllerCount();
 private:
 	static vector<XboxController*> xboxControllers;
 };

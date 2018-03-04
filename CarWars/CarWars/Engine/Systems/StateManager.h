@@ -80,6 +80,9 @@ enum GameState {
 	(Either (A) to Ready, or (Start) to Continue)
 	*/
 
+    // Marker for end of GameState_Menu items
+    __GameState_Menu_End,
+
 	//Game Playing
 	GameState_Playing,
 	/*
@@ -94,6 +97,9 @@ enum GameState {
 	1: Options			(Goes to Settings Pop-Up)
 	2: Exit				(Goes to Main Menu)
 	*/
+
+    // Game immediately exits when it enters this state
+    GameState_Exit
 };
 
 class StateManager {
@@ -108,9 +114,6 @@ public:
 	//Get/Set deltaTime and gameTime
 	static Time deltaTime;
 	static Time gameTime;
-
-	//Indices for Menu Navigation
-	static size_t menuIndex;
 private:
 	static GameState currentState;		//Current State in Game
 };

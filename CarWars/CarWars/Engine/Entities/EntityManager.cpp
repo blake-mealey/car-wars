@@ -1,5 +1,6 @@
 #include "EntityManager.h"
 #include "../Components/CameraComponent.h"
+#include "../Systems/Graphics.h"
 
 Entity* EntityManager::root = new Entity(0);
 std::vector<Entity*> EntityManager::staticEntities;

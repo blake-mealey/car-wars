@@ -202,6 +202,13 @@ std::vector<Entity*> ContentManager::LoadScene(std::string filePath, Entity *par
 	return entities;
 }
 
+std::vector<Entity*> ContentManager::DestroySceneAndLoadScene(std::string filePath, Entity* parent) {
+    EntityManager::DestroyScene();
+    std::vector<Entity*> scene = LoadScene(filePath, parent);
+    Graphics::Instance().SceneChanged();
+    return scene;
+}
+
 Component* ContentManager::LoadComponent(json data) {
     while (data.is_string()) {
         data = LoadJson(COMPONENT_PREFAB_DIR_PATH + data.get<std::string>());

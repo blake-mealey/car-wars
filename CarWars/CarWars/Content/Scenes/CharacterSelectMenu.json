@@ -1,0 +1,19 @@
+[
+    "Sun.json",
+	{
+		"Prefab": "Menu/CharacterSelect.json",
+        "Position": [0, 0, 0]
+	},
+	{
+		"Prefab": "Menu/CharacterSelect.json",
+		"Position": [0, 50, 0]
+	},
+	{
+		"Prefab": "Menu/CharacterSelect.json",
+		"Position": [0, 100, 0]
+	},
+	{
+		"Prefab": "Menu/CharacterSelect.json",
+		"Position": [0, 150, 0]
+	}
+]

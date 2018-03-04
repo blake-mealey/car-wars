@@ -765,7 +765,7 @@ void Graphics::Update() {
 			glDisable(GL_DEPTH_TEST);
 
 			// Set the color
-			const glm::vec4 color = gui->GetFontColor();
+			const glm::vec4 color = gui->IsSelected() ? gui->GetSelectedFontColor() : gui->GetFontColor();
 			glPixelTransferf(GL_RED_BIAS, color.r - 1.f);
 			glPixelTransferf(GL_GREEN_BIAS, color.g - 1.f);
 			glPixelTransferf(GL_BLUE_BIAS, color.b - 1.f);
@@ -809,7 +809,7 @@ void Graphics::Update() {
 					break;
 			}
 
-			fontScreenPosition += alignmentXOffset + alignmentYOffset - glm::vec2(scale.x, scale.y) * anchorPoint;
+			fontScreenPosition += alignmentXOffset + alignmentYOffset - glm::vec2(scale.x, -scale.y) * anchorPoint;
 
 			font->Render(gui->GetText().c_str(), -1, FTPoint(fontScreenPosition.x, fontScreenPosition.y));
 

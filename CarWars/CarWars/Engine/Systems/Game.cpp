@@ -21,6 +21,7 @@
 #include "Physics.h"
 #include "../Components/AiComponent.h"
 #include "Pathfinder.h"
+#include "GuiHelper.h"
 using namespace std;
 
 const unsigned int Game::MAX_VEHICLE_COUNT = 20;
@@ -48,17 +49,11 @@ float unitRand() {
 void Game::Initialize() {
     ContentManager::LoadSkybox("PurpleNebula/");
     
-    ContentManager::LoadScene("MainMenu.json");
-    CameraComponent *camera = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[0]);
-    ContentManager::LoadScene("GUIs/MainMenu_GUI.json", camera->GetGuiRoot());
+    StateManager::SetState(GameState_Menu);
 }
 
 void Game::InitializeGame() {
-    EntityManager::DestroyScene();
-    ContentManager::LoadScene("GameDemo.json");
-
-    // Notify graphics that the scene changed so it can update cameras appropriately
-    Graphics::Instance().SceneChanged();
+    ContentManager::DestroySceneAndLoadScene("GameDemo.json");
 
     for (size_t i = 0; i < numberOfAi; ++i) {
         Entity *ai = ContentManager::LoadEntity("AiSewage.json");

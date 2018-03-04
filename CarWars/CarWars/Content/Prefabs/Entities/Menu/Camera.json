@@ -1,0 +1,11 @@
+{
+	"Tag": "Camera",
+	"Components": [
+		{
+			"Type": "Camera",
+			"Position": [0, 3, 10],
+			"Target": [0, 0, 0],
+			"TargetInLocalSpace": true
+		}
+	]
+}

@@ -280,6 +280,8 @@ void VehicleComponent::Initialize() {
         MeshComponent* wheel = new MeshComponent(wheelMeshPrefab);
         wheelMeshes.push_back(wheel);
     }
+
+    UpdateWheelTransforms();
 }
 
 void VehicleComponent::UpdateWheelTransforms() {
