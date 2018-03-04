@@ -13,6 +13,7 @@ void RocketLauncherComponent::Shoot() {
 		Entity* vehicle = EntityManager::FindEntities("Vehicle")[0];
 
 		Entity* missile = EntityManager::CreateDynamicEntity();
+		EntityManager::SetTag(missile, "Missile");
 		MeshComponent* missileMesh = new MeshComponent("Missile.obj", "Basic.json", "Boulder.jpg");
 
 		missile->transform.SetPosition(EntityManager::FindChildren(vehicle, "GunTurret")[0]->transform.GetGlobalPosition());

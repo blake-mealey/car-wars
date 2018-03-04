@@ -9,6 +9,7 @@
 #include "../Entities/Transform.h"
 #include "../Components/RigidbodyComponents/VehicleComponent.h"
 
+#include "Physics/CollisionCallback.h"
 #include "Physics/VehicleSceneQuery.h"
 #include "Physics/VehicleTireFriction.h"
 #include "Physics/VehicleCreate.h"
@@ -140,6 +141,9 @@ void Physics::Initialize() {
     pxMaterial = ContentManager::GetPxMaterial("Default.json");
 
     pxCooking = PxCreateCooking(PX_PHYSICS_VERSION, *pxFoundation, PxCookingParams(PxTolerancesScale()));
+
+	
+	pxScene->setSimulationEventCallback(&collisionCallbackInstance);
 
     InitializeVehicles();
 }

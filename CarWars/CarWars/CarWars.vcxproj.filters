@@ -162,6 +162,9 @@
     <ClCompile Include="Engine\Components\WeaponComponents\MissileComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Systems\Physics\CollisionCallback.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Components\CameraComponent.h">
@@ -339,6 +342,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Components\WeaponComponents\MissileComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Systems\Physics\CollisionCallback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

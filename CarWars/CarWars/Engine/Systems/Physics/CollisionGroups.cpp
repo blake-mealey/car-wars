@@ -1,5 +1,7 @@
 #include "CollisionGroups.h"
 
+#include <iostream>
+
 using namespace physx;
 
 PxU32 CollisionGroups::nextFlagOffset = 0;
@@ -48,7 +50,7 @@ PxFilterFlags CollisionGroups::FilterShader(PxFilterObjectAttributes attributes0
         return PxFilterFlag::eSUPPRESS;
 
     pairFlags = PxPairFlag::eCONTACT_DEFAULT;
-    pairFlags |= PxPairFlags(PxU16(filterData0.word2 | filterData1.word2));
+    pairFlags |= PxPairFlags(PxU16(filterData0.word2 | filterData1.word2)) | PxPairFlag::eNOTIFY_TOUCH_FOUND;
 
     return PxFilterFlags();
 }

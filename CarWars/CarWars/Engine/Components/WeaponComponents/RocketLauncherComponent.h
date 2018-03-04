@@ -12,6 +12,7 @@
 #include "../Colliders/BoxCollider.h"
 
 #include "../../Systems/Content/ContentManager.h"
+#include "PxSimulationEventCallback.h"
 
 #include "WeaponComponent.h"
 
