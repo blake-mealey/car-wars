@@ -260,10 +260,15 @@ Entity* ContentManager::LoadEntity(json data) {
         data = prefabData;
 	}
 
+    if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);
+    
+	entity->transform = Transform(data);
+
 	entity->connectedToCylinder = GetFromJson<float>(data["CylinderPart"], false);
 
-    if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);
-    entity->transform = Transform(data);
+	if (entity->connectedToCylinder) {
+		entity->transform.ConnectToCylinder();
+	}
 
     for (const auto componentData : data["Components"]) {
         Component *component = LoadComponent(componentData);

@@ -56,6 +56,7 @@ public:
 	void Scale(glm::vec3 scaleFactor);
 	void Rotate(glm::vec3 axis, float radians);
 	void Rotate(glm::quat quaternion);
+	void ConnectToCylinder();
 
 	// Getters for output data
 	glm::mat4 GetTranslationMatrix();

@@ -252,3 +252,14 @@ physx::PxQuat Transform::ToPx(glm::quat q) {
 physx::PxTransform Transform::ToPx(Transform t) {
     return physx::PxTransform(ToPx(t.GetGlobalPosition()), ToPx(t.GetLocalRotation()));
 }
+
+void Transform::ConnectToCylinder(){
+	auto pos = Transform::ToCylinder(GetGlobalPosition());
+
+	//rotate accordingly
+	float rotateBy = GetGlobalPosition().x / radius + (float)M_PI / 2.f;
+	auto rotation = glm::rotate(glm::quat(), rotateBy, glm::vec3(0, 0, 1));
+
+	SetPosition(pos);
+	Rotate(rotation);
+}
