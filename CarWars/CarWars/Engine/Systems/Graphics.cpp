@@ -702,6 +702,10 @@ void Graphics::Update() {
 			Entity *guiRoot = gui->GetGuiRoot();
 			if (!guiRoot || guiRoot != camera.guiRoot) continue;
 
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glDisable(GL_DEPTH_TEST);
+
             // Get the scale and position of the GUI
             const glm::vec2 anchorPoint = gui->GetAnchorPoint();
             const glm::vec3 scale = gui->transform.GetGlobalScale() +
@@ -709,8 +713,7 @@ void Graphics::Update() {
             const glm::vec3 position = gui->transform.GetGlobalPosition() +
                 glm::vec3(camera.viewportSize * gui->GetScaledPosition(), 0.f);
 
-			// RENDER THE FRAME
-
+            // RENDER THE FRAME
 			Texture *frameTexture = gui->GetTexture();
 			if (frameTexture) {
                 // Convert from pixel to screen space
@@ -760,9 +763,6 @@ void Graphics::Update() {
 
 			// Set stuff
 			glPushAttrib(GL_ALL_ATTRIB_BITS);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glDisable(GL_DEPTH_TEST);
 
 			// Set the color
 			const glm::vec4 color = gui->IsSelected() ? gui->GetSelectedFontColor() : gui->GetFontColor();
@@ -815,6 +815,9 @@ void Graphics::Update() {
 
 			// Reset stuff
 			glPopAttrib();
+
+            glEnable(GL_DEPTH_TEST);
+            glDisable(GL_BLEND);
 		}
 	}
 

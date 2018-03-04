@@ -14,7 +14,12 @@
 			            "Type": "Mesh",
 			            "Mesh": "CircleFloor.obj",
 			            "Texture": "DiamondPlate.jpg",
-			            "Material": "Basic.json"
+			            "Material": {
+				            "DiffuseColor": [0, 0, 0],
+				            "SpecularColor": [0, 0 ,0],
+				            "Specularity":  1
+			            }
+
 		            }
                 ]
 	        },
