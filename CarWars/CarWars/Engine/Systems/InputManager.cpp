@@ -232,15 +232,7 @@ void InputManager::HandleKeyboard() {
 				case 1:
 					gameInstance.numberOfLives = INFINITE;
 					break;
-				case 2:
-				case 3:
-				case 4:
-				case 5:
-				case 6:
-				case 7:
-				case 8:
-				case 9:
-				case 10:
+				case 2:	case 3:	case 4:	case 5:	case 6:	case 7:	case 8:	case 9:	case 10: 
 					gameInstance.numberOfLives--;
 					break;
 				case INFINITE:
@@ -257,15 +249,7 @@ void InputManager::HandleKeyboard() {
 				case 1:
 					gameInstance.killLimit = INFINITE;
 					break;
-				case 2:
-				case 3:
-				case 4:
-				case 5:
-				case 6:
-				case 7:
-				case 8:
-				case 9:
-				case 10:
+				case 2:	case 3:	case 4:	case 5:	case 6:	case 7:	case 8:	case 9:	case 10:
 					gameInstance.killLimit--;
 					break;
 				case INFINITE:
@@ -282,11 +266,7 @@ void InputManager::HandleKeyboard() {
 				case 5:
 					gameInstance.timeLimitMinutes = INFINITE;
 					break;
-				case 6:
-				case 7:
-				case 8:
-				case 9:
-				case 10:
+				case 6:	case 7:	case 8:	case 9:	case 10:
 					gameInstance.timeLimitMinutes--;
 					break;
 				case INFINITE:
@@ -348,15 +328,7 @@ void InputManager::HandleKeyboard() {
 				case INFINITE:
 					gameInstance.numberOfLives = 1;
 					break;
-				case 1:
-				case 2:
-				case 3:
-				case 4:
-				case 5:
-				case 6:
-				case 7:
-				case 8:
-				case 9:
+				case 1:	case 2:	case 3:	case 4:	case 5:	case 6:	case 7:	case 8:	case 9:
 					gameInstance.numberOfLives++;
 					break;
 				case 50:
@@ -373,15 +345,7 @@ void InputManager::HandleKeyboard() {
 				case INFINITE:
 					gameInstance.killLimit = 1;
 					break;
-				case 1:
-				case 2:
-				case 3:
-				case 4:
-				case 5:
-				case 6:
-				case 7:
-				case 8:
-				case 9:
+				case 1:	case 2:	case 3:	case 4:	case 5:	case 6:	case 7:	case 8:	case 9:
 					gameInstance.killLimit++;
 					break;
 				case 100:
@@ -398,11 +362,7 @@ void InputManager::HandleKeyboard() {
 				case INFINITE:
 					gameInstance.timeLimitMinutes = 5;
 					break;
-				case 5:
-				case 6:
-				case 7:
-				case 8:
-				case 9:
+				case 5:	case 6:	case 7:	case 8:	case 9:
 					gameInstance.timeLimitMinutes++;
 					break;
 				case 60:
@@ -505,137 +465,95 @@ void InputManager::HandleController() {
 			int rightVibrate = 0;
 			int controllerNum = (*controller)->GetControllerNumber();
 
+			vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
+			VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
+
+			cout << "Current speed: " << vehicle->pxVehicle->computeForwardSpeed() << endl;
+
 			// -------------------------------------------------------------------------------------------------------------- //
 			// TRIGGERS
 			// -------------------------------------------------------------------------------------------------------------- //
 
 			//Manage Trigger States
 			//Left Trigger
-			if ((*controller)->GetPreviousState().Gamepad.bLeftTrigger < XINPUT_GAMEPAD_TRIGGER_THRESHOLD 
-				&& (*controller)->GetState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed L-TRIGGER" << endl;
-			} else if ((*controller)->GetPreviousState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD 
-				&& (*controller)->GetState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held L-TRIGGER" << endl;
-				//leftVibrate = 30000 * (*controller)->GetState().Gamepad.bLeftTrigger / 255;
-
-				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
-				
-				if (vehicle->pxVehicle->computeForwardSpeed() > 5.f) {
-					vehicle->pxVehicleInputData.setAnalogBrake(1.0f);
+			float amountPressed = abs((*controller)->GetState().Gamepad.bRightTrigger - (*controller)->GetState().Gamepad.bLeftTrigger);
+			bool brake = false;
+			if ((*controller)->GetState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
+				cout << "Controller: " << (*controller)->GetControllerNumber() << " L-TRIGGER pressed" << endl;
+				if (amountPressed < XINPUT_GAMEPAD_TRIGGER_THRESHOLD * 2) {
+					brake = true;
+					vehicle->pxVehicleInputData.setAnalogBrake(1.f);
 				}
 				else {
-					vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
-					vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
-					vehicle->pxVehicleInputData.setAnalogAccel((*controller)->GetState().Gamepad.bLeftTrigger / 255.0f);
-				}
-			} else if ((*controller)->GetPreviousState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD && (*controller)->GetState().Gamepad.bLeftTrigger < XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released L-TRIGGER" << endl;
+					if (vehicle->pxVehicle->computeForwardSpeed() > 5.f) {
+						brake = true;
+						vehicle->pxVehicleInputData.setAnalogBrake((*controller)->GetState().Gamepad.bLeftTrigger / 255.0f);
+					}
 
-				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
-				vehicle->pxVehicleInputData.setAnalogAccel(0.0f);
+					else {
+						vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
+						vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+					}
+				}
+			}
+			else {
+				vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
 			}
 
 			//Right Trigger
-			if ((*controller)->GetPreviousState().Gamepad.bRightTrigger < XINPUT_GAMEPAD_TRIGGER_THRESHOLD && (*controller)->GetState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed R-TRIGGER" << endl;
-			} else if ((*controller)->GetPreviousState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD && (*controller)->GetState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held R-TRIGGER" << endl;
-				//rightVibrate = 30000 * (*controller)->GetState().Gamepad.bRightTrigger / 255;
-
-				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
-
-
-				cout << vehicle->pxVehicle->computeForwardSpeed() << endl;
-				vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
-				int speed = (int)vehicle->pxVehicle->computeForwardSpeed();
-				if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE){
+			if ((*controller)->GetState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
+				cout << "Controller: " << (*controller)->GetControllerNumber() << " R-TRIGGER pressed" << endl;
+				if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eFIRST) {
 					vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 				}
 
-				vehicle->pxVehicleInputData.setAnalogAccel(((*controller)->GetState().Gamepad.bRightTrigger - (*controller)->GetState().Gamepad.bLeftTrigger) / 255.0f);
-				
-				//Entity *boulder = EntityManager::FindEntities("Boulder")[0];
-				//float x = 0.05f * (*controller)->GetState().Gamepad.bRightTrigger;
-				//boulder->transform.Translate(boulder->transform.GetForward() * dt.GetTimeSeconds() * x);
-
-			} else if ((*controller)->GetPreviousState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD && (*controller)->GetState().Gamepad.bRightTrigger < XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released R-TRIGGER" << endl;
-
-				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
-				vehicle->pxVehicleInputData.setAnalogAccel(0.0f);
 			}
 
+			if (!brake && amountPressed >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD *2) vehicle->pxVehicleInputData.setAnalogAccel(amountPressed / 255.0f);
+			else {
+				vehicle->pxVehicleInputData.setAnalogAccel(0);
+				vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eNEUTRAL);
+			}
+
+			// -------------------------------------------------------------------------------------------------------------- //
+			// STICKS
+			// -------------------------------------------------------------------------------------------------------------- //
+
 			//Left Joystick X-Axis
-			if (((*controller)->GetPreviousState().Gamepad.sThumbLX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && (*controller)->GetPreviousState().Gamepad.sThumbLX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) && (((*controller)->GetState().Gamepad.sThumbLX >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) || ((*controller)->GetState().Gamepad.sThumbLX <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE))) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed LEFT-JOYSTICK X-AXIS" << endl;
-			} else if ((((*controller)->GetPreviousState().Gamepad.sThumbLX >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) || ((*controller)->GetPreviousState().Gamepad.sThumbLX <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) && (((*controller)->GetState().Gamepad.sThumbLX >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) || ((*controller)->GetState().Gamepad.sThumbLX <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE))) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held LEFT-JOYSTICK X-AXIS" << endl;
+			if ((*controller)->GetState().Gamepad.sThumbLX >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || (*controller)->GetState().Gamepad.sThumbLX <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+				cout << "Controller: " << (*controller)->GetControllerNumber() << " LEFT-JOYSTICK X-AXIS movement" << endl;
 
-				//Entity *boulder = EntityManager::FindEntities("Boulder")[0];
-				//float x = -0.1f * (*controller)->GetState().Gamepad.sThumbLX / 30000.f;
-				//boulder->transform.Rotate(Transform::UP, dt.GetTimeSeconds() * x);
-
-				//std::cout << (*controller)->GetState().Gamepad.sThumbLX << std::endl;
-
-				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
 				vehicle->pxVehicleInputData.setAnalogSteer(-(*controller)->GetState().Gamepad.sThumbLX / 32768.0f);
-
-			} else if (((*controller)->GetPreviousState().Gamepad.sThumbLX >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || (*controller)->GetPreviousState().Gamepad.sThumbLX <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) && (((*controller)->GetState().Gamepad.sThumbLX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) && ((*controller)->GetState().Gamepad.sThumbLX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE))) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released LEFT-JOYSTICK X-AXIS" << endl;
-
-				vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-				VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
+			}
+			else {
 				vehicle->pxVehicleInputData.setAnalogSteer(0.0f);
-
 			}
 
 			//Left Joystick Y-Axis
-			if (((*controller)->GetPreviousState().Gamepad.sThumbLY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && (*controller)->GetPreviousState().Gamepad.sThumbLY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) && (((*controller)->GetState().Gamepad.sThumbLY >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) || ((*controller)->GetState().Gamepad.sThumbLY <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE))) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed LEFT-JOYSTICK Y-AXIS" << endl;
-			} else if ((((*controller)->GetPreviousState().Gamepad.sThumbLY >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) || ((*controller)->GetPreviousState().Gamepad.sThumbLY <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) && (((*controller)->GetState().Gamepad.sThumbLY >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) || ((*controller)->GetState().Gamepad.sThumbLY <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE))) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held LEFT-JOYSTICK Y-AXIS" << endl;
-			} else if (((*controller)->GetPreviousState().Gamepad.sThumbLY >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || (*controller)->GetPreviousState().Gamepad.sThumbLY <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) && (((*controller)->GetState().Gamepad.sThumbLY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) && ((*controller)->GetState().Gamepad.sThumbLY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE))) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released LEFT-JOYSTICK Y-AXIS" << endl;
+			if ((*controller)->GetState().Gamepad.sThumbLY >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || (*controller)->GetState().Gamepad.sThumbLY <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+				cout << "Controller: " << (*controller)->GetControllerNumber() << " LEFT-JOYSTICK Y-AXIS movement" << endl;
 			}
-			
-			//Right Joystick X-Axis
-			if (((*controller)->GetPreviousState().Gamepad.sThumbRX < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE && (*controller)->GetPreviousState().Gamepad.sThumbRX > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) && (((*controller)->GetState().Gamepad.sThumbRX >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || ((*controller)->GetState().Gamepad.sThumbRX <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE))) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed RIGHT-JOYSTICK X-AXIS" << endl;
-			} else if ((((*controller)->GetPreviousState().Gamepad.sThumbRX >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || ((*controller)->GetPreviousState().Gamepad.sThumbRX <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) && (((*controller)->GetState().Gamepad.sThumbRX >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || ((*controller)->GetState().Gamepad.sThumbRX <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE))) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held RIGHT-JOYSTICK X-AXIS" << endl;
 
-				Entity *camera = EntityManager::FindEntities("Camera")[controllerNum];
-				CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
+			// ---- RIGHT STICK ---- //
+			Entity *camera = EntityManager::FindEntities("Camera")[controllerNum];
+			CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
+
+			//Right Joystick X-Axis
+			if ((*controller)->GetState().Gamepad.sThumbRX >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || (*controller)->GetState().Gamepad.sThumbRX <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+				cout << "Controller: " << (*controller)->GetControllerNumber() << " RIGHT-JOYSTICK X-AXIS movement" << endl;
+
 				float x = dt.GetTimeSeconds() * 3.f * (*controller)->GetState().Gamepad.sThumbRX / 30000.f;
 				cameraC->SetCameraHorizontalAngle(cameraC->GetCameraHorizontalAngle() + x);
-				
-
-			} else if (((*controller)->GetPreviousState().Gamepad.sThumbRX >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || (*controller)->GetPreviousState().Gamepad.sThumbRX <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) && (((*controller)->GetState().Gamepad.sThumbRX < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) && ((*controller)->GetState().Gamepad.sThumbRX > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE))) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released RIGHT-JOYSTICK X-AXIS" << endl;
 			}
 
 			//Right Joystick Y-Axis
-			if (((*controller)->GetPreviousState().Gamepad.sThumbRY < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE && (*controller)->GetPreviousState().Gamepad.sThumbRY > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) && (((*controller)->GetState().Gamepad.sThumbRY >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || ((*controller)->GetState().Gamepad.sThumbRY <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE))) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed RIGHT-JOYSTICK Y-AXIS" << endl;
-			} else if ((((*controller)->GetPreviousState().Gamepad.sThumbRY >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || ((*controller)->GetPreviousState().Gamepad.sThumbRY <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) && (((*controller)->GetState().Gamepad.sThumbRY >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || ((*controller)->GetState().Gamepad.sThumbRY <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE))) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held RIGHT-JOYSTICK Y-AXIS" << endl;
+			if ((((*controller)->GetPreviousState().Gamepad.sThumbRY >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || ((*controller)->GetPreviousState().Gamepad.sThumbRY <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) && (((*controller)->GetState().Gamepad.sThumbRY >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || ((*controller)->GetState().Gamepad.sThumbRY <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE))) {
+				cout << "Controller: " << (*controller)->GetControllerNumber() << " RIGHT-JOYSTICK Y-AXIS movement" << endl;
 
-
-				Entity *camera = EntityManager::FindEntities("Camera")[controllerNum];
-				CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
 				float x = dt.GetTimeSeconds() * 3.f * (*controller)->GetState().Gamepad.sThumbRY / 30000.f;
-				cameraC->SetCameraVerticalAngle(std::min(std::max(cameraC->GetCameraVerticalAngle() + x, 0.1f),static_cast<float>(M_PI)-0.1f));
-
-
-			} else if (((*controller)->GetPreviousState().Gamepad.sThumbRY >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || (*controller)->GetPreviousState().Gamepad.sThumbRY <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) && (((*controller)->GetState().Gamepad.sThumbRY < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) && ((*controller)->GetState().Gamepad.sThumbRY > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE))) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released RIGHT-JOYSTICK Y-AXIS" << endl;
+				cameraC->SetCameraVerticalAngle(std::min(std::max(cameraC->GetCameraVerticalAngle() + x, 0.1f), static_cast<float>(M_PI) - 0.1f));
 			}
+
 
 			// -------------------------------------------------------------------------------------------------------------- //
 			// BUTTONS
@@ -646,139 +564,13 @@ void InputManager::HandleController() {
 			int pressedButtons = ((*controller)->GetState().Gamepad.wButtons ^ (*controller)->GetPreviousState().Gamepad.wButtons) & (*controller)->GetState().Gamepad.wButtons;
 			int releasedButtons = ((*controller)->GetState().Gamepad.wButtons ^ (*controller)->GetPreviousState().Gamepad.wButtons) & (*controller)->GetPreviousState().Gamepad.wButtons;
 
-			//DPAD-UP
-			if (pressedButtons & XINPUT_GAMEPAD_DPAD_UP) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed DPAD-UP" << endl;
-			} else if (heldButtons & XINPUT_GAMEPAD_DPAD_UP) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held DPAD-UP" << endl;
-			} else if (releasedButtons & XINPUT_GAMEPAD_DPAD_UP) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released DPAD-UP" << endl;
-			}
-
-			//DPAD-DOWN
-			if (pressedButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed DPAD-DOWN" << endl;
-			} else if (heldButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held DPAD-DOWN" << endl;
-			} else if (releasedButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released DPAD-DOWN" << endl;
-			}
-
-			//DPAD-LEFT
-			if (pressedButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed DPAD-LEFT" << endl;
-			} else if (heldButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held DPAD-LEFT" << endl;
-			} else if (releasedButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released DPAD-LEFT" << endl;
-			}
-
-			//DPAD-RIGHT
-			if (pressedButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed DPAD-RIGHT" << endl;
-			} else if (heldButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held DPAD-RIGHT" << endl;
-			} else if (releasedButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released DPAD-RIGHT" << endl;
-			}
-
-			//START
-			if (pressedButtons & XINPUT_GAMEPAD_START) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed START" << endl;
-			} else if (heldButtons & XINPUT_GAMEPAD_START) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held START" << endl;
-			} else if (releasedButtons & XINPUT_GAMEPAD_START) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released START" << endl;
-			}
-
-			//BACK
-			if (pressedButtons & XINPUT_GAMEPAD_BACK) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed BACK" << endl;
-			} else if (heldButtons & XINPUT_GAMEPAD_BACK) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held BACK" << endl;
-			} else if (releasedButtons & XINPUT_GAMEPAD_BACK) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released BACK" << endl;
-			}
-
-			//LEFT-THUMB
-			if (pressedButtons & XINPUT_GAMEPAD_LEFT_THUMB) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed LEFT-THUMB" << endl;
-			} else if (heldButtons & XINPUT_GAMEPAD_LEFT_THUMB) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held LEFT-THUMB" << endl;
-			} else if (releasedButtons & XINPUT_GAMEPAD_LEFT_THUMB) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released LEFT-THUMB" << endl;
-			}
-
-			//RIGHT-THUMB
-			if (pressedButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed RIGHT-THUMB" << endl;
-			} else if (heldButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held RIGHT-THUMB" << endl;
-			} else if (releasedButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released RIGHT-THUMB" << endl;
-			}
-
 			//LEFT-SHOULDER
-			if (pressedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed LEFT-SHOULDER" << endl;
-			} else if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held LEFT-SHOULDER" << endl;
+			if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+				cout << "Controller: " << (*controller)->GetControllerNumber() << " LEFT-SHOULDER held" << endl;
 
-                vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-                VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
                 vehicle->pxVehicleInputData.setAnalogHandbrake(1.f);
-
-			} else if (releasedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released LEFT-SHOULDER" << endl;
-
-                vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-                VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
+			} else {
                 vehicle->pxVehicleInputData.setAnalogHandbrake(0.f);
-			}
-
-			//RIGHT-SHOULDER
-			if (pressedButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed RIGHT-SHOULDER" << endl;
-			} else if (heldButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held RIGHT-SHOULDER" << endl;
-			} else if (releasedButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released RIGHT-SHOULDER" << endl;
-			}
-
-			//A
-			if (pressedButtons & XINPUT_GAMEPAD_A) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed A" << endl;
-			} else if (heldButtons & XINPUT_GAMEPAD_A) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held A" << endl;
-			} else if (releasedButtons & XINPUT_GAMEPAD_A) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released A" << endl;
-			}
-
-			//B
-			if (pressedButtons & XINPUT_GAMEPAD_B) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed B" << endl;
-			} else if (heldButtons & XINPUT_GAMEPAD_B) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held B" << endl;
-			} else if (releasedButtons & XINPUT_GAMEPAD_B) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released B" << endl;
-			}
-
-			//X
-			if (pressedButtons & XINPUT_GAMEPAD_X) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed X" << endl;
-			} else if (heldButtons & XINPUT_GAMEPAD_X) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held X" << endl;
-			} else if (releasedButtons & XINPUT_GAMEPAD_X) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released X" << endl;
-			}
-
-			//Y
-			if (pressedButtons & XINPUT_GAMEPAD_Y) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " pressed Y" << endl;
-			} else if (heldButtons & XINPUT_GAMEPAD_Y) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " held Y" << endl;
-			} else if (releasedButtons & XINPUT_GAMEPAD_Y) {
-				cout << "Controller: " << (*controller)->GetControllerNumber() << " released Y" << endl;
 			}
 
 			//Vibrate Controller
