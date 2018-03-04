@@ -63,11 +63,13 @@ void InputManager::HandleMouse() {
 		Entity* vehicleGunTurret = EntityManager::FindChildren(vehicle, "GunTurret")[0];
 		glm::vec3 vehicleForward = vehicle->transform.GetForward();
 		glm::vec3 vehicleUp = vehicle->transform.GetUp();
+		glm::vec3 vehicleRight = vehicle->transform.GetRight();
 		float dotFR = glm::dot(vehicleForward, Transform::RIGHT);
 		float dotUR = glm::dot(vehicleUp, Transform::RIGHT);
 		float dotFU = glm::dot(vehicleForward, Transform::UP);
 		float dotFF = glm::dot(vehicleForward, Transform::FORWARD);
 		float dotUU = glm::dot(vehicleUp, Transform::UP);
+		float dotRR = glm::dot(vehicleRight, Transform::RIGHT);
 		bool correctForward = dotFR > 0;
 		bool correctUp = dotUR < 0;
 		bool correctRight = dotFU < 0;
@@ -95,7 +97,7 @@ void InputManager::HandleMouse() {
 		*/
 		//Set Weapon Angle
 		float gunHor = -cameraNewHor + M_PI + (acos(dotFF) * (correctForward ? 1.0f : -1.0f));
-		vehicleGunTurret->transform.SetRotationAxisAngles(Transform::UP, gunHor);
+		vehicleGunTurret->transform.SetRotationAxisAngles(vehicle->transform.GetUp(), gunHor);
 		float gunVer = -cameraNewVer + (M_PI_2 - (M_PI_4 / 2.0f)) + (acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f));
 		vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
 		/*
