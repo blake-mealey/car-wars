@@ -6,6 +6,8 @@ void MachineGunComponent::Shoot() {
 	if (StateManager::gameTime.GetTimeSeconds() > nextShotTime.GetTimeSeconds()) {
 		std::cout << "Bullet Shot, Dealt : " << damage << std::endl;
 		nextShotTime = StateManager::gameTime.GetTimeSeconds() + timeBetweenShots.GetTimeSeconds();
+		Audio& audioManager = Audio::Instance();
+		audioManager.PlayAudio("Content/Sounds/machine_gun_shot.mp3");
 
 		//static_cast<VehicleComponent*>(vehicle->components[2])->TakeDamage(damage);
 		Entity* vehicle = this->GetEntity();
