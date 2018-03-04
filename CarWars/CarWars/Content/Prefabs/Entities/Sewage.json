@@ -10,7 +10,7 @@
       "Position": [ 0.0825, -0.825, 0.18 ]
     },
 	{
-		"Type": "MachineGun"
+		"Type": "RocketLauncher"
 	},
     {
       "Type": "Vehicle",

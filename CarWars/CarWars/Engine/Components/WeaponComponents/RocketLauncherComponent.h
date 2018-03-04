@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 
+#include "../../Systems/Audio.h"
 #include "../../Systems/StateManager.h"
 #include "../../Entities/EntityManager.h"
 
