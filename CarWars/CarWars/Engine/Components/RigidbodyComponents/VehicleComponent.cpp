@@ -438,6 +438,6 @@ void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
 void VehicleComponent::TakeDamage(float _damageValue) {
 	health -= _damageValue * resistance;
 	if (health <= 0) {
-		this->GetEntity()->~Entity();
+		EntityManager::DestroyEntity(this->GetEntity());
 	}
 }
