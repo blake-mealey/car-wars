@@ -8,6 +8,7 @@
 #include "imgui/imgui.h"
 #include "../../Entities/EntityManager.h"
 #include "RigidDynamicComponent.h"
+#include "RigidStaticComponent.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -15,8 +16,6 @@
 #include <glm/gtx/string_cast.hpp>
 #define _USE_MATH_DEFINES
 #include <math.h>
-
-
 
 #include <iostream>
 using namespace std;
@@ -82,17 +81,6 @@ void RigidbodyComponent::RenderDebugGui() {
 void RigidbodyComponent::SetEntity(Entity* _entity) {
 	Transform position = _entity->transform;
 	
-	if (_entity->connectedToCylinder) {
-		auto pos = Transform::ToCylinder(position.GetGlobalPosition());
-
-		//rotate accordingly
-		float rotateBy = position.GetGlobalPosition().x / Transform::radius +(float)M_PI / 2.f;
-		auto rotation = glm::rotate(glm::quat(), rotateBy, glm::vec3(0, 0, 1));
-
-		position.SetPosition(pos);
-		position.Rotate(rotation);
-	}
-	
 	Component::SetEntity(_entity);
 
     pxRigid->setGlobalPose(Transform::ToPx(position));
@@ -108,13 +96,13 @@ void RigidbodyComponent::SetEntity(Entity* _entity) {
 		entityRigid->actor->setAngularDamping(0.f);
 		entityRigid->actor->setMassSpaceInertiaTensor(PxVec3(0.f, 0.f, 0.f));
 
-		float rotateBy = position.GetGlobalPosition().x / Transform::radius +(float)M_PI / 2.f;
-		auto rotation = glm::rotate(glm::quat(), rotateBy + (float)M_PI, glm::vec3(0, 0, 1));
-
+		/*
+		float rotateBy = position.GetGlobalPosition().x / Transform::radius + (float) M_PI / 2.f;
+		auto rotation = glm::rotate(glm::quat(), rotateBy, glm::vec3(0, 0, 1));
+*/
 		PxFixedJoint* joint = PxFixedJointCreate(physics.GetApi(),
-			static_cast<RigidDynamicComponent*>(cylinder->components[1])->actor, PxTransform(PxVec3(0), Transform::ToPx(rotation)),
-			pxRigid, Transform::ToPx(position));
-
+			static_cast<RigidStaticComponent*>(cylinder->components[2])->pxRigid, PxTransform(PxIdentity),
+			pxRigid, PxTransform(Transform::ToPx(position)));
 
 		// this needs to be the same as the cylinder one
 		entityRigid->actor->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
