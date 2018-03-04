@@ -16,6 +16,11 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+
+
+#include <iostream>
+using namespace std;
+
 RigidbodyComponent::RigidbodyComponent() : pxRigid(nullptr), blocksNavigationMesh(true) {}
 
 RigidbodyComponent::RigidbodyComponent(nlohmann::json data) : RigidbodyComponent() {
@@ -75,13 +80,24 @@ void RigidbodyComponent::RenderDebugGui() {
 }
 
 void RigidbodyComponent::SetEntity(Entity* _entity) {
-    Component::SetEntity(_entity);
-    pxRigid->setGlobalPose(Transform::ToPx(_entity->transform));
-    Physics::Instance().GetScene().addActor(*pxRigid);
+	Transform position = _entity->transform;
+	
+	if (_entity->connectedToCylinder) {
+		auto pos = Transform::ToCylinder(position.GetGlobalPosition());
 
-	for (Collider *collider : colliders) {
-		collider->Scale(_entity->transform.GetLocalScale());
+		//rotate accordingly
+		float rotateBy = position.GetGlobalPosition().x / Transform::radius +(float)M_PI / 2.f;
+		auto rotation = glm::rotate(glm::quat(), rotateBy, glm::vec3(0, 0, 1));
+
+		position.SetPosition(pos);
+		position.Rotate(rotation);
 	}
+	
+	Component::SetEntity(_entity);
+
+    pxRigid->setGlobalPose(Transform::ToPx(position));
+    Physics::Instance().GetScene().addActor(*pxRigid);
+	
 	if (_entity->connectedToCylinder) {
 		Entity* cylinder = EntityManager::FindEntities("Cylinder")[0];
 		Physics &physics = Physics::Instance();
@@ -92,28 +108,20 @@ void RigidbodyComponent::SetEntity(Entity* _entity) {
 		entityRigid->actor->setAngularDamping(0.f);
 		entityRigid->actor->setMassSpaceInertiaTensor(PxVec3(0.f, 0.f, 0.f));
 
-		auto pos = _entity->transform.GetGlobalPosition();
-		pos.x = pos.x;
-		pos = (Transform::ToCylinder(pos));
-		//rotate accordingly
-		float rotBy = _entity->transform.GetGlobalPosition().x / (Transform::radius *2.f*(float)M_PI);
-		auto cylinderJointRotation = Transform::ToPx(glm::rotate(glm::quat(), rotBy + (float)M_PI, glm::vec3(0, 0, 1)));
-		auto entityJointRotation = glm::rotate(glm::quat(), rotBy, glm::vec3(0, 0, 1));
-
-		_entity->transform = Transform(nullptr, pos, _entity->transform.GetGlobalScale(), entityJointRotation);
+		float rotateBy = position.GetGlobalPosition().x / Transform::radius +(float)M_PI / 2.f;
+		auto rotation = glm::rotate(glm::quat(), rotateBy + (float)M_PI, glm::vec3(0, 0, 1));
 
 		PxFixedJoint* joint = PxFixedJointCreate(physics.GetApi(),
-			static_cast<RigidDynamicComponent*>(cylinder->components[1])->actor, PxTransform(PxVec3(0), cylinderJointRotation),
-			pxRigid, Transform::ToPx(_entity->transform));
+			static_cast<RigidDynamicComponent*>(cylinder->components[1])->actor, PxTransform(PxVec3(0), Transform::ToPx(rotation)),
+			pxRigid, Transform::ToPx(position));
 
+
+		// this needs to be the same as the cylinder one
 		entityRigid->actor->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
+	}
 
-		// compute new transform
-		// x -> 0
-		// y -> add radius
-		// z -> same
-
-		// rotation based on x
+	for (Collider *collider : colliders) {
+		collider->Scale(_entity->transform.GetLocalScale());
 	}
 }
 
