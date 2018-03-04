@@ -63,17 +63,7 @@ void Game::Initialize() {
         cameraComponent->SetCameraHorizontalAngle(-3.14 / 2);
         cameraComponent->SetCameraVerticalAngle(3.14 / 4);
 
-		GuiComponent *carWarsTitle = new GuiComponent({
-			{ "Position", { 20, 20, 0 } },
-			{ "Scale", { 220, 60, 1 } },
-			{ "Text", "cAR wARS" },
-			{ "Font", "Starjedi.ttf" },
-			{ "FontColor", { 1, 1, 0, 1 } },
-			{ "FontSize", 36 },
-			{ "Texture", "DiamondPlate.jpg" },
-            { "UvScale", { 1.125f, 0.3f } }
-		});
-		EntityManager::AddComponent(cameraComponent->GetGuiRoot(), carWarsTitle);
+        ContentManager::LoadScene("GUIs/HUD.json", cameraComponent->GetGuiRoot());
 	}
 
 
