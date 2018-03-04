@@ -65,10 +65,12 @@ void InputManager::HandleMouse() {
 		glm::vec3 vehicleUp = vehicle->transform.GetUp();
 		float dotFR = glm::dot(vehicleForward, Transform::RIGHT);
 		float dotUR = glm::dot(vehicleUp, Transform::RIGHT);
+		float dotFU = glm::dot(vehicleForward, Transform::UP);
 		float dotFF = glm::dot(vehicleForward, Transform::FORWARD);
 		float dotUU = glm::dot(vehicleUp, Transform::UP);
 		bool correctForward = dotFR > 0;
 		bool correctUp = dotUR < 0;
+		bool correctRight = dotFU < 0;
 		//Update Camera Angles
 		float cameraHor = cameraComponent->GetCameraHorizontalAngle();
 		float cameraVer = cameraComponent->GetCameraVerticalAngle();

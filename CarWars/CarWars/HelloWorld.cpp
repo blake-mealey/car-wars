@@ -54,7 +54,6 @@ int main() {
 	systems.push_back(&graphicsManager);
     systems.push_back(&audioManager);
 
-
 	//Game Loop
 	Time lastFrame(0);
 	while (!glfwWindowShouldClose(graphicsManager.GetWindow())) {
