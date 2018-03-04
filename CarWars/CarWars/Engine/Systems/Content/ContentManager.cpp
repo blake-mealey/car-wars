@@ -192,11 +192,6 @@ PxMaterial* ContentManager::GetPxMaterial(std::string filePath) {
     return material;
 }
 
-Component* ContentManager::LoadComponentPrefab(std::string filePath) {
-    const json data = LoadJson(COMPONENT_PREFAB_DIR_PATH + filePath);
-    return LoadComponent(data);
-}
-
 std::vector<Entity*> ContentManager::LoadScene(std::string filePath, Entity *parent) {
 	std::vector<Entity*> entities;
 
@@ -208,37 +203,38 @@ std::vector<Entity*> ContentManager::LoadScene(std::string filePath, Entity *par
 }
 
 Component* ContentManager::LoadComponent(json data) {
-    if (data.is_string()) {
-        return LoadComponentPrefab(data.get<std::string>());
+    while (data.is_string()) {
+        data = LoadJson(COMPONENT_PREFAB_DIR_PATH + data.get<std::string>());
+    }
+
+    json prefab = data["Prefab"];
+    while (!prefab.is_null()) {
+        json prefabData = LoadJson(COMPONENT_PREFAB_DIR_PATH + prefab.get<std::string>());
+        prefab = json(prefabData["Prefab"]);
+        MergeJson(prefabData, data);
+        data = prefabData;
     }
 
     Component *component = nullptr;
-    bool supportedType;
-    if (!data["Prefab"].is_null()) {
-        component = LoadComponentPrefab(data["Prefab"]);
-        supportedType = component != nullptr;
-    } else {
-        supportedType = true;
-        std::string type = data["Type"];
-        if (type == "Mesh") component = new MeshComponent(data);
-        else if (type == "Camera") component = new CameraComponent(data);
-        else if (type == "PointLight") component = new PointLightComponent(data);
-        else if (type == "DirectionLight") component = new DirectionLightComponent(data);
-        else if (type == "SpotLight") component = new SpotLightComponent(data);
-        else if (type == "RigidStatic") component = new RigidStaticComponent(data);
-        else if (type == "RigidDynamic") component = new RigidDynamicComponent(data);
-        else if (type == "Vehicle") component = new VehicleComponent(data);
-		else if (type == "MachineGun") component = new MachineGunComponent();
-		else if (type == "RailGun") component = new RailGunComponent();
-        else if (type == "RocketLauncher") component = new RocketLauncherComponent();
-		else if (type == "AI") component = new AiComponent(data);
-		else if (type == "GUI") component = new GuiComponent(data);
-        else {
-            std::cout << "Unsupported component type: " << type << std::endl;
-            supportedType = false;
-        }
+    bool supportedType = true;
+    std::string type = data["Type"];
+    if (type == "Mesh") component = new MeshComponent(data);
+    else if (type == "Camera") component = new CameraComponent(data);
+    else if (type == "PointLight") component = new PointLightComponent(data);
+    else if (type == "DirectionLight") component = new DirectionLightComponent(data);
+    else if (type == "SpotLight") component = new SpotLightComponent(data);
+    else if (type == "RigidStatic") component = new RigidStaticComponent(data);
+    else if (type == "RigidDynamic") component = new RigidDynamicComponent(data);
+    else if (type == "Vehicle") component = new VehicleComponent(data);
+	else if (type == "MachineGun") component = new MachineGunComponent();
+	else if (type == "RailGun") component = new RailGunComponent();
+    else if (type == "RocketLauncher") component = new RocketLauncherComponent();
+	else if (type == "AI") component = new AiComponent(data);
+	else if (type == "GUI") component = new GuiComponent(data);
+    else {
+        std::cout << "Unsupported component type: " << type << std::endl;
+        supportedType = false;
     }
-
     if (supportedType) {
         component->enabled = GetFromJson<bool>(data["Enabled"], true);
         return component;
@@ -251,9 +247,6 @@ Entity* ContentManager::LoadEntity(json data, Entity *parent) {
     while (data.is_string()) {
         data = LoadJson(ENTITY_PREFAB_DIR_PATH + data.get<std::string>());
     }
-    
-    // TODO: Determine whether or not the entity is static (parameter?)
-    Entity *entity = EntityManager::CreateDynamicEntity(parent);
 
     json prefab = data["Prefab"];
 	while (!prefab.is_null()) {
@@ -262,6 +255,9 @@ Entity* ContentManager::LoadEntity(json data, Entity *parent) {
         MergeJson(prefabData, data);
         data = prefabData;
 	}
+
+    // TODO: Determine whether or not the entity is static (parameter?)
+    Entity *entity = EntityManager::CreateDynamicEntity(parent);
 
     if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);
     entity->transform = Transform(data);

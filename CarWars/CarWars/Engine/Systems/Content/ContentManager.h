@@ -36,7 +36,6 @@ public:
 	static Material* GetMaterial(nlohmann::json data);
 	static physx::PxMaterial* GetPxMaterial(std::string filePath);
 
-    static Component* LoadComponentPrefab(std::string filePath);
 	static std::vector<Entity*> LoadScene(std::string filePath, Entity *parent=nullptr);
 
 	template <typename T>

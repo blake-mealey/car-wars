@@ -381,5 +381,6 @@
     <None Include="Content\Scenes\GUIs\HUD.json" />
     <None Include="Content\Scenes\MainMenu.json" />
     <None Include="Content\Scenes\GUIs\MainMenu_GUI.json" />
+    <None Include="Content\Prefabs\Components\GUIs\MenuButton.json" />
   </ItemGroup>
 </Project>

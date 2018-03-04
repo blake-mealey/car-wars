@@ -13,7 +13,6 @@
 	{
         "Tag": "VehicleBox",
         "Position": [-5, 0, 0],
-        "Rotate": [0, -45, 0],
         "Children": [
 	        {
 		        "Tag": "Floor",
@@ -28,7 +27,10 @@
 		            }
                 ]
 	        },
-            "Sewage.json"
+	        {
+		        "Prefab": "Sewage.json",
+		        "Rotate": [0, -45, 0]
+	        }
         ]
 	}
 ]

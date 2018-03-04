@@ -6,9 +6,9 @@
 				"Type": "GUI",
 				"Position": [0, 20, 0],
                 "ScaledPosition": [0.5, 0],
+				"Scale": [0, 120, 1],
                 "ScaledScale": [0.5, 0],
                 "AnchorPoint": [0.5, 0],
-				"Scale": [0, 120, 1],
 				"Text": "cAR wARS",
 				"Font": "Starjedi.ttf",
 				"FontColor": [1, 1, 0, 1],
@@ -17,5 +17,15 @@
 				"UvScale": [1.125, 0.3]
 			}
 		]
+	},
+	{
+		"Tag": "Buttons",
+        "Components": [
+	        {
+		        "Prefab": "GUIs/MenuButton.json",
+		        "Text": "play",
+		        "Position": [0, 0, 0]
+	        }
+        ]
 	}
 ]
