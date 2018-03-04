@@ -16,6 +16,10 @@ ComponentType CameraComponent::GetType() {
 
 void CameraComponent::HandleEvent(Event* event) {}
 
+CameraComponent::~CameraComponent() {
+    EntityManager::DestroyStaticEntity(guiRoot);
+}
+
 CameraComponent::CameraComponent() : CameraComponent(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)) {}
 
 CameraComponent::CameraComponent(nlohmann::json data) : guiRoot(nullptr) {

@@ -7,6 +7,10 @@
 
 using namespace physx;
 
+MeshCollider::~MeshCollider() {
+    triangleMesh->release();
+}
+
 MeshCollider::MeshCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, Mesh *_mesh)
     : Collider(_collisionGroup, _material, _queryFilterData) {
     

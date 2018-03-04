@@ -19,7 +19,7 @@ class Collider {
 public:
     Collider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData);
     Collider(nlohmann::json data);
-    ~Collider();
+    virtual ~Collider();
 
     physx::PxShape* GetShape() const;
     void CreateShape(physx::PxRigidActor *actor);

@@ -48,6 +48,13 @@ void EntityManager::DestroyDynamicEntity(Entity *entity) {
 	DestroyEntity(entity, dynamicEntities);
 }
 
+void EntityManager::DestroyEntity(Entity* entity) {
+    const auto it = std::find(dynamicEntities.begin(), dynamicEntities.end(), entity);
+    if (it != dynamicEntities.end()) return DestroyDynamicEntity(entity);
+    const auto it2 = std::find(staticEntities.begin(), staticEntities.end(), entity);
+    if (it2 != staticEntities.end()) DestroyStaticEntity(entity);
+}
+
 void EntityManager::DestroyStaticEntity(Entity *entity) {
     DestroyEntity(entity, staticEntities);
 }

@@ -25,7 +25,8 @@ enum ComponentType {
 
 class Component {
 public:
-	Component();
+    virtual ~Component() = default;
+    Component();
 	
 	bool enabled;
 	

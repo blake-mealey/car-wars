@@ -8,6 +8,7 @@ class Mesh;
 
 class ConvexMeshCollider : public Collider {
 public:
+    ~ConvexMeshCollider() override;
     ConvexMeshCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, Mesh *_mesh);
     ConvexMeshCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, physx::PxConvexMesh *_mesh);
     ConvexMeshCollider(nlohmann::json data);

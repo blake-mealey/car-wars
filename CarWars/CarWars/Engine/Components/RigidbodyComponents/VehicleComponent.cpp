@@ -12,6 +12,11 @@ using namespace physx;
 
 VehicleComponent::VehicleComponent() : VehicleComponent(4, false) { }
 
+VehicleComponent::~VehicleComponent() {
+    pxVehicle->release();
+    delete wheelMeshPrefab;
+}
+
 VehicleComponent::VehicleComponent(nlohmann::json data) : RigidDynamicComponent(data) {
     inputTypeDigital = ContentManager::GetFromJson<bool>(data["DigitalInput"], false);
 

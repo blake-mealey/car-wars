@@ -5,6 +5,10 @@
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
 
+GuiComponent::~GuiComponent() {
+    delete font;
+}
+
 GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr), texture(nullptr) {
 	transform = Transform(data);
 	text = ContentManager::GetFromJson<std::string>(data["Text"], "");
@@ -43,14 +47,6 @@ ComponentType GuiComponent::GetType() {
 }
 
 void GuiComponent::HandleEvent(Event *event) { }
-
-/*
- * 
-    glm::vec2 anchorPoint;
-
-    glm::vec2 scaledPosition;
-    glm::vec2 scaledScale;
- */
 
 void GuiComponent::RenderDebugGui() {
 	Component::RenderDebugGui();

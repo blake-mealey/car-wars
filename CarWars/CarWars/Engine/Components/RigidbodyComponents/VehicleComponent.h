@@ -17,6 +17,7 @@ struct AxleData {
 
 class VehicleComponent : public RigidDynamicComponent {
 public:
+    ~VehicleComponent() override;
     VehicleComponent(nlohmann::json data);
     VehicleComponent(size_t _wheelCount, bool _inputTypeDigital);
     VehicleComponent();

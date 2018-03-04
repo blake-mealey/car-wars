@@ -6,6 +6,10 @@
 
 using namespace physx;
 
+ConvexMeshCollider::~ConvexMeshCollider() {
+    delete renderMesh;
+}
+
 ConvexMeshCollider::ConvexMeshCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, Mesh *_mesh)
     : Collider(_collisionGroup, _material, _queryFilterData) {
     

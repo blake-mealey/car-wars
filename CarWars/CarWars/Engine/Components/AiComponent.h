@@ -14,6 +14,7 @@ enum AiMode {
 
 class AiComponent : public Component {
 public:
+    ~AiComponent() override;
     AiComponent(nlohmann::json data);
     size_t GetPathLength() const;
 

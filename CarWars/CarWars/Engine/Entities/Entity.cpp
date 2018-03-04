@@ -7,9 +7,13 @@ Entity::Entity(size_t _id) : id(_id), components(std::vector<Component*>()), chi
         parent(nullptr), transform(Transform()), tag(std::string()) { }
 
 Entity::~Entity() {
-	for (size_t i = 0; i < components.size(); i++) {
-        EntityManager::DestroyComponent(components[i]);
-	}
+    while (!components.empty()) {
+        EntityManager::DestroyComponent(components.back());
+    }
+
+    while (!children.empty()) {
+        EntityManager::DestroyEntity(children.back());
+    }
 }
 
 void Entity::HandleEvent(Event* event) {

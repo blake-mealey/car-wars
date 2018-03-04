@@ -6,6 +6,7 @@
 
 class BoxCollider : public Collider {
 public:
+    ~BoxCollider() override;
     BoxCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, glm::vec3 _scale);
     BoxCollider(nlohmann::json data);
 

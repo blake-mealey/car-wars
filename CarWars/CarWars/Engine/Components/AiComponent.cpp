@@ -5,6 +5,11 @@
 #include <iostream>
 #include "../Systems/StateManager.h"
 
+AiComponent::~AiComponent() {
+    glDeleteBuffers(1, &pathVbo);
+    glDeleteVertexArrays(1, &pathVao);
+}
+
 AiComponent::AiComponent(nlohmann::json data) : targetEntity(nullptr), waypointIndex(0), lastPathUpdate(0) {
     std::string modeName = ContentManager::GetFromJson<std::string>(data["Mode"], "Waypoints");
     if (modeName == "Waypoints") {

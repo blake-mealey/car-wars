@@ -17,6 +17,7 @@ public:
 	static Entity* CreateDynamicEntity(Entity *parent = nullptr);
 	static void DestroyStaticEntity(Entity *entity);
 	static void DestroyDynamicEntity(Entity *entity);
+    static void DestroyEntity(Entity *entity);
 
     static void DestroyScene();
 

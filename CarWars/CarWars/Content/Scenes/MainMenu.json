@@ -5,9 +5,30 @@
 		"Components": [
 			{
 				"Type": "Camera",
-				"Positon": [0, 0, 1],
+				"Position": [0, 3, 10],
 				"Target": [0, 0, 0]
 			}
 		]
+	},
+	{
+        "Tag": "VehicleBox",
+        "Position": [-5, 0, 0],
+        "Rotate": [0, -45, 0],
+        "Children": [
+	        {
+		        "Tag": "Floor",
+                "Position": [0, -2.5, 0],
+                "Scale": [10, 0, 10],
+		        "Components": [
+                    {
+			            "Type": "Mesh",
+			            "Mesh": "CircleFloor.obj",
+			            "Texture": "DiamondPlate.jpg",
+			            "Material": "Basic.json"
+		            }
+                ]
+	        },
+            "Sewage.json"
+        ]
 	}
 ]

@@ -18,6 +18,7 @@ struct TextYAlignment {
 
 class GuiComponent : public Component {
 public:
+    ~GuiComponent() override;
 	GuiComponent(nlohmann::json data);
 
 	Transform transform;		// TODO: GuiTransform

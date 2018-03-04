@@ -7,6 +7,14 @@
 #include "../Colliders/MeshCollider.h"
 #include "imgui/imgui.h"
 
+RigidbodyComponent::~RigidbodyComponent() {
+    Physics::Instance().GetScene().removeActor(static_cast<physx::PxActor&>(*pxRigid));
+    for (Collider *collider : colliders) {
+        delete collider;
+    }
+    pxRigid->release();
+}
+
 RigidbodyComponent::RigidbodyComponent() : pxRigid(nullptr), blocksNavigationMesh(true) {}
 
 RigidbodyComponent::RigidbodyComponent(nlohmann::json data) : RigidbodyComponent() {

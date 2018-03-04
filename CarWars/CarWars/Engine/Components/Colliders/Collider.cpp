@@ -23,7 +23,11 @@ Collider::Collider(nlohmann::json data) : shape(nullptr), geometry(nullptr) {
 }
 
 Collider::~Collider() {
-    shape->release();
+    if (shape->getActor()) {
+        shape->getActor()->detachShape(*shape);
+    } else {
+        shape->release();
+    }
     delete geometry;
 }
 

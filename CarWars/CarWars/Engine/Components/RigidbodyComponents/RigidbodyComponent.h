@@ -8,6 +8,7 @@
 
 class RigidbodyComponent : public Component {
 public:
+    ~RigidbodyComponent() override;
     RigidbodyComponent();
     RigidbodyComponent(nlohmann::json data);
 

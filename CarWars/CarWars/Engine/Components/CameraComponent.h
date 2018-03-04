@@ -15,6 +15,7 @@ public:
 	ComponentType GetType() override;
 	void HandleEvent(Event* event) override;
 
+    ~CameraComponent() override;
 	CameraComponent();
 	CameraComponent(nlohmann::json data);
 	CameraComponent(glm::vec3 _position, glm::vec3 _target, glm::vec3 _upVector);
