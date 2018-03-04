@@ -23,4 +23,6 @@ public:
     size_t GetControllerCount();
 private:
 	static vector<XboxController*> xboxControllers;
+
+    void HandleVehicleControllerInput(size_t controllerNum, VehicleComponent *vehicle, int &leftVibrate, int &rightVibrate);
 };

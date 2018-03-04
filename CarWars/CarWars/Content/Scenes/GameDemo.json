@@ -47,7 +47,7 @@
     {
         "Tag": "Wall",
         "Position": [-20.5, -40, 0.5],
-        "Scale": [10, 20, 40],
+        "Scale": [20, 20, 40],
         "Components": [
             {
                 "Type": "Mesh",
