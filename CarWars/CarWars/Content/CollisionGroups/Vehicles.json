@@ -28,5 +28,11 @@
 		"CollidesWith": [
 			"Ground", "Chassis", "Obstacles", "DrivableObstacles"
 		]
+	},
+	{
+		"Name": "Missiles",
+		"CollidesWith": [
+			"Ground", "Wheels", "Chassis", "Obstacles", "DrivableObstacles"
+		]
 	}
 ]

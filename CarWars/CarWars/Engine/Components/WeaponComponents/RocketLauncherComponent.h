@@ -6,6 +6,12 @@
 #include "../../Entities/EntityManager.h"
 
 #include "../MeshComponent.h"
+#include "MissileComponent.h"
+#include "../RigidbodyComponents/RigidDynamicComponent.h"
+#include "../../Systems/Physics.h"
+#include "../Colliders/BoxCollider.h"
+
+#include "../../Systems/Content/ContentManager.h"
 
 #include "WeaponComponent.h"
 

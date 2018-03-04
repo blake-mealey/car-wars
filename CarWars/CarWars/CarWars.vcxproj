@@ -164,6 +164,7 @@
     <ClCompile Include="Engine\Components\RigidbodyComponents\VehicleComponent.cpp" />
     <ClCompile Include="Engine\Components\SpotLightComponent.cpp" />
     <ClCompile Include="Engine\Components\WeaponComponents\MachineGunComponent.cpp" />
+    <ClCompile Include="Engine\Components\WeaponComponents\MissileComponent.cpp" />
     <ClCompile Include="Engine\Components\WeaponComponents\RailGunComponent.cpp" />
     <ClCompile Include="Engine\Components\WeaponComponents\RocketLauncherComponent.cpp" />
     <ClCompile Include="Engine\Components\WeaponComponents\WeaponComponent.cpp" />
@@ -217,6 +218,7 @@
     <ClInclude Include="Engine\Components\RigidbodyComponents\VehicleComponent.h" />
     <ClInclude Include="Engine\Components\SpotLightComponent.h" />
     <ClInclude Include="Engine\Components\WeaponComponents\MachineGunComponent.h" />
+    <ClInclude Include="Engine\Components\WeaponComponents\MissileComponent.h" />
     <ClInclude Include="Engine\Components\WeaponComponents\RailGunComponent.h" />
     <ClInclude Include="Engine\Components\WeaponComponents\RocketLauncherComponent.h" />
     <ClInclude Include="Engine\Components\WeaponComponents\WeaponComponent.h" />
