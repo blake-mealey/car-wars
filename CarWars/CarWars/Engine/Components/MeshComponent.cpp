@@ -1,6 +1,7 @@
 #include "MeshComponent.h"
 #include "../Systems/Content/ContentManager.h"
 #include "../Entities/Entity.h"
+#include "../Entities/EntityManager.h"
 
 #include "imgui/imgui.h"
 #include <glm/gtc/type_ptr.hpp>
@@ -82,6 +83,6 @@ void MeshComponent::SetEntity(Entity* _entity) {
 
 void MeshComponent::MakeCylinder(Mesh* mesh) {
 	if (Transform::radius<=0) {
-		Transform::radius = mesh->GetRadius();
+		Transform::radius = mesh->GetRadius() * EntityManager::FindEntities("Cylinder")[0]->transform.GetGlobalScale().x;
 	}
 }

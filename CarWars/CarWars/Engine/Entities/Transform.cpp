@@ -190,7 +190,7 @@ glm::mat4 Transform::GetTransformationMatrix() {
 // returns the world location of a point in the cylinder co-ordinates
 // since the x coordinate will wrap transforming to the cylinder and then back may result in diffrent locations
 glm::vec3 Transform::ToCylinder(glm::vec3 point) {
-	float theta = point.x / radius;
+	float theta = point.x / (radius* 2.f * (float)M_PI);
 	float r = radius - point.y;
 	
 	point.x = r * cos(theta);
