@@ -17,9 +17,9 @@ public:
 
 	void onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs) override {
 		if (static_cast<RigidbodyComponent*>(pairHeader.actors[0]->userData)->GetEntity()->HasTag("Missile")) {
-			EntityManager::DestroyDynamicEntity(static_cast<RigidbodyComponent*>(pairHeader.actors[0]->userData)->GetEntity()->GetId());
+			EntityManager::DestroyDynamicEntity(static_cast<RigidbodyComponent*>(pairHeader.actors[0]->userData)->GetEntity());
 		} else if (static_cast<RigidbodyComponent*>(pairHeader.actors[1]->userData)->GetEntity()->HasTag("Missile")) {
-			EntityManager::DestroyDynamicEntity(static_cast<RigidbodyComponent*>(pairHeader.actors[1]->userData)->GetEntity()->GetId());
+			EntityManager::DestroyDynamicEntity(static_cast<RigidbodyComponent*>(pairHeader.actors[1]->userData)->GetEntity());
 		}
 	}
 
