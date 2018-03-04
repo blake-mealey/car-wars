@@ -25,9 +25,9 @@ void RocketLauncherComponent::Shoot() {
 		RigidDynamicComponent* missileRigidDynamic = new RigidDynamicComponent();
 		EntityManager::AddComponent(missile, missileRigidDynamic);
 		PxMaterial *material = ContentManager::GetPxMaterial("Default.json");
-		BoxCollider* missileCollider = new BoxCollider("Missiles", material, PxFilterData(), glm::vec3(1.0f, 1.0f, 1.0f));
+		BoxCollider* missileCollider = new BoxCollider("Missiles", material, PxFilterData(), glm::vec3(.1f, .1f, 1.f));
 		missileRigidDynamic->AddCollider(missileCollider);
-		missileRigidDynamic->actor->setLinearVelocity(Transform::ToPx(missile->transform.GetForward() * missileComponent->GetSpeed()), true);
+		missileRigidDynamic->actor->setLinearVelocity(Transform::ToPx(-missile->transform.GetForward() * missileComponent->GetSpeed()), true);
 		missileRigidDynamic->actor->setLinearDamping(0.0);
 		missileRigidDynamic->actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 

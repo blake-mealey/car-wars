@@ -19,7 +19,7 @@ public:
 	}
 
 private:
-	float missileSpeed = 5.0f;
+	float missileSpeed = 2000.0f;
 	float explosionRadius = 2.0f;
 
 	Entity* owner;
