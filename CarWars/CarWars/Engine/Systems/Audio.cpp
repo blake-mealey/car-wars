@@ -21,7 +21,7 @@ void Audio::Initialize() {
 }
 
 void Audio::PlayAudio(const char *filename) {
-    soundSystem->createStream(filename, FMOD_LOOP_NORMAL | FMOD_2D, 0, &sound);
+    soundSystem->createStream(filename, FMOD_LOOP_OFF | FMOD_2D, 0, &sound);
     sound->getNumSubSounds(&numsubsounds);
 
     if (numsubsounds) {
