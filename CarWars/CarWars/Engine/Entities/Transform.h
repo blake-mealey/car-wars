@@ -49,7 +49,6 @@ public:
 	void SetRotationEulerAngles(glm::vec3 eulerAngles);
 	void SetRotationAxisAngles(glm::vec3 axis, float radians);
 
-
 	// Operators for basic data
 	void Translate(glm::vec3 offset);
 	void Scale(float scaleFactor);
