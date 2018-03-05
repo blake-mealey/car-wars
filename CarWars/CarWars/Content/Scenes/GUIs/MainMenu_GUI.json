@@ -5,10 +5,10 @@
 			{
 				"Type": "GUI",
 				"Position": [0, 40, 0],
-                "ScaledPosition": [0.5, 0],
+        "ScaledPosition": [0.5, 0],
 				"Scale": [0, 120, 1],
-                "ScaledScale": [0.5, 0],
-                "AnchorPoint": [0.5, 0],
+        "ScaledScale": [0.5, 0],
+        "AnchorPoint": [0.5, 0],
 				"Text": "cAR wARS",
 				"Font": "Starjedi.ttf",
 				"FontColor": [1, 1, 0, 1],

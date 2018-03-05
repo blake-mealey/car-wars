@@ -9,7 +9,6 @@ void MachineGunComponent::Shoot() {
 		Audio& audioManager = Audio::Instance();
 		audioManager.PlayAudio("Content/Sounds/machine_gun_shot.mp3");
 
-		//static_cast<VehicleComponent*>(vehicle->components[2])->TakeDamage(damage);
 		Entity* vehicle = this->GetEntity();
 		PxScene* scene = &Physics::Instance().GetScene();
 		Entity* mgTurret = EntityManager::FindChildren(this->GetEntity(), "GunTurret")[0];

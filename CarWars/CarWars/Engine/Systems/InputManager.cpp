@@ -87,9 +87,9 @@ void InputManager::HandleMouse() {
 
 		//Shoot Weapon
 		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-			static_cast<WeaponComponent*>(vehicle->components[1])->Charge();
+			static_cast<WeaponComponent*>(vehicle->components[8])->Charge();
 		} else if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
-			static_cast<WeaponComponent*>(vehicle->components[1])->Shoot();
+			static_cast<WeaponComponent*>(vehicle->components[8])->Shoot();
 		}
 
 		//Cursor Inputs
@@ -111,11 +111,11 @@ void InputManager::HandleMouse() {
 	}
 }
 
-void InputManager::NavigateGuis(int dir, int enter, int back) {
+void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back) {
 
 	const GameState gameState = StateManager::GetState();
 	// Navigate buttons up/down
-	if (dir != 0 && gameState >= GameState_Menu && gameState < __GameState_Menu_End) {
+	if (vertDir != 0 && gameState >= GameState_Menu && gameState < __GameState_Menu_End) {
 		std::string buttonGroupName;
 		bool noNavigation = false;
 		switch (gameState) {
@@ -133,8 +133,31 @@ void InputManager::NavigateGuis(int dir, int enter, int back) {
 		}
 
 		if (!noNavigation) {
-			if (dir > 0) GuiHelper::SelectPreviousGui(buttonGroupName);
-			if (dir < 0) GuiHelper::SelectNextGui(buttonGroupName);
+			if (vertDir > 0) GuiHelper::SelectPreviousGui(buttonGroupName);
+			if (vertDir < 0) GuiHelper::SelectNextGui(buttonGroupName);
+		}
+	}
+
+	if (horizDir != 0) {
+		if (gameState == GameState_Menu_Start_CharacterSelect) {
+			if (GuiHelper::FirstGuiTextIs("CharacterMenu_Title", "weapon selection")) {
+				int diff = horizDir < 0 ? -1 : 1;
+				Game::playerWeapons[0] = (Game::playerWeapons[0] + diff) % WeaponType::Count;
+				if (Game::playerWeapons[0] < 0) Game::playerWeapons[0] += WeaponType::Count;
+				std::string text = "";
+				switch (Game::playerWeapons[0]) {
+				case MachineGun:
+					text = "Machine Gun";
+					break;
+				case RocketLauncher:
+					text = "Rocket Launcher";
+					break;
+				case RailGun:
+					text = "Rail Gun";
+					break;
+				}
+				GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", text);
+			}
 		}
 	}
 
@@ -169,6 +192,9 @@ void InputManager::NavigateGuis(int dir, int enter, int back) {
 		else if (gameState == GameState_Menu_Start_CharacterSelect) {
 			GuiComponent *selected = GuiHelper::GetSelectedGui("CharacterMenu_Buttons");
 			if (selected->HasText("a to join")) {
+				GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", true);
+				GuiHelper::SetFirstGuiText("CharacterMenu_Title", "weapon selection");
+				GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", "Machine Gun");
 				selected->SetText("a to continue");
 			} else {
 				StateManager::SetState(GameState_Playing);
@@ -195,8 +221,9 @@ void InputManager::HandleKeyboard() {
     const GameState gameState = StateManager::GetState();
 
 	if (gameState < __GameState_Menu_End) {
-		int dir = Keyboard::KeyPressed(GLFW_KEY_UP) || Keyboard::KeyPressed(GLFW_KEY_W) ? 1 : Keyboard::KeyPressed(GLFW_KEY_DOWN) || Keyboard::KeyPressed(GLFW_KEY_S) ? -1 : 0;
-		NavigateGuis(dir, Keyboard::KeyPressed(GLFW_KEY_ENTER), Keyboard::KeyPressed(GLFW_KEY_ESCAPE));
+		int vertDir = Keyboard::KeyPressed(GLFW_KEY_UP) || Keyboard::KeyPressed(GLFW_KEY_W) ? 1 : Keyboard::KeyPressed(GLFW_KEY_DOWN) || Keyboard::KeyPressed(GLFW_KEY_S) ? -1 : 0;
+		int horizDir = Keyboard::KeyPressed(GLFW_KEY_RIGHT) || Keyboard::KeyPressed(GLFW_KEY_D) ? 1 : Keyboard::KeyPressed(GLFW_KEY_LEFT) || Keyboard::KeyPressed(GLFW_KEY_A) ? -1 : 0;
+		NavigateGuis(vertDir, horizDir, Keyboard::KeyPressed(GLFW_KEY_ENTER), Keyboard::KeyPressed(GLFW_KEY_ESCAPE));
 	} else if (gameState == GameState_Playing) {
         //Get Vehicle Component
         VehicleComponent* vehicle = static_cast<VehicleComponent*>(EntityManager::GetComponents(ComponentType_Vehicle)[0]);
@@ -386,7 +413,7 @@ void InputManager::HandleController() {
         if (StateManager::GetState() == GameState_Playing) {
             vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
             VehicleComponent * vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
-			WeaponComponent *weapon = static_cast<WeaponComponent*>(vehicle->GetEntity()->components[1]);
+			WeaponComponent *weapon = static_cast<WeaponComponent*>(vehicle->GetEntity()->components[8]);
             //        cout << "Current speed: " << vehicle->pxVehicle->computeForwardSpeed() << endl;
             HandleVehicleControllerInput(controllerNum, vehicle, leftVibrate, rightVibrate);
 
@@ -400,13 +427,19 @@ void InputManager::HandleController() {
 			}
 		}
 		else if (StateManager::GetState() < __GameState_Menu_End) {
-			int dir = 0;
+			int vertDir = 0;
 			if ((controller->GetPreviousState().Gamepad.sThumbLY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && controller->GetState().Gamepad.sThumbLY >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
 				|| (controller->GetPreviousState().Gamepad.sThumbLY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && controller->GetState().Gamepad.sThumbLY <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) {
-				dir = controller->GetState().Gamepad.sThumbLY;
+				vertDir = controller->GetState().Gamepad.sThumbLY;
 			}
 
-			NavigateGuis(dir, pressedButtons & XINPUT_GAMEPAD_A, pressedButtons & XINPUT_GAMEPAD_B);
+			int horizDir = 0;
+			if ((controller->GetPreviousState().Gamepad.sThumbLX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && controller->GetState().Gamepad.sThumbLX >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+				|| (controller->GetPreviousState().Gamepad.sThumbLX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && controller->GetState().Gamepad.sThumbLX <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) {
+				horizDir = controller->GetState().Gamepad.sThumbLX;
+			}
+
+			NavigateGuis(vertDir, horizDir, pressedButtons & XINPUT_GAMEPAD_A, pressedButtons & XINPUT_GAMEPAD_B);
 		}
 
         //Vibrate Controller

@@ -67,3 +67,31 @@ void GuiHelper::LoadGuiSceneToCamera(size_t cameraIndex, std::string guiScene) {
     CameraComponent *camera = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[cameraIndex]);
     ContentManager::LoadScene(guiScene, camera->GetGuiRoot());
 }
+
+void GuiHelper::SetGuisEnabled(Entity *entity, bool enabled) {
+	for (Component *component : entity->components) {
+		component->enabled = enabled;
+	}
+}
+
+void GuiHelper::SetGuisEnabled(std::string entityTag, bool enabled) {
+	SetGuisEnabled(EntityManager::FindEntities(entityTag)[0], enabled);
+}
+
+void GuiHelper::SetFirstGuiText(Entity *entity, std::string text) {
+	GuiComponent *gui = static_cast<GuiComponent*>(entity->components[0]);
+	gui->SetText(text);
+}
+
+void GuiHelper::SetFirstGuiText(std::string entityTag, std::string text) {
+	SetFirstGuiText(EntityManager::FindEntities(entityTag)[0], text);
+}
+
+bool GuiHelper::FirstGuiTextIs(Entity *entity, std::string text) {
+	GuiComponent *gui = static_cast<GuiComponent*>(entity->components[0]);
+	return gui->GetText().compare(text) == 0;
+}
+
+bool GuiHelper::FirstGuiTextIs(std::string entityTag, std::string text) {
+	return FirstGuiTextIs(EntityManager::FindEntities(entityTag)[0], text);
+}

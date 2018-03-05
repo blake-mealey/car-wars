@@ -18,6 +18,10 @@
 #include "../Components/DirectionLightComponent.h"
 #include "../Components/RigidbodyComponents/RigidDynamicComponent.h"
 #include "../Components/RigidbodyComponents/VehicleComponent.h"
+#include "../Components/WeaponComponents/WeaponComponent.h"
+#include "../Components/WeaponComponents/MachineGunComponent.h"
+#include "../Components/WeaponComponents/RailGunComponent.h"
+#include "../Components/WeaponComponents/RocketLauncherComponent.h"
 #include "Physics.h"
 #include "../Components/AiComponent.h"
 #include "Pathfinder.h"
@@ -32,6 +36,8 @@ size_t Game::numberOfAi = 5;
 size_t Game::numberOfLives = 3;
 size_t Game::killLimit = 10;
 size_t Game::timeLimitMinutes = 10;
+size_t Game::numberOfPlayers = 1;
+int Game::playerWeapons[4] = {MachineGun, MachineGun, MachineGun, MachineGun};
 
 Time gameTime(0);
 
@@ -55,9 +61,29 @@ void Game::Initialize() {
 void Game::InitializeGame() {
     ContentManager::DestroySceneAndLoadScene("PhysicsDemo.json");
 
+	for (int i = 0; i < numberOfPlayers; ++i) {
+		Entity *vehicle = ContentManager::LoadEntity("Sewage.json");
+		static_cast<VehicleComponent*>(vehicle->components[1])->pxRigid->setGlobalPose(PxTransform(PxVec3(0.f, 10.f, i*15.f)));
+
+		switch (playerWeapons[i]) {
+		case MachineGun:
+			EntityManager::AddComponent(vehicle, new MachineGunComponent());
+			break;
+		case RocketLauncher:
+			EntityManager::AddComponent(vehicle, new RocketLauncherComponent());
+			break;
+		case RailGun:
+			EntityManager::AddComponent(vehicle, new RailGunComponent());
+			break;
+		}
+	}
+
     for (size_t i = 0; i < numberOfAi; ++i) {
         Entity *ai = ContentManager::LoadEntity("AiSewage.json");
-        static_cast<VehicleComponent*>(ai->components[2])->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
+        static_cast<VehicleComponent*>(ai->components[1])->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
+
+		MachineGunComponent *gun = new MachineGunComponent();
+		EntityManager::AddComponent(ai, gun);
     }
 
     cars = EntityManager::FindEntities("Vehicle");
@@ -127,7 +153,7 @@ void Game::Update() {
         for (Component *component : aiComponents) {
 			AiComponent *ai = static_cast<AiComponent*>(component);
             if (!ai->enabled) continue;
-            VehicleComponent* vehicle = static_cast<VehicleComponent*>(ai->GetEntity()->components[2]);
+            VehicleComponent* vehicle = static_cast<VehicleComponent*>(ai->GetEntity()->components[1]);
 
             Transform &myTransform = ai->GetEntity()->transform;
             const glm::vec3 position = myTransform.GetGlobalPosition();

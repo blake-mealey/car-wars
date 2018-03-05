@@ -5,7 +5,7 @@
 		{
 			"Type": "AI",
 			"Mode": "Waypoints",
-			"Enabled": true
+			"Enabled": false
 		}
 	]
 }

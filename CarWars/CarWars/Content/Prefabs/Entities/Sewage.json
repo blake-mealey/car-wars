@@ -9,9 +9,6 @@
       "Rotate": [ 0, 180, 0 ],
       "Position": [ 0.0825, -0.825, 0.18 ]
     },
-	{
-		"Type": "RocketLauncher"
-	},
     {
       "Type": "Vehicle",
       "WheelMesh": {
