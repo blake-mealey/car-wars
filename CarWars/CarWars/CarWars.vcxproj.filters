@@ -436,5 +436,13 @@
     <None Include="Content\Prefabs\Entities\Menu\CharacterSelect.json" />
     <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
     <None Include="Content\Scenes\GUIs\OptionsMenu_GUI.json" />
+    <None Include="Content\Prefabs\Components\SpeedPowerUp.json" />
+    <None Include="Content\Prefabs\Components\DamagePowerUp.json" />
+    <None Include="Content\Prefabs\Components\DefencePowerUp.json" />
+    <None Include="Content\Materials\PinkShiny.json" />
+    <None Include="Content\Materials\CyanShiny.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Content\Sounds\powerup.mp3" />
   </ItemGroup>
 </Project>

@@ -4,7 +4,7 @@
 		{
 			"Type": "Mesh",
 			"Mesh": "Sphere.obj",
-			"Material": "BlueShiny.json"
+			"Material": "CyanShiny.json"
 		},
     {
       "Type": "PointLight",

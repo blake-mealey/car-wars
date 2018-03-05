@@ -1,7 +1,18 @@
 #pragma once
 
 #include "../Component.h"
-//#include "../Engine/Systems/Time.h"
+
+#include "../../Systems/Audio.h"
+#include "../../Systems/StateManager.h"
+#include "../../Entities/EntityManager.h"
+
+#include "../MeshComponent.h"
+#include "../RigidbodyComponents/RigidDynamicComponent.h"
+#include "../../Systems/Physics.h"
+#include "../Colliders/BoxCollider.h"
+
+#include "../../Systems/Content/ContentManager.h"
+#include "PxSimulationEventCallback.h"
 
 class PowerUp : public Component {
     friend class SpeedPowerUp;

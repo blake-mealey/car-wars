@@ -1,0 +1,6 @@
+{
+	"Type": "Mesh",
+	"Mesh": "Sphere.obj",
+	"Texture": "Boulder.jpg",
+	"Material": "CyanShiny.json"
+}
