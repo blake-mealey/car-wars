@@ -51,6 +51,7 @@ public:
     void RenderDebugGui() override;
 
 	void TakeDamage(float _damageValue);
+	float GetHealth();
 
 private:
     MeshComponent* wheelMeshPrefab;

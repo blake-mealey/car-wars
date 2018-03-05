@@ -20,7 +20,7 @@ RigidDynamicComponent::RigidDynamicComponent(nlohmann::json data) : RigidbodyCom
 }
 
 RigidDynamicComponent::~RigidDynamicComponent() {
-	pxRigid->release();
+	//pxRigid->release();
 }
 
 void RigidDynamicComponent::SetMass(float _mass) {

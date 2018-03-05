@@ -221,4 +221,16 @@ void Physics::Update() {
     }
 
     Game::Instance().GetNavigationMesh()->UpdateMesh(updatedComponents);
+
+	if (!toDelete.empty()) {
+		for (Entity* _entity : toDelete) {
+			EntityManager::DestroyDynamicEntity(_entity);
+		}
+		toDelete.clear();
+	}
+}
+
+void Physics::AddToDelete(Entity* _entity) {
+	if(_entity)
+		toDelete.push_back(_entity);
 }
