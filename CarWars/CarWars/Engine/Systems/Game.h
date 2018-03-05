@@ -51,7 +51,6 @@ private:
 
     physx::PxRigidDynamic *cylinderRigid;
 
-    std::vector<AiComponent*> ais;
     std::vector<Entity*> waypoints;
 
 	Entity *boulder;

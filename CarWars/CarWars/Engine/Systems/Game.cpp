@@ -94,7 +94,6 @@ void Game::InitializeGame() {
     lock->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 
 
-    ais = EntityManager::GetComponents<AiComponent>(ComponentType_AI);
     waypoints = EntityManager::FindEntities("Waypoint");
 
     navigationMesh = new NavigationMesh({
@@ -103,6 +102,7 @@ void Game::InitializeGame() {
         { "Spacing", 2.5f }
     });
 
+	std::vector<AiComponent*> ais = EntityManager::GetComponents<AiComponent>(ComponentType_AI);
     for (AiComponent* ai : ais) {
         switch (ai->GetMode()) {
         case AiMode_Waypoints:
@@ -123,7 +123,9 @@ void Game::Update() {
         cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
 
         // Update AIs
-        for (AiComponent *ai : ais) {
+		std::vector<Component*> aiComponents = EntityManager::GetComponents(ComponentType_AI);
+        for (Component *component : aiComponents) {
+			AiComponent *ai = static_cast<AiComponent*>(component);
             if (!ai->enabled) continue;
             VehicleComponent* vehicle = static_cast<VehicleComponent*>(ai->GetEntity()->components[2]);
 
@@ -169,7 +171,7 @@ void Game::Update() {
 
                 const bool reverse = ai->IsReversing();// speed < 1.f; // glm::dot(direction, forward) > -0.1;
 
-                const float accel = glm::clamp(distance / 20.f, 0.1f, 0.8f) * reverse ? 0.8f : 0.8f;
+				const float accel = glm::clamp(distance / 20.f, 0.1f, 0.8f) * reverse ? 0.8f : 0.8f;
 
                 if (!reverse && vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
                     vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
