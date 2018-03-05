@@ -4,7 +4,7 @@
 #include "EntityManager.h"
 
 Entity::Entity(size_t _id) : id(_id), components(std::vector<Component*>()), children(std::vector<Entity*>()),
-        parent(nullptr), transform(Transform()), tag(std::string()) { }
+        parent(nullptr), transform(Transform()), tag(std::string()), markedForDeletion(false) { }
 
 Entity::~Entity() {
     while (!components.empty()) {
@@ -81,4 +81,10 @@ void Entity::SetTag(std::string _tag) {
 	tag = _tag;
 }
 
+bool Entity::IsMarkedForDeletion() const {
+	return markedForDeletion;
+}
 
+void Entity::MarkForDeletion() {
+	markedForDeletion = true;
+}

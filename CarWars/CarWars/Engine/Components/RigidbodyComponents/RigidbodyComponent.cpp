@@ -1,4 +1,5 @@
 #include "RigidbodyComponent.h"
+#include "../../Systems/Game.h"
 #include "../../Systems/Physics.h"
 #include "../../Entities/Transform.h"
 #include "../../Systems/Content/ContentManager.h"
@@ -8,6 +9,8 @@
 #include "imgui/imgui.h"
 
 RigidbodyComponent::~RigidbodyComponent() {
+	NavigationMesh *navMesh = Game::Instance().GetNavigationMesh();
+	if (navMesh) navMesh->RemoveRigidbody(this);
     Physics::Instance().GetScene().removeActor(static_cast<physx::PxActor&>(*pxRigid));
     for (Collider *collider : colliders) {
         delete collider;

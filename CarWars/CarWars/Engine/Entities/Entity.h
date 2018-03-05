@@ -22,7 +22,12 @@ public:
 	size_t GetId() const;
 	std::string GetTag() const;
 	bool HasTag(std::string _tag) const;
+
+	bool IsMarkedForDeletion() const;
+	void MarkForDeletion();
 private:
+	bool markedForDeletion;
+
 	Entity(size_t _id);
 	void AddComponent(Component *component);
 	void RemoveComponent(Component *component);
