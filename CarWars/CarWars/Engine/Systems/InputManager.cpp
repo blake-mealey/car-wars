@@ -242,111 +242,122 @@ void InputManager::HandleKeyboard() {
 
 void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleComponent *vehicle, int &leftVibrate, int &rightVibrate) {
 
-    XboxController *controller = xboxControllers[controllerNum];
+	XboxController *controller = xboxControllers[controllerNum];
 
-    // -------------------------------------------------------------------------------------------------------------- //
-    // TRIGGERS
-    // -------------------------------------------------------------------------------------------------------------- //
+	// -------------------------------------------------------------------------------------------------------------- //
+	// TRIGGERS
+	// -------------------------------------------------------------------------------------------------------------- //
 
-    //Manage Trigger States
-    //Left Trigger
-    const float amountPressed = abs(controller->GetState().Gamepad.bRightTrigger - controller->GetState().Gamepad.bLeftTrigger);
-    bool brake = false;
-    if (controller->GetState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-        cout << "Controller: " << controller->GetControllerNumber() << " L-TRIGGER pressed" << endl;
-        if (amountPressed < XINPUT_GAMEPAD_TRIGGER_THRESHOLD * 2) {
-            brake = true;
-            vehicle->pxVehicleInputData.setAnalogBrake(1.f);
-        }
-        else {
-            if (vehicle->pxVehicle->computeForwardSpeed() > 5.f) {
-                brake = true;
-                vehicle->pxVehicleInputData.setAnalogBrake(controller->GetState().Gamepad.bLeftTrigger / 255.0f);
-            }
+	bool active = controller->GetState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||
+		controller->GetState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||
+		abs(controller->GetState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE ||
+		abs(controller->GetState().Gamepad.sThumbLY) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE ||
+		abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE ||
+		abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE ||
+		controller->GetState().Gamepad.wButtons;
 
-            else {
-                vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
-                vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
-            }
-        }
-    }
-    else {
-        vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
-    }
+	if (active) {
 
-    //Right Trigger
-    if (controller->GetState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-        cout << "Controller: " << controller->GetControllerNumber() << " R-TRIGGER pressed" << endl;
-        if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eFIRST) {
-            vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-        }
+		//Manage Trigger States
+		//Left Trigger
+		const float amountPressed = abs(controller->GetState().Gamepad.bRightTrigger - controller->GetState().Gamepad.bLeftTrigger);
+		bool brake = false;
+		if (controller->GetState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
+			cout << "Controller: " << controller->GetControllerNumber() << " L-TRIGGER pressed" << endl;
+			if (amountPressed < XINPUT_GAMEPAD_TRIGGER_THRESHOLD * 2) {
+				brake = true;
+				vehicle->pxVehicleInputData.setAnalogBrake(1.f);
+			}
+			else {
+				if (vehicle->pxVehicle->computeForwardSpeed() > 5.f) {
+					brake = true;
+					vehicle->pxVehicleInputData.setAnalogBrake(controller->GetState().Gamepad.bLeftTrigger / 255.0f);
+				}
 
-    }
+				else {
+					vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
+					vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+				}
+			}
+		}
+		else {
+			vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
+		}
 
-    if (!brake && amountPressed >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD * 2) vehicle->pxVehicleInputData.setAnalogAccel(amountPressed / 255.0f);
-    else {
-        vehicle->pxVehicleInputData.setAnalogAccel(0);
-        vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eNEUTRAL);
-    }
+		//Right Trigger
+		if (controller->GetState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
+			cout << "Controller: " << controller->GetControllerNumber() << " R-TRIGGER pressed" << endl;
+			if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eFIRST) {
+				vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+			}
 
-    // -------------------------------------------------------------------------------------------------------------- //
-    // STICKS
-    // -------------------------------------------------------------------------------------------------------------- //
+		}
 
-    //Left Joystick X-Axis
-    if (controller->GetState().Gamepad.sThumbLX >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || controller->GetState().Gamepad.sThumbLX <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-        cout << "Controller: " << controller->GetControllerNumber() << " LEFT-JOYSTICK X-AXIS movement" << endl;
+		if (!brake && amountPressed >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD * 2) vehicle->pxVehicleInputData.setAnalogAccel(amountPressed / 255.0f);
+		else {
+			vehicle->pxVehicleInputData.setAnalogAccel(0);
+			vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eNEUTRAL);
+		}
 
-        vehicle->pxVehicleInputData.setAnalogSteer(-controller->GetState().Gamepad.sThumbLX / 32768.0f);
-    }
-    else {
-        vehicle->pxVehicleInputData.setAnalogSteer(0.0f);
-    }
+		// -------------------------------------------------------------------------------------------------------------- //
+		// STICKS
+		// -------------------------------------------------------------------------------------------------------------- //
 
-    //Left Joystick Y-Axis
-    if (controller->GetState().Gamepad.sThumbLY >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || controller->GetState().Gamepad.sThumbLY <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-        cout << "Controller: " << controller->GetControllerNumber() << " LEFT-JOYSTICK Y-AXIS movement" << endl;
-    }
+		//Left Joystick X-Axis
+		if (controller->GetState().Gamepad.sThumbLX >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || controller->GetState().Gamepad.sThumbLX <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+			cout << "Controller: " << controller->GetControllerNumber() << " LEFT-JOYSTICK X-AXIS movement" << endl;
 
-    // ---- RIGHT STICK ---- //
-    Entity *camera = EntityManager::FindEntities("Camera")[controllerNum];
-    CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
+			vehicle->pxVehicleInputData.setAnalogSteer(-controller->GetState().Gamepad.sThumbLX / 32768.0f);
+		}
+		else {
+			vehicle->pxVehicleInputData.setAnalogSteer(0.0f);
+		}
 
-    //Right Joystick X-Axis
-    if (controller->GetState().Gamepad.sThumbRX >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || controller->GetState().Gamepad.sThumbRX <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-        cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-JOYSTICK X-AXIS movement" << endl;
+		//Left Joystick Y-Axis
+		if (controller->GetState().Gamepad.sThumbLY >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || controller->GetState().Gamepad.sThumbLY <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+			cout << "Controller: " << controller->GetControllerNumber() << " LEFT-JOYSTICK Y-AXIS movement" << endl;
+		}
 
-        float x = dt.GetTimeSeconds() * 3.f * controller->GetState().Gamepad.sThumbRX / 30000.f;
-        cameraC->SetCameraHorizontalAngle(cameraC->GetCameraHorizontalAngle() + x);
-    }
+		// ---- RIGHT STICK ---- //
+		Entity *camera = EntityManager::FindEntities("Camera")[controllerNum];
+		CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
 
-    //Right Joystick Y-Axis
-    if (((controller->GetPreviousState().Gamepad.sThumbRY >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || (controller->GetPreviousState().Gamepad.sThumbRY <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) && ((controller->GetState().Gamepad.sThumbRY >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || (controller->GetState().Gamepad.sThumbRY <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE))) {
-        cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-JOYSTICK Y-AXIS movement" << endl;
+		//Right Joystick X-Axis
+		if (controller->GetState().Gamepad.sThumbRX >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || controller->GetState().Gamepad.sThumbRX <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+			cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-JOYSTICK X-AXIS movement" << endl;
 
-        float x = dt.GetTimeSeconds() * 3.f * controller->GetState().Gamepad.sThumbRY / 30000.f;
-        cameraC->SetCameraVerticalAngle(std::min(std::max(cameraC->GetCameraVerticalAngle() + x, 0.1f), static_cast<float>(M_PI) - 0.1f));
-    }
+			float x = dt.GetTimeSeconds() * 3.f * controller->GetState().Gamepad.sThumbRX / 30000.f;
+			cameraC->SetCameraHorizontalAngle(cameraC->GetCameraHorizontalAngle() + x);
+		}
+
+		//Right Joystick Y-Axis
+		if (((controller->GetPreviousState().Gamepad.sThumbRY >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || (controller->GetPreviousState().Gamepad.sThumbRY <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) && ((controller->GetState().Gamepad.sThumbRY >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || (controller->GetState().Gamepad.sThumbRY <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE))) {
+			cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-JOYSTICK Y-AXIS movement" << endl;
+
+			float x = dt.GetTimeSeconds() * 3.f * controller->GetState().Gamepad.sThumbRY / 30000.f;
+			cameraC->SetCameraVerticalAngle(std::min(std::max(cameraC->GetCameraVerticalAngle() + x, 0.1f), static_cast<float>(M_PI) - 0.1f));
+		}
 
 
-    // -------------------------------------------------------------------------------------------------------------- //
-    // BUTTONS
-    // -------------------------------------------------------------------------------------------------------------- //
+		// -------------------------------------------------------------------------------------------------------------- //
+		// BUTTONS
+		// -------------------------------------------------------------------------------------------------------------- //
 
-    //Manage Button States
-    int heldButtons = controller->GetState().Gamepad.wButtons & controller->GetPreviousState().Gamepad.wButtons;
-    int pressedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetState().Gamepad.wButtons;
-    int releasedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetPreviousState().Gamepad.wButtons;
+		//Manage Button States
+		int heldButtons = controller->GetState().Gamepad.wButtons & controller->GetPreviousState().Gamepad.wButtons;
+		int pressedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetState().Gamepad.wButtons;
+		int releasedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetPreviousState().Gamepad.wButtons;
 
-    //LEFT-SHOULDER
-    if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
-        cout << "Controller: " << controller->GetControllerNumber() << " LEFT-SHOULDER held" << endl;
+		//LEFT-SHOULDER
+		if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+			cout << "Controller: " << controller->GetControllerNumber() << " LEFT-SHOULDER held" << endl;
 
-        vehicle->pxVehicleInputData.setAnalogHandbrake(1.f);
-    }
-    else {
-        vehicle->pxVehicleInputData.setAnalogHandbrake(0.f);
-    }
+			vehicle->pxVehicleInputData.setAnalogHandbrake(1.f);
+		}
+		else {
+			vehicle->pxVehicleInputData.setAnalogHandbrake(0.f);
+		}
+	}
 }
 
 void InputManager::HandleController() {
