@@ -120,6 +120,8 @@ public:
 	static void WindowSizeCallback(GLFWwindow *window, int width, int height);
 	void SetWindowDimensions(size_t width, size_t height);
 	void UpdateViewports(std::vector<Component*> cameraComponents) const;
+
+	glm::vec2 GetWindowSize() const;
 	glm::vec2 GetViewportSize() const;
 
 private:

@@ -985,6 +985,10 @@ void Graphics::UpdateViewports(std::vector<Component*> cameraComponents) const {
 	}
 }
 
+glm::vec2 Graphics::GetWindowSize() const {
+	return glm::vec2(windowWidth, windowHeight);
+}
+
 glm::vec2 Graphics::GetViewportSize() const {
 	const glm::vec2 windowSize = glm::vec2(windowWidth, windowHeight);
 	return glm::vec2(cameras.size() == 1 ? 1 : 0.5, cameras.size() < 3 ? 1 : 0.5) * windowSize;

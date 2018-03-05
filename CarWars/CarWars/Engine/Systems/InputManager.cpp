@@ -38,6 +38,45 @@ void InputManager::Update() {
 	HandleController();
 }
 
+void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs) {
+	glm::vec3 vehicleForward = vehicle->transform.GetForward();
+	glm::vec3 vehicleUp = vehicle->transform.GetUp();
+	glm::vec3 vehicleRight = vehicle->transform.GetRight();
+	float dotFR = glm::dot(vehicleForward, Transform::RIGHT);
+	float dotUR = glm::dot(vehicleUp, Transform::RIGHT);
+	float dotFU = glm::dot(vehicleForward, Transform::UP);
+	float dotFF = glm::dot(vehicleForward, Transform::FORWARD);
+	float dotUU = glm::dot(vehicleUp, Transform::UP);
+	float dotRR = glm::dot(vehicleRight, Transform::RIGHT);
+	bool correctForward = dotFR > 0;
+	bool correctUp = dotUR < 0;
+	bool correctRight = dotFU < 0;
+
+	cout << angleDiffs.x << endl;
+
+	//Update Camera Angles
+	float cameraHor = camera->GetCameraHorizontalAngle();
+	float cameraVer = camera->GetCameraVerticalAngle();
+	float cameraSpd = camera->GetCameraSpeed();
+	float cameraNewHor = (cameraHor - (angleDiffs.x * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
+	float cameraNewVer = (cameraVer + (angleDiffs.y * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
+	
+	float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
+	float minAngle = (M_PI_4) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
+	float maxAngle = (M_PI_2 + (M_PI_4 / 4.0f)) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
+	cameraNewVer = glm::clamp(cameraNewVer, minAngle, maxAngle);
+
+	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
+	camera->SetUpVector(vehicle->transform.GetUp());
+
+	//Get Weapon Child
+	Entity* vehicleGunTurret = EntityManager::FindChildren(vehicle, "GunTurret")[0];
+	float gunHor = -cameraNewHor + M_PI + (acos(dotFF) * (correctForward ? 1.0f : -1.0f));
+	vehicleGunTurret->transform.SetRotationAxisAngles(vehicle->transform.GetUp(), gunHor);
+	float gunVer = -cameraNewVer + (M_PI_2 - (M_PI_4 / 4.0f)) + (acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f));
+	vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
+}
+
 void InputManager::HandleMouse() {
 	//Mouse Inputs
 	//Get Graphics Instance
@@ -55,67 +94,98 @@ void InputManager::HandleMouse() {
 
 		//Cursor Inputs
 		glfwSetInputMode(graphicsInstance.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-		int width, height;
-		glfwGetFramebufferSize(graphicsInstance.GetWindow(), &width, &height);
+		glm::vec2 windowSize = graphicsInstance.GetWindowSize();
 		double xPos, yPos;
 		Mouse::GetCursorPosition(graphicsInstance.GetWindow(), &xPos, &yPos);
 
 		//Get Camera Component
 		CameraComponent* cameraComponent = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[0]);
-		//Get Weapon Child
-		Entity* vehicleGunTurret = EntityManager::FindChildren(vehicle, "GunTurret")[0];
-		glm::vec3 vehicleForward = vehicle->transform.GetForward();
-		glm::vec3 vehicleUp = vehicle->transform.GetUp();
-		glm::vec3 vehicleRight = vehicle->transform.GetRight();
-		float dotFR = glm::dot(vehicleForward, Transform::RIGHT);
-		float dotUR = glm::dot(vehicleUp, Transform::RIGHT);
-		float dotFU = glm::dot(vehicleForward, Transform::UP);
-		float dotFF = glm::dot(vehicleForward, Transform::FORWARD);
-		float dotUU = glm::dot(vehicleUp, Transform::UP);
-		float dotRR = glm::dot(vehicleRight, Transform::RIGHT);
-		bool correctForward = dotFR > 0;
-		bool correctUp = dotUR < 0;
-		bool correctRight = dotFU < 0;
-		//Update Camera Angles
-		float cameraHor = cameraComponent->GetCameraHorizontalAngle();
-		float cameraVer = cameraComponent->GetCameraVerticalAngle();
-		float cameraSpd = cameraComponent->GetCameraSpeed();
-		float cursorHor = ((float)(width / 2.0f) - xPos);
-		float cursorVer = ((float)(height / 2.0f) - yPos);
-		float cameraNewHor = (cameraHor - (cursorHor * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
-		float cameraNewVer = (cameraVer + (cursorVer * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
-		cameraComponent->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
-		cameraComponent->SetUpVector(vehicle->transform.GetUp());
-		//Clamp Camera Angles
-		/*
-		float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
-		
-		float minAngle = ((2.0f / 3.0f) * (M_PI_2)) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
-		float maxAngle = (float)(M_PI_2) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
-		if (cameraComponent->GetCameraVerticalAngle() < minAngle) {
-			cameraComponent->SetCameraVerticalAngle(minAngle);
-		} else if (cameraComponent->GetCameraVerticalAngle() > maxAngle) {
-			cameraComponent->SetCameraVerticalAngle(maxAngle);
-		}
-		*/
-		//Set Weapon Angle
-		float gunHor = -cameraNewHor + M_PI + (acos(dotFF) * (correctForward ? 1.0f : -1.0f));
-		vehicleGunTurret->transform.SetRotationAxisAngles(vehicle->transform.GetUp(), gunHor);
-		float gunVer = -cameraNewVer + (M_PI_2 - (M_PI_4 / 2.0f)) + (acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f));
-		vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
-		/*
-		float gunHor = -cameraHor - M_PI_2 + acos(dotFF) * (correctForward ? 1.0f : -1.0f);
-		vehicleGunTurret->transform.SetRotationAxisAngles(Transform::UP, gunHor);
-		float gunVer = -cameraVer + acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f) + M_PI_2 - (M_PI_4 / 2.0f);
-		vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
-
-		*/
+		glm::vec2 angleDiffs = 10.f * (windowSize*0.5f - glm::vec2(xPos, yPos)) / windowSize;
+		UpdateCamera(vehicle, cameraComponent, angleDiffs);
 
 		//Set Cursor to Middle
-		glfwSetCursorPos(graphicsInstance.GetWindow(), width / 2, height / 2);
+		glfwSetCursorPos(graphicsInstance.GetWindow(), windowSize.x / 2, windowSize.y / 2);
 	} else {
 		//Set Cursor Visible
 		glfwSetInputMode(graphicsInstance.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+}
+
+void InputManager::NavigateGuis(int dir, int enter, int back) {
+
+	const GameState gameState = StateManager::GetState();
+	// Navigate buttons up/down
+	if (dir != 0 && gameState >= GameState_Menu && gameState < __GameState_Menu_End) {
+		std::string buttonGroupName;
+		bool noNavigation = false;
+		switch (gameState) {
+		case GameState_Menu:
+			buttonGroupName = "MainMenu_Buttons";
+			break;
+		case GameState_Menu_Start:
+			buttonGroupName = "StartMenu_Buttons";
+			break;
+		case GameState_Menu_Settings:
+			buttonGroupName = "OptionsMenu_Buttons";
+			break;
+		default:
+			noNavigation = true;
+		}
+
+		if (!noNavigation) {
+			if (dir > 0) GuiHelper::SelectPreviousGui(buttonGroupName);
+			if (dir < 0) GuiHelper::SelectNextGui(buttonGroupName);
+		}
+	}
+
+	if (enter) {
+		if (gameState == GameState_Menu) {
+			GuiComponent *selected = GuiHelper::GetSelectedGui("MainMenu_Buttons");
+			if (selected->HasText("start")) {
+				StateManager::SetState(GameState_Menu_Start);
+			}
+			else if (selected->HasText("options")) {
+				StateManager::SetState(GameState_Menu_Settings);
+			}
+			else if (selected->HasText("exit")) {
+				StateManager::SetState(GameState_Exit);
+			}
+		}
+		else if (gameState == GameState_Menu_Settings) {
+			GuiComponent *selected = GuiHelper::GetSelectedGui("OptionsMenu_Buttons");
+			if (selected->HasText("back")) {
+				StateManager::SetState(GameState_Menu);
+			}
+		}
+		else if (gameState == GameState_Menu_Start) {
+			//Press Enter to Go to Confirm
+			GuiComponent *selected = GuiHelper::GetSelectedGui("StartMenu_Buttons");
+			if (selected->HasText("back")) {
+				StateManager::SetState(GameState_Menu);
+			} else {
+				StateManager::SetState(GameState_Menu_Start_CharacterSelect);
+			}
+		}
+		else if (gameState == GameState_Menu_Start_CharacterSelect) {
+			GuiComponent *selected = GuiHelper::GetSelectedGui("CharacterMenu_Buttons");
+			if (selected->HasText("a to join")) {
+				selected->SetText("a to continue");
+			} else {
+				StateManager::SetState(GameState_Playing);
+			}
+		}
+	}
+
+	if (back) {
+		if (gameState == GameState_Menu_Settings) {
+			StateManager::SetState(GameState_Menu);
+		}
+		else if (gameState == GameState_Menu_Start) {
+			StateManager::SetState(GameState_Menu);
+		}
+		else if (gameState == GameState_Menu_Start_CharacterSelect) {
+			StateManager::SetState(GameState_Menu_Start);
+		}
 	}
 }
 
@@ -124,72 +194,10 @@ void InputManager::HandleKeyboard() {
 
     const GameState gameState = StateManager::GetState();
 
-    // Navigate buttons up/down
-    if (gameState >= GameState_Menu && gameState < __GameState_Menu_End) {
-        std::string buttonGroupName;
-        bool noNavigation = false;
-        switch (gameState) {
-        case GameState_Menu:
-            buttonGroupName = "MainMenu_Buttons";
-            break;
-        case GameState_Menu_Start:
-            buttonGroupName = "StartMenu_Buttons";
-            break;
-        case GameState_Menu_Settings:
-            buttonGroupName = "OptionsMenu_Buttons";
-            break;
-        default:
-            noNavigation = true;
-        }
-        
-        if (!noNavigation) {
-            if (Keyboard::KeyPressed(GLFW_KEY_UP) || Keyboard::KeyPressed(GLFW_KEY_W)) GuiHelper::SelectPreviousGui(buttonGroupName);
-            if (Keyboard::KeyPressed(GLFW_KEY_DOWN) || Keyboard::KeyPressed(GLFW_KEY_S)) GuiHelper::SelectNextGui(buttonGroupName);
-        }
-    }
-    
-    if (gameState == GameState_Menu) {
-        if (Keyboard::KeyPressed(GLFW_KEY_ENTER)) {
-            GuiComponent *selected = GuiHelper::GetSelectedGui("MainMenu_Buttons");
-            if (selected->HasText("start")) {
-                StateManager::SetState(GameState_Menu_Start);
-            } else if (selected->HasText("options")) {
-                StateManager::SetState(GameState_Menu_Settings);
-            } else if (selected->HasText("exit")) {
-                StateManager::SetState(GameState_Exit);
-            }
-        }
-    } else if (gameState == GameState_Menu_Settings) {
-        if (Keyboard::KeyPressed(GLFW_KEY_ENTER)) {
-            GuiComponent *selected = GuiHelper::GetSelectedGui("OptionsMenu_Buttons");
-            if (selected->HasText("back")) {
-                StateManager::SetState(GameState_Menu);
-            }
-        }
-    } else if (gameState == GameState_Menu_Start) {
-        //Press Enter to Go to Confirm
-        if (Keyboard::KeyPressed(GLFW_KEY_ENTER)) {
-            GuiComponent *selected = GuiHelper::GetSelectedGui("StartMenu_Buttons");
-            if (selected->HasText("back")) {
-                StateManager::SetState(GameState_Menu);
-            } else {
-                StateManager::SetState(GameState_Menu_Start_CharacterSelect);
-            }
-        }
-    } else if (gameState == GameState_Menu_Start_CharacterSelect) {
-        if (Keyboard::KeyPressed(GLFW_KEY_ENTER)) {     // TODO: Add to controller controls (index per controller)
-            GuiComponent *selected = GuiHelper::GetSelectedGui("CharacterMenu_Buttons");
-            if (selected->HasText("a to join")) {
-                selected->SetText("a to continue");
-            } else {
-                StateManager::SetState(GameState_Playing);
-            }
-        }
-        //Return to Previous Screen
-        if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
-            StateManager::SetState(GameState_Menu_Start);
-        }
-    } else if (gameState == GameState_Playing) {
+	if (gameState < __GameState_Menu_End) {
+		int dir = Keyboard::KeyPressed(GLFW_KEY_UP) || Keyboard::KeyPressed(GLFW_KEY_W) ? 1 : Keyboard::KeyPressed(GLFW_KEY_DOWN) || Keyboard::KeyPressed(GLFW_KEY_S) ? -1 : 0;
+		NavigateGuis(dir, Keyboard::KeyPressed(GLFW_KEY_ENTER), Keyboard::KeyPressed(GLFW_KEY_ESCAPE));
+	} else if (gameState == GameState_Playing) {
         //Get Vehicle Component
         VehicleComponent* vehicle = static_cast<VehicleComponent*>(EntityManager::GetComponents(ComponentType_Vehicle)[0]);
 
@@ -316,16 +324,17 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleCom
     if (controller->GetState().Gamepad.sThumbRX >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || controller->GetState().Gamepad.sThumbRX <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
         cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-JOYSTICK X-AXIS movement" << endl;
 
-        float x = dt.GetTimeSeconds() * 3.f * controller->GetState().Gamepad.sThumbRX / 30000.f;
-        cameraC->SetCameraHorizontalAngle(cameraC->GetCameraHorizontalAngle() + x);
+        float x = -static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 30000.f;
+		UpdateCamera(vehicle->GetEntity(), cameraC, glm::vec2(x, 0.f));
+
     }
 
     //Right Joystick Y-Axis
     if (((controller->GetPreviousState().Gamepad.sThumbRY >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || (controller->GetPreviousState().Gamepad.sThumbRY <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) && ((controller->GetState().Gamepad.sThumbRY >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || (controller->GetState().Gamepad.sThumbRY <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE))) {
         cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-JOYSTICK Y-AXIS movement" << endl;
 
-        float x = dt.GetTimeSeconds() * 3.f * controller->GetState().Gamepad.sThumbRY / 30000.f;
-        cameraC->SetCameraVerticalAngle(std::min(std::max(cameraC->GetCameraVerticalAngle() + x, 0.1f), static_cast<float>(M_PI) - 0.1f));
+        float y = static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 30000.f;
+		UpdateCamera(vehicle->GetEntity(), cameraC, glm::vec2(0.f, y));
     }
 
 
@@ -351,25 +360,50 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleCom
 
 void InputManager::HandleController() {
 	//Iterate through each controller
-	for (auto controller = xboxControllers.begin(); controller != xboxControllers.end(); ++controller) {
-        if (!(*controller)->IsConnected()) continue;
-        const size_t controllerNum = (*controller)->GetControllerNumber();
+	for (auto it = xboxControllers.begin(); it != xboxControllers.end(); ++it) {
+		XboxController *controller = *it;
+        if (!controller->IsConnected()) continue;
+        const size_t controllerNum = controller->GetControllerNumber();
 
         int leftVibrate = 0;
         int rightVibrate = 0;
 
+		//Manage Button States
+		int heldButtons = controller->GetState().Gamepad.wButtons & controller->GetPreviousState().Gamepad.wButtons;
+		int pressedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetState().Gamepad.wButtons;
+		int releasedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetPreviousState().Gamepad.wButtons;
+
         if (StateManager::GetState() == GameState_Playing) {
             vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
             VehicleComponent * vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
+			WeaponComponent *weapon = static_cast<WeaponComponent*>(vehicle->GetEntity()->components[1]);
             //        cout << "Current speed: " << vehicle->pxVehicle->computeForwardSpeed() << endl;
             HandleVehicleControllerInput(controllerNum, vehicle, leftVibrate, rightVibrate);
-        }
+
+			//LEFT-SHOULDER
+			if (pressedButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+				cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-SHOULDER pressed" << endl;
+				weapon->Charge();
+			} else if (heldButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+				cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-SHOULDER held" << endl;
+				weapon->Shoot();
+			}
+		}
+		else if (StateManager::GetState() < __GameState_Menu_End) {
+			int dir = 0;
+			if ((controller->GetPreviousState().Gamepad.sThumbLY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && controller->GetState().Gamepad.sThumbLY >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+				|| (controller->GetPreviousState().Gamepad.sThumbLY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && controller->GetState().Gamepad.sThumbLY <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) {
+				dir = controller->GetState().Gamepad.sThumbLY;
+			}
+
+			NavigateGuis(dir, pressedButtons & XINPUT_GAMEPAD_A, pressedButtons & XINPUT_GAMEPAD_B);
+		}
 
         //Vibrate Controller
-        (*controller)->Vibrate(leftVibrate, rightVibrate);
+        controller->Vibrate(leftVibrate, rightVibrate);
 
         //Update Previous Controller State
-        (*controller)->SetPreviousState((*controller)->GetState());
+        controller->SetPreviousState(controller->GetState());
 	}
 }
 
