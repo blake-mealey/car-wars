@@ -23,12 +23,15 @@ enum ComponentType {
     ComponentType_PowerUp,
     ComponentType_SpeedPowerUp,
     ComponentType_DefencePowerUp,
-    ComponentType_DamagePowerUp
+    ComponentType_DamagePowerUp,
+	ComponentType_GUI,
+	ComponentType_Missile
 };
 
 class Component {
 public:
-	Component();
+    virtual ~Component() = default;
+    Component();
 	
 	bool enabled;
 	

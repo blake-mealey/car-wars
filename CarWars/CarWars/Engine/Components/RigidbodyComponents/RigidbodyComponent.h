@@ -8,6 +8,7 @@
 
 class RigidbodyComponent : public Component {
 public:
+    ~RigidbodyComponent() override;
     RigidbodyComponent();
     RigidbodyComponent(nlohmann::json data);
 
@@ -19,10 +20,14 @@ public:
     void RenderDebugGui() override;
     void SetEntity(Entity *_entity) override;
 
+    bool DoesBlockNavigationMesh() const;
+
     std::vector<Collider*> colliders;
     physx::PxRigidActor* pxRigid;
 protected:
     virtual void InitializeRigidbody() = 0;
     void InitializeRigidbody(physx::PxRigidActor* actor);
+
+    bool blocksNavigationMesh;
 
 };

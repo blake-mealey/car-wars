@@ -11,6 +11,7 @@ public:
 	Transform();
 	Transform(nlohmann::json data);
 	Transform(physx::PxTransform transform);
+	Transform(glm::vec3 _position, glm::vec3 _scale);
 	Transform(Transform *parent, glm::vec3 pPosition, glm::vec3 pScale, glm::vec3 pEulerRotation, bool connectedToCylinder);
 	Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::quat pRotation, bool connectedToCylinder);
 
@@ -24,18 +25,19 @@ public:
 	static const glm::vec3 RIGHT;
 	static const glm::vec3 UP;
 
-    bool RenderDebugGui();
+    bool RenderDebugGui(float positionIncrement=0.01f, float scaleIncrement=0.05f);
 
 	// Getters for basic data
-	glm::vec3 GetLocalPosition();
-	glm::vec3 GetLocalScale();
-	glm::quat GetLocalRotation();
+	glm::vec3 GetLocalPosition() const;
+	glm::vec3 GetLocalScale() const;
+	glm::quat GetLocalRotation() const;
 
 	glm::vec3 GetGlobalPosition();
 	glm::vec3 GetGlobalScale();
 
 	glm::vec3 GetCylinderPosition();
 
+	glm::vec3 GetLocalDirection(glm::vec3 globalDirection);
     glm::vec3 GetGlobalDirection(glm::vec3 localDirection);
 	glm::vec3 GetForward();
 	glm::vec3 GetRight();

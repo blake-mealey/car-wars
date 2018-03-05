@@ -29,13 +29,7 @@ bool XboxController::IsConnected() {
 
 	//Get the state
 	DWORD result = XInputGetState(controllerNumber, &controllerState);
-
-	if (result == ERROR_SUCCESS) {
-		return true;
-	}
-	else {
-		return false;
-	}
+    return result == ERROR_SUCCESS;
 }
 
 int XboxController::GetControllerNumber() {

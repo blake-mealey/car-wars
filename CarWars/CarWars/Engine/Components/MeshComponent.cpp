@@ -82,20 +82,6 @@ void MeshComponent::SetEntity(Entity* _entity) {
 
 void MeshComponent::MakeCylinder(Mesh* mesh) {
 	if (Transform::radius<=0) {
-		float maxX = mesh->vertices[0].x;
-		float minX = mesh->vertices[0].x;
-		for (size_t i = 1; i < mesh->vertexCount; ++i) {
-			maxX = std::max(maxX, mesh->vertices[i].x);
-			minX = std::min(minX, mesh->vertices[i].x);
-		}
-		float circumfrence = (maxX - minX);
-		Transform::radius = circumfrence / 2.f / (float)M_PI;
+		Transform::radius = mesh->GetRadius();
 	}
-
-	for (size_t i = 0; i < mesh->vertexCount; ++i) {
-		glm::vec3 point = { mesh->vertices[i].x, mesh->vertices[i].y, mesh->vertices[i].z };
-		point = Transform().ToCylinder(point);
-		mesh->vertices[i] = point;
-	}
-	mesh->GenerateNormals();
 }

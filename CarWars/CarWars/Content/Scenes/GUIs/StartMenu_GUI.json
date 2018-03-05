@@ -1,0 +1,43 @@
+[
+	{
+		"Tag": "StartMenu_Buttons",
+		"Components": [
+			{
+				"Prefab": "GUIs/MenuButton.json",
+				"Text": "number of lives",
+				"Position": [0, -245, 0],
+                "Selected": true
+			},
+			{
+				"Prefab": "GUIs/MenuButton.json",
+				"Text": "number of ai",
+				"Position": [0, -175, 0]
+			},
+			{
+				"Prefab": "GUIs/MenuButton.json",
+				"Text": "map",
+				"Position": [0, -105, 0]
+			},
+			{
+				"Prefab": "GUIs/MenuButton.json",
+				"Text": "time limit",
+				"Position": [0, -35, 0]
+			},
+			{
+				"Prefab": "GUIs/MenuButton.json",
+				"Text": "kill limit",
+				"Position": [0, 35, 0]
+			},
+			{
+				"Prefab": "GUIs/MenuButton.json",
+				"Text": "game mode",
+				"Position": [0, 105, 0]
+			},
+			{
+				"Prefab": "GUIs/MenuButton.json",
+				"Text": "back",
+				"Position": [0, 245, 0]
+			}
+		]
+	}
+]

@@ -19,7 +19,7 @@ class Collider {
 public:
     Collider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData);
     Collider(nlohmann::json data);
-    ~Collider();
+    virtual ~Collider();
 
     physx::PxShape* GetShape() const;
     void CreateShape(physx::PxRigidActor *actor);
@@ -33,7 +33,12 @@ public:
 
     virtual Transform GetLocalTransform() const;
     virtual Transform GetGlobalTransform() const;
+
+	void Scale(glm::vec3 scaleFactor);
+	void UpdateScale(glm::vec3 scale);
 protected:
+	virtual void InitializeGeometry() = 0;
+
     Transform transform;
     std::string collisionGroup;
     physx::PxShape *shape;

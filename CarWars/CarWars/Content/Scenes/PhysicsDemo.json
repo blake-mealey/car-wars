@@ -17,8 +17,7 @@
           {
             "Type": "Mesh",
             "CollisionGroup": "Ground",
-            "Mesh": "Plane.obj",
-            "Scale": [200, 1, 80]
+            "Mesh": "Plane.obj"
           }
         ]
       }
@@ -71,8 +70,7 @@
           {
             "Type": "Mesh",
             "CollisionGroup": "Ground",
-            "Mesh": "Cylinder.obj",
-            "Scale": [40, 40, 40]
+            "Mesh": "Cylinder.obj"
           }
         ]
       },
@@ -86,6 +84,30 @@
         "Prefab": "Jump.json",
         "Position": [ 14.8, -2.4, 20 ],
 	    "Rotate": [0, 0, -20]
+    },
+    {
+        "Tag": "Wall",
+        "Position": [-20, 5, -15],
+        "Scale": [10, 10, 60],
+        "Components": [
+            {
+                "Type": "Mesh",
+                "Mesh": "Cube.obj",
+                "Texture": "DiamondPlate.jpg",
+                "Material": "Basic.json",
+                "UvScale": [10, 10],
+                "Scale": [0.5, 0.5, 0.5]
+            },
+            {
+                "Type": "RigidStatic",
+                "Colliders": [
+                    {
+                        "Type": "Box",
+                        "CollisionGroup": "DrivableObstacles"
+                    }
+                ]
+            }
+        ]
     },
 	{
 		"Tag": "Light",
@@ -107,7 +129,7 @@
                     {
                         "Type": "Box",
                         "CollisionGroup": "DrivableObstacles",
-                        "Size": [2, 2, 2]
+                        "Scale": [2, 2, 2]
                     }
                 ]
             }
@@ -148,6 +170,7 @@
     "Components": [
       {
         "Type": "Camera",
+        "CenterDistance": 8,
         "Position": [ 0, 10, -25 ]
       }
     ]

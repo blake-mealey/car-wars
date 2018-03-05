@@ -11,12 +11,14 @@
 #include "Content/ContentManager.h"
 #include <glm/gtx/string_cast.hpp>
 #include "../Entities/EntityManager.h"
+#include "../Components/GuiComponents/GuiComponent.h"
 #include "../Components/CameraComponent.h"
 #include "../Components/MeshComponent.h"
 #include "../Components/SpotLightComponent.h"
 #include <glm/gtc/matrix_transform.inl>
 #include "../Components/RigidbodyComponents/RigidbodyComponent.h"
 #include "../Components/Colliders/BoxCollider.h"
+#include "Game.h"
 
 // Constants
 const size_t Graphics::MAX_CAMERAS = 4;
@@ -34,6 +36,13 @@ const std::string Graphics::BLUR_VERTEX_SHADER = SCREEN_VERTEX_SHADER;
 const std::string Graphics::BLUR_FRAGMENT_SHADER = "blur.frag";
 const std::string Graphics::COPY_VERTEX_SHADER = SCREEN_VERTEX_SHADER;
 const std::string Graphics::COPY_FRAGMENT_SHADER = SCREEN_FRAGMENT_SHADER;
+const std::string Graphics::NAV_VERTEX_SHADER = "navMesh.vert";
+const std::string Graphics::NAV_FRAGMENT_SHADER = "navMesh.frag";
+const std::string Graphics::NAV_GEOMETRY_SHADER = "navMesh.geom";
+const std::string Graphics::PATH_VERTEX_SHADER = "path.vert";
+const std::string Graphics::PATH_FRAGMENT_SHADER = "path.frag";
+const std::string Graphics::GUI_VERTEX_SHADER = SCREEN_VERTEX_SHADER;
+const std::string Graphics::GUI_FRAGMENT_SHADER = "gui.frag";
 
 // Initial Screen Dimensions
 const size_t Graphics::SCREEN_WIDTH = 1024;
@@ -51,7 +60,8 @@ const glm::mat4 Graphics::BIAS_MATRIX = glm::mat4(
 );
 
 // Singleton
-Graphics::Graphics() : renderPhysicsColliders(false), bloomScale(0.1f) { }
+Graphics::Graphics() : renderMeshes(true), renderPhysicsColliders(false), renderPhysicsBoundingBoxes(false),
+    renderNavigationMesh(false), renderNavigationPaths(false), bloomScale(0.1f) { }
 Graphics &Graphics::Instance() {
 	static Graphics instance;
 	return instance;
@@ -219,6 +229,8 @@ void Graphics::Update() {
 	const std::vector<Component*> spotLights = EntityManager::GetComponents(ComponentType_SpotLight);
 	const std::vector<Component*> meshes = EntityManager::GetComponents(ComponentType_Mesh);
 	const std::vector<Component*> cameraComponents = EntityManager::GetComponents(ComponentType_Camera);
+	const std::vector<Component*> aiComponents = EntityManager::GetComponents(ComponentType_AI);
+	const std::vector<Component*> guiComponents = EntityManager::GetComponents(ComponentType_GUI);
     const std::vector<Component*> rigidbodyComponents = EntityManager::GetComponents({
         ComponentType_RigidDynamic,
         ComponentType_RigidStatic,
@@ -249,7 +261,7 @@ void Graphics::Update() {
 	glm::mat4 depthViewMatrix;
 	if (shadowCaster != nullptr) {
         // Define depth transformation matrices
-		depthProjectionMatrix = glm::ortho<float>(-80, 80, -80, 80, -80, 160);
+		depthProjectionMatrix = glm::ortho<float>(-80, 80, -80, 80, -160, 160) * 2.f;
 		depthViewMatrix = glm::lookAt(-shadowCaster->GetDirection(), glm::vec3(0), glm::vec3(0, 1, 0));
 
         // Render to the shadow map framebuffer
@@ -319,41 +331,43 @@ void Graphics::Update() {
 	LoadLights(pointLights, directionLights, spotLights);
 
 	// Draw the scene
-	for (size_t j = 0; j < meshes.size(); j++) {
-		// Get enabled models
-		MeshComponent* model = static_cast<MeshComponent*>(meshes[j]);
-		if (!model->enabled) continue;
+    if (renderMeshes) {
+        for (size_t j = 0; j < meshes.size(); j++) {
+            // Get enabled models
+            MeshComponent* model = static_cast<MeshComponent*>(meshes[j]);
+            if (!model->enabled) continue;
 
-		// Load the model's triangles, vertices, uvs, normals, materials, and textures into the GPU
-		LoadModel(geometryProgram, model);
+            // Load the model's triangles, vertices, uvs, normals, materials, and textures into the GPU
+            LoadModel(geometryProgram, model);
 
-		if (shadowCaster != nullptr) {
-			// Load the depth bias model view projection matrix into the GPU
-			const glm::mat4 depthModelMatrix = model->transform.GetTransformationMatrix();
-			const glm::mat4 depthModelViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
-		    const glm::mat4 depthBiasMVP = BIAS_MATRIX*depthModelViewProjectionMatrix;
-            geometryProgram->LoadUniform(UniformName::DepthBiasModelViewProjectionMatrix, depthBiasMVP);
-		}
+            if (shadowCaster != nullptr) {
+                // Load the depth bias model view projection matrix into the GPU
+                const glm::mat4 depthModelMatrix = model->transform.GetTransformationMatrix();
+                const glm::mat4 depthModelViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+                const glm::mat4 depthBiasMVP = BIAS_MATRIX*depthModelViewProjectionMatrix;
+                geometryProgram->LoadUniform(UniformName::DepthBiasModelViewProjectionMatrix, depthBiasMVP);
+            }
 
-		for (Camera camera : cameras) {
-			// Setup the viewport for each camera (split-screen)
-			glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+            for (Camera camera : cameras) {
+                // Setup the viewport for each camera (split-screen)
+                glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
 
-			// Load the model view projection matrix into the GPU
-			const glm::mat4 modelViewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix * model->transform.GetTransformationMatrix();
-            geometryProgram->LoadUniform(UniformName::ViewMatrix, camera.viewMatrix);
-            geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
+                // Load the model view projection matrix into the GPU
+                const glm::mat4 modelViewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix * model->transform.GetTransformationMatrix();
+                geometryProgram->LoadUniform(UniformName::ViewMatrix, camera.viewMatrix);
+                geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
 
-			// Render the model
-            glDrawElements(GL_TRIANGLES, model->GetMesh()->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
-		}
-	}
+                // Render the model
+                glDrawElements(GL_TRIANGLES, model->GetMesh()->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
+            }
+        }
+    }
 
     // -------------------------------------------------------------------------------------------------------------- //
     // RENDER PHYSICS COLLIDERS
     // -------------------------------------------------------------------------------------------------------------- //
 
-    if (renderPhysicsColliders) {
+    if (renderPhysicsColliders || renderPhysicsBoundingBoxes) {
         // Use wireframe polygon mode
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -362,20 +376,61 @@ void Graphics::Update() {
             RigidbodyComponent* rigidbody = static_cast<RigidbodyComponent*>(rigidbodyComponents[j]);
             if (!rigidbody->enabled) continue;
 
-            for (Collider *collider : rigidbody->colliders) {
-                // Check if the collider has a render mesh
-                Mesh *renderMesh = collider->GetRenderMesh();
-                if (!renderMesh) continue;
+            if (renderPhysicsColliders) {
+                for (Collider *collider : rigidbody->colliders) {
+                    // Check if the collider has a render mesh
+                    Mesh *renderMesh = collider->GetRenderMesh();
+                    if (!renderMesh) continue;
 
-                // Get the global transformation matrix of the collider
-                const glm::mat4 modelMatrix = collider->GetGlobalTransform().GetTransformationMatrix();
+                    // Get the global transformation matrix of the collider
+                    const glm::mat4 modelMatrix = collider->GetGlobalTransform().GetTransformationMatrix();
 
-                // Load the model's triangles, vertices, uvs, normals, and textures into the GPU
+                    // Load the model's triangles, vertices, uvs, normals, and textures into the GPU
+                    LoadModel(
+                        geometryProgram,
+                        modelMatrix,
+                        ContentManager::GetMaterial("PhysicsCollider.json"),
+                        renderMesh
+                    );
+
+                    if (shadowCaster != nullptr) {
+                        // Load the depth bias model view projection matrix into the GPU
+                        const glm::mat4 depthModelMatrix = modelMatrix;
+                        const glm::mat4 depthModelViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+                        const glm::mat4 depthBiasMVP = BIAS_MATRIX*depthModelViewProjectionMatrix;
+                        geometryProgram->LoadUniform(UniformName::DepthBiasModelViewProjectionMatrix, depthBiasMVP);
+                    }
+
+                    for (Camera camera : cameras) {
+                        // Setup the viewport for each camera (split-screen)
+                        glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+
+                        // Load the model view projection matrix into the GPU
+                        const glm::mat4 modelViewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix * modelMatrix;
+                        geometryProgram->LoadUniform(UniformName::ViewMatrix, camera.viewMatrix);
+                        geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
+
+                        // Render the model
+                        glDrawElements(GL_TRIANGLES, renderMesh->triangleCount * 3, GL_UNSIGNED_SHORT, static_cast<void*>(nullptr));
+                    }
+                }
+            }
+
+            if (renderPhysicsBoundingBoxes) {
+                Mesh *cubeMesh = skyboxCube;
+                
+                PxBounds3 bounds = rigidbody->pxRigid->getWorldBounds(0.5f);
+                Transform transform = Transform(nullptr,
+                    Transform::FromPx(bounds.getCenter()),
+                    Transform::FromPx(bounds.getDimensions()), glm::vec3(0.f), false);
+                
+                const glm::mat4 modelMatrix = transform.GetTransformationMatrix();
+                
                 LoadModel(
                     geometryProgram,
                     modelMatrix,
-                    ContentManager::GetMaterial("PhysicsCollider.json"),
-                    renderMesh
+                    ContentManager::GetMaterial("PhysicsBoundingBox.json"),
+                    cubeMesh
                 );
 
                 if (shadowCaster != nullptr) {
@@ -396,13 +451,80 @@ void Graphics::Update() {
                     geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
 
                     // Render the model
-                    glDrawElements(GL_TRIANGLES, renderMesh->triangleCount * 3, GL_UNSIGNED_SHORT, static_cast<void*>(nullptr));
+                    glDrawElements(GL_TRIANGLES, cubeMesh->triangleCount * 3, GL_UNSIGNED_SHORT, static_cast<void*>(nullptr));
                 }
             }
         }
 
         // Reset polygon mode
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
+    // -------------------------------------------------------------------------------------------------------------- //
+    // RENDER NAVIGATION MESH
+    // -------------------------------------------------------------------------------------------------------------- //
+
+
+    if (renderNavigationMesh) {
+        Game &game = Game::Instance();
+        NavigationMesh *mesh = game.GetNavigationMesh();
+        if (mesh) {
+            // Use the geometry shader program
+            ShaderProgram *navProgram = shaders[Shaders::NavMesh];
+            glUseProgram(navProgram->GetId());
+
+            // Load the vertices to the GPU
+            glBindVertexArray(mesh->vao);
+
+            // Load the texture to the GPU
+            Texture *texture = ContentManager::GetTexture("NavMeshStrip.png");
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texture->textureId);
+            navProgram->LoadUniform(UniformName::DiffuseTexture, 0);
+
+            for (Camera camera : cameras) {
+                // Setup the viewport for each camera (split-screen)
+                glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+
+                // Load the model view projection matrix into the GPU
+                const glm::mat4 viewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix;
+                navProgram->LoadUniform(UniformName::ViewProjectionMatrix, viewProjectionMatrix);
+
+                // Draw the nav mesh's points
+                glDrawArrays(GL_POINTS, 0, mesh->GetVertexCount());
+            }
+        }
+    }
+
+    
+    // -------------------------------------------------------------------------------------------------------------- //
+    // RENDER NAVIGATION PATHS
+    // -------------------------------------------------------------------------------------------------------------- //
+
+    if (renderNavigationPaths) {
+        for (Component *component : aiComponents) {
+            if (!component->enabled) continue;
+            AiComponent *ai = static_cast<AiComponent*>(component);
+
+            // Use the geometry shader program
+            ShaderProgram *pathProgram = shaders[Shaders::Path];
+            glUseProgram(pathProgram->GetId());
+
+            // Load the vertices to the GPU
+            glBindVertexArray(ai->pathVao);
+
+            for (Camera camera : cameras) {
+                // Setup the viewport for each camera (split-screen)
+                glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+
+                // Load the model view projection matrix into the GPU
+                const glm::mat4 viewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix;
+                pathProgram->LoadUniform(UniformName::ViewProjectionMatrix, viewProjectionMatrix);
+
+                // Draw the nav mesh's points
+                glDrawArrays(GL_LINE_STRIP, 0, ai->GetPathLength());
+            }
+        }
     }
 
     // -------------------------------------------------------------------------------------------------------------- //
@@ -464,6 +586,9 @@ void Graphics::Update() {
     // Use the copy shader program
     ShaderProgram *copyProgram = shaders[Shaders::Copy];
     glUseProgram(copyProgram->GetId());
+
+	// Load the identity matrix as the model matrix to the GPU
+	copyProgram->LoadUniform(UniformName::ModelMatrix, glm::mat4(1.f));
 
     // Load the glow buffer into the GPU
     glActiveTexture(GL_TEXTURE0);
@@ -534,6 +659,9 @@ void Graphics::Update() {
     glBindTexture(GL_TEXTURE_2D, textureIds[Textures::Screen]);
     screenProgram->LoadUniform(UniformName::ScreenTexture, 0);
 
+	// Use the identity model matrix
+	screenProgram->LoadUniform(UniformName::ModelMatrix, glm::mat4(1.f));
+
     // Render it
     glViewport(0, 0, windowWidth, windowHeight);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -556,48 +684,155 @@ void Graphics::Update() {
 
 
     // -------------------------------------------------------------------------------------------------------------- //
-    // GAME GUI
+    // RENDER GAME GUI
     // -------------------------------------------------------------------------------------------------------------- //
 
-    // Render Fonts
+    // Get the GUI program
+    ShaderProgram *guiProgram = shaders[Shaders::GUI];
 
-    // Unbind shader program
-    glUseProgram(0);
+	for (Camera camera : cameras) {
+		// Setup the viewport for each camera (split-screen)
+		glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
 
-    // Initialize stuff
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_DEPTH_TEST);
+		for (Component *component : guiComponents) {
+			if (!component->enabled) continue;
+			GuiComponent *gui = static_cast<GuiComponent*>(component);
+			
+            // Get a GUI for this camera
+			Entity *guiRoot = gui->GetGuiRoot();
+			if (!guiRoot || guiRoot != camera.guiRoot) continue;
 
-    // Set the color
-    glm::vec4 color = glm::vec4(1.f, 1.f, 0.f, 1.f);
-    glPixelTransferf(GL_RED_BIAS, color.r - 1.f);
-    glPixelTransferf(GL_GREEN_BIAS, color.g - 1.f);
-    glPixelTransferf(GL_BLUE_BIAS, color.b - 1.f);
-    glPixelTransferf(GL_ALPHA_BIAS, color.a - 1.f);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glDisable(GL_DEPTH_TEST);
 
-    // Load the font
-    FTGLPixmapFont font("./Content/Fonts/Starjedi.ttf");
+            // Get the scale and position of the GUI
+            const glm::vec2 anchorPoint = gui->GetAnchorPoint();
+            const glm::vec3 scale = gui->transform.GetGlobalScale() +
+                glm::vec3(camera.viewportSize * gui->GetScaledScale(), 0.f);
+            const glm::vec3 position = gui->transform.GetGlobalPosition() +
+                glm::vec3(camera.viewportSize * gui->GetScaledPosition(), 0.f);
 
-    // Initialize the font
-    font.FaceSize(36);
+            // RENDER THE FRAME
+			Texture *frameTexture = gui->GetTexture();
+			if (frameTexture) {
+                // Convert from pixel to screen space
+                const glm::vec3 toScreenScale = glm::vec3(
+                    1.f / camera.viewportSize.x,
+                    1.f / camera.viewportSize.y,
+                    1.f
+                );
 
-    // Render the text
-    font.Render("cAR wARS", -1, FTPoint(20, 20));
+                // Pixel size ratio
+                const glm::vec2 viewportRatio = glm::vec2(
+                    camera.viewportSize.x / static_cast<float>(windowWidth),
+                    camera.viewportSize.y / static_cast<float>(windowHeight));
 
-    // Reset stuff
-    glPopAttrib();
+                // Get the screen-space scale and position of the GUI
+                const glm::vec3 screenScale = toScreenScale * scale * glm::vec3(viewportRatio, 1.f);
+                const glm::vec3 screenPosition = glm::vec3(-1.f, -1.f, 0.f) + toScreenScale *
+                    2.f * glm::vec3(
+                        viewportRatio.x * (camera.viewportPosition.x + position.x + scale.x*(0.5f - anchorPoint.x)),
+                        viewportRatio.y * (camera.viewportPosition.y + camera.viewportSize.y - position.y - scale.y*(0.5f - anchorPoint.y)),
+                        0.f);
 
+				// Use the GUI program
+				glUseProgram(guiProgram->GetId());
+
+				// Send the screen to the GPU
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, frameTexture->textureId);
+                guiProgram->LoadUniform(UniformName::DiffuseTexture, 0);
+
+                // Send the UV scale to the GPU
+                guiProgram->LoadUniform(UniformName::UvScale, gui->GetUvScale());
+
+                // Send the transform to the GPU
+				Transform transform = Transform(screenPosition, screenScale);
+                guiProgram->LoadUniform(UniformName::ModelMatrix, transform.GetTransformationMatrix());
+
+				// Render it
+				glViewport(0, 0, windowWidth, windowHeight);
+				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			}
+
+			// RENDER THE FONT
+
+			// Unbind shader program
+			glUseProgram(0);
+
+			// Set stuff
+			glPushAttrib(GL_ALL_ATTRIB_BITS);
+
+			// Set the color
+			const glm::vec4 color = gui->IsSelected() ? gui->GetSelectedFontColor() : gui->GetFontColor();
+			glPixelTransferf(GL_RED_BIAS, color.r - 1.f);
+			glPixelTransferf(GL_GREEN_BIAS, color.g - 1.f);
+			glPixelTransferf(GL_BLUE_BIAS, color.b - 1.f);
+			glPixelTransferf(GL_ALPHA_BIAS, color.a - 1.f);
+
+			// Render the text
+			FTFont *font = gui->GetFont();
+
+            // Font dimensions
+			FTBBox bbox = font->BBox(gui->GetText().c_str());
+            const float fontWidth = bbox.Upper().X() - bbox.Lower().X();
+			const float fontHeight = font->Ascender() * 0.5f;
+
+			const glm::vec3 fontPosition = position;
+			glm::vec2 fontScreenPosition = camera.viewportPosition +
+                glm::vec2(fontPosition.x, camera.viewportSize.y - fontPosition.y - fontHeight);
+			
+			glm::vec2 alignmentXOffset = glm::vec2(scale.x - fontWidth, 0.f);
+			switch (gui->GetTextXAlignment()) {
+				case TextXAlignment::Left:
+					alignmentXOffset *= 0.f;
+					break;
+				case TextXAlignment::Centre:
+					alignmentXOffset *= 0.5f;
+					break;
+				case TextXAlignment::Right:
+					alignmentXOffset *= 1.f;
+					break;
+			}
+
+			glm::vec2 alignmentYOffset = -glm::vec2(0.f, scale.y - fontHeight);
+			switch (gui->GetTextYAlignment()) {
+				case TextYAlignment::Top:
+					alignmentYOffset *= 0.f;
+					break;
+				case TextYAlignment::Centre:
+					alignmentYOffset *= 0.5f;
+					break;
+				case TextYAlignment::Bottom:
+					alignmentYOffset *= 1.f;
+					break;
+			}
+
+			fontScreenPosition += alignmentXOffset + alignmentYOffset - glm::vec2(scale.x, -scale.y) * anchorPoint;
+
+			font->Render(gui->GetText().c_str(), -1, FTPoint(fontScreenPosition.x, fontScreenPosition.y));
+
+			// Reset stuff
+			glPopAttrib();
+
+            glEnable(GL_DEPTH_TEST);
+            glDisable(GL_BLEND);
+		}
+	}
 
     // -------------------------------------------------------------------------------------------------------------- //
-    // DEBUG GUI
+    // RENDER DEBUG GUI
     // -------------------------------------------------------------------------------------------------------------- //
 
     RenderDebugGui();
 
 	//Swap Buffers to Display New Frame
 	glfwSwapBuffers(window);
+}
+
+void Graphics::SceneChanged() {
+    UpdateViewports(EntityManager::GetComponents(ComponentType_Camera));
 }
 
 void Graphics::RenderDebugGui() {
@@ -616,7 +851,11 @@ void Graphics::RenderDebugGui() {
         ImGui::Begin("Graphics", &showGraphicsMenu);
         ImGui::PushItemWidth(-100);
 
+        ImGui::Checkbox("Render Meshes", &renderMeshes);
         ImGui::Checkbox("Render Colliders", &renderPhysicsColliders);
+        ImGui::Checkbox("Render Bounding Boxes", &renderPhysicsBoundingBoxes);
+        ImGui::Checkbox("Render Nav Mesh", &renderNavigationMesh);
+        ImGui::Checkbox("Render Nav Paths", &renderNavigationPaths);
         ImGui::DragFloat("Bloom Scale", &bloomScale, 0.01f);
 
         ImGui::End();
@@ -681,7 +920,7 @@ void Graphics::LoadCameras(std::vector<Component*> cameraComponents) {
 	for (Component *component: cameraComponents) {
 		if (component->enabled) {
 			CameraComponent *camera = static_cast<CameraComponent*>(component);
-			cameras.push_back(Camera(camera->GetViewMatrix(), camera->GetProjectionMatrix()));
+			cameras.push_back(Camera(camera->GetViewMatrix(), camera->GetProjectionMatrix(), camera->GetGuiRoot()));
 			if (cameras.size() == MAX_CAMERAS) break;
 		}
 	}
@@ -819,11 +1058,14 @@ void Graphics::GenerateIds() {
     glGenTextures(BLUR_LEVEL_COUNT, blurTempLevelIds);
 	
     shaders[Shaders::Geometry] = LoadShaderProgram(GEOMETRY_VERTEX_SHADER, GEOMETRY_FRAGMENT_SHADER);
+    shaders[Shaders::GUI] = LoadShaderProgram(GUI_VERTEX_SHADER, GUI_FRAGMENT_SHADER);
 	shaders[Shaders::ShadowMap] = LoadShaderProgram(SHADOW_MAP_VERTEX_SHADER, SHADOW_MAP_FRAGMENT_SHADER);
 	shaders[Shaders::Skybox] = LoadShaderProgram(SKYBOX_VERTEX_SHADER, SKYBOX_FRAGMENT_SHADER);
 	shaders[Shaders::Screen] = LoadShaderProgram(SCREEN_VERTEX_SHADER, SCREEN_FRAGMENT_SHADER);
 	shaders[Shaders::Blur] = LoadShaderProgram(BLUR_VERTEX_SHADER, BLUR_FRAGMENT_SHADER);
 	shaders[Shaders::Copy] = LoadShaderProgram(COPY_VERTEX_SHADER, COPY_FRAGMENT_SHADER);
+	shaders[Shaders::NavMesh] = LoadShaderProgram(NAV_VERTEX_SHADER, NAV_FRAGMENT_SHADER, NAV_GEOMETRY_SHADER);
+	shaders[Shaders::Path] = LoadShaderProgram(PATH_VERTEX_SHADER, PATH_FRAGMENT_SHADER);
 
     InitializeScreenVao();
     InitializeScreenVbo();
@@ -978,3 +1220,37 @@ ShaderProgram* Graphics::LoadShaderProgram(std::string vertexShaderFile, std::st
 	// Return the program's ID
 	return new ShaderProgram(programId);
 }
+
+// TODO: Fix this uglyness lol
+ShaderProgram* Graphics::LoadShaderProgram(std::string vertexShaderFile, std::string fragmentShaderFile, std::string geometryShaderFile) const {
+    // Load and compile shaders from source
+    const GLuint vertexId = ContentManager::LoadShader(vertexShaderFile, GL_VERTEX_SHADER);
+    const GLuint fragmentId = ContentManager::LoadShader(fragmentShaderFile, GL_FRAGMENT_SHADER);
+    const GLuint geometryId = ContentManager::LoadShader(geometryShaderFile, GL_GEOMETRY_SHADER);
+
+    // Link the shaders into a program
+    const GLuint programId = glCreateProgram();
+    glAttachShader(programId, vertexId);
+    glAttachShader(programId, fragmentId);
+    glAttachShader(programId, geometryId);
+    glLinkProgram(programId);
+
+    // Check link status and print errors
+    GLint status;
+    glGetProgramiv(programId, GL_LINK_STATUS, &status);
+    if (status == GL_FALSE) {
+        GLint length;
+        glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &length);
+        std::string info(length, ' ');
+        glGetProgramInfoLog(programId, info.length(), &length, &info[0]);
+        std::cout << "ERROR linking shader program:" << std::endl << info << std::endl;
+    }
+
+    glDeleteShader(vertexId);
+    glDeleteShader(fragmentId);
+    glDeleteShader(geometryId);
+
+    // Return the program's ID
+    return new ShaderProgram(programId);
+}
+

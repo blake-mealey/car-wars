@@ -26,12 +26,13 @@ class MeshComponent;
 class Mesh;
 
 struct Camera {
-	Camera(glm::mat4 _viewMatrix, glm::mat4 _projectionMatrix) : viewMatrix(_viewMatrix), projectionMatrix(_projectionMatrix) {}
+	Camera(glm::mat4 _viewMatrix, glm::mat4 _projectionMatrix, Entity *_guiRoot) : viewMatrix(_viewMatrix), projectionMatrix(_projectionMatrix), guiRoot(_guiRoot) {}
 	
 	glm::mat4 viewMatrix;
 	glm::mat4 projectionMatrix;
 	glm::vec2 viewportPosition;
 	glm::vec2 viewportSize;
+	Entity *guiRoot;
 };
 
 struct EABs {
@@ -63,7 +64,7 @@ struct Textures {
 };
 
 struct Shaders {
-	enum { Geometry=0, ShadowMap, Skybox, Screen, Blur, Copy, Count };
+	enum { Geometry=0, GUI, ShadowMap, Skybox, Screen, Blur, Copy, NavMesh, Path, Count };
 };
 
 class Graphics : public System {
@@ -84,6 +85,13 @@ public:
     static const std::string BLUR_FRAGMENT_SHADER;
     static const std::string COPY_VERTEX_SHADER;
     static const std::string COPY_FRAGMENT_SHADER;
+    static const std::string NAV_VERTEX_SHADER;
+    static const std::string NAV_GEOMETRY_SHADER;
+    static const std::string NAV_FRAGMENT_SHADER;
+    static const std::string PATH_VERTEX_SHADER;
+    static const std::string PATH_FRAGMENT_SHADER;
+    static const std::string GUI_VERTEX_SHADER;
+    static const std::string GUI_FRAGMENT_SHADER;
 
 	static const size_t MAX_CAMERAS;
 
@@ -100,6 +108,8 @@ public:
 	bool Initialize(char* windowTitle);
 	bool InitializeFullScreen(char* windowTitle); // don't use when debugging
 	void Update() override;
+
+    void SceneChanged();
     
     // Debug gui
     void RenderDebugGui();
@@ -142,7 +152,11 @@ private:
     GLuint blurLevelIds[BLUR_LEVEL_COUNT];
     GLuint blurTempLevelIds[BLUR_LEVEL_COUNT];
 
+    bool renderMeshes;
     bool renderPhysicsColliders;
+    bool renderPhysicsBoundingBoxes;
+    bool renderNavigationMesh;
+    bool renderNavigationPaths;
     float bloomScale;
 
 	void LoadLights(std::vector<Component*> _pointLights, std::vector<Component*> _directionLights, std::vector<Component*> _spotLights);
@@ -158,4 +172,5 @@ private:
     void InitializeScreenFramebuffer();
 	void InitializeShadowMapFramebuffer();
 	ShaderProgram* LoadShaderProgram(std::string vertexShaderFile, std::string fragmentShaderFile) const;
+    ShaderProgram* LoadShaderProgram(std::string vertexShaderFile, std::string fragmentShaderFile, std::string geometryShaderFile) const;
 };

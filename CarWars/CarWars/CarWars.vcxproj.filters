@@ -162,6 +162,24 @@
     <ClCompile Include="Engine\Components\PowerUpComponents\PowerUp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Systems\Content\NavigationMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Systems\Pathfinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\GuiComponents\GuiComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Systems\GuiHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\WeaponComponents\MissileComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Systems\Physics\CollisionCallback.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Components\CameraComponent.h">
@@ -341,6 +359,24 @@
     <ClInclude Include="Engine\Components\PowerUpComponents\PowerUp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Systems\Content\NavigationMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Systems\Pathfinder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\GuiComponents\GuiComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Systems\GuiHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\WeaponComponents\MissileComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Systems\Physics\CollisionCallback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\PhysicsMaterials\Default.json" />
@@ -348,5 +384,57 @@
     <None Include="Content\Prefabs\Entities\SpeedPowerUp.json" />
     <None Include="Content\Prefabs\Entities\DamagePowerUp.json" />
     <None Include="Content\Prefabs\Entities\DefencePowerUp.json" />
+    <None Include="Content\Scenes\GameDemo.json" />
+    <None Include="Content\Scenes\GraphicsDemo.json" />
+    <None Include="Content\Scenes\PhysicsDemo.json" />
+    <None Include="Content\Prefabs\Entities\AiSewage.json" />
+    <None Include="Content\Prefabs\Entities\Boulder.json" />
+    <None Include="Content\Prefabs\Entities\FireTruck.json" />
+    <None Include="Content\Prefabs\Entities\Flatbed.json" />
+    <None Include="Content\Prefabs\Entities\HeadLamp.json" />
+    <None Include="Content\Prefabs\Entities\Hearse.json" />
+    <None Include="Content\Prefabs\Entities\IceCream.json" />
+    <None Include="Content\Prefabs\Entities\Jump.json" />
+    <None Include="Content\Prefabs\Entities\Marker.json" />
+    <None Include="Content\Prefabs\Entities\Missile.json" />
+    <None Include="Content\Prefabs\Entities\Sewage.json" />
+    <None Include="Content\Prefabs\Entities\Sun.json" />
+    <None Include="Content\Prefabs\Entities\Waypoint.json" />
+    <None Include="Content\Prefabs\Components\Camera.json" />
+    <None Include="Content\Prefabs\Components\Missile.json" />
+    <None Include="Content\Materials\Basic.json" />
+    <None Include="Content\Materials\BlueShiny.json" />
+    <None Include="Content\Materials\LightSource.json" />
+    <None Include="Content\Materials\PhysicsBoundingBox.json" />
+    <None Include="Content\Materials\PhysicsCollider.json" />
+    <None Include="Content\Materials\RedShiny.json" />
+    <None Include="Content\CollisionGroups\Vehicles.json" />
+    <None Include="Engine\Shaders\blur.frag" />
+    <None Include="Engine\Shaders\geometry.frag" />
+    <None Include="Engine\Shaders\geometry.vert" />
+    <None Include="Engine\Shaders\navMesh.frag" />
+    <None Include="Engine\Shaders\navMesh.geom" />
+    <None Include="Engine\Shaders\navMesh.vert" />
+    <None Include="Engine\Shaders\path.frag" />
+    <None Include="Engine\Shaders\path.vert" />
+    <None Include="Engine\Shaders\screen.frag" />
+    <None Include="Engine\Shaders\screen.vert" />
+    <None Include="Engine\Shaders\shadowMap.frag" />
+    <None Include="Engine\Shaders\shadowMap.vert" />
+    <None Include="Engine\Shaders\skybox.frag" />
+    <None Include="Engine\Shaders\skybox.vert" />
+    <None Include="Engine\Shaders\gui.frag" />
+    <None Include="Content\Scenes\GUIs\HUD.json" />
+    <None Include="Content\Scenes\MainMenu.json" />
+    <None Include="Content\Scenes\GUIs\MainMenu_GUI.json" />
+    <None Include="Content\Prefabs\Components\GUIs\MenuButton.json" />
+    <None Include="Content\Prefabs\Components\GUIs\MainMenuButton.json" />
+    <None Include="Content\Scenes\GUIs\StartMenu_GUI.json" />
+    <None Include="Content\Scenes\Menu.json" />
+    <None Include="Content\Scenes\GUIs\CharacterSelectMenu_GUI.json" />
+    <None Include="Content\Scenes\CharacterSelectMenu.json" />
+    <None Include="Content\Prefabs\Entities\Menu\CharacterSelect.json" />
+    <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
+    <None Include="Content\Scenes\GUIs\OptionsMenu_GUI.json" />
   </ItemGroup>
 </Project>

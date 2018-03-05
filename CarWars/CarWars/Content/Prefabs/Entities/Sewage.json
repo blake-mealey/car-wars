@@ -85,7 +85,7 @@
 			"Components": [
 				{
 					"Type": "Mesh",
-					"Mesh": "rail_gun_turret.obj",
+					"Mesh": "machine_gun_turret.obj",
 					"Texture": "TileableDiamondPlate.jpg",
 					"Material": "Basic.json",
 					"UvScale": [0.5, 0.5],

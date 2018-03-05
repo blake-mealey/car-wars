@@ -30,6 +30,7 @@
 #include "../../Components/PowerUpComponents/SpeedPowerUp.h"
 #include "../../Components/PowerUpComponents/DefencePowerUp.h"
 #include "../../Components/PowerUpComponents/DamagePowerUp.h"
+#include "../../Components/GuiComponents/GuiComponent.h"
 
 using namespace nlohmann;
 using namespace physx;
@@ -151,11 +152,20 @@ Texture* ContentManager::GetTexture(const std::string filePath) {
 	return texture;
 }
 
-Material* ContentManager::GetMaterial(const std::string filePath) {
-	Material* material = materials[filePath];
-	if (material != nullptr) return material;
+Material* ContentManager::GetMaterial(json data) {
+	Material *material;
+	
+	bool fromFile = data.is_string();
+	std::string filePath;
+	if (fromFile) {
+		filePath = data.get<std::string>();
+		
+		material = materials[filePath];
+		if (material != nullptr) return material;
 
-	json data = LoadJson(MATERIAL_DIR_PATH + filePath);
+		data = LoadJson(MATERIAL_DIR_PATH + filePath);
+	}
+
 	const glm::vec3 diffuseColor = JsonToVec3(data["DiffuseColor"]);
 	const glm::vec3 specularColor = JsonToVec3(data["SpecularColor"]);
     const float specularity = GetFromJson<float>(data["Specularity"], 1);
@@ -163,8 +173,11 @@ Material* ContentManager::GetMaterial(const std::string filePath) {
 
     material = new Material(diffuseColor, specularColor, specularity, emissiveness);
 
-    materials[filePath] = material;
-    return material;
+	if (fromFile) {
+		materials[filePath] = material;
+	}
+    
+	return material;
 }
 
 PxMaterial* ContentManager::GetPxMaterial(std::string filePath) {
@@ -182,55 +195,59 @@ PxMaterial* ContentManager::GetPxMaterial(std::string filePath) {
     return material;
 }
 
-Component* ContentManager::LoadComponentPrefab(std::string filePath) {
-    const json data = LoadJson(COMPONENT_PREFAB_DIR_PATH + filePath);
-    return LoadComponent(data);
-}
-
-std::vector<Entity*> ContentManager::LoadScene(std::string filePath) {
+std::vector<Entity*> ContentManager::LoadScene(std::string filePath, Entity *parent) {
 	std::vector<Entity*> entities;
 
 	json data = LoadJson(SCENE_DIR_PATH + filePath);
 	for (json entityData : data) {
-		entities.push_back(LoadEntity(entityData));
+		entities.push_back(LoadEntity(entityData, parent));
 	}
 	return entities;
 }
 
+std::vector<Entity*> ContentManager::DestroySceneAndLoadScene(std::string filePath, Entity* parent) {
+    EntityManager::DestroyScene();
+    std::vector<Entity*> scene = LoadScene(filePath, parent);
+    Graphics::Instance().SceneChanged();
+    return scene;
+}
+
 Component* ContentManager::LoadComponent(json data) {
-    if (data.is_string()) {
-        return LoadComponentPrefab(data.get<std::string>());
+    while (data.is_string()) {
+        data = LoadJson(COMPONENT_PREFAB_DIR_PATH + data.get<std::string>());
+    }
+
+    json prefab = data["Prefab"];
+    while (!prefab.is_null()) {
+        json prefabData = LoadJson(COMPONENT_PREFAB_DIR_PATH + prefab.get<std::string>());
+        prefab = json(prefabData["Prefab"]);
+        MergeJson(prefabData, data);
+        data = prefabData;
     }
 
     Component *component = nullptr;
-    bool supportedType;
-    if (!data["Prefab"].is_null()) {
-        component = LoadComponentPrefab(data["Prefab"]);
-        supportedType = component != nullptr;
-    } else {
-        supportedType = true;
-        std::string type = data["Type"];
-        if (type == "Mesh") component = new MeshComponent(data);
-        else if (type == "Camera") component = new CameraComponent(data);
-        else if (type == "PointLight") component = new PointLightComponent(data);
-        else if (type == "DirectionLight") component = new DirectionLightComponent(data);
-        else if (type == "SpotLight") component = new SpotLightComponent(data);
-        else if (type == "RigidStatic") component = new RigidStaticComponent(data);
-        else if (type == "RigidDynamic") component = new RigidDynamicComponent(data);
-        else if (type == "Vehicle") component = new VehicleComponent(data);
-		else if (type == "MachineGun") component = new MachineGunComponent();
-		else if (type == "RailGun") component = new RailGunComponent();
-		else if (type == "AI") component = new AiComponent(data);
-        else if (type == "RocketLauncher") component = new RocketLauncherComponent();
-        else if (type == "SpeedPowerUp") component = new SpeedPowerUp();
-        else if (type == "DefencePowerUp") component = new DefencePowerUp();
-        else if (type == "DamagePowerUp") component = new DamagePowerUp();
-        else {
-            std::cout << "Unsupported component type: " << type << std::endl;
-            supportedType = false;
-        }
+    bool supportedType = true;
+    std::string type = data["Type"];
+    if (type == "Mesh") component = new MeshComponent(data);
+    else if (type == "Camera") component = new CameraComponent(data);
+    else if (type == "PointLight") component = new PointLightComponent(data);
+    else if (type == "DirectionLight") component = new DirectionLightComponent(data);
+    else if (type == "SpotLight") component = new SpotLightComponent(data);
+    else if (type == "RigidStatic") component = new RigidStaticComponent(data);
+    else if (type == "RigidDynamic") component = new RigidDynamicComponent(data);
+    else if (type == "Vehicle") component = new VehicleComponent(data);
+	else if (type == "MachineGun") component = new MachineGunComponent();
+	else if (type == "RailGun") component = new RailGunComponent();
+    else if (type == "RocketLauncher") component = new RocketLauncherComponent();
+    else if (type == "SpeedPowerUp") component = new SpeedPowerUp();
+    else if (type == "DefencePowerUp") component = new DefencePowerUp();
+    else if (type == "DamagePowerUp") component = new DamagePowerUp();
+	else if (type == "AI") component = new AiComponent(data);
+	else if (type == "GUI") component = new GuiComponent(data);
+    else {
+        std::cout << "Unsupported component type: " << type << std::endl;
+        supportedType = false;
     }
-
     if (supportedType) {
         component->enabled = GetFromJson<bool>(data["Enabled"], true);
         return component;
@@ -239,12 +256,10 @@ Component* ContentManager::LoadComponent(json data) {
     return nullptr;
 }
 
-Entity* ContentManager::LoadEntity(json data) {
+Entity* ContentManager::LoadEntity(json data, Entity *parent) {
     while (data.is_string()) {
         data = LoadJson(ENTITY_PREFAB_DIR_PATH + data.get<std::string>());
     }
-
-    Entity *entity = EntityManager::CreateDynamicEntity();		// TODO: Determine whether or not the entity is static
 
     json prefab = data["Prefab"];
 	while (!prefab.is_null()) {
@@ -254,8 +269,12 @@ Entity* ContentManager::LoadEntity(json data) {
         data = prefabData;
 	}
 
+    // TODO: Determine whether or not the entity is static (parameter?)
+    Entity *entity = EntityManager::CreateDynamicEntity(parent);
+
     if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);
     entity->transform = Transform(data);
+    if (parent) entity->transform.parent = &parent->transform;
 
     for (const auto componentData : data["Components"]) {
         Component *component = LoadComponent(componentData);
@@ -264,9 +283,13 @@ Entity* ContentManager::LoadEntity(json data) {
         }
     }
 
-    for (const auto childData : data["Children"]) {
-        Entity *child = LoadEntity(childData);
-        EntityManager::SetParent(child, entity);
+    json children = data["Children"];
+    if (children.is_array()) {
+        for (const auto childData : data["Children"]) {
+            Entity *child = LoadEntity(childData, entity);
+        }
+    } else if (children.is_string()) {
+        LoadScene(children.get<std::string>(), entity);
     }
 
 	return entity;
@@ -302,6 +325,19 @@ void ContentManager::MergeJson(json &obj0, json &obj1, bool overwrite) {
     } else {
         obj0 = overwrite ? obj1 : obj0;
     }
+}
+
+glm::vec4 ContentManager::JsonToVec4(json data, glm::vec4 defaultValue) {
+	if (!data.is_array() || data.size() != 4) return defaultValue;
+	return glm::vec4(
+		GetFromJson<float>(data[0], defaultValue.x),
+		GetFromJson<float>(data[1], defaultValue.y),
+		GetFromJson<float>(data[2], defaultValue.z),
+		GetFromJson<float>(data[3], defaultValue.w));
+}
+
+glm::vec4 ContentManager::JsonToVec4(json data) {
+	return JsonToVec4(data, glm::vec4());
 }
 
 glm::vec3 ContentManager::JsonToVec3(json data, glm::vec3 defaultValue) {

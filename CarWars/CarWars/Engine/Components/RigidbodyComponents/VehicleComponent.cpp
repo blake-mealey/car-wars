@@ -12,6 +12,11 @@ using namespace physx;
 
 VehicleComponent::VehicleComponent() : VehicleComponent(4, false) { }
 
+VehicleComponent::~VehicleComponent() {
+    pxVehicle->release();
+    delete wheelMeshPrefab;
+}
+
 VehicleComponent::VehicleComponent(nlohmann::json data) : RigidDynamicComponent(data) {
     inputTypeDigital = ContentManager::GetFromJson<bool>(data["DigitalInput"], false);
 
@@ -275,6 +280,8 @@ void VehicleComponent::Initialize() {
         MeshComponent* wheel = new MeshComponent(wheelMeshPrefab);
         wheelMeshes.push_back(wheel);
     }
+
+    UpdateWheelTransforms();
 }
 
 void VehicleComponent::UpdateWheelTransforms() {
@@ -425,4 +432,16 @@ void VehicleComponent::SetEntity(Entity* _entity) {
 void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
     Component::UpdateFromPhysics(t);
     UpdateWheelTransforms();
+}
+
+
+void VehicleComponent::TakeDamage(float _damageValue) {
+	health -= _damageValue * resistance;
+	if (health <= 0) {
+		Physics::Instance().AddToDelete(GetEntity());
+	}
+}
+
+float VehicleComponent::GetHealth() {
+	return health;
 }
