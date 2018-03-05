@@ -84,28 +84,18 @@ void RigidbodyComponent::SetEntity(Entity* _entity) {
 	Component::SetEntity(_entity);
 
     pxRigid->setGlobalPose(Transform::ToPx(position));
-    Physics::Instance().GetScene().addActor(*pxRigid);
 	
 	if (_entity->connectedToCylinder) {
 		Entity* cylinder = EntityManager::FindEntities("Cylinder")[0];
 		Physics &physics = Physics::Instance();
 
-		RigidDynamicComponent *entityRigid = static_cast<RigidDynamicComponent*>(_entity->components[1]);
-
-		// Don't let forces move the object
-		entityRigid->actor->setAngularDamping(0.f);
-		entityRigid->actor->setMassSpaceInertiaTensor(PxVec3(0.f, 0.f, 0.f));
-
-		/*
-		float rotateBy = position.GetGlobalPosition().x / Transform::radius + (float) M_PI / 2.f;
-		auto rotation = glm::rotate(glm::quat(), rotateBy, glm::vec3(0, 0, 1));
-*/
-		PxFixedJoint* joint = PxFixedJointCreate(physics.GetApi(),
-			static_cast<RigidStaticComponent*>(cylinder->components[2])->pxRigid, PxTransform(PxIdentity),
-			pxRigid, PxTransform(Transform::ToPx(position)));
-
-		// this needs to be the same as the cylinder one
-		entityRigid->actor->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
+		const RigidDynamicComponent *entityRigid = static_cast<RigidDynamicComponent*>(_entity->components[1]);
+		entityRigid->colliders[0]->GetShape()->setLocalPose(Transform::ToPx(_entity->transform));
+		auto * shape = entityRigid->colliders[0]->GetShape();
+		static_cast<RigidDynamicComponent*>(cylinder->components[1])->pxRigid->attachShape(*shape);
+	}
+	else {
+		Physics::Instance().GetScene().addActor(*pxRigid);
 	}
 
 	for (Collider *collider : colliders) {

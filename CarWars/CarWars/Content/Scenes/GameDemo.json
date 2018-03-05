@@ -47,7 +47,7 @@
   },
   {
     "Tag": "Wall",
-    "Position": [ 70, 0, 0 ],
+    "Position": [ 220, 40, 0 ],
     "Scale": [ 20, 1, 20 ],
     "CylinderPart": true,
     "Components": [
