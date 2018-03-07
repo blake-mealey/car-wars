@@ -33,16 +33,18 @@ public:
 
 	static Mesh* GetMesh(std::string filePath, unsigned pFlags=0);
 	static Texture* GetTexture(std::string filePath);
-	static Material* GetMaterial(std::string filePath);
+	static Material* GetMaterial(nlohmann::json data);
 	static physx::PxMaterial* GetPxMaterial(std::string filePath);
 
-    static Component* LoadComponentPrefab(std::string filePath);
-	static std::vector<Entity*> LoadScene(std::string filePath);
+	static std::vector<Entity*> LoadScene(std::string filePath, Entity *parent=nullptr);
+    static std::vector<Entity*> DestroySceneAndLoadScene(std::string filePath, Entity *parent = nullptr);
 
 	template <typename T>
 	static T GetFromJson(nlohmann::json json, T defaultValue);
 	static nlohmann::json LoadJson(std::string filePath);
 	static void MergeJson(nlohmann::json &obj0, nlohmann::json &obj1, bool overwrite=true);
+	static glm::vec4 JsonToVec4(nlohmann::json data, glm::vec4 defaultValue);
+	static glm::vec4 JsonToVec4(nlohmann::json data);
     static glm::vec3 JsonToVec3(nlohmann::json data, glm::vec3 defaultValue);
 	static glm::vec3 JsonToVec3(nlohmann::json data);
 	static glm::vec2 JsonToVec2(nlohmann::json data, glm::vec2 defaultValue);
@@ -61,7 +63,7 @@ public:
     template <class T>
     static T* LoadComponent(nlohmann::json data);
 	static Component* LoadComponent(nlohmann::json data);
-	static Entity* LoadEntity(nlohmann::json data);
+	static Entity* LoadEntity(nlohmann::json data, Entity *parent=nullptr);
 
 private:
 	static std::map<std::string, Mesh*> meshes;

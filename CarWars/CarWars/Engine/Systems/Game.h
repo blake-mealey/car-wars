@@ -3,6 +3,7 @@
 #include <vector>
 #include <PxRigidDynamic.h>
 #include "../Components/AiComponent.h"
+#include "Content/NavigationMesh.h"
 
 enum Map {
 	Map_Cylinder = 0
@@ -11,6 +12,13 @@ enum Map {
 enum GameMode {
 	Team = 0,
 	FreeForAll
+};
+
+enum WeaponType {
+	MachineGun = 0,
+	RocketLauncher,
+	RailGun,
+	Count
 };
 
 class Entity;
@@ -24,6 +32,8 @@ public:
 	void Initialize();
 	void Update() override;
 
+    void InitializeGame();
+
 	//Game Creation Variables
 	static Map selectedMap;
 	static GameMode selectedGameMode;
@@ -31,9 +41,13 @@ public:
 	static size_t numberOfLives;
 	static size_t killLimit;
 	static size_t timeLimitMinutes;
+	static size_t numberOfPlayers;
+	static int playerWeapons[4];
 
 	std::string MapToString();
 	std::string GameModeToString();
+
+    NavigationMesh *GetNavigationMesh();
 
 private:
 	// No instantiation or copying
@@ -46,7 +60,6 @@ private:
 
     physx::PxRigidDynamic *cylinderRigid;
 
-    std::vector<AiComponent*> ais;
     std::vector<Entity*> waypoints;
 
 	Entity *boulder;
@@ -56,4 +69,6 @@ private:
 	Entity *baby;
 
 	Entity *car;
+
+    NavigationMesh *navigationMesh;
 };

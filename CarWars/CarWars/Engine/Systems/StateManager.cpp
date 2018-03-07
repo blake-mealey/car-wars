@@ -1,10 +1,13 @@
 #include "StateManager.h"
+#include "GuiHelper.h"
+#include "Content/ContentManager.h"
+#include "../Entities/EntityManager.h"
+#include "InputManager.h"
+#include "Game.h"
 
 
 Time StateManager::deltaTime = 0;
 Time StateManager::gameTime = 0;
-
-size_t StateManager::menuIndex = 0;
 
 GameState StateManager::currentState = GameState_Menu;
 
@@ -13,8 +16,40 @@ GameState StateManager::GetState() {
 }
 
 void StateManager::SetState(GameState state) {
+    GameState previousState = currentState;
 	currentState = state;
-	// TODO: Fire event
+
+    switch (currentState) {
+    case GameState_Exit:
+        glfwSetWindowShouldClose(Graphics::Instance().GetWindow(), true);
+        break;
+    case GameState_Menu:
+        ContentManager::DestroySceneAndLoadScene("MainMenu.json");
+        GuiHelper::LoadGuiSceneToCamera(0, "GUIs/MainMenu_GUI.json");
+        break;
+    case GameState_Menu_Start:
+        ContentManager::DestroySceneAndLoadScene("Menu.json");
+        GuiHelper::LoadGuiSceneToCamera(0, "GUIs/StartMenu_GUI.json");
+        break;
+    case GameState_Menu_Start_CharacterSelect:
+        ContentManager::DestroySceneAndLoadScene("CharacterSelectMenu.json");
+        for (size_t i = 0; i < 4; ++i) {
+            GuiHelper::LoadGuiSceneToCamera(i, "GUIs/CharacterSelectMenu_GUI.json");      // Load gui to new cameras
+        }
+        break;
+    case GameState_Menu_Settings:
+        ContentManager::DestroySceneAndLoadScene("Menu.json");
+        GuiHelper::LoadGuiSceneToCamera(0, "GUIs/OptionsMenu_GUI.json");
+        break;
+    case GameState_Playing:
+        if (previousState < __GameState_Menu_End) {
+            Game::Instance().InitializeGame();
+        }
+    }
+
+    // TODO: Fire event
+
+    std::cout << "Game State: " << GameStateToString() << std::endl;
 }
 
 bool StateManager::IsState(GameState state) {
@@ -41,5 +76,7 @@ std::string StateManager::GameStateToString() {
 	case 5:
 		return "GameState_Paused";
 		break;
+    default:
+        return "";
 	}
 }

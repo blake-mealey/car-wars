@@ -9,9 +9,6 @@
       "Rotate": [ 0, 180, 0 ],
       "Position": [ 0.0825, -0.825, 0.18 ]
     },
-	{
-		"Type": "RocketLauncher"
-	},
     {
       "Type": "Vehicle",
       "WheelMesh": {
@@ -85,7 +82,7 @@
 			"Components": [
 				{
 					"Type": "Mesh",
-					"Mesh": "rail_gun_turret.obj",
+					"Mesh": "machine_gun_turret.obj",
 					"Texture": "TileableDiamondPlate.jpg",
 					"Material": "Basic.json",
 					"UvScale": [0.5, 0.5],

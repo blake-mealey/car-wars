@@ -45,8 +45,8 @@ int main() {
     // Initialize audio
     Audio &audioManager = Audio::Instance();
     audioManager.Initialize();
-    audioManager.PlayAudio("Content/Sounds/engine-running.mp3");
-    audioManager.PlayAudio("Content/Sounds/sport-start.mp3");
+
+    //audioManager.PlayAudio("Content/Sounds/engine-running.mp3");
 
 	// Add systems in desired order
 	systems.push_back(&inputManager);
@@ -54,7 +54,6 @@ int main() {
 	systems.push_back(&gameManager);
 	systems.push_back(&graphicsManager);
     systems.push_back(&audioManager);
-
 
 	//Game Loop
 	Time lastFrame(0);

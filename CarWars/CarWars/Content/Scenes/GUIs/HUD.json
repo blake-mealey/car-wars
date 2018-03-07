@@ -1,0 +1,64 @@
+[
+	{
+		"Tag": "Crosshair",
+        "Components": [
+	        {
+		        "Type": "GUI",
+                "AnchorPoint": [0.5, 0.5],
+                "ScaledPosition": [0.5, 0.5],
+                "Scale": [4, 4, 1],
+                "Texture": "HUD/sight-dot.png"
+	        },
+	        {
+		        "Type": "GUI",
+		        "AnchorPoint": [1, 0.5],
+		        "ScaledPosition": [0.5, 0.5],
+                "Position": [-10, 0, 0],
+		        "Scale": [7, 12, 1],
+		        "Texture": "HUD/sight-left.png"
+	        },
+	        {
+		        "Type": "GUI",
+		        "AnchorPoint": [0, 0.5],
+		        "ScaledPosition": [0.5, 0.5],
+		        "Position": [10, 0, 0],
+		        "Scale": [7, 12, 1],
+		        "Texture": "HUD/sight-right.png"
+	        }
+        ]
+	},
+	{
+		"Tag": "DamageIndicator",
+		"Components": [
+			{
+				"Type": "GUI",
+				"AnchorPoint": [0.5, 0.5],
+                "ScaledPosition": [0.5, 0.5],
+				"ScaledScale": [1, 1],
+				"Texture": "HUD/health-vignette-red.png",
+                "Enabled": false
+			},
+			{
+				"Type": "GUI",
+				"AnchorPoint": [0.5, 0.5],
+				"ScaledPosition": [0.5, 0.5],
+				"ScaledScale": [1, 1],
+				"Texture": "HUD/shield-vignette.png",
+				"Enabled": false
+			}
+		]
+	},
+	{
+		"Tag": "HitIndicator",
+        "Components": [
+	        {
+		        "Type": "GUI",
+		        "AnchorPoint": [0.5, 0.5],
+		        "ScaledPosition": [0.5, 0.5],
+		        "Scale": [500, 500, 1],
+		        "Texture": "HUD/hit-indicator.png",
+                "Enabled": false
+	        }
+        ]
+	}
+]

@@ -19,12 +19,15 @@ enum ComponentType {
 	ComponentType_MachineGun,
 	ComponentType_RailGun,
 	ComponentType_RocketLauncher,
-	ComponentType_AI
+	ComponentType_AI,
+	ComponentType_GUI,
+	ComponentType_Missile
 };
 
 class Component {
 public:
-	Component();
+    virtual ~Component() = default;
+    Component();
 	
 	bool enabled;
 	

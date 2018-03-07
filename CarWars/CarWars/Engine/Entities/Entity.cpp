@@ -1,14 +1,19 @@
 #include "Entity.h"
 #include "../Events/Event.h"
 #include "imgui/imgui.h"
+#include "EntityManager.h"
 
 Entity::Entity(size_t _id) : id(_id), components(std::vector<Component*>()), children(std::vector<Entity*>()),
-        parent(nullptr), transform(Transform()), tag(std::string()) { }
+        parent(nullptr), transform(Transform()), tag(std::string()), markedForDeletion(false) { }
 
 Entity::~Entity() {
-	for (size_t i = 0; i < components.size(); i++) {
-		delete components[i];
-	}
+    while (!components.empty()) {
+        EntityManager::DestroyComponent(components.back());
+    }
+
+    while (!children.empty()) {
+        EntityManager::DestroyEntity(children.back());
+    }
 }
 
 void Entity::HandleEvent(Event* event) {
@@ -76,4 +81,10 @@ void Entity::SetTag(std::string _tag) {
 	tag = _tag;
 }
 
+bool Entity::IsMarkedForDeletion() const {
+	return markedForDeletion;
+}
 
+void Entity::MarkForDeletion() {
+	markedForDeletion = true;
+}

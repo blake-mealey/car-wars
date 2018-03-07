@@ -23,7 +23,11 @@ Collider::Collider(nlohmann::json data) : shape(nullptr), geometry(nullptr) {
 }
 
 Collider::~Collider() {
-    shape->release();
+    if (shape->getActor()) {
+        shape->getActor()->detachShape(*shape);
+    } else {
+        shape->release();
+    }
     delete geometry;
 }
 
@@ -41,7 +45,10 @@ void Collider::CreateShape(PxRigidActor *actor) {
 
 void Collider::RenderDebugGui() {
     if (ImGui::TreeNode("Transform")) {
-        if (transform.RenderDebugGui()) shape->setLocalPose(Transform::ToPx(transform));
+		if (transform.RenderDebugGui()) {
+			shape->setLocalPose(Transform::ToPx(transform));
+			UpdateScale(transform.GetGlobalScale());
+		}
         ImGui::TreePop();
     }
     ImGui::LabelText("Collision Group", "%s", collisionGroup);
@@ -60,9 +67,25 @@ std::string Collider::GetTypeName(ColliderType type) {
 }
 
 Transform Collider::GetLocalTransform() const {
-    return shape->getLocalPose();
+    Transform pose = shape->getLocalPose();
+	pose.SetScale(transform.GetLocalScale());
+	return pose;
 }
 
 Transform Collider::GetGlobalTransform() const {
-    return PxShapeExt::getGlobalPose(*shape, *shape->getActor());
+	Transform pose = PxShapeExt::getGlobalPose(*shape, *shape->getActor());
+	pose.SetScale(transform.GetLocalScale());
+	return pose;
+}
+
+void Collider::Scale(glm::vec3 scaleFactor) {
+	UpdateScale(transform.GetLocalScale() * scaleFactor);
+}
+
+void Collider::UpdateScale(glm::vec3 scale) {
+	transform.SetScale(scale);
+	if (shape != nullptr) {
+		InitializeGeometry();
+		shape->setGeometry(*geometry);
+	}
 }

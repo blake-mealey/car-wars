@@ -15,6 +15,7 @@ public:
 	ComponentType GetType() override;
 	void HandleEvent(Event* event) override;
 
+    ~CameraComponent() override;
 	CameraComponent();
 	CameraComponent(nlohmann::json data);
 	CameraComponent(glm::vec3 _position, glm::vec3 _target, glm::vec3 _upVector);
@@ -27,6 +28,7 @@ public:
 	void SetTarget(glm::vec3 _target);
 	void SetFieldOfView(float _fieldOfView);
 	void SetAspectRatio(float _aspectRatio);
+	void SetUpVector(glm::vec3 _up);
 
 	glm::mat4 GetViewMatrix();
 	glm::mat4 GetProjectionMatrix() const;
@@ -37,11 +39,21 @@ public:
 	float GetCameraVerticalAngle();
 	void SetCameraVerticalAngle(float _cameraLift);
 
+	void UpdateCameraPosition(Entity* _vehicle, float _cameraHor, float _cameraVer);
+
 	float GetCameraSpeed();
 
     void RenderDebugGui() override;
 
+	Entity* GetGuiRoot();
+	//std::vector<Entity*>& GetGuiEntities();
+
 private:
+	//std::vector<Entity*> guiEntities;
+	Entity *guiRoot;
+
+    bool targetInLocalSpace;
+
 	float fieldOfView;		// In degrees
 	glm::vec3 position;
 	glm::vec3 target;
@@ -59,5 +71,5 @@ private:
 	float cameraAngle = -3.14 / 2;
 	float cameraLift = 3.14 / 4;
     float distanceFromCenter;
-	float cameraSpeed = 0.1f;
+	float cameraSpeed = 5.f;
 };

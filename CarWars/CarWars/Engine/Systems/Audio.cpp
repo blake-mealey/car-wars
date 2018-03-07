@@ -34,8 +34,8 @@ void Audio::PlayAudio(const char *filename) {
 }
 
 void Audio::Update() { 
-    glm::vec3 vehiclePos = EntityManager::FindEntities("Vehicle")[0]->transform.GetGlobalPosition();
-    glm::vec3 cameraPos = EntityManager::FindEntities("Vehicle")[0]->transform.GetGlobalPosition();
+  /*  glm::vec3 vehiclePos = EntityManager::FindEntities("Vehicle")[0]->transform.GetGlobalPosition();
+    glm::vec3 cameraPos = EntityManager::FindEntities("Vehicle")[0]->transform.GetGlobalPosition();*/
     //Transform vehiclePos = EntityManager::FindEntities("Vehicle")[0]->transform;
 
     //soundSystem->set3DListenerAttributes(0,)

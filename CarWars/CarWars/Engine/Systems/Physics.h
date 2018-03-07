@@ -1,7 +1,9 @@
 #pragma once
 
 #include "System.h"
+#include "../Entities/Entity.h"
 
+#include "Physics/CollisionCallback.h"
 #include "PxPhysicsAPI.h"
 #include "Physics/VehicleSceneQuery.h"
 #include "Physics/VehicleCreate.h"
@@ -22,11 +24,16 @@ public:
 
 	void Update() override;
 
+	void AddToDelete(Entity* _entity);
+
 private:
 	// No instantiation or copying
 	Physics();
 	Physics(const Physics&) = delete;
 	Physics& operator= (const Physics&) = delete;
+
+	CollisionCallback collisionCallbackInstance;
+	std::vector<Entity*> toDelete;
 
     void InitializeVehicles();
 

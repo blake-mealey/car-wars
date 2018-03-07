@@ -18,15 +18,16 @@ float Transform::radius = 0;
 
 Transform::Transform() : Transform(nullptr, glm::vec3(), glm::vec3(1.f), glm::quat(), false) {}
 
+Transform::Transform(glm::vec3 _position, glm::vec3 _scale) : Transform(nullptr, _position, _scale, glm::quat(), false) { }
+
 Transform::Transform(nlohmann::json data) : parent(nullptr) {
-    SetPosition(ContentManager::JsonToVec3(data["Position"], glm::vec3()));
+	connectedToCylinder = ContentManager::GetFromJson<bool>(data["CylinderPart"], false);
+	SetPosition(ContentManager::JsonToVec3(data["Position"], glm::vec3()));
     SetScale(ContentManager::JsonToVec3(data["Scale"], glm::vec3(1.f)));
     if (!data["Rotate"].is_null()) {
         const glm::vec3 rot = ContentManager::JsonToVec3(data["Rotate"]);
         SetRotationEulerAngles(glm::vec3(glm::radians(rot.x), glm::radians(rot.y), glm::radians(rot.z)));
     }
-
-    connectedToCylinder = ContentManager::GetFromJson<bool>(data["CylinderPart"], false);
 }
 
 Transform::Transform(physx::PxTransform t) : Transform(nullptr, FromPx(t.p), glm::vec3(1.f), FromPx(t.q), false) {}
@@ -55,20 +56,20 @@ void Transform::ConnectToCylinder() {
 	connectedToCylinder = true;
 }
 
-bool Transform::RenderDebugGui() {
+bool Transform::RenderDebugGui(float positionIncrement, float scaleIncrement) {
     bool changed = false;
-    if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.01f)) {
+    if (ImGui::DragFloat3("Position", glm::value_ptr(position), positionIncrement)) {
         changed = true;
         SetPosition(position);
     }
-    if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.05f)) {
+    if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), scaleIncrement)) {
         changed = true;
         SetScale(scale);
     }
     return changed;
 }
 
-glm::vec3 Transform::GetLocalPosition() {
+glm::vec3 Transform::GetLocalPosition() const {
 	return position;
 }
 
@@ -77,11 +78,11 @@ glm::vec3 Transform::GetCylinderPosition() {
 	return FromCylinder(GetGlobalPosition());
 }
 
-glm::vec3 Transform::GetLocalScale() {
+glm::vec3 Transform::GetLocalScale() const {
 	return scale;
 }
 
-glm::quat Transform::GetLocalRotation() {
+glm::quat Transform::GetLocalRotation() const {
 	return rotation;
 }
 
@@ -90,13 +91,17 @@ glm::vec3 Transform::GetGlobalPosition() {
 }
 
 glm::vec3 Transform::GetGlobalScale() {
-	glm::vec3 globalScale;
+	glm::vec3 globalScale = glm::vec3(1.f);
 	Transform* transform = this;
 	do {
 		globalScale = transform->GetLocalScale() * globalScale;
 		transform = transform->parent;
 	} while (transform != nullptr);
 	return globalScale;
+}
+
+glm::vec3 Transform::GetLocalDirection(glm::vec3 globalDirection) {
+	return glm::inverse(GetTransformationMatrix()) * glm::vec4(globalDirection, 0.f);
 }
 
 glm::vec3 Transform::GetGlobalDirection(glm::vec3 localDirection) {
@@ -178,7 +183,7 @@ void Transform::Scale(glm::vec3 scaleFactor) {
 }
 
 void Transform::Rotate(glm::vec3 axis, float radians) {
-	SetRotation(glm::rotate(rotation, glm::degrees(radians), axis));
+	SetRotation(glm::rotate(rotation, radians, axis));
 }
 
 void Transform::Rotate(glm::quat quaternion) {

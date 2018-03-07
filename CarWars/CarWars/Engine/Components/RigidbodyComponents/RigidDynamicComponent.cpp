@@ -19,6 +19,10 @@ RigidDynamicComponent::RigidDynamicComponent(nlohmann::json data) : RigidbodyCom
     RigidDynamicComponent::InitializeRigidbody();
 }
 
+RigidDynamicComponent::~RigidDynamicComponent() {
+	//pxRigid->release();
+}
+
 void RigidDynamicComponent::SetMass(float _mass) {
     mass = _mass;
     actor->setMass(mass);
@@ -58,4 +62,11 @@ void RigidDynamicComponent::RenderDebugGui() {
     if (ImGui::DragFloat("Mass", &mass, 10, 0)) SetMass(mass);
     if (ImGui::DragFloat3("MomentOfInertia", glm::value_ptr(momentOfInertia), 0.01)) SetMomentOfInertia(momentOfInertia);
     if (ImGui::DragFloat3("CenterOfMassOffset", glm::value_ptr(centerOfMassOffset), 0.01)) SetCenterOfMassOffset(centerOfMassOffset);
+
+	glm::vec3 linearVelocity = Transform::FromPx(actor->getLinearVelocity());
+	if (ImGui::DragFloat3("Linear Velocity", glm::value_ptr(linearVelocity), 0.1f)) actor->setLinearVelocity(Transform::ToPx(linearVelocity));
+
+	glm::vec3 angularVelocity = Transform::FromPx(actor->getAngularVelocity());
+	if (ImGui::DragFloat3("Angular Velocity", glm::value_ptr(angularVelocity), 0.1f)) actor->setAngularVelocity(Transform::ToPx(angularVelocity));
+
 }

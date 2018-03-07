@@ -3,21 +3,28 @@
 #include "Entity.h"
 #include <map>
 
+class CameraComponent;
+
 class EntityManager {
 public:
 	// Access entities
     static Entity* GetRoot();
 	static Entity* FindEntity(size_t id);
+	static Entity* FindEntity(physx::PxRigidActor* _actor);
 	static std::vector<Entity*> FindEntities(std::string tag);
 
 	// Manage entities
-	static Entity* CreateStaticEntity();
-	static Entity* CreateDynamicEntity();
-	static void DestroyStaticEntity(size_t id);
-	static void DestroyDynamicEntity(size_t id);
+	static Entity* CreateStaticEntity(Entity *parent=nullptr);
+	static Entity* CreateDynamicEntity(Entity *parent = nullptr);
+	static void DestroyStaticEntity(Entity *entity);
+	static void DestroyDynamicEntity(Entity *entity);
+    static void DestroyEntity(Entity *entity);
+
+    static void DestroyScene();
 
 	static void SetTag(size_t entityId, std::string tag);
 	static void SetTag(Entity *entity, std::string tag);
+    static void ClearTag(Entity *entity);
 
     // Manage entity parenting
     static void SetParent(Entity* child, Entity *parent);
@@ -40,8 +47,8 @@ public:
 	// Contact entities
 	static void BroadcastEvent(Event *event);
 private:
-	static Entity* CreateEntity(std::vector<Entity*> &entities);
-	static void DestroyEntity(size_t id, std::vector<Entity*> &entities);
+	static Entity* CreateEntity(std::vector<Entity*> &entities, Entity* parent);
+	static void DestroyEntity(Entity *entity, std::vector<Entity*> &entities);
 
 	// Store entities
     static Entity* root;

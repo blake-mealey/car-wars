@@ -2,6 +2,10 @@
 #include <iostream>
 
 #include "../../Systems/StateManager.h"
+#include "../../Systems/Physics.h"
+#include "../../Entities/EntityManager.h"
+
+#include "../RigidbodyComponents/VehicleComponent.h"
 
 #include "WeaponComponent.h"
 
@@ -15,6 +19,7 @@ public:
 	void HandleEvent(Event* event) override;
 
 	void RenderDebugGui() override;
+
 private:
 	Time timeBetweenShots = 1.0f;
 	Time chargeTime = 2.0f;
