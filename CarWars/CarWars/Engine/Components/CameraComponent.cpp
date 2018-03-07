@@ -124,7 +124,7 @@ void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, f
 
 	Transform position = Transform(distanceFromCenter*Transform::UP);
 
-	position.Rotate(Transform::RIGHT, -_cameraVer);
+	position.Rotate(Transform::RIGHT, _cameraVer);
 	position.Rotate(Transform::UP, _cameraHor);
 
 	SetPosition(distanceFromCenter * position.GetGlobalPosition());

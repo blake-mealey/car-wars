@@ -66,6 +66,7 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 
 	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
 	camera->SetUpVector(vehicle->transform.GetUp());
+
 /*
 	glm::vec3 vehicleForward = vehicle->transform.GetForward();
 	glm::vec3 vehicleUp = vehicle->transform.GetUp();
