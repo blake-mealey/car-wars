@@ -39,6 +39,34 @@ void InputManager::Update() {
 }
 
 void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs) {
+
+
+	glm::vec3 vehicleForward = vehicle->transform.GetForward();
+	glm::vec3 vehicleUp = vehicle->transform.GetUp();
+	glm::vec3 vehicleRight = vehicle->transform.GetRight();
+
+	glm::vec3 cameraLookat = camera->GetPosition() - camera->GetTarget();
+
+	glm::vec3 cameraHorizontalAxis = glm::cross(vehicleUp, cameraLookat);
+	glm::vec3 cameraVerticalAxis = vehicleUp;
+
+	//Update Camera Angles
+	glm::vec2 cameraAngles = glm::vec2(camera->GetCameraHorizontalAngle(), camera->GetCameraVerticalAngle());
+
+	float cameraSpd = camera->GetCameraSpeed();
+
+	glm::vec2 cameraMovement = angleDiffs * camera->GetCameraSpeed() * StateManager::deltaTime.GetTimeSeconds();
+
+	float cameraNewHor = cameraAngles.x - cameraMovement.x;
+	float cameraNewVer = cameraAngles.y;// +cameraMovement.y;
+
+	float dotFU = glm::dot(vehicleForward, Transform::UP);
+
+	cameraNewVer = glm::clamp(cameraNewVer, dotFU + (float)3.141592 / 4, dotFU + 3.f * (float)3.141592 / 4);
+
+	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
+	camera->SetUpVector(vehicle->transform.GetUp());
+/*
 	glm::vec3 vehicleForward = vehicle->transform.GetForward();
 	glm::vec3 vehicleUp = vehicle->transform.GetUp();
 	glm::vec3 vehicleRight = vehicle->transform.GetRight();
@@ -75,6 +103,7 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	vehicleGunTurret->transform.SetRotationAxisAngles(vehicle->transform.GetUp(), gunHor);
 	float gunVer = -cameraNewVer + (M_PI_2 - (M_PI_4 / 4.0f)) + (acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f));
 	vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
+	*/
 }
 
 void InputManager::HandleMouse() {

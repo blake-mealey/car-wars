@@ -146,7 +146,7 @@ void Game::Update() {
     if (StateManager::GetState() == GameState_Menu) {
     } else if (StateManager::GetState() == GameState_Playing) {
         // Set the cylinder's rotation
-        cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
+        cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.0f));
 
         // Update AIs
 		std::vector<Component*> aiComponents = EntityManager::GetComponents(ComponentType_AI);
