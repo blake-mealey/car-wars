@@ -60,12 +60,12 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	float cameraSpd = camera->GetCameraSpeed();
 	float cameraNewHor = (cameraHor - (angleDiffs.x * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
 	float cameraNewVer = (cameraVer + (angleDiffs.y * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
-	/*
-	float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
-	float minAngle = (M_PI_4) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
-	float maxAngle = (M_PI_2 + (M_PI_4 / 4.0f)) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
-	cameraNewVer = glm::clamp(cameraNewVer, minAngle, maxAngle);
-	*/
+	
+	//float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
+	//float minAngle = (M_PI_4) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
+	//float maxAngle = (M_PI_2 + (M_PI_4 / 4.0f)) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
+	//cameraNewVer = glm::clamp(cameraNewVer, minAngle, maxAngle);
+
 	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
 	camera->SetUpVector(vehicle->transform.GetUp());
 
