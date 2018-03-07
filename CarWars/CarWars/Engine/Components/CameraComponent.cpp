@@ -123,9 +123,9 @@ void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, f
 	SetCameraVerticalAngle(_cameraVer);
 
 	SetPosition(distanceFromCenter * (
-		-Transform::FORWARD * cos(GetCameraHorizontalAngle()) * sin(GetCameraVerticalAngle()) +
-		Transform::UP * cos(GetCameraVerticalAngle()) +
-		-Transform::RIGHT * (sin(GetCameraHorizontalAngle())) * (sin(GetCameraVerticalAngle()))));
+		-_vehicle->transform.GetForward() * cos(GetCameraHorizontalAngle()) * sin(GetCameraVerticalAngle()) +
+		_vehicle->transform.GetUp() * cos(GetCameraVerticalAngle()) +
+		-_vehicle->transform.GetRight() * (sin(GetCameraHorizontalAngle())) * (sin(GetCameraVerticalAngle()))));
 }
 
 void CameraComponent::UpdatePositionFromAngles() {
