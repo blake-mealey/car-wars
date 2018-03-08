@@ -128,6 +128,11 @@
     <None Include="Content\Prefabs\Components\Camera.json" />
     <None Include="Content\Prefabs\Components\GUIs\MainMenuButton.json" />
     <None Include="Content\Prefabs\Components\GUIs\MenuButton.json" />
+    <None Include="Content\Prefabs\Entities\AiSewage.json" />
+    <None Include="Content\Prefabs\Entities\Boulder.json" />
+    <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
+    <None Include="Content\Prefabs\Entities\FireTruck.json" />
+    <None Include="Content\Prefabs\Entities\Flatbed.json" />
     <None Include="Content\Prefabs\Components\Missile.json" />
     <None Include="Content\Prefabs\Entities\AiSewage.json" />
     <None Include="Content\Prefabs\Entities\Boulder.json" />
@@ -141,6 +146,7 @@
     <None Include="Content\Prefabs\Entities\Waypoint.json" />
     <None Include="Content\Scenes\CharacterSelectMenu.json" />
     <None Include="Content\Scenes\GameDemo.json" />
+    <None Include="Content\Scenes\GraphicsDemo.json" />
     <None Include="Content\Scenes\GUIs\HUD.json" />
     <None Include="Content\Scenes\GUIs\MainMenu_GUI.json" />
     <None Include="Content\Scenes\GUIs\CharacterSelectMenu_GUI.json" />

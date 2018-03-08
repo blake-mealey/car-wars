@@ -1,6 +1,6 @@
 #include "RailGunComponent.h"
 
-RailGunComponent::RailGunComponent() {}
+RailGunComponent::RailGunComponent() : WeaponComponent(1150.0f) {}
 
 void RailGunComponent::Shoot() {
 	if (StateManager::gameTime.GetTimeSeconds() >= nextShotTime.GetTimeSeconds()) {
