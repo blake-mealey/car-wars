@@ -8,6 +8,8 @@
 #include "Physics/VehicleSceneQuery.h"
 #include "Physics/VehicleCreate.h"
 
+#include <unordered_set>
+
 class VehicleComponent;
 
 class Physics : public System {
@@ -33,7 +35,7 @@ private:
 	Physics& operator= (const Physics&) = delete;
 
 	CollisionCallback collisionCallbackInstance;
-	std::vector<Entity*> toDelete;
+	std::unordered_set<Entity*> toDelete;
 
     void InitializeVehicles();
 

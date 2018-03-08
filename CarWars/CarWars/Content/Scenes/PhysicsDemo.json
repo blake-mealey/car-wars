@@ -41,7 +41,7 @@
   },
   {
     "Prefab": "DamagePowerUp.json",
-    "Position": [ -70, 2, -70 ]
+    "Position": [ -10, 2, 0 ]
   },
 
   {
@@ -61,7 +61,7 @@
         "Mass": 1000000000,
         "Colliders": [
           {
-            "Type": "Mesh",
+            "Type": "Box",
             "CollisionGroup": "Ground",
             "Mesh": "Cylinder.obj"
           }
@@ -153,10 +153,6 @@
             }
 		]
 	},
-  {
-    "Prefab": "Sewage.json",
-    "Position": [ 0, 10, 0 ]
-  },
   "Sun.json",
   {
     "Tag": "Camera",

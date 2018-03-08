@@ -109,6 +109,32 @@ void NavigationMesh::UpdateMesh(std::vector<Component*> rigidbodies) {
     UpdateRenderBuffers();
 }
 
+void NavigationMesh::RemoveRigidbody(RigidbodyComponent *rigidbody) {
+	// Check if covered vertices became uncovered
+	for (auto it = coveredVertices.begin(); it != coveredVertices.end(); ) {
+		const size_t index = *it;
+		NavigationVertex& vertex = vertices[index];
+
+		// Check if any of the bodies covering this vertex are the given rigidbody, and remove them
+		auto &vertexCoveringBodies = coveringBodies[index];
+		for (auto it2 = vertexCoveringBodies.begin(); it2 != vertexCoveringBodies.end(); ) {
+			if ((*it2) == rigidbody) {
+				it2 = vertexCoveringBodies.erase(it2);
+			} else {
+				++it2;
+			}
+		}
+
+		// If this vertex is no longer covered, remove it from the set of covered bodies
+		if (vertexCoveringBodies.empty()) {
+			vertex.score = 0.5f;
+			it = coveredVertices.erase(it);
+		} else {
+			++it;
+		}
+	}
+}
+
 size_t NavigationMesh::FindClosestVertex(glm::vec3 worldPosition) const {
     // Bounds-check rows
     size_t row = 0;

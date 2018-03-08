@@ -22,6 +22,8 @@ public:
 
     size_t GetControllerCount();
 private:
+	void NavigateGuis(int vertDir, int horizDir, int enter, int back);
+
 	static vector<XboxController*> xboxControllers;
 
     void HandleVehicleControllerInput(size_t controllerNum, VehicleComponent *vehicle, int &leftVibrate, int &rightVibrate);

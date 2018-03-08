@@ -214,13 +214,11 @@ void Physics::Update() {
         PxRigidActor* activeActor = static_cast<PxRigidActor*>(activeActors[i]);
 
         Component* component = static_cast<Component*>(activeActor->userData);
-        if (component != NULL) {
+        if (component != NULL && !component->GetEntity()->IsMarkedForDeletion()) {
             component->UpdateFromPhysics(activeActor->getGlobalPose());
             updatedComponents.push_back(component);
         }
     }
-
-    Game::Instance().GetNavigationMesh()->UpdateMesh(updatedComponents);
 
 	if (!toDelete.empty()) {
 		for (Entity* _entity : toDelete) {
@@ -228,9 +226,13 @@ void Physics::Update() {
 		}
 		toDelete.clear();
 	}
+
+	Game::Instance().GetNavigationMesh()->UpdateMesh(updatedComponents);
 }
 
 void Physics::AddToDelete(Entity* _entity) {
-	if(_entity)
-		toDelete.push_back(_entity);
+	if (_entity) {
+		toDelete.insert(_entity);
+		_entity->MarkForDeletion();
+	}
 }

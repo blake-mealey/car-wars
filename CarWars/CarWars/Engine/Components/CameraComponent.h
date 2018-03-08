@@ -71,5 +71,5 @@ private:
 	float cameraAngle = -3.14 / 2;
 	float cameraLift = 3.14 / 4;
     float distanceFromCenter;
-	float cameraSpeed = 0.1f;
+	float cameraSpeed = 5.f;
 };

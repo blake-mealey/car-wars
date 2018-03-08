@@ -24,6 +24,8 @@ public:
     void UpdateMesh();
     void UpdateMesh(std::vector<Component*> rigidbodies);
 
+	void RemoveRigidbody(RigidbodyComponent *rigidbody);
+
     size_t FindClosestVertex(glm::vec3 worldPosition) const;
 
     NavigationVertex GetVertex(size_t index) const;

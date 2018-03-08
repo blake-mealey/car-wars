@@ -14,6 +14,13 @@ enum GameMode {
 	FreeForAll
 };
 
+enum WeaponType {
+	MachineGun = 0,
+	RocketLauncher,
+	RailGun,
+	Count
+};
+
 class Entity;
 class Game : public System {
 public:
@@ -34,6 +41,8 @@ public:
 	static size_t numberOfLives;
 	static size_t killLimit;
 	static size_t timeLimitMinutes;
+	static size_t numberOfPlayers;
+	static int playerWeapons[4];
 
 	std::string MapToString();
 	std::string GameModeToString();
@@ -51,7 +60,6 @@ private:
 
     physx::PxRigidDynamic *cylinderRigid;
 
-    std::vector<AiComponent*> ais;
     std::vector<Entity*> waypoints;
 
 	Entity *boulder;
