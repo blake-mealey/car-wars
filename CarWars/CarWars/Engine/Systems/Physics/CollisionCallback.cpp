@@ -13,7 +13,7 @@ void CollisionCallback::onContact(const physx::PxContactPairHeader& pairHeader, 
 		if (actor0->HasTag("Missile")) {
 			physicsInstance.AddToDelete(actor0);
 			if (actor1->HasTag("AiVehicle")) {
-				float damage = static_cast<MissileComponent*>(actor0->components[1])->GetDamage();
+				float damage = actor0->GetComponent<MissileComponent>()->GetDamage();
 				static_cast<VehicleComponent*>(actor1RB)->TakeDamage(damage);
 				std::cout << static_cast<VehicleComponent*>(actor1RB)->GetHealth() << std::endl;
 			}
@@ -22,7 +22,7 @@ void CollisionCallback::onContact(const physx::PxContactPairHeader& pairHeader, 
 		if (actor1->HasTag("Missile")) {
 			physicsInstance.AddToDelete(actor1);
 			if (actor0->HasTag("AiVehicle")) {
-				float damage = static_cast<MissileComponent*>(actor1->components[1])->GetDamage();
+				float damage = actor1->GetComponent<MissileComponent>()->GetDamage();
 				static_cast<VehicleComponent*>(actor0RB)->TakeDamage(damage);
 				std::cout << static_cast<VehicleComponent*>(actor0RB)->GetHealth() << std::endl;
 			}

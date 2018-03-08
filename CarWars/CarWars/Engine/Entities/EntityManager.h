@@ -2,6 +2,8 @@
 
 #include "Entity.h"
 #include <map>
+#include <unordered_map>
+#include <typeindex>
 
 class CameraComponent;
 
@@ -40,10 +42,17 @@ public:
 	static void DestroyComponent(Component* component);
 	static std::vector<Component*> GetComponents(ComponentType type);
     static std::vector<Component*> GetComponents(std::vector<ComponentType> types);
-
-    template <class T>
-    static std::vector<T*> GetComponents(ComponentType type);
 	
+	template <class T>
+	static std::vector<T*> GetComponents(ComponentType type) {
+		std::vector<T*> result;
+		std::vector<Component*> temp = components[type];
+		for (Component* component : temp) {
+			result.push_back(static_cast<T*>(component));
+		}
+		return result;
+	}
+
 	// Contact entities
 	static void BroadcastEvent(Event *event);
 private:
@@ -59,18 +68,9 @@ private:
 
 	// Store components
 	static std::map<ComponentType, std::vector<Component*>> components;
+	static std::unordered_map<std::type_index, std::vector<Component*>> _components;
 
 	static size_t nextEntityId;
 
 	// TODO (if necessary): Object pools (under-the-hood, won't change interface of Create/Destroy)
 };
-
-template <class T>
-std::vector<T*> EntityManager::GetComponents(ComponentType type) {
-    std::vector<T*> result;
-    std::vector<Component*> temp = components[type];
-    for (Component* component : temp) {
-        result.push_back(static_cast<T*>(component));
-    }
-    return result;
-}

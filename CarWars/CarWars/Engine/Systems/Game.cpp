@@ -63,7 +63,7 @@ void Game::InitializeGame() {
 
 	for (int i = 0; i < numberOfPlayers; ++i) {
 		Entity *vehicle = ContentManager::LoadEntity("Sewage.json");
-		static_cast<VehicleComponent*>(vehicle->components[1])->pxRigid->setGlobalPose(PxTransform(PxVec3(0.f, 10.f, i*15.f)));
+		vehicle->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(0.f, 10.f, i*15.f)));
 
 		switch (playerWeapons[i]) {
 		case MachineGun:
@@ -80,7 +80,7 @@ void Game::InitializeGame() {
 
     for (size_t i = 0; i < numberOfAi; ++i) {
         Entity *ai = ContentManager::LoadEntity("AiSewage.json");
-        static_cast<VehicleComponent*>(ai->components[1])->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
+        ai->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
 
 		MachineGunComponent *gun = new MachineGunComponent();
 		EntityManager::AddComponent(ai, gun);
@@ -90,7 +90,7 @@ void Game::InitializeGame() {
     cameras = EntityManager::FindEntities("Camera");
 
     for (Entity* camera : cameras) {
-        CameraComponent *cameraComponent = static_cast<CameraComponent*>(camera->components[0]);
+        CameraComponent *cameraComponent = camera->GetComponent<CameraComponent>();
         cameraComponent->SetCameraHorizontalAngle(-3.14 / 2);
         cameraComponent->SetCameraVerticalAngle(3.14 / 4);
 
@@ -100,8 +100,8 @@ void Game::InitializeGame() {
     Physics &physics = Physics::Instance();
 
     Entity *cylinder = EntityManager::FindEntities("Cylinder")[0];
-    RigidDynamicComponent *cylinderRigid = static_cast<RigidDynamicComponent*>(cylinder->components[1]);
-    RigidStaticComponent *cylinderStatic = static_cast<RigidStaticComponent*>(cylinder->components[2]);
+    RigidDynamicComponent *cylinderRigid = cylinder->GetComponent<RigidDynamicComponent>();
+    RigidStaticComponent *cylinderStatic = cylinder->GetComponent<RigidStaticComponent>();
     this->cylinderRigid = cylinderRigid->actor;
 
     // Don't let forces rotate the cylinder
@@ -153,7 +153,7 @@ void Game::Update() {
         for (Component *component : aiComponents) {
 			AiComponent *ai = static_cast<AiComponent*>(component);
             if (!ai->enabled) continue;
-            VehicleComponent* vehicle = static_cast<VehicleComponent*>(ai->GetEntity()->components[1]);
+            VehicleComponent* vehicle = ai->GetEntity()->GetComponent<VehicleComponent>();
 
             Transform &myTransform = ai->GetEntity()->transform;
             const glm::vec3 position = myTransform.GetGlobalPosition();
@@ -219,7 +219,7 @@ void Game::Update() {
         // Update sun direction
 		const float t = glm::radians(45.5) + StateManager::gameTime.GetTimeSeconds() / 10;
         const glm::vec3 sunPosition = glm::vec3(cos(t), 0.5f, sin(t));
-        static_cast<DirectionLightComponent*>(EntityManager::FindEntities("Sun")[0]->components[0])->SetDirection(-sunPosition);
+        EntityManager::FindEntities("Sun")[0]->GetComponent<DirectionLightComponent>()->SetDirection(-sunPosition);
 		
 		for (int i = 0; i < cars.size(); i++) {
 			Entity* camera = cameras[i];
@@ -228,7 +228,7 @@ void Game::Update() {
 			//"Camera Delay"
 			//camera->transform.SetPosition(glm::mix(camera->transform.GetGlobalPosition(), car->transform.GetGlobalPosition(), 0.04f));
 			camera->transform.SetPosition(EntityManager::FindChildren(car, "GunTurret")[0]->transform.GetGlobalPosition());
-			static_cast<CameraComponent*>(camera->components[0])->SetTarget(car->transform.GetGlobalPosition() + car->transform.GetUp() * 2.f + car->transform.GetForward() * -1.25f);
+			camera->GetComponent<CameraComponent>()->SetTarget(car->transform.GetGlobalPosition() + car->transform.GetUp() * 2.f + car->transform.GetForward() * -1.25f);
 		}
 	} else if (StateManager::GetState() == GameState_Paused) {
 
