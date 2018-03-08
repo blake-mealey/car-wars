@@ -174,5 +174,6 @@
     <None Include="Content\Prefabs\Entities\Weapons\RailGunTurret.json" />
     <None Include="Content\Prefabs\Entities\Weapons\MachineGunTurret.json" />
     <None Include="Content\Prefabs\Entities\Weapons\RocketLauncherTurret.json" />
+    <None Include="Content\Prefabs\Entities\Menu\Pillar.json" />
   </ItemGroup>
 </Project>
