@@ -73,9 +73,8 @@ void Game::InitializeGame() {
         player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
         player.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(0.f, 10.f, i*15.f)));
 
-        Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType]);
+        Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType], player.vehicleEntity);
         turret->transform.SetPosition(EntityManager::FindFirstChild(player.vehicleEntity, "GunTurretBase")->transform.GetLocalPosition());
-        EntityManager::SetParent(turret, player.vehicleEntity);
 
         Component* weapon = ContentManager::LoadComponent(WeaponType::prefabPaths[player.weaponType]);
         EntityManager::AddComponent(player.vehicleEntity, weapon);
@@ -146,8 +145,10 @@ void Game::InitializeGame() {
 }
 
 void Game::Update() {
-    if (StateManager::GetState() == GameState_Menu) {
-        EntityManager::FindEntities("VehicleBox")[0]->transform.Rotate(Transform::UP, 0.005f);
+    if (StateManager::GetState() < __GameState_Menu_End) {
+        for (Entity* entity : EntityManager::FindEntities("VehicleBox")) {
+            entity->transform.Rotate(Transform::UP, 0.005f);
+        }
     } else if (StateManager::GetState() == GameState_Playing) {
         // Set the cylinder's rotation
         cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));

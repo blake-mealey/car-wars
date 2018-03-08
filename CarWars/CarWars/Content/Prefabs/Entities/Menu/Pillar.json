@@ -5,7 +5,7 @@
 		{
 			"Tag": "Floor",
 			"Position": [0, -6.9, 0],
-			"Scale": [10, 10, 10],
+			"Scale": [8, 10, 8],
 			"Components": [
 				{
 					"Type": "Mesh",

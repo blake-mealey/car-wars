@@ -13,16 +13,16 @@ GuiComponent* GuiHelper::GetSelectedGui(Entity* entity) {
     }
 }
 
-GuiComponent* GuiHelper::GetSelectedGui(std::string entityTag) {
-    return GetSelectedGui(EntityManager::FindEntities(entityTag)[0]);
+GuiComponent* GuiHelper::GetSelectedGui(std::string entityTag, int playerIndex) {
+    return GetSelectedGui(EntityManager::FindEntities(entityTag)[playerIndex]);
 }
 
 std::string GuiHelper::GetSelectedGuiText(Entity* entity) {
     return GetSelectedGui(entity)->GetText();
 }
 
-std::string GuiHelper::GetSelectedGuiText(std::string entityTag) {
-    return GetSelectedGui(entityTag)->GetText();
+std::string GuiHelper::GetSelectedGuiText(std::string entityTag, int playerIndex) {
+    return GetSelectedGui(entityTag, playerIndex)->GetText();
 }
 
 void GuiHelper::SelectNextGui(Entity* entity) {
@@ -41,8 +41,8 @@ void GuiHelper::SelectNextGui(Entity* entity) {
     }
 }
 
-void GuiHelper::SelectNextGui(std::string entityTag) {
-    return SelectNextGui(EntityManager::FindEntities(entityTag)[0]);
+void GuiHelper::SelectNextGui(std::string entityTag, int playerIndex) {
+    return SelectNextGui(EntityManager::FindEntities(entityTag)[playerIndex]);
 }
 
 void GuiHelper::SelectPreviousGui(Entity* entity) {
@@ -61,8 +61,8 @@ void GuiHelper::SelectPreviousGui(Entity* entity) {
     }
 }
 
-void GuiHelper::SelectPreviousGui(std::string entityTag) {
-    return SelectPreviousGui(EntityManager::FindEntities(entityTag)[0]);
+void GuiHelper::SelectPreviousGui(std::string entityTag, int playerIndex) {
+    return SelectPreviousGui(EntityManager::FindEntities(entityTag)[playerIndex]);
 }
 
 void GuiHelper::LoadGuiSceneToCamera(size_t cameraIndex, std::string guiScene) {
@@ -76,8 +76,8 @@ void GuiHelper::SetGuisEnabled(Entity *entity, bool enabled) {
 	}
 }
 
-void GuiHelper::SetGuisEnabled(std::string entityTag, bool enabled) {
-	SetGuisEnabled(EntityManager::FindEntities(entityTag)[0], enabled);
+void GuiHelper::SetGuisEnabled(std::string entityTag, bool enabled, int playerIndex) {
+	SetGuisEnabled(EntityManager::FindEntities(entityTag)[playerIndex], enabled);
 }
 
 void GuiHelper::SetFirstGuiText(Entity *entity, std::string text) {
@@ -86,8 +86,8 @@ void GuiHelper::SetFirstGuiText(Entity *entity, std::string text) {
 	gui->SetText(text);
 }
 
-void GuiHelper::SetFirstGuiText(std::string entityTag, std::string text) {
-	SetFirstGuiText(EntityManager::FindEntities(entityTag)[0], text);
+void GuiHelper::SetFirstGuiText(std::string entityTag, std::string text, int playerIndex) {
+	SetFirstGuiText(EntityManager::FindEntities(entityTag)[playerIndex], text);
 }
 
 bool GuiHelper::FirstGuiHasText(Entity *entity, std::string text) {
@@ -96,8 +96,8 @@ bool GuiHelper::FirstGuiHasText(Entity *entity, std::string text) {
     return gui->HasText(text);
 }
 
-bool GuiHelper::FirstGuiHasText(std::string entityTag, std::string text) {
-	return FirstGuiHasText(EntityManager::FindEntities(entityTag)[0], text);
+bool GuiHelper::FirstGuiHasText(std::string entityTag, std::string text, int playerIndex) {
+	return FirstGuiHasText(EntityManager::FindEntities(entityTag)[playerIndex], text);
 }
 
 bool GuiHelper::FirstGuiContainsText(Entity* entity, std::string text) {
@@ -106,6 +106,6 @@ bool GuiHelper::FirstGuiContainsText(Entity* entity, std::string text) {
     return gui->ContainsText(text);
 }
 
-bool GuiHelper::FirstGuiContainsText(std::string entityTag, std::string text) {
-    return FirstGuiContainsText(EntityManager::FindEntities(entityTag)[0], text);
+bool GuiHelper::FirstGuiContainsText(std::string entityTag, std::string text, int playerIndex) {
+    return FirstGuiContainsText(EntityManager::FindEntities(entityTag)[playerIndex], text);
 }

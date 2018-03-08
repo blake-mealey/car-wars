@@ -3,7 +3,7 @@
 	"Menu/Camera.json",
 	{
         "Prefab": "Menu/Pillar.json",
-        "Position": [-5, 0, 0],
+        "Position": [-2, 0, 0],
         "Children": [
 	        {
 		        "Prefab": "Vehicles/Sewage.json",

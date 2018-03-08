@@ -4,12 +4,7 @@
 		{
 			"Prefab": "Menu/Pillar.json",
 			"Position": [0, 0, 0],
-			"Children": [
-				{
-					"Prefab": "Vehicles/Sewage.json",
-					"Rotate": [0, -45, 0]
-				}
-			]
+            "Rotate": [0, -45, 0]
 		}
 	]
 }
