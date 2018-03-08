@@ -3,8 +3,8 @@
   "Components": [
     {
       "Type": "Mesh",
-      "Mesh": "sewage_chassis.obj",
-      "Texture": "Sewage.png",
+      "Mesh": "Vehicles/sewage_chassis.obj",
+      "Texture": "Vehicles/Sewage.png",
       "Material": "Basic.json",
       "Rotate": [ 0, 180, 0 ],
       "Position": [ 0.0825, -0.825, 0.18 ]
@@ -13,8 +13,8 @@
       "Type": "Vehicle",
       "WheelMesh": {
         "Type": "Mesh",
-        "Mesh": "sewage_wheel.obj",
-        "Texture": "Sewage_Wheel.png",
+        "Mesh": "Vehicles/sewage_wheel.obj",
+        "Texture": "Vehicles/Sewage_Wheel.png",
         "Material": "Basic.json",
         "UvScale": [ 1.0, 1.0 ],
 		"Scale": [1.2, 1.0, 1.0]
@@ -64,25 +64,11 @@
 	  },	  	
 	  {
 			"Position": [0, 0.32, 1],
+            "Tag": "GunTurretBase",
 			"Components": [
 				{
 					"Type": "Mesh",
-					"Mesh": "machine_gun_base.obj",
-					"Texture": "TileableDiamondPlate.jpg",
-					"Material": "Basic.json",
-					"UvScale": [0.5, 0.5],
-					"Scale": [0.075, 0.075, 0.075],
-					"Enabled": true
-				}
-			]
-		},
-			  {
-			"Position": [0, 0.32, 1],
-			"Tag": "GunTurret",
-			"Components": [
-				{
-					"Type": "Mesh",
-					"Mesh": "machine_gun_turret.obj",
+					"Mesh": "Weapons/machine_gun_base.obj",
 					"Texture": "TileableDiamondPlate.jpg",
 					"Material": "Basic.json",
 					"UvScale": [0.5, 0.5],

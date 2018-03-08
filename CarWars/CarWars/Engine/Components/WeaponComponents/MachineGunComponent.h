@@ -25,6 +25,4 @@ public:
 	void RenderDebugGui() override;
 private:
 	Time timeBetweenShots = 0.05f;
-
-	float damage = 20.0f;
 };

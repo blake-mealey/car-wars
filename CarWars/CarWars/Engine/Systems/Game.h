@@ -2,23 +2,61 @@
 #include "System.h"
 #include <vector>
 #include <PxRigidDynamic.h>
-#include "../Components/AiComponent.h"
 #include "Content/NavigationMesh.h"
 
-enum Map {
-	Map_Cylinder = 0
+class CameraComponent;
+
+struct GameModeType {
+    enum { Team = 0, FreeForAll, Count };
+    static const std::string displayNames[Count];
 };
 
-enum GameMode {
-	Team = 0,
-	FreeForAll
+struct MapType {
+    enum { Cylinder = 0, Count };
+    static const std::string displayNames[Count];
+    static const std::string scenePaths[Count];
 };
 
-enum WeaponType {
-	MachineGun = 0,
-	RocketLauncher,
-	RailGun,
-	Count
+// TODO: DriverType?
+
+struct VehicleType {
+    enum { Light = 0, Medium, Heavy, Count };
+    static const std::string displayNames[Count];
+    static const std::string prefabPaths[Count];
+};
+
+struct WeaponType {
+    enum { MachineGun = 0, RocketLauncher, RailGun, Count };
+    static const std::string displayNames[Count];
+    static const std::string prefabPaths[Count];
+    static const std::string turretPrefabPaths[Count];
+};
+
+struct PlayerData {
+    PlayerData() : ready(false), vehicleType(0), weaponType(0),
+        alive(false), vehicleEntity(nullptr), cameraEntity(nullptr), camera(nullptr) {}
+
+    bool ready;
+    int vehicleType;
+    int weaponType;
+
+    bool alive;
+    Entity* vehicleEntity;
+    Entity* cameraEntity;
+    CameraComponent* camera;
+};
+
+struct GameData {
+    GameData() : map(0), gameMode(0), playerCount(0), aiCount(5),
+        numberOfLives(3), killLimit(10), timeLimitMinutes(10) {}
+
+    int map;
+    int gameMode;
+    size_t playerCount;
+    size_t aiCount;
+    size_t numberOfLives;
+    size_t killLimit;
+    size_t timeLimitMinutes;
 };
 
 class Entity;
@@ -35,17 +73,8 @@ public:
     void InitializeGame();
 
 	//Game Creation Variables
-	static Map selectedMap;
-	static GameMode selectedGameMode;
-	static size_t numberOfAi;
-	static size_t numberOfLives;
-	static size_t killLimit;
-	static size_t timeLimitMinutes;
-	static size_t numberOfPlayers;
-	static int playerWeapons[4];
-
-	std::string MapToString();
-	std::string GameModeToString();
+    static GameData gameData;
+    static PlayerData players[4];
 
     NavigationMesh *GetNavigationMesh();
 
@@ -54,9 +83,6 @@ private:
 	Game();
 	Game(const Game&) = delete;
 	Game& operator= (const Game&) = delete;
-
-	std::vector<Entity*> cameras;
-	std::vector<Entity*> cars;
 
     physx::PxRigidDynamic *cylinderRigid;
 

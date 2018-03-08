@@ -30,7 +30,9 @@ public:
 
 	void SetText(std::string _text);
 	std::string GetText() const;
+    
     bool HasText(std::string _text) const;
+    bool ContainsText(std::string _text) const;
 
 	void SetTexture(Texture *_texture);
 	Texture* GetTexture() const;

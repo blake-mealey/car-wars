@@ -60,22 +60,16 @@ std::string StateManager::GameStateToString() {
 	switch (currentState) {
 	case 0:
 		return "GameState_Menu";
-		break;
 	case 1:
 		return "GameState_Menu_Start";
-		break;
 	case 2:
 		return "GameState_Menu_Settings";
-		break;
 	case 3:
 		return "GameState_Menu_Start_CharacterSelect";
-		break;
 	case 4:
 		return "GameState_Playing";
-		break;
 	case 5:
 		return "GameState_Paused";
-		break;
     default:
         return "";
 	}

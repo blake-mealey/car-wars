@@ -1,0 +1,67 @@
+{
+  "Tag": "Vehicle",
+  "Components": [
+    {
+      "Type": "Mesh",
+      "Mesh": "Vehicles/hearse_test.obj",
+      "Texture": "Vehicles/Hearse.png",
+      "Material": "Basic.json",
+      "Rotate": [ 0, 180, 0 ],
+      "Position": [ 0, -1.25, 0 ]
+    },
+    {
+      "Type": "Vehicle",
+      "WheelMesh": {
+        "Type": "Mesh",
+        "Mesh": "Vehicles/sewage_wheel.obj",
+        "Texture": "Vehicles/Sewage_Wheel.png",
+        "Material": "Basic.json",
+        "UvScale": [ 1.0, 1.0 ],
+		"Scale": [1, 0.75, 0.75]
+      },
+      "Mass": 1000,
+      "ChassisSize": [ 2, 1, 5],
+      "WheelMass": 20,
+      "WheelRadius": 0.38,
+      "WheelWidth": 0.3,
+      "WheelCount": 4,
+      "Axles": [
+          {
+              "CenterOffset": 1.79,
+              "WheelInset": 0.15
+          },
+          {
+              "CenterOffset": -1.8,
+              "WheelInset": 0.01
+          }
+      ]
+    }
+  ],
+  "Children": [
+	  {
+		  "Prefab": "HeadLamp.json",
+          "Position": [0.6, -0.282, 2.075],
+          "Scale": [0.28, 0.28, 0.1]
+	  },
+	  {
+		  "Prefab": "HeadLamp.json",
+		  "Position": [-0.6, -0.282, 2.075],
+		  "Scale": [0.28, 0.28, 0.1]
+	  },
+	  {
+			"Position": [0, 0.41, 0.1],
+            "Tag": "GunTurretBase",
+			"Components": [
+				{
+					"Type": "Mesh",
+					"Mesh": "Weapons/machine_gun_base.obj",
+					"Texture": "TileableDiamondPlate.jpg",
+					"Material": "Basic.json",
+					"UvScale": [0.5, 0.5],
+					"Scale": [0.075, 0.075, 0.075],
+					"Enabled": true
+				}
+			]
+		}
+  ]
+}

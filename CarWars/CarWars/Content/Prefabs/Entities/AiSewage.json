@@ -1,6 +1,6 @@
 {
 	"Tag": "AiVehicle",
-	"Prefab": "Sewage.json",
+	"Prefab": "Vehicles/Sewage.json",
 	"Components": [
 		{
 			"Type": "AI",

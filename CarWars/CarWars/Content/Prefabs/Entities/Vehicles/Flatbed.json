@@ -1,0 +1,66 @@
+{
+  "Tag": "Vehicle",
+  "Components": [
+    {
+      "Type": "Mesh",
+      "Mesh": "Vehicles/flatbed_chassis.obj",
+      "Texture": "Vehicles/Flatbed2.png",
+      "Material": "Basic.json",
+      "Scale": [0.55, 0.55, 0.55],
+      "Rotate": [ 0, 180, 0 ],
+      "Position": [ 0, -1.1, 0 ]
+    },
+    {
+      "Type": "Vehicle",
+      "WheelMesh": {
+        "Type": "Mesh",
+        "Mesh": "Vehicles/flatbed_wheel.obj",
+        "Texture": "Boulder.jpg",
+        "Material": "Basic.json",
+        "UvScale": [ 0.5, 0.5 ],
+		"Scale": [0.275, 0.275, 0.275]
+      },
+      "Mass": 1000,
+      "ChassisSize": [ 1.595, 0.9625, 4.07 ],
+      "WheelMass": 20,
+      "WheelRadius": 0.33,
+      "WheelWidth": 0.33,
+      "WheelCount": 4,
+      "Axles": [
+          {
+              "CenterOffset": 1.54
+          },
+          {
+              "CenterOffset": -1.21
+          }
+      ]
+    }
+  ],
+  "Children": [
+	  {
+		  "Prefab": "HeadLamp.json",
+          "Position": [0.495, -0.4675, 2.0625],
+          "Scale": [0.11, 0.11, 0.11]
+	  },
+	  {
+		  "Prefab": "HeadLamp.json",
+		  "Position": [-0.495, -0.4675, 2.0625],
+		  "Scale": [0.11, 0.11, 0.11]
+	  },
+	  	{
+			"Position": [0, 0.56, 0.99],
+			"Tag": "GunTurretBase",
+			"Components": [
+				{
+					"Type": "Mesh",
+					"Mesh": "Weapons/machine_gun_base.obj",
+					"Texture": "TileableDiamondPlate.jpg",
+					"Material": "Basic.json",
+					"UvScale": [0.5, 0.5],
+					"Scale": [0.075, 0.075, 0.075],
+					"Enabled": true
+				}
+			]
+		}
+	]
+}
