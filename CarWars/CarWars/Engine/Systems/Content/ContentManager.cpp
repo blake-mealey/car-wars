@@ -31,31 +31,36 @@
 
 using namespace nlohmann;
 using namespace physx;
+using namespace std;
 
-std::map<std::string, Mesh*> ContentManager::meshes;
-std::map<std::string, Texture*> ContentManager::textures;
-std::map<std::string, Material*> ContentManager::materials;
-std::map<std::string, PxMaterial*> ContentManager::pxMaterials;
+map<string, json> ContentManager::scenePrefabs;
+map<string, json> ContentManager::entityPrefabs;
+map<string, json> ContentManager::componentPrefabs;
+
+map<string, Mesh*> ContentManager::meshes;
+map<string, Texture*> ContentManager::textures;
+map<string, Material*> ContentManager::materials;
+map<string, PxMaterial*> ContentManager::pxMaterials;
 GLuint ContentManager::skyboxCubemap;
 
-const std::string ContentManager::CONTENT_DIR_PATH = "./Content/";
+const string ContentManager::CONTENT_DIR_PATH = "./Content/";
 
-const std::string ContentManager::MESH_DIR_PATH = CONTENT_DIR_PATH + "Meshes/";
-const std::string ContentManager::TEXTURE_DIR_PATH = CONTENT_DIR_PATH + "Textures/";
-const std::string ContentManager::MATERIAL_DIR_PATH = CONTENT_DIR_PATH + "Materials/";
-const std::string ContentManager::PX_MATERIAL_DIR_PATH = CONTENT_DIR_PATH + "PhysicsMaterials/";
-const std::string ContentManager::SCENE_DIR_PATH = CONTENT_DIR_PATH + "Scenes/";
+const string ContentManager::MESH_DIR_PATH = CONTENT_DIR_PATH + "Meshes/";
+const string ContentManager::TEXTURE_DIR_PATH = CONTENT_DIR_PATH + "Textures/";
+const string ContentManager::MATERIAL_DIR_PATH = CONTENT_DIR_PATH + "Materials/";
+const string ContentManager::PX_MATERIAL_DIR_PATH = CONTENT_DIR_PATH + "PhysicsMaterials/";
+const string ContentManager::SCENE_DIR_PATH = CONTENT_DIR_PATH + "Scenes/";
 
-const std::string ContentManager::SKYBOX_DIR_PATH = CONTENT_DIR_PATH + "Skyboxes/";
-const std::string ContentManager::SKYBOX_FACE_NAMES[6] = {"right", "left", "top", "bottom", "front", "back"};
+const string ContentManager::SKYBOX_DIR_PATH = CONTENT_DIR_PATH + "Skyboxes/";
+const string ContentManager::SKYBOX_FACE_NAMES[6] = {"right", "left", "top", "bottom", "front", "back"};
 
-const std::string ContentManager::PREFAB_DIR_PATH = CONTENT_DIR_PATH + "Prefabs/";
-const std::string ContentManager::ENTITY_PREFAB_DIR_PATH = PREFAB_DIR_PATH + "Entities/";
-const std::string ContentManager::COMPONENT_PREFAB_DIR_PATH = PREFAB_DIR_PATH + "Components/";
+const string ContentManager::PREFAB_DIR_PATH = CONTENT_DIR_PATH + "Prefabs/";
+const string ContentManager::ENTITY_PREFAB_DIR_PATH = PREFAB_DIR_PATH + "Entities/";
+const string ContentManager::COMPONENT_PREFAB_DIR_PATH = PREFAB_DIR_PATH + "Components/";
 
-const std::string ContentManager::COLLISION_GROUPS_DIR_PATH = CONTENT_DIR_PATH + "CollisionGroups/";
+const string ContentManager::COLLISION_GROUPS_DIR_PATH = CONTENT_DIR_PATH + "CollisionGroups/";
 
-const std::string ContentManager::SHADERS_DIR_PATH = "./Engine/Shaders/";
+const string ContentManager::SHADERS_DIR_PATH = "./Engine/Shaders/";
 
 glm::vec3 AssimpVectorToGlm(aiVector3D v) {
 	return glm::vec3(v.x, v.y, v.z);
@@ -65,7 +70,7 @@ glm::vec2 AssimpVectorToGlm(aiVector2D v) {
 	return glm::vec2(v.x, v.y);
 }
 
-Mesh* ContentManager::GetMesh(const std::string filePath, unsigned pFlags) {
+Mesh* ContentManager::GetMesh(const string filePath, unsigned pFlags) {
 	Mesh* mesh = meshes[filePath];
 	if (mesh != nullptr) return mesh;
 
@@ -82,7 +87,7 @@ Mesh* ContentManager::GetMesh(const std::string filePath, unsigned pFlags) {
     );
 
 	if (scene == nullptr) {
-		std::cout << "WARNING: Failed to load mesh: " << filePath << std::endl;
+		cout << "WARNING: Failed to load mesh: " << filePath << endl;
 		return nullptr;
 	}
 
@@ -114,7 +119,7 @@ Mesh* ContentManager::GetMesh(const std::string filePath, unsigned pFlags) {
 	return mesh;
 }
 
-Texture* ContentManager::GetTexture(const std::string filePath) {
+Texture* ContentManager::GetTexture(const string filePath) {
 	Texture* texture = textures[filePath];
 	if (texture != nullptr) return texture;
 
@@ -153,9 +158,9 @@ Material* ContentManager::GetMaterial(json data) {
 	Material *material;
 	
 	bool fromFile = data.is_string();
-	std::string filePath;
+	string filePath;
 	if (fromFile) {
-		filePath = data.get<std::string>();
+		filePath = data.get<string>();
 		
 		material = materials[filePath];
 		if (material != nullptr) return material;
@@ -177,7 +182,7 @@ Material* ContentManager::GetMaterial(json data) {
 	return material;
 }
 
-PxMaterial* ContentManager::GetPxMaterial(std::string filePath) {
+PxMaterial* ContentManager::GetPxMaterial(string filePath) {
     PxMaterial* material = pxMaterials[filePath];
     if (material != nullptr) return material;
 
@@ -192,39 +197,70 @@ PxMaterial* ContentManager::GetPxMaterial(std::string filePath) {
     return material;
 }
 
-std::vector<Entity*> ContentManager::LoadScene(std::string filePath, Entity *parent) {
-	std::vector<Entity*> entities;
+vector<Entity*> ContentManager::LoadScene(string filePath, Entity *parent) {
+	vector<Entity*> entities;
 
-	json data = LoadJson(SCENE_DIR_PATH + filePath);
+    json data;
+    const auto it = scenePrefabs.find(filePath);
+    if (it != scenePrefabs.end()) {
+        data = it->second;
+    } else {
+        data = LoadJson(SCENE_DIR_PATH + filePath);
+        scenePrefabs[filePath] = data;
+    }
+	
 	for (json entityData : data) {
 		entities.push_back(LoadEntity(entityData, parent));
 	}
 	return entities;
 }
 
-std::vector<Entity*> ContentManager::DestroySceneAndLoadScene(std::string filePath, Entity* parent) {
+vector<Entity*> ContentManager::DestroySceneAndLoadScene(string filePath, Entity* parent) {
     EntityManager::DestroyScene();
-    std::vector<Entity*> scene = LoadScene(filePath, parent);
+    vector<Entity*> scene = LoadScene(filePath, parent);
     Graphics::Instance().SceneChanged();
     return scene;
 }
 
 Component* ContentManager::LoadComponent(json data) {
-    while (data.is_string()) {
-        data = LoadJson(COMPONENT_PREFAB_DIR_PATH + data.get<std::string>());
+    // Get the top-level file path if applicable
+    const bool fromFile = data.is_string();
+    bool dataComplete = false;
+    string filePath;
+    if (fromFile) {
+        filePath = data.get<string>();
+        const auto it = componentPrefabs.find(filePath);
+        if (it != componentPrefabs.end()) {
+            data = it->second;
+            dataComplete = true;
+        }
     }
 
-    json prefab = data["Prefab"];
-    while (!prefab.is_null()) {
-        json prefabData = LoadJson(COMPONENT_PREFAB_DIR_PATH + prefab.get<std::string>());
-        prefab = json(prefabData["Prefab"]);
-        MergeJson(prefabData, data);
-        data = prefabData;
+    // If we couldn't find the data in the map, construct it
+    if (!dataComplete) {
+        // While we are given file path strings, load the next file
+        while (data.is_string()) {
+            data = LoadJson(COMPONENT_PREFAB_DIR_PATH + filePath);
+        }
+
+        // While there is a nested prefab, load it
+        json prefab = data["Prefab"];
+        while (!prefab.is_null()) {
+            json prefabData = LoadJson(COMPONENT_PREFAB_DIR_PATH + prefab.get<string>());
+            prefab = json(prefabData["Prefab"]);
+            MergeJson(prefabData, data);
+            data = prefabData;
+        }
+
+        if (fromFile) {
+            componentPrefabs[filePath] = data;
+        }
     }
 
+    // Load the component from the data
     Component *component = nullptr;
     bool supportedType = true;
-    std::string type = data["Type"];
+    string type = data["Type"];
     if (type == "Mesh") component = new MeshComponent(data);
     else if (type == "Camera") component = new CameraComponent(data);
     else if (type == "PointLight") component = new PointLightComponent(data);
@@ -240,7 +276,7 @@ Component* ContentManager::LoadComponent(json data) {
 	else if (type == "AI") component = new AiComponent(data);
 	else if (type == "GUI") component = new GuiComponent(data);
     else {
-        std::cout << "Unsupported component type: " << type << std::endl;
+        cout << "Unsupported component type: " << type << endl;
         supportedType = false;
     }
     if (supportedType) {
@@ -252,17 +288,36 @@ Component* ContentManager::LoadComponent(json data) {
 }
 
 Entity* ContentManager::LoadEntity(json data, Entity *parent) {
-    while (data.is_string()) {
-        data = LoadJson(ENTITY_PREFAB_DIR_PATH + data.get<std::string>());
+    // Get the top-level file path if applicable
+    const bool fromFile = data.is_string();
+    bool dataComplete = false;
+    string filePath;
+    if (fromFile) {
+        filePath = data.get<string>();
+        const auto it = entityPrefabs.find(filePath);
+        if (it != entityPrefabs.end()) {
+            data = it->second;
+            dataComplete = true;
+        }
     }
 
-    json prefab = data["Prefab"];
-	while (!prefab.is_null()) {
-		json prefabData = LoadJson(ENTITY_PREFAB_DIR_PATH + prefab.get<std::string>());
-        prefab = json(prefabData["Prefab"]);
-        MergeJson(prefabData, data);
-        data = prefabData;
-	}
+    if (!dataComplete) {
+        while (data.is_string()) {
+            data = LoadJson(ENTITY_PREFAB_DIR_PATH + data.get<string>());
+        }
+
+        json prefab = data["Prefab"];
+        while (!prefab.is_null()) {
+            json prefabData = LoadJson(ENTITY_PREFAB_DIR_PATH + prefab.get<string>());
+            prefab = json(prefabData["Prefab"]);
+            MergeJson(prefabData, data);
+            data = prefabData;
+        }
+
+        if (fromFile) {
+            entityPrefabs[filePath] = data;
+        }
+    }
 
     // TODO: Determine whether or not the entity is static (parameter?)
     Entity *entity = EntityManager::CreateDynamicEntity(parent);
@@ -284,14 +339,14 @@ Entity* ContentManager::LoadEntity(json data, Entity *parent) {
             Entity *child = LoadEntity(childData, entity);
         }
     } else if (children.is_string()) {
-        LoadScene(children.get<std::string>(), entity);
+        LoadScene(children.get<string>(), entity);
     }
 
 	return entity;
 }
 
-json ContentManager::LoadJson(const std::string filePath) {
-	std::ifstream file(filePath);		// TODO: Error check?
+json ContentManager::LoadJson(const string filePath) {
+	ifstream file(filePath);		// TODO: Error check?
 	json object;
 	file >> object;
 	file.close();
@@ -358,7 +413,7 @@ glm::vec2 ContentManager::JsonToVec2(json data) {
     return JsonToVec2(data, glm::vec2());
 }
 
-void ContentManager::LoadCollisionGroups(std::string filePath) {
+void ContentManager::LoadCollisionGroups(string filePath) {
     json data = LoadJson(COLLISION_GROUPS_DIR_PATH + filePath);
 
     for (auto group : data) {
@@ -366,18 +421,18 @@ void ContentManager::LoadCollisionGroups(std::string filePath) {
     }
 }
 
-void ContentManager::LoadSkybox(std::string directoryPath) {
+void ContentManager::LoadSkybox(string directoryPath) {
     glGenTextures(1, &skyboxCubemap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxCubemap);
 
     int width, height, nrChannels;
     for (size_t i = 0; i < 6; i++) {
-        const std::string filePath = SKYBOX_DIR_PATH + directoryPath + SKYBOX_FACE_NAMES[i] + ".png";
+        const string filePath = SKYBOX_DIR_PATH + directoryPath + SKYBOX_FACE_NAMES[i] + ".png";
         unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
         if (data) {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         } else {
-            std::cout << "ERROR: Failed to load cubemap texture: " << filePath << std::endl;
+            cout << "ERROR: Failed to load cubemap texture: " << filePath << endl;
         }
         stbi_image_free(data);
     }
@@ -393,18 +448,18 @@ GLuint ContentManager::GetSkybox() {
     return skyboxCubemap;
 }
 
-GLuint ContentManager::LoadShader(std::string filePath, const GLenum shaderType) {
+GLuint ContentManager::LoadShader(string filePath, const GLenum shaderType) {
 	filePath = SHADERS_DIR_PATH + filePath;
 
-	std::string source;
-	std::ifstream input(filePath.c_str());
+	string source;
+	ifstream input(filePath.c_str());
 	if (input) {
-		copy(std::istreambuf_iterator<char>(input),
-			std::istreambuf_iterator<char>(),
-			std::back_inserter(source));
+		copy(istreambuf_iterator<char>(input),
+			istreambuf_iterator<char>(),
+			back_inserter(source));
 		input.close();
 	} else {
-		std::cout << "ERROR: Could not load shader source from file " << filePath << std::endl;
+		cout << "ERROR: Could not load shader source from file " << filePath << endl;
 	}
 
 	// Create a shader and get it's ID
@@ -421,9 +476,9 @@ GLuint ContentManager::LoadShader(std::string filePath, const GLenum shaderType)
 	if (status == GL_FALSE) {
 		GLint length;
 		glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &length);
-		std::string info(length, ' ');
+		string info(length, ' ');
 		glGetShaderInfoLog(shaderId, info.length(), &length, &info[0]);
-		std::cout << "ERROR Compiling Shader:" << std::endl << std::endl << source << std::endl << info << std::endl;
+		cout << "ERROR Compiling Shader:" << endl << endl << source << endl << info << endl;
 	}
 
 	// Return the shader's ID
