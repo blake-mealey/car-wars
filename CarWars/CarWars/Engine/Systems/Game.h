@@ -2,18 +2,19 @@
 #include "System.h"
 #include <vector>
 #include <PxRigidDynamic.h>
-#include "../Components/AiComponent.h"
 #include "Content/NavigationMesh.h"
 
 class CameraComponent;
 
-enum Map {
-	Map_Cylinder = 0
+struct GameModeType {
+    enum { Team = 0, FreeForAll, Count };
+    static const std::string displayNames[Count];
 };
 
-enum GameMode {
-	Team = 0,
-	FreeForAll
+struct MapType {
+    enum { Cylinder = 0, Count };
+    static const std::string displayNames[Count];
+    static const std::string scenePaths[Count];
 };
 
 // TODO: DriverType?
@@ -32,7 +33,8 @@ struct WeaponType {
 };
 
 struct PlayerData {
-    PlayerData() : ready(false), vehicleType(0), weaponType(0), alive(false), vehicleEntity(nullptr) {}
+    PlayerData() : ready(false), vehicleType(0), weaponType(0),
+        alive(false), vehicleEntity(nullptr), cameraEntity(nullptr), camera(nullptr) {}
 
     bool ready;
     int vehicleType;
@@ -42,6 +44,19 @@ struct PlayerData {
     Entity* vehicleEntity;
     Entity* cameraEntity;
     CameraComponent* camera;
+};
+
+struct GameData {
+    GameData() : map(0), gameMode(0), playerCount(0), aiCount(5),
+        numberOfLives(3), killLimit(10), timeLimitMinutes(10) {}
+
+    int map;
+    int gameMode;
+    size_t playerCount;
+    size_t aiCount;
+    size_t numberOfLives;
+    size_t killLimit;
+    size_t timeLimitMinutes;
 };
 
 class Entity;
@@ -58,17 +73,8 @@ public:
     void InitializeGame();
 
 	//Game Creation Variables
-	static Map selectedMap;
-	static GameMode selectedGameMode;
-	static size_t numberOfAi;
-	static size_t numberOfLives;
-	static size_t killLimit;
-	static size_t timeLimitMinutes;
-	static size_t numberOfPlayers;
+    static GameData gameData;
     static PlayerData players[4];
-
-	std::string MapToString();
-	std::string GameModeToString();
 
     NavigationMesh *GetNavigationMesh();
 

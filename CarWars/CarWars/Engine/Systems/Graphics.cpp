@@ -19,6 +19,7 @@
 #include "../Components/RigidbodyComponents/RigidbodyComponent.h"
 #include "../Components/Colliders/BoxCollider.h"
 #include "Game.h"
+#include "../Components/AiComponent.h"
 
 // Constants
 const size_t Graphics::MAX_CAMERAS = 4;

@@ -189,7 +189,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 		else if (gameState == GameState_Menu_Start_CharacterSelect) {
 			GuiComponent *selected = GuiHelper::GetSelectedGui("CharacterMenu_Buttons", playerIndex);
 			if (selected->ContainsText("join")) {
-                Game::numberOfPlayers++;
+                Game::gameData.playerCount++;
 
 				GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", true, playerIndex);
 				GuiHelper::SetFirstGuiText("CharacterMenu_Title", "vehicle selection", playerIndex);
@@ -216,7 +216,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 
                     player.ready = true;
                     bool allReady = true;
-                    for (int i = 0; i < Game::numberOfPlayers; ++i) {
+                    for (int i = 0; i < Game::gameData.playerCount; ++i) {
                         allReady = Game::players[i].ready;
                         if (!allReady) break;
                     }
@@ -247,7 +247,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                     Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
                     EntityManager::DestroyEntity(EntityManager::FindFirstChild(vehicleBox, "Vehicle"));
 
-                    Game::numberOfPlayers--;
+                    Game::gameData.playerCount--;
                     selected->SetText("a to join");
                 } else if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "weapon", playerIndex)) {
                     GuiHelper::SetFirstGuiText("CharacterMenu_Title", "vehicle selection", playerIndex);

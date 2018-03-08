@@ -27,6 +27,11 @@
 #include "Pathfinder.h"
 using namespace std;
 
+const string GameModeType::displayNames[Count] = { "Team", "Free for All" };
+
+const string MapType::displayNames[Count] = { "Cylinder" };
+const string MapType::scenePaths[Count] = { "PhysicsDemo.json" };
+
 const string VehicleType::displayNames[Count] = { "Heavy", "Medium", "Light" };
 const string VehicleType::prefabPaths[Count] = { "Vehicles/Sewage.json", "Vehicles/Hearse.json", "Vehicles/Flatbed.json" };
 
@@ -36,13 +41,7 @@ const string WeaponType::turretPrefabPaths[Count] = { "Weapons/MachineGunTurret.
 
 const unsigned int Game::MAX_VEHICLE_COUNT = 20;
 
-Map Game::selectedMap = Map_Cylinder;
-GameMode Game::selectedGameMode = Team;
-size_t Game::numberOfAi = 5;
-size_t Game::numberOfLives = 3;
-size_t Game::killLimit = 10;
-size_t Game::timeLimitMinutes = 10;
-size_t Game::numberOfPlayers = 0;
+GameData Game::gameData;
 PlayerData Game::players[4];
 
 Time gameTime(0);
@@ -67,7 +66,7 @@ void Game::Initialize() {
 void Game::InitializeGame() {
     ContentManager::DestroySceneAndLoadScene("PhysicsDemo.json");
 
-	for (int i = 0; i < numberOfPlayers; ++i) {
+	for (int i = 0; i < gameData.playerCount; ++i) {
         PlayerData& player = players[i];
 
         player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
@@ -87,7 +86,7 @@ void Game::InitializeGame() {
         ContentManager::LoadScene("GUIs/HUD.json", player.camera->GetGuiRoot());
 	}
 
-    for (size_t i = 0; i < numberOfAi; ++i) {
+    for (size_t i = 0; i < gameData.aiCount; ++i) {
         Entity *ai = ContentManager::LoadEntity("AiSewage.json");
         ai->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
 
@@ -227,7 +226,7 @@ void Game::Update() {
         EntityManager::FindEntities("Sun")[0]->GetComponent<DirectionLightComponent>()->SetDirection(-sunPosition);
 		
         // Update player cameras
-        for (int i = 0; i < numberOfPlayers; ++i) {
+        for (int i = 0; i < gameData.playerCount; ++i) {
             PlayerData& player = players[i];
             player.cameraEntity->transform.SetPosition(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
             player.camera->SetTarget(player.vehicleEntity->transform.GetGlobalPosition() +
@@ -237,22 +236,6 @@ void Game::Update() {
 
         // PAUSED
 
-	}
-}
-
-std::string Game::MapToString() {
-	switch (selectedMap) {
-	case 0:
-		return "Map_Cylinder";
-	}
-}
-
-std::string Game::GameModeToString() {
-	switch (selectedGameMode) {
-	case 0:
-		return "Team";
-	case 1:
-		return "FFA";
 	}
 }
 
