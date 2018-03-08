@@ -25,8 +25,14 @@
 #include "Physics.h"
 #include "../Components/AiComponent.h"
 #include "Pathfinder.h"
-#include "GuiHelper.h"
 using namespace std;
+
+const string VehicleType::displayNames[Count] = { "Heavy", "Medium", "Light" };
+const string VehicleType::prefabPaths[Count] = { "Vehicles/Sewage.json", "Vehicles/Hearse.json", "Vehicles/Flatbed.json" };
+
+const string WeaponType::displayNames[Count] = { "Machine Gun", "Rocket Launcher", "Rail Gun" };
+const string WeaponType::prefabPaths[Count] = { "Weapons/MachineGun.json", "Weapons/RocketLauncher.json", "Weapons/RailGun.json" };
+const string WeaponType::turretPrefabPaths[Count] = { "Weapons/MachineGunTurret.json", "Weapons/RocketLauncherTurret.json", "Weapons/RailGunTurret.json" };
 
 const unsigned int Game::MAX_VEHICLE_COUNT = 20;
 
@@ -37,7 +43,7 @@ size_t Game::numberOfLives = 3;
 size_t Game::killLimit = 10;
 size_t Game::timeLimitMinutes = 10;
 size_t Game::numberOfPlayers = 1;
-int Game::playerWeapons[4] = {MachineGun, MachineGun, MachineGun, MachineGun};
+PlayerData Game::players[4];
 
 Time gameTime(0);
 
@@ -59,28 +65,29 @@ void Game::Initialize() {
 }
 
 void Game::InitializeGame() {
-    ContentManager::DestroySceneAndLoadScene("GameDemo.json");
+    ContentManager::DestroySceneAndLoadScene("PhysicsDemo.json");
 
 	for (int i = 0; i < numberOfPlayers; ++i) {
-		Entity *vehicle = ContentManager::LoadEntity("Sewage.json");
-		vehicle->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(0.f, 10.f, i*15.f)));
+        PlayerData& player = players[i];
 
-		switch (playerWeapons[i]) {
-		case MachineGun:
-			EntityManager::AddComponent(vehicle, new MachineGunComponent());
-			break;
-		case RocketLauncher:
-			EntityManager::AddComponent(vehicle, new RocketLauncherComponent());
-			break;
-		case RailGun:
-			EntityManager::AddComponent(vehicle, new RailGunComponent());
-			break;
-		}
+        player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
+        player.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(0.f, 10.f, i*15.f)));
+
+        Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType]);
+        turret->transform.SetPosition(EntityManager::FindFirstChild(player.vehicleEntity, "GunTurretBase")->transform.GetLocalPosition());
+        EntityManager::SetParent(turret, player.vehicleEntity);
+
+        Component* weapon = ContentManager::LoadComponent(WeaponType::prefabPaths[player.weaponType]);
+        EntityManager::AddComponent(player.vehicleEntity, weapon);
 	}
 
     for (size_t i = 0; i < numberOfAi; ++i) {
         Entity *ai = ContentManager::LoadEntity("AiSewage.json");
         ai->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
+
+        Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[WeaponType::MachineGun]);
+        turret->transform.SetPosition(EntityManager::FindFirstChild(ai, "GunTurretBase")->transform.GetLocalPosition());
+        EntityManager::SetParent(turret, ai);
 
 		MachineGunComponent *gun = new MachineGunComponent();
 		EntityManager::AddComponent(ai, gun);
@@ -144,6 +151,7 @@ void Game::InitializeGame() {
 
 void Game::Update() {
     if (StateManager::GetState() == GameState_Menu) {
+        EntityManager::FindEntities("VehicleBox")[0]->transform.Rotate(Transform::UP, 0.005f);
     } else if (StateManager::GetState() == GameState_Playing) {
         // Set the cylinder's rotation
         cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));

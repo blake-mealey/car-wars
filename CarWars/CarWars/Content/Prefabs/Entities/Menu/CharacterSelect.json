@@ -15,7 +15,7 @@
 			]
 		},
 		{
-			"Prefab": "Sewage.json",
+			"Prefab": "Vehicles/Sewage.json",
 			"Rotate": [0, -45, 0]
 		}
 	]

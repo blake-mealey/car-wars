@@ -81,6 +81,10 @@ bool GuiComponent::HasText(std::string _text) const {
     return text.compare(_text) == 0;
 }
 
+bool GuiComponent::ContainsText(std::string _text) const {
+    return text.find(_text) != std::string::npos;
+}
+
 void GuiComponent::SetTexture(Texture *_texture) {
 	texture = _texture;
 }

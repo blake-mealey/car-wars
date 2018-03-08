@@ -18,7 +18,7 @@
 #include "../Components/DirectionLightComponent.h"
 #include "Content/SpotLight.h"
 
-#define BLUR_LEVEL_COUNT 6
+#define BLUR_LEVEL_COUNT 4
 
 struct Triangle;
 class Material;

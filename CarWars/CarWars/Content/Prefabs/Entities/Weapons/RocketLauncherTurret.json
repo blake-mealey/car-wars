@@ -1,0 +1,13 @@
+{
+	"Prefab": "Weapons/GunTurret.json",
+	"Components": [
+		{
+			"Type": "Mesh",
+			"Mesh": "Weapons/rocket_launcher_turret.obj",
+			"Texture": "TileableDiamondPlate.jpg",
+			"Material": "Basic.json",
+			"UvScale": [0.5, 0.5],
+			"Scale": [0.075, 0.075, 0.075]
+		}
+	]
+}
