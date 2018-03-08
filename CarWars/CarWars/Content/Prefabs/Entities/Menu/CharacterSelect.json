@@ -2,21 +2,14 @@
 	"Children": [
         "Menu/Camera.json",
 		{
-			"Tag": "Floor",
-			"Position": [0, -2.5, 0],
-			"Scale": [10, 0, 10],
-			"Components": [
+			"Prefab": "Menu/Pillar.json",
+			"Position": [0, 0, 0],
+			"Children": [
 				{
-					"Type": "Mesh",
-					"Mesh": "CircleFloor.obj",
-					"Texture": "DiamondPlate.jpg",
-					"Material": "Basic.json"
+					"Prefab": "Vehicles/Sewage.json",
+					"Rotate": [0, -45, 0]
 				}
 			]
-		},
-		{
-			"Prefab": "Sewage.json",
-			"Rotate": [0, -45, 0]
 		}
 	]
 }

@@ -2,29 +2,11 @@
 	"Sun.json",
 	"Menu/Camera.json",
 	{
-        "Tag": "VehicleBox",
+        "Prefab": "Menu/Pillar.json",
         "Position": [-5, 0, 0],
         "Children": [
 	        {
-		        "Tag": "Floor",
-                "Position": [0, -2.5, 0],
-                "Scale": [10, 0, 10],
-		        "Components": [
-                    {
-			            "Type": "Mesh",
-			            "Mesh": "CircleFloor.obj",
-			            "Texture": "DiamondPlate.jpg",
-			            "Material": {
-				            "DiffuseColor": [0, 0, 0],
-				            "SpecularColor": [0, 0 ,0],
-				            "Specularity":  1
-			            }
-
-		            }
-                ]
-	        },
-	        {
-		        "Prefab": "Sewage.json",
+		        "Prefab": "Vehicles/Sewage.json",
 		        "Rotate": [0, -45, 0]
 	        }
         ]

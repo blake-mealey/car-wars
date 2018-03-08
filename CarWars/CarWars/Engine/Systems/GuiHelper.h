@@ -25,6 +25,9 @@ public:
 	static void SetFirstGuiText(Entity *entity, std::string text);
 	static void SetFirstGuiText(std::string entityTag, std::string text);
 
-	static bool FirstGuiTextIs(Entity *entity, std::string text);
-	static bool FirstGuiTextIs(std::string entityTag, std::string text);
+	static bool FirstGuiHasText(Entity *entity, std::string text);
+	static bool FirstGuiHasText(std::string entityTag, std::string text);
+
+	static bool FirstGuiContainsText(Entity *entity, std::string text);
+	static bool FirstGuiContainsText(std::string entityTag, std::string text);
 };

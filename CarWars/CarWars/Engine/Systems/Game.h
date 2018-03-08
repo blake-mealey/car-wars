@@ -14,11 +14,30 @@ enum GameMode {
 	FreeForAll
 };
 
-enum WeaponType {
-	MachineGun = 0,
-	RocketLauncher,
-	RailGun,
-	Count
+// TODO: DriverType?
+
+struct VehicleType {
+    enum { Light = 0, Medium, Heavy, Count };
+    static const std::string displayNames[Count];
+    static const std::string prefabPaths[Count];
+};
+
+struct WeaponType {
+    enum { MachineGun = 0, RocketLauncher, RailGun, Count };
+    static const std::string displayNames[Count];
+    static const std::string prefabPaths[Count];
+    static const std::string turretPrefabPaths[Count];
+};
+
+struct PlayerData {
+    PlayerData() : ready(false), vehicleType(0), weaponType(0), alive(false), vehicleEntity(nullptr) {}
+
+    bool ready;
+    int vehicleType;
+    int weaponType;
+
+    bool alive;
+    Entity* vehicleEntity;
 };
 
 class Entity;
@@ -42,7 +61,7 @@ public:
 	static size_t killLimit;
 	static size_t timeLimitMinutes;
 	static size_t numberOfPlayers;
-	static int playerWeapons[4];
+    static PlayerData players[4];
 
 	std::string MapToString();
 	std::string GameModeToString();

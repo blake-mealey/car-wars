@@ -104,6 +104,7 @@ void InputManager::HandleMouse() {
 }
 
 void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back) {
+    PlayerData& player = Game::players[0];      // TODO: From passed index
 
 	const GameState gameState = StateManager::GetState();
 	// Navigate buttons up/down
@@ -132,22 +133,16 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back) 
 
 	if (horizDir != 0) {
 		if (gameState == GameState_Menu_Start_CharacterSelect) {
-			if (GuiHelper::FirstGuiTextIs("CharacterMenu_Title", "weapon selection")) {
-				int diff = horizDir < 0 ? -1 : 1;
-				Game::playerWeapons[0] = (Game::playerWeapons[0] + diff) % WeaponType::Count;
-				if (Game::playerWeapons[0] < 0) Game::playerWeapons[0] += WeaponType::Count;
-				std::string text = "";
-				switch (Game::playerWeapons[0]) {
-				case MachineGun:
-					text = "Machine Gun";
-					break;
-				case RocketLauncher:
-					text = "Rocket Launcher";
-					break;
-				case RailGun:
-					text = "Rail Gun";
-					break;
-				}
+            const int diff = horizDir < 0 ? -1 : 1;
+            if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle")) {
+                player.vehicleType = (player.vehicleType + diff) % VehicleType::Count;
+                if (player.vehicleType < 0) player.vehicleType += VehicleType::Count;
+                const string text = VehicleType::displayNames[player.vehicleType];
+                GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", text);
+            } else if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "weapon")) {
+				player.weaponType = (player.weaponType + diff) % WeaponType::Count;
+				if (player.weaponType < 0) player.weaponType += WeaponType::Count;
+				const string text = WeaponType::displayNames[player.weaponType];
 				GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", text);
 			}
 		}
@@ -183,13 +178,26 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back) 
 		}
 		else if (gameState == GameState_Menu_Start_CharacterSelect) {
 			GuiComponent *selected = GuiHelper::GetSelectedGui("CharacterMenu_Buttons");
-			if (selected->HasText("a to join")) {
+			if (selected->ContainsText("join")) {
 				GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", true);
-				GuiHelper::SetFirstGuiText("CharacterMenu_Title", "weapon selection");
-				GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", "Machine Gun");
+				GuiHelper::SetFirstGuiText("CharacterMenu_Title", "vehicle selection");
+				GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", VehicleType::displayNames[player.vehicleType]);
 				selected->SetText("a to continue");
 			} else {
-				StateManager::SetState(GameState_Playing);
+                if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle")) {
+                    GuiHelper::SetFirstGuiText("CharacterMenu_Title", "weapon selection");
+                    GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", WeaponType::displayNames[player.weaponType]);
+                } else {
+                    player.ready = true;
+                    bool allReady = true;
+                    for (int i = 0; i < Game::numberOfPlayers; ++i) {
+                        allReady = Game::players[i].ready;
+                        if (!allReady) break;
+                    }
+                    if (allReady) {
+                        StateManager::SetState(GameState_Playing);
+                    }
+                }
 			}
 		}
 	}

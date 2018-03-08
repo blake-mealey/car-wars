@@ -82,6 +82,7 @@ void GuiHelper::SetGuisEnabled(std::string entityTag, bool enabled) {
 
 void GuiHelper::SetFirstGuiText(Entity *entity, std::string text) {
 	GuiComponent *gui = entity->GetComponent<GuiComponent>();
+    if (!gui) return;
 	gui->SetText(text);
 }
 
@@ -89,11 +90,22 @@ void GuiHelper::SetFirstGuiText(std::string entityTag, std::string text) {
 	SetFirstGuiText(EntityManager::FindEntities(entityTag)[0], text);
 }
 
-bool GuiHelper::FirstGuiTextIs(Entity *entity, std::string text) {
+bool GuiHelper::FirstGuiHasText(Entity *entity, std::string text) {
 	GuiComponent *gui = entity->GetComponent<GuiComponent>();
-	return gui->GetText().compare(text) == 0;
+    if (!gui) return false;
+    return gui->HasText(text);
 }
 
-bool GuiHelper::FirstGuiTextIs(std::string entityTag, std::string text) {
-	return FirstGuiTextIs(EntityManager::FindEntities(entityTag)[0], text);
+bool GuiHelper::FirstGuiHasText(std::string entityTag, std::string text) {
+	return FirstGuiHasText(EntityManager::FindEntities(entityTag)[0], text);
+}
+
+bool GuiHelper::FirstGuiContainsText(Entity* entity, std::string text) {
+    GuiComponent *gui = entity->GetComponent<GuiComponent>();
+    if (!gui) return false;
+    return gui->ContainsText(text);
+}
+
+bool GuiHelper::FirstGuiContainsText(std::string entityTag, std::string text) {
+    return FirstGuiContainsText(EntityManager::FindEntities(entityTag)[0], text);
 }
