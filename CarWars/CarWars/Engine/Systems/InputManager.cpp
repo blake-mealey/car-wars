@@ -42,15 +42,7 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	glm::vec3 vehicleForward = vehicle->transform.GetForward();
 	glm::vec3 vehicleUp = vehicle->transform.GetUp();
 	glm::vec3 vehicleRight = vehicle->transform.GetRight();
-	float dotFR = glm::dot(vehicleForward, Transform::RIGHT);
-	float dotUR = glm::dot(vehicleUp, Transform::RIGHT);
 	float dotFU = glm::dot(vehicleForward, Transform::UP);
-	float dotFF = glm::dot(vehicleForward, Transform::FORWARD);
-	float dotUU = glm::dot(vehicleUp, Transform::UP);
-	float dotRR = glm::dot(vehicleRight, Transform::RIGHT);
-	bool correctForward = dotFR > 0;
-	bool correctUp = dotUR < 0;
-	bool correctRight = dotFU < 0;
 
 	cout << angleDiffs.x << endl;
 
@@ -62,19 +54,19 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	float cameraNewVer = (cameraVer + (angleDiffs.y * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
 	
 	float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
-	float minAngle = (M_PI_4) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
-	float maxAngle = (M_PI_2 + (M_PI_4 / 4.0f)) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
+	float minAngle = (M_PI_4)					+ dotFU;
+	float maxAngle = (M_PI_2 + (M_PI_4 / 4.0f)) + dotFU;	
 	cameraNewVer = glm::clamp(cameraNewVer, minAngle, maxAngle);
 
 	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
 	camera->SetUpVector(vehicle->transform.GetUp());
 
 	//Get Weapon Child
-	Entity* vehicleGunTurret = EntityManager::FindChildren(vehicle, "GunTurret")[0];
-	float gunHor = -cameraNewHor + M_PI + (acos(dotFF) * (correctForward ? 1.0f : -1.0f));
-	vehicleGunTurret->transform.SetRotationAxisAngles(vehicle->transform.GetUp(), gunHor);
-	float gunVer = -cameraNewVer + (M_PI_2 - (M_PI_4 / 4.0f)) + (acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f));
-	vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
+//	Entity* vehicleGunTurret = EntityManager::FindChildren(vehicle, "GunTurret")[0];
+//	float gunHor = -cameraNewHor + M_PI + (acos(dotFF) * (correctForward ? 1.0f : -1.0f));
+//	vehicleGunTurret->transform.SetRotationAxisAngles(vehicle->transform.GetUp(), gunHor);
+//	float gunVer = -cameraNewVer + (M_PI_2 - (M_PI_4 / 4.0f)) + (acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f));
+//	vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
 }
 
 void InputManager::HandleMouse() {
