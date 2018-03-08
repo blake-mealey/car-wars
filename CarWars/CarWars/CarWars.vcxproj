@@ -270,7 +270,6 @@
     <None Include="Content\Prefabs\Components\Camera.json" />
     <None Include="Content\Prefabs\Components\GUIs\MainMenuButton.json" />
     <None Include="Content\Prefabs\Components\GUIs\MenuButton.json" />
-    <None Include="Content\Prefabs\Components\Missile.json" />
     <None Include="Content\Prefabs\Entities\AiSewage.json" />
     <None Include="Content\Prefabs\Entities\Boulder.json" />
     <None Include="Content\Prefabs\Entities\Menu\Camera.json" />

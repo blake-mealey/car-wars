@@ -24,5 +24,4 @@ private:
 	Time timeBetweenShots = 1.0f;
 	Time chargeTime = 2.0f;
 	Time nextChargeTime = 0.0f;
-	float damage = 1150.0f;
 };

@@ -1,6 +1,6 @@
 #include "MachineGunComponent.h"
 
-MachineGunComponent::MachineGunComponent() {}
+MachineGunComponent::MachineGunComponent() : WeaponComponent(20.0f) {}
 
 void MachineGunComponent::Shoot() {
 	if (StateManager::gameTime.GetTimeSeconds() > nextShotTime.GetTimeSeconds()) {

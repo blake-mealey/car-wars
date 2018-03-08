@@ -44,24 +44,24 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	glm::vec3 vehicleRight = vehicle->transform.GetRight();
 	float dotFU = glm::dot(vehicleForward, Transform::UP);
 
-	cout << angleDiffs.x << endl;
-
 	//Update Camera Angles
 	float cameraHor = camera->GetCameraHorizontalAngle();
 	float cameraVer = camera->GetCameraVerticalAngle();
 	float cameraSpd = camera->GetCameraSpeed();
 	float cameraNewHor = (cameraHor - (angleDiffs.x * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
 	float cameraNewVer = (cameraVer + (angleDiffs.y * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
-	
+
+	/*
 	float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
 	float minAngle = (M_PI_4)					+ dotFU;
 	float maxAngle = (M_PI_2 + (M_PI_4 / 4.0f)) + dotFU;	
 	cameraNewVer = glm::clamp(cameraNewVer, minAngle, maxAngle);
+	*/
 
 	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
 	camera->SetUpVector(vehicle->transform.GetUp());
 
-	//Get Weapon Child
+	//Get Weapon Child - Weapon Rotation
 //	Entity* vehicleGunTurret = EntityManager::FindChildren(vehicle, "GunTurret")[0];
 //	float gunHor = -cameraNewHor + M_PI + (acos(dotFF) * (correctForward ? 1.0f : -1.0f));
 //	vehicleGunTurret->transform.SetRotationAxisAngles(vehicle->transform.GetUp(), gunHor);

@@ -1,10 +1,24 @@
 {
+	"Tag": "Missile",
 	"Components": [
 		{
 			"Type": "Mesh",
 			"Mesh": "Missile.obj",
-			"Texture": "Boulder.jpg",
-			"Material": "Basic.json"
+			"Material": "RedShiny.json",
+			"Scale": [0.05, 0.05, 0.05]
+		},
+		{
+			"Type": "RigidDynamic",
+			"Colliders": [
+				{
+					"Type": "Box",
+					"CollisionGroup": "Missiles",
+					"Scale": [1.0, 0.1, 0.1]
+				}
+			]
+		},
+		{
+			"Type": "Missile"
 		}
 	]
 }

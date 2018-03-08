@@ -11,8 +11,12 @@ class WeaponComponent : public Component {
 	friend class RocketLauncherComponent;
 	friend class RailGunComponent;
 public:
+	WeaponComponent(float _damage);
+
 	virtual void Shoot() = 0;
 	virtual void Charge() = 0;
+
+	float GetDamage();
 
 	void SetTargetRotation(float _horizontalAngle, float _verticalAngle);
 
@@ -25,13 +29,12 @@ public:
 	float verticalAngle;
 
 	Time timeBetweenShots;
-private:
+protected:
 
 	float targetHorizontalAngle;
 	float targetVerticalAngle;
 
 	Time nextShotTime = 0;
-	//Time timeBetweenShots;
 
 	float damage;
 };
