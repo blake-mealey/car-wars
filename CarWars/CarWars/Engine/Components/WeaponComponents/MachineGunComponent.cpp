@@ -4,14 +4,26 @@ MachineGunComponent::MachineGunComponent() : WeaponComponent(20.0f) {}
 
 void MachineGunComponent::Shoot() {
 	if (StateManager::gameTime.GetTimeSeconds() > nextShotTime.GetTimeSeconds()) {
-		std::cout << "Bullet Shot, Dealt : " << damage << std::endl;
+		//std::cout << "Bullet Shot, Dealt : " << damage << std::endl;
+		//Get Vehicle
+		Entity* vehicle = GetEntity();
+		Entity* mgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
+
+		//Calculate Next Shooting Time
 		nextShotTime = StateManager::gameTime.GetTimeSeconds() + timeBetweenShots.GetTimeSeconds();
+		
+		//Play Shooting Sound
 		Audio& audioManager = Audio::Instance();
 		audioManager.PlayAudio("Content/Sounds/machine_gun_shot.mp3");
 
-		Entity* vehicle = this->GetEntity();
+		//Load Scene
 		PxScene* scene = &Physics::Instance().GetScene();
-		Entity* mgTurret = EntityManager::FindChildren(this->GetEntity(), "GunTurret")[0];
+		//Cast Camera Ray
+		PxRaycastBuffer cameraHit;
+		//if (scene->raycast()) {
+
+		//}
+
 		PxRaycastBuffer hit;
 		if (scene->raycast(Transform::ToPx(mgTurret->transform.GetGlobalPosition() - mgTurret->transform.GetForward() * 5.0f), -Transform::ToPx(mgTurret->transform.GetForward()), 400.0f, hit)) {
 			if (hit.hasAnyHits()) {
