@@ -1,0 +1,9 @@
+{
+	"Tag": "Camera",
+	"Components": [
+		{
+			"Type": "Camera",
+			"CenterDistance": 8
+		}
+	]
+}

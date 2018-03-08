@@ -79,6 +79,13 @@ void Game::InitializeGame() {
 
         Component* weapon = ContentManager::LoadComponent(WeaponType::prefabPaths[player.weaponType]);
         EntityManager::AddComponent(player.vehicleEntity, weapon);
+
+        player.cameraEntity = ContentManager::LoadEntity("Game/Camera.json");
+        
+	    player.camera = player.cameraEntity->GetComponent<CameraComponent>();
+        player.camera->SetCameraHorizontalAngle(-3.14 / 2);
+        player.camera->SetCameraVerticalAngle(3.14 / 4);
+        ContentManager::LoadScene("GUIs/HUD.json", player.camera->GetGuiRoot());
 	}
 
     for (size_t i = 0; i < numberOfAi; ++i) {
@@ -91,17 +98,6 @@ void Game::InitializeGame() {
 
 		MachineGunComponent *gun = new MachineGunComponent();
 		EntityManager::AddComponent(ai, gun);
-    }
-
-    cars = EntityManager::FindEntities("Vehicle");
-    cameras = EntityManager::FindEntities("Camera");
-
-    for (Entity* camera : cameras) {
-        CameraComponent *cameraComponent = camera->GetComponent<CameraComponent>();
-        cameraComponent->SetCameraHorizontalAngle(-3.14 / 2);
-        cameraComponent->SetCameraVerticalAngle(3.14 / 4);
-
-        ContentManager::LoadScene("GUIs/HUD.json", cameraComponent->GetGuiRoot());
     }
 
     Physics &physics = Physics::Instance();
@@ -229,15 +225,13 @@ void Game::Update() {
         const glm::vec3 sunPosition = glm::vec3(cos(t), 0.5f, sin(t));
         EntityManager::FindEntities("Sun")[0]->GetComponent<DirectionLightComponent>()->SetDirection(-sunPosition);
 		
-		for (int i = 0; i < cars.size(); i++) {
-			Entity* camera = cameras[i];
-			Entity* car = cars[i];
-
-			//"Camera Delay"
-			//camera->transform.SetPosition(glm::mix(camera->transform.GetGlobalPosition(), car->transform.GetGlobalPosition(), 0.04f));
-			camera->transform.SetPosition(EntityManager::FindChildren(car, "GunTurret")[0]->transform.GetGlobalPosition());
-			camera->GetComponent<CameraComponent>()->SetTarget(car->transform.GetGlobalPosition() + car->transform.GetUp() * 2.f + car->transform.GetForward() * -1.25f);
-		}
+        // Update player cameras
+        for (int i = 0; i < numberOfPlayers; ++i) {
+            PlayerData& player = players[i];
+            player.cameraEntity->transform.SetPosition(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
+            player.camera->SetTarget(player.vehicleEntity->transform.GetGlobalPosition() +
+                player.vehicleEntity->transform.GetUp() * 2.f + player.vehicleEntity->transform.GetForward() * -1.25f);
+        }
 	} else if (StateManager::GetState() == GameState_Paused) {
 
         // PAUSED

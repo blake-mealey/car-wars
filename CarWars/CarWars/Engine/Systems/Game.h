@@ -5,6 +5,8 @@
 #include "../Components/AiComponent.h"
 #include "Content/NavigationMesh.h"
 
+class CameraComponent;
+
 enum Map {
 	Map_Cylinder = 0
 };
@@ -38,6 +40,8 @@ struct PlayerData {
 
     bool alive;
     Entity* vehicleEntity;
+    Entity* cameraEntity;
+    CameraComponent* camera;
 };
 
 class Entity;
@@ -73,9 +77,6 @@ private:
 	Game();
 	Game(const Game&) = delete;
 	Game& operator= (const Game&) = delete;
-
-	std::vector<Entity*> cameras;
-	std::vector<Entity*> cars;
 
     physx::PxRigidDynamic *cylinderRigid;
 
