@@ -49,6 +49,10 @@ PxFilterFlags CollisionGroups::FilterShader(PxFilterObjectAttributes attributes0
     if ((0 == (filterData0.word0 & filterData1.word1)) && (0 == (filterData1.word0 & filterData0.word1)))
         return PxFilterFlag::eSUPPRESS;
 
+    if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1)) {
+        pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+        return PxFilterFlag::eDEFAULT;
+    }
     pairFlags = PxPairFlag::eCONTACT_DEFAULT;
     pairFlags |= PxPairFlags(PxU16(filterData0.word2 | filterData1.word2)) | PxPairFlag::eNOTIFY_TOUCH_FOUND;
 

@@ -15,9 +15,6 @@
 #include "PxSimulationEventCallback.h"
 
 class PowerUp : public Component {
-    friend class SpeedPowerUp;
-    friend class DefencePowerUp;
-    friend class DamagePowerUp;
 public:
     virtual void Collect() = 0;
 

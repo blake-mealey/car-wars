@@ -43,14 +43,7 @@
     "Prefab": "DamagePowerUp.json",
     "Position": [ -70, 2, -70 ]
   },
-  {
-    "Prefab": "SpeedPowerUp.json",
-    "Position": [ -70, 2, 70 ]
-  },
-  {
-        "Prefab": "DefencePowerUp.json",
-	    "Position": [ 70, 2, -70 ]
-    },
+
   {
     "Tag": "Cylinder",
     "Position": [ 0, 20, 80 ],

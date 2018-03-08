@@ -10,6 +10,8 @@ public:
     DamagePowerUp();
     void Collect() override;
 
+    void SetEntity(Entity* _entity) override;
+
     ComponentType GetType() override;
     void HandleEvent(Event *event) override;
 

@@ -12,8 +12,7 @@
       "Power": 10
     },
     {
-      "Type": "DamagePowerUp",
-      "Multiplier":  0.25
+      "Type": "DamagePowerUp"
     }
 	]
 }
