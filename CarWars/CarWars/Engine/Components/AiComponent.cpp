@@ -4,6 +4,10 @@
 #include "../Systems/Game.h"
 #include <iostream>
 #include "../Systems/StateManager.h"
+#include "../Components/RigidbodyComponents/RigidDynamicComponent.h"
+#include "../Components/RigidbodyComponents/VehicleComponent.h"
+#include "../Components/WeaponComponents/WeaponComponent.h"
+#include "../Systems/Physics.h"
 
 AiComponent::~AiComponent() {
     glDeleteBuffers(1, &pathVbo);
@@ -47,10 +51,6 @@ AiMode AiComponent::GetMode() const {
     return mode;
 }
 
-size_t AiComponent::GetWaypoint() const {
-    return waypointIndex;
-}
-
 void AiComponent::UpdatePath() {
     if (!FinishedPath() && StateManager::gameTime - lastPathUpdate < 0.01f) return;
     lastPathUpdate = StateManager::gameTime;
@@ -84,36 +84,6 @@ bool AiComponent::FinishedPath() const {
     return path.size() == 0;
 }
 
-void AiComponent::StartReversing() {
-    reversing = true;
-    startedReversing = StateManager::gameTime;
-}
-
-void AiComponent::StopReversing() {
-    reversing = false;
-}
-
-Time AiComponent::GetReversingDuration() const {
-    return StateManager::gameTime - startedReversing;
-}
-
-bool AiComponent::IsReversing() const {
-    return reversing;
-}
-
-void AiComponent::SetStuck(bool _stuck) {
-    stuck = _stuck;
-    if (stuck) startedStuck = StateManager::gameTime;
-}
-
-Time AiComponent::GetStuckDuration() const {
-    return StateManager::gameTime - startedStuck;
-}
-
-bool AiComponent::IsStuck() const {
-    return stuck;
-}
-
 void AiComponent::InitializeRenderBuffers() {
     glGenBuffers(1, &pathVbo);
     UpdateRenderBuffers();
@@ -135,7 +105,35 @@ void AiComponent::UpdateRenderBuffers() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-size_t AiComponent::NextWaypoint(size_t waypointCount) {
-    waypointIndex = (waypointIndex + 1) % waypointCount;
-    return GetWaypoint();
+Time AiComponent::GetModeDuration() {
+	return StateManager::gameTime - modeStart;
+}
+
+void AiComponent::StartStuckTime() {
+	if (startedStuck.GetTimeSeconds = -1)	startedStuck = StateManager::gameTime;
+}
+
+Time AiComponent::GetStuckDuration() {
+	return StateManager::gameTime - startedStuck;
+}
+
+void AiComponent::SetMode() {
+	previousMode = mode;
+
+	VehicleComponent* vehicle = GetEntity()->GetComponent<VehicleComponent>();
+	float speed = vehicle->pxVehicle->computeForwardSpeed();
+	if (GetStuckDuration().GetTimeSeconds > 1.0f) {
+		mode = AiMode_Stuck;
+		return;
+	}
+	if (abs(speed) <= 0.5f) {
+		if (startedStuck.GetTimeSeconds() < 0) {
+			StartStuckTime();
+		}
+	}
+	else {
+		startedStuck = Time(-1);
+	}
+
+
 }
