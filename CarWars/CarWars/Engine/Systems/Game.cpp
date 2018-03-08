@@ -42,7 +42,7 @@ size_t Game::numberOfAi = 5;
 size_t Game::numberOfLives = 3;
 size_t Game::killLimit = 10;
 size_t Game::timeLimitMinutes = 10;
-size_t Game::numberOfPlayers = 1;
+size_t Game::numberOfPlayers = 0;
 PlayerData Game::players[4];
 
 Time gameTime(0);

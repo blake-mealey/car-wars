@@ -189,6 +189,8 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 		else if (gameState == GameState_Menu_Start_CharacterSelect) {
 			GuiComponent *selected = GuiHelper::GetSelectedGui("CharacterMenu_Buttons", playerIndex);
 			if (selected->ContainsText("join")) {
+                Game::numberOfPlayers++;
+
 				GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", true, playerIndex);
 				GuiHelper::SetFirstGuiText("CharacterMenu_Title", "vehicle selection", playerIndex);
 				GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", VehicleType::displayNames[player.vehicleType], playerIndex);
@@ -207,15 +209,19 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                     Entity* weapon = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType], vehicle);
                     weapon->transform.SetPosition(EntityManager::FindFirstChild(vehicle, "GunTurretBase")->transform.GetLocalPosition());
                 } else {
+                    GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", false, playerIndex);
+                    GuiHelper::SetFirstGuiText("CharacterMenu_Title", "", playerIndex);
+                    GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", "", playerIndex);
+                    selected->SetText("Ready");
+
                     player.ready = true;
                     bool allReady = true;
                     for (int i = 0; i < Game::numberOfPlayers; ++i) {
                         allReady = Game::players[i].ready;
                         if (!allReady) break;
                     }
-                    if (allReady) {
-                        StateManager::SetState(GameState_Playing);
-                    }
+                    // TODO: Countdown?
+                    if (allReady) StateManager::SetState(GameState_Playing);
                 }
 			}
 		}
@@ -229,7 +235,36 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 			StateManager::SetState(GameState_Menu);
 		}
 		else if (gameState == GameState_Menu_Start_CharacterSelect) {
-			StateManager::SetState(GameState_Menu_Start);
+            GuiComponent *selected = GuiHelper::GetSelectedGui("CharacterMenu_Buttons", playerIndex);
+            if (selected->ContainsText("join")) {
+                StateManager::SetState(GameState_Menu_Start);
+            } else {
+                if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle", playerIndex)) {
+                    GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", false, playerIndex);
+                    GuiHelper::SetFirstGuiText("CharacterMenu_Title", "", playerIndex);
+                    GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", "", playerIndex);
+
+                    Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
+                    EntityManager::DestroyEntity(EntityManager::FindFirstChild(vehicleBox, "Vehicle"));
+
+                    Game::numberOfPlayers--;
+                    selected->SetText("a to join");
+                } else if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "weapon", playerIndex)) {
+                    GuiHelper::SetFirstGuiText("CharacterMenu_Title", "vehicle selection", playerIndex);
+                    GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", VehicleType::displayNames[player.vehicleType], playerIndex);
+
+                    Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
+                    Entity* vehicle = EntityManager::FindFirstChild(vehicleBox, "Vehicle");
+                    EntityManager::DestroyEntity(EntityManager::FindFirstChild(vehicle, "GunTurret"));
+                } else {
+                    GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", true, playerIndex);
+                    GuiHelper::SetFirstGuiText("CharacterMenu_Title", "weapon selection", playerIndex);
+                    GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", WeaponType::displayNames[player.weaponType], playerIndex);
+                    selected->SetText("a to continue");
+
+                    player.ready = false;
+                }
+            }
 		}
 	}
 }
