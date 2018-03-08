@@ -121,19 +121,23 @@ void AiComponent::SetMode() {
 	previousMode = mode;
 
 	VehicleComponent* vehicle = GetEntity()->GetComponent<VehicleComponent>();
+
+	// check if stuck
 	float speed = vehicle->pxVehicle->computeForwardSpeed();
 	if (GetStuckDuration().GetTimeSeconds > 1.0f) {
 		mode = AiMode_Stuck;
 		return;
 	}
 	if (abs(speed) <= 0.5f) {
-		if (startedStuck.GetTimeSeconds() < 0) {
+		if (startedStuck.GetTimeSeconds() < 0.f) {
 			StartStuckTime();
 		}
 	}
-	else {
-		startedStuck = Time(-1);
+	else startedStuck = Time(-1);
+
+	if (0/*doesNot have powerup*/){
+		//set target powerup
+		
+		mode = AiMode_DriveTo;
 	}
-
-
 }
