@@ -15,8 +15,9 @@ void MachineGunComponent::Shoot() {
 		Entity* mgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
 
 		//Calculate Next Shooting Time
-		nextShotTime = StateManager::gameTime.GetTimeSeconds() + timeBetweenShots.GetTimeSeconds();
-		
+		nextShotTime = StateManager::gameTime + timeBetweenShots;
+		std::cout << "Bullet Shot" << damage << std::endl;
+
 		//Play Shooting Sound
 		Audio& audioManager = Audio::Instance();
 		audioManager.PlayAudio("Content/Sounds/machine_gun_shot.mp3");
@@ -65,7 +66,7 @@ void MachineGunComponent::Shoot() {
 				Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
 				if (thingHit)
 				if (thingHit->HasTag("Vehicle") || thingHit->HasTag("AiVehicle")) {
-					std::cout << "Bullet Shot, Dealt : " << damage << std::endl;
+					std::cout << "Dealt : " << damage << std::endl;
 					VehicleComponent* thingHitVehicleComponent = thingHit->GetComponent<VehicleComponent>();
 					thingHitVehicleComponent->TakeDamage(damage);
 				}
