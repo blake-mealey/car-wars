@@ -11,17 +11,16 @@
 using namespace physx;
 
 VehicleComponent::VehicleComponent() : VehicleComponent(4, false) { }
-
 VehicleComponent::~VehicleComponent() {
-    pxVehicle->release();
-    delete wheelMeshPrefab;
+	pxVehicle->release();
+	delete wheelMeshPrefab;
 }
 
 VehicleComponent::VehicleComponent(nlohmann::json data) : RigidDynamicComponent(data) {
     inputTypeDigital = ContentManager::GetFromJson<bool>(data["DigitalInput"], false);
 
     if (!data["WheelMesh"].is_null()) {
-        wheelMeshPrefab = static_cast<MeshComponent*>(ContentManager::LoadComponent<MeshComponent>(data["WheelMesh"]));
+        wheelMeshPrefab = ContentManager::LoadComponent<MeshComponent>(data["WheelMesh"]);
     }
     else {
         wheelMeshPrefab = new MeshComponent("Boulder.obj", "Basic.json", "Boulder.jpg");
@@ -274,23 +273,16 @@ void VehicleComponent::Initialize() {
     for (size_t i = axleData.size(); i < axleCount; ++i) {
         axleData.push_back(AxleData(glm::mix(0.5f*chassisSize.z, -0.5f*chassisSize.z, static_cast<float>(i) / axleCount)));
     }
-
-    // Create the meshes for each of the wheels
-    for (size_t i = 0; i < wheelCount; ++i) {
-        MeshComponent* wheel = new MeshComponent(wheelMeshPrefab);
-        wheelMeshes.push_back(wheel);
-    }
-
-    UpdateWheelTransforms();
 }
 
 void VehicleComponent::UpdateWheelTransforms() {
     for (size_t i = 0; i < wheelCount; ++i) {
-        MeshComponent* wheel = wheelMeshes[i];
+        MeshComponent* wheel = &EntityManager::Components<MeshComponent>()[wheelMeshes[i]];
         Transform pose = wheelColliders[i]->GetLocalTransform();
-        wheel->transform.SetPosition(pose.GetLocalPosition());
-        wheel->transform.SetRotationAxisAngles(Transform::UP, glm::radians(i % 2 == 0 ? 180.f : 0.f));
-        wheel->transform.Rotate(pose.GetLocalRotation());
+		Transform& wheelTrans = EntityManager::GetTransform(wheel->transformID);
+		wheelTrans.SetPosition(pose.GetLocalPosition());
+        wheelTrans.SetRotationAxisAngles(Transform::UP, glm::radians(i % 2 == 0 ? 180.f : 0.f));
+        wheelTrans.Rotate(pose.GetLocalRotation());
     }
 }
 
@@ -407,20 +399,16 @@ void VehicleComponent::RenderDebugGui() {
     }
 }
 
-ComponentType VehicleComponent::GetType() {
-    return ComponentType_Vehicle;
-}
-
-void VehicleComponent::HandleEvent(Event *event) {}
-
-void VehicleComponent::SetEntity(Entity* _entity) {
+void VehicleComponent::SetEntity(Entity& _entity) {
     RigidbodyComponent::SetEntity(_entity);
-    for (MeshComponent *component : wheelMeshes) {
-        /*if (component->GetEntity() != nullptr) {
-        EntityManager::RemoveComponent(component->GetEntity(), component);
-        }*/
-        EntityManager::AddComponent(GetEntity(), component);
-    }
+	// Create the meshes for each of the wheels
+	for (size_t i = 0; i < wheelCount; ++i) {
+		MeshComponent wheel = MeshComponent(wheelMeshPrefab);
+		EntityManager::AddComponent(GetEntity(), wheel);
+		wheelMeshes.push_back(EntityManager::Components<MeshComponent>().size() - 1);
+	}
+
+	UpdateWheelTransforms();
 
     //Set the vehicle to rest in first gear.
     //Set the vehicle to use auto-gears.
@@ -438,7 +426,7 @@ void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
 void VehicleComponent::TakeDamage(float _damageValue) {
 	health -= _damageValue * resistance;
 	if (health <= 0) {
-		Physics::Instance().AddToDelete(GetEntity());
+		Physics::Instance().AddToDelete(&GetEntity());
 	}
 }
 

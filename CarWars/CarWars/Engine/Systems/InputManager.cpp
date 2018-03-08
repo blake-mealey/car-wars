@@ -39,9 +39,9 @@ void InputManager::Update() {
 }
 
 void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs) {
-	glm::vec3 vehicleForward = vehicle->transform.GetForward();
-	glm::vec3 vehicleUp = vehicle->transform.GetUp();
-	glm::vec3 vehicleRight = vehicle->transform.GetRight();
+	glm::vec3 vehicleForward = vehicle->GetTransform().GetForward();
+	glm::vec3 vehicleUp = vehicle->GetTransform().GetUp();
+	glm::vec3 vehicleRight = vehicle->GetTransform().GetRight();
 	float dotFR = glm::dot(vehicleForward, Transform::RIGHT);
 	float dotUR = glm::dot(vehicleUp, Transform::RIGHT);
 	float dotFU = glm::dot(vehicleForward, Transform::UP);
@@ -61,20 +61,20 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	float cameraNewHor = (cameraHor - (angleDiffs.x * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
 	float cameraNewVer = (cameraVer + (angleDiffs.y * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
 	
-	float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
+	float carAngleOffset = acos(glm::dot(vehicle->GetTransform().GetUp(), Transform::UP));
 	float minAngle = (M_PI_4) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
 	float maxAngle = (M_PI_2 + (M_PI_4 / 4.0f)) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
 	cameraNewVer = glm::clamp(cameraNewVer, minAngle, maxAngle);
 
 	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
-	camera->SetUpVector(vehicle->transform.GetUp());
+	camera->SetUpVector(vehicle->GetTransform().GetUp());
 
 	//Get Weapon Child
 	Entity* vehicleGunTurret = EntityManager::FindChildren(vehicle, "GunTurret")[0];
 	float gunHor = -cameraNewHor + M_PI + (acos(dotFF) * (correctForward ? 1.0f : -1.0f));
-	vehicleGunTurret->transform.SetRotationAxisAngles(vehicle->transform.GetUp(), gunHor);
+	vehicleGunTurret->GetTransform().SetRotationAxisAngles(vehicle->GetTransform().GetUp(), gunHor);
 	float gunVer = -cameraNewVer + (M_PI_2 - (M_PI_4 / 4.0f)) + (acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f));
-	vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
+	vehicleGunTurret->GetTransform().Rotate(Transform::RIGHT, gunVer);
 }
 
 void InputManager::HandleMouse() {
@@ -87,9 +87,9 @@ void InputManager::HandleMouse() {
 
 		//Shoot Weapon
 		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-			static_cast<WeaponComponent*>(vehicle->components[8])->Charge();
+			//(vehicle->components[8])->Charge();
 		} else if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
-			static_cast<WeaponComponent*>(vehicle->components[8])->Shoot();
+			//(vehicle->components[8])->Shoot();
 		}
 
 		//Cursor Inputs
@@ -99,7 +99,7 @@ void InputManager::HandleMouse() {
 		Mouse::GetCursorPosition(graphicsInstance.GetWindow(), &xPos, &yPos);
 
 		//Get Camera Component
-		CameraComponent* cameraComponent = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[0]);
+		CameraComponent* cameraComponent = &EntityManager::Components<CameraComponent>()[0];
 		glm::vec2 angleDiffs = 10.f * (windowSize*0.5f - glm::vec2(xPos, yPos)) / windowSize;
 		UpdateCamera(vehicle, cameraComponent, angleDiffs);
 
@@ -226,7 +226,7 @@ void InputManager::HandleKeyboard() {
 		NavigateGuis(vertDir, horizDir, Keyboard::KeyPressed(GLFW_KEY_ENTER), Keyboard::KeyPressed(GLFW_KEY_ESCAPE));
 	} else if (gameState == GameState_Playing) {
         //Get Vehicle Component
-        VehicleComponent* vehicle = static_cast<VehicleComponent*>(EntityManager::GetComponents(ComponentType_Vehicle)[0]);
+        VehicleComponent* vehicle = &EntityManager::Components<VehicleComponent>()[0];
 
         //Drive Forward
         if (Keyboard::KeyDown(GLFW_KEY_W)) {
@@ -355,14 +355,14 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleCom
 
 		// ---- RIGHT STICK ---- //
 		Entity *camera = EntityManager::FindEntities("Camera")[controllerNum];
-		CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
+		CameraComponent* cameraC = camera->GetComponent<CameraComponent>();
 
 		//Right Joystick X-Axis
 		if (controller->GetState().Gamepad.sThumbRX >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || controller->GetState().Gamepad.sThumbRX <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
 			cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-JOYSTICK X-AXIS movement" << endl;
 
 			float x = -static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 30000.f;
-			UpdateCamera(vehicle->GetEntity(), cameraC, glm::vec2(x, 0.f));
+			UpdateCamera(&vehicle->GetEntity(), cameraC, glm::vec2(x, 0.f));
 		}
 
 		//Right Joystick Y-Axis
@@ -370,7 +370,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleCom
 			cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-JOYSTICK Y-AXIS movement" << endl;
 
 			float y = static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 30000.f;
-			UpdateCamera(vehicle->GetEntity(), cameraC, glm::vec2(0.f, y));
+			UpdateCamera(&vehicle->GetEntity(), cameraC, glm::vec2(0.f, y));
 		}
 
 
@@ -411,19 +411,19 @@ void InputManager::HandleController() {
 		int releasedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetPreviousState().Gamepad.wButtons;
 
         if (StateManager::GetState() == GameState_Playing) {
-            vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-            VehicleComponent * vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
-			WeaponComponent *weapon = static_cast<WeaponComponent*>(vehicle->GetEntity()->components[8]);
+            vector<VehicleComponent>& vehicleComponents = EntityManager::Components<VehicleComponent>();
+            VehicleComponent * vehicle = &vehicleComponents[controllerNum];
+			//WeaponComponent *weapon = static_cast<WeaponComponent*>(vehicle->GetEntity()->components[8]);
             //        cout << "Current speed: " << vehicle->pxVehicle->computeForwardSpeed() << endl;
             HandleVehicleControllerInput(controllerNum, vehicle, leftVibrate, rightVibrate);
 
 			//LEFT-SHOULDER
 			if (pressedButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
 				cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-SHOULDER pressed" << endl;
-				weapon->Charge();
+				//weapon->Charge();
 			} else if (heldButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
 				cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-SHOULDER held" << endl;
-				weapon->Shoot();
+				//weapon->Shoot();
 			}
 		}
 		else if (StateManager::GetState() < __GameState_Menu_End) {

@@ -63,34 +63,34 @@ void Game::InitializeGame() {
 
 	for (int i = 0; i < numberOfPlayers; ++i) {
 		Entity *vehicle = ContentManager::LoadEntity("Sewage.json");
-		static_cast<VehicleComponent*>(vehicle->components[1])->pxRigid->setGlobalPose(PxTransform(PxVec3(0.f, 10.f, i*15.f)));
+		vehicle->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(0.f, 10.f, i*15.f)));
 
 		switch (playerWeapons[i]) {
 		case MachineGun:
-			EntityManager::AddComponent(vehicle, new MachineGunComponent());
+			EntityManager::AddComponent(*vehicle, MachineGunComponent{});
 			break;
 		case RocketLauncher:
-			EntityManager::AddComponent(vehicle, new RocketLauncherComponent());
+			EntityManager::AddComponent(*vehicle, RocketLauncherComponent{});
 			break;
 		case RailGun:
-			EntityManager::AddComponent(vehicle, new RailGunComponent());
+			EntityManager::AddComponent(*vehicle, RailGunComponent{});
 			break;
 		}
 	}
 
     for (size_t i = 0; i < numberOfAi; ++i) {
         Entity *ai = ContentManager::LoadEntity("AiSewage.json");
-        static_cast<VehicleComponent*>(ai->components[1])->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
+        ai->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
 
-		MachineGunComponent *gun = new MachineGunComponent();
-		EntityManager::AddComponent(ai, gun);
+		MachineGunComponent gun = MachineGunComponent{};
+		EntityManager::AddComponent(*ai, gun);
     }
 
     cars = EntityManager::FindEntities("Vehicle");
     cameras = EntityManager::FindEntities("Camera");
 
     for (Entity* camera : cameras) {
-        CameraComponent *cameraComponent = static_cast<CameraComponent*>(camera->components[0]);
+        CameraComponent *cameraComponent = camera->GetComponent<CameraComponent>();
         cameraComponent->SetCameraHorizontalAngle(-3.14 / 2);
         cameraComponent->SetCameraVerticalAngle(3.14 / 4);
 
@@ -100,8 +100,8 @@ void Game::InitializeGame() {
     Physics &physics = Physics::Instance();
 
     Entity *cylinder = EntityManager::FindEntities("Cylinder")[0];
-    RigidDynamicComponent *cylinderRigid = static_cast<RigidDynamicComponent*>(cylinder->components[1]);
-    RigidStaticComponent *cylinderStatic = static_cast<RigidStaticComponent*>(cylinder->components[2]);
+    RigidDynamicComponent *cylinderRigid = cylinder->GetComponent<RigidDynamicComponent>();
+    RigidStaticComponent *cylinderStatic = cylinder->GetComponent<RigidStaticComponent>();
     this->cylinderRigid = cylinderRigid->actor;
 
     // Don't let forces rotate the cylinder
@@ -128,17 +128,17 @@ void Game::InitializeGame() {
         { "Spacing", 2.5f }
     });
 
-	std::vector<AiComponent*> ais = EntityManager::GetComponents<AiComponent>(ComponentType_AI);
-    for (AiComponent* ai : ais) {
-        switch (ai->GetMode()) {
+	std::vector<AiComponent>& ais = EntityManager::Components<AiComponent>();
+    for (AiComponent& ai : ais) {
+        switch (ai.GetMode()) {
         case AiMode_Waypoints:
-            ai->SetTargetEntity(waypoints[0]);
+            ai.SetTargetEntity(waypoints[0]);
             break;
         case AiMode_Chase:
-            ai->SetTargetEntity(EntityManager::FindEntities("Vehicle")[0]);
+            ai.SetTargetEntity(EntityManager::FindEntities("Vehicle")[0]);
             break;
         }
-        ai->UpdatePath();
+        ai.UpdatePath();
     }
 }
 
@@ -149,53 +149,52 @@ void Game::Update() {
         cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
 
         // Update AIs
-		std::vector<Component*> aiComponents = EntityManager::GetComponents(ComponentType_AI);
-        for (Component *component : aiComponents) {
-			AiComponent *ai = static_cast<AiComponent*>(component);
-            if (!ai->enabled) continue;
-            VehicleComponent* vehicle = static_cast<VehicleComponent*>(ai->GetEntity()->components[1]);
+		std::vector<AiComponent>& aiComponents = EntityManager::Components<AiComponent>();
+        for (AiComponent& ai : aiComponents) {
+            if (!ai.enabled) continue;
+            VehicleComponent* vehicle = ai.GetEntity().GetComponent<VehicleComponent>();
 
-            Transform &myTransform = ai->GetEntity()->transform;
+            Transform &myTransform = ai.GetEntity().GetTransform();
             const glm::vec3 position = myTransform.GetGlobalPosition();
             const glm::vec3 forward = myTransform.GetForward();
             const glm::vec3 right = myTransform.GetRight();
 
-            ai->UpdatePath();       // Will only update every x seconds
-            const glm::vec3 targetPosition = ai->GetTargetEntity()->transform.GetGlobalPosition();
-            const glm::vec3 nodePosition = ai->NodeInPath();
+            ai.UpdatePath();       // Will only update every x seconds
+            const glm::vec3 targetPosition = ai.GetTargetEntity()->GetTransform().GetGlobalPosition();
+            const glm::vec3 nodePosition = ai.NodeInPath();
 
             glm::vec3 direction = nodePosition - position;
             const float distance = glm::length(direction);
             direction = glm::normalize(direction);
 
             if (distance <= navigationMesh->GetSpacing() * 2.f) {
-                ai->NextNodeInPath();
+                ai.NextNodeInPath();
             }
 
-            switch(ai->GetMode()) {
+            switch(ai.GetMode()) {
             case AiMode_Waypoints:
                 if (glm::length(targetPosition - position) <= navigationMesh->GetSpacing()) {
-                    ai->SetTargetEntity(waypoints[ai->NextWaypoint(4)]);
+                    ai.SetTargetEntity(waypoints[ai.NextWaypoint(4)]);
                 }
             case AiMode_Chase:
                 const float steer = glm::dot(direction, right);
                 const PxReal speed = vehicle->pxVehicle->computeForwardSpeed();
 
-                if (!ai->IsStuck() && abs(speed) <= 0.5f) {
-                    ai->SetStuck(true);
-                } else if (ai->IsStuck() && abs(speed) >= 1.f) {
-                    ai->SetStuck(false);
+                if (!ai.IsStuck() && abs(speed) <= 0.5f) {
+                    ai.SetStuck(true);
+                } else if (ai.IsStuck() && abs(speed) >= 1.f) {
+                    ai.SetStuck(false);
                 }
 
-                if (!ai->IsReversing() && ai->IsStuck() && ai->GetStuckDuration().GetTimeSeconds() >= 1.f) {
-                    ai->StartReversing();
+                if (!ai.IsReversing() && ai.IsStuck() && ai.GetStuckDuration().GetTimeSeconds() >= 1.f) {
+                    ai.StartReversing();
                 }
 
-                if (ai->IsReversing() && ai->GetReversingDuration().GetTimeSeconds() >= 2.f) {
-                    ai->StopReversing();
+                if (ai.IsReversing() && ai.GetReversingDuration().GetTimeSeconds() >= 2.f) {
+                    ai.StopReversing();
                 }
 
-                const bool reverse = ai->IsReversing();// speed < 1.f; // glm::dot(direction, forward) > -0.1;
+                const bool reverse = ai.IsReversing();// speed < 1.f; // glm::dot(direction, forward) > -0.1;
 
 				const float accel = glm::clamp(distance / 20.f, 0.1f, 0.8f) * reverse ? 0.8f : 0.8f;
 
@@ -211,15 +210,15 @@ void Game::Update() {
                 break;
             }
 
-            if (ai->FinishedPath()) {
-                ai->UpdatePath();
+            if (ai.FinishedPath()) {
+                ai.UpdatePath();
             }
         }
 
         // Update sun direction
 		const float t = glm::radians(45.5) + StateManager::gameTime.GetTimeSeconds() / 10;
         const glm::vec3 sunPosition = glm::vec3(cos(t), 0.5f, sin(t));
-        static_cast<DirectionLightComponent*>(EntityManager::FindEntities("Sun")[0]->components[0])->SetDirection(-sunPosition);
+        EntityManager::FindEntities("Sun")[0]->GetComponent<DirectionLightComponent>()->SetDirection(-sunPosition);
 		
 		for (int i = 0; i < cars.size(); i++) {
 			Entity* camera = cameras[i];
@@ -227,8 +226,8 @@ void Game::Update() {
 
 			//"Camera Delay"
 			//camera->transform.SetPosition(glm::mix(camera->transform.GetGlobalPosition(), car->transform.GetGlobalPosition(), 0.04f));
-			camera->transform.SetPosition(EntityManager::FindChildren(car, "GunTurret")[0]->transform.GetGlobalPosition());
-			static_cast<CameraComponent*>(camera->components[0])->SetTarget(car->transform.GetGlobalPosition() + car->transform.GetUp() * 2.f + car->transform.GetForward() * -1.25f);
+			camera->GetTransform().SetPosition(EntityManager::FindChildren(car, "GunTurret")[0]->GetTransform().GetGlobalPosition());
+			camera->GetComponent<CameraComponent>()->SetTarget(car->GetTransform().GetGlobalPosition() + car->GetTransform().GetUp() * 2.f + car->GetTransform().GetForward() * -1.25f);
 		}
 	} else if (StateManager::GetState() == GameState_Paused) {
 

@@ -4,13 +4,12 @@
 
 class RigidStaticComponent : public RigidbodyComponent {
 public:
-    RigidStaticComponent(nlohmann::json data);
+	RigidStaticComponent(nlohmann::json data);
 
-    ComponentType GetType() override;
-    void HandleEvent(Event *event) override;
+	static constexpr ComponentType GetType() { return ComponentType_RigidStatic; }
 
-    void RenderDebugGui() override;
+	void RenderDebugGui();
 
 private:
-    void InitializeRigidbody() override;
+	void InitializeRigidbody();
 };

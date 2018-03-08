@@ -5,12 +5,13 @@
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
 
-GuiComponent::~GuiComponent() {
-    delete font;
-}
+/*GuiComponent::~GuiComponent() {
+	delete font;
+}*/
 
 GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr), texture(nullptr) {
-	transform = Transform(data);
+	transformID = EntityManager::AddTransform(Transform(data));
+	//transform = Transform(data);
 	text = ContentManager::GetFromJson<std::string>(data["Text"], "");
 	SetFont(ContentManager::GetFromJson<std::string>(data["Font"], "arial.ttf"));
 	SetFontSize(ContentManager::GetFromJson<int>(data["FontSize"], 36));
@@ -45,16 +46,10 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
     }
 }
 
-ComponentType GuiComponent::GetType() {
-	return ComponentType_GUI;
-}
-
-void GuiComponent::HandleEvent(Event *event) { }
-
-void GuiComponent::RenderDebugGui() {
-	Component::RenderDebugGui();
+void GuiComponent::InternalRenderDebugGui() {
+	//Component::RenderDebugGui();
 	if (ImGui::TreeNode("Transform")) {
-		transform.RenderDebugGui(1.f, 1.f);
+		EntityManager::GetTransform(transformID).RenderDebugGui(1.f, 1.f);
 		ImGui::TreePop();
 	}
 
@@ -131,13 +126,14 @@ size_t GuiComponent::GetTextYAlignment() const {
 	return textAlignment[1];
 }
 
-void GuiComponent::SetEntity(Entity *_entity) {
-	Component::SetEntity(_entity);
-    transform.parent = &_entity->transform;
+void GuiComponent::InternalSetEntity(Entity& _entity) {
+	//Component::SetEntity(_entity);
+	Entity* e = &_entity;
+    EntityManager::GetTransform(transformID).parentID = e->transformID;
 	do {
-		if (_entity->HasTag("GuiRoot")) guiRoot = _entity;
-		_entity = EntityManager::GetParent(_entity);
-	} while (!guiRoot && _entity);
+		if (e->HasTag("GuiRoot")) guiRoot = e;
+		e = EntityManager::GetParent(&_entity);
+	} while (!guiRoot && e);
 }
 
 void GuiComponent::SetUvScale(glm::vec2 _uvScale) {

@@ -167,17 +167,16 @@ void Physics::Update() {
     const PxF32 timestep = 1.0f / 60.0f;
 
     //Raycasts.
-    vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
+    vector<VehicleComponent>& vehicleComponents = EntityManager::Components<VehicleComponent>();
     vector<PxVehicleWheels*> vehicles;
-    for (Component* component : vehicleComponents) {
-        VehicleComponent* vehicle = static_cast<VehicleComponent*>(component);
-        vehicles.push_back(vehicle->pxVehicle);
+    for (VehicleComponent& vehicle : vehicleComponents) {
+        vehicles.push_back(vehicle.pxVehicle);
 
         // Update vehicle inputs
-        if (vehicle->inputTypeDigital) {
-            PxVehicleDrive4WSmoothDigitalRawInputsAndSetAnalogInputs(gKeySmoothingData, gSteerVsForwardSpeedTable, vehicle->pxVehicleInputData, timestep, vehicle->inAir, *vehicle->pxVehicle);
+        if (vehicle.inputTypeDigital) {
+            PxVehicleDrive4WSmoothDigitalRawInputsAndSetAnalogInputs(gKeySmoothingData, gSteerVsForwardSpeedTable, vehicle.pxVehicleInputData, timestep, vehicle.inAir, *vehicle.pxVehicle);
         } else {
-            PxVehicleDrive4WSmoothAnalogRawInputsAndSetAnalogInputs(gPadSmoothingData, gSteerVsForwardSpeedTable, vehicle->pxVehicleInputData, timestep, vehicle->inAir, *vehicle->pxVehicle);
+            PxVehicleDrive4WSmoothAnalogRawInputsAndSetAnalogInputs(gPadSmoothingData, gSteerVsForwardSpeedTable, vehicle.pxVehicleInputData, timestep, vehicle.inAir, *vehicle.pxVehicle);
         }
     }
 
@@ -195,9 +194,8 @@ void Physics::Update() {
     PxVehicleUpdates(timestep, grav, *pxFrictionPairs, vehicles.size(), vehicles.data(), vehicleQueryResults.data());
 
     //Work out if the vehicle is in the air.
-    for (Component* component : vehicleComponents) {
-        VehicleComponent* vehicle = static_cast<VehicleComponent*>(component);
-        vehicle->inAir = vehicle->pxVehicle->getRigidDynamicActor()->isSleeping() ? false : PxVehicleIsInAir(vehicleQueryResults[0]);
+    for (VehicleComponent& vehicle : vehicleComponents) {
+        vehicle.inAir = vehicle.pxVehicle->getRigidDynamicActor()->isSleeping() ? false : PxVehicleIsInAir(vehicleQueryResults[0]);
     }
 
     //Scene update.
@@ -209,7 +207,7 @@ void Physics::Update() {
     PxActor** activeActors = pxScene->getActiveActors(nbActiveActors);
 
     // Update each render object with the new transform
-    vector<Component*> updatedComponents;
+    /*vector<Component*> updatedComponents;
     for (PxU32 i = 0; i < nbActiveActors; ++i) {
         PxRigidActor* activeActor = static_cast<PxRigidActor*>(activeActors[i]);
 
@@ -227,12 +225,12 @@ void Physics::Update() {
 		toDelete.clear();
 	}
 
-	Game::Instance().GetNavigationMesh()->UpdateMesh(updatedComponents);
+	Game::Instance().GetNavigationMesh()->UpdateMesh(updatedComponents);*/
 }
 
 void Physics::AddToDelete(Entity* _entity) {
 	if (_entity) {
 		toDelete.push_back(_entity);
-		_entity->MarkForDeletion();
+		//_entity->MarkForDeletion();
 	}
 }

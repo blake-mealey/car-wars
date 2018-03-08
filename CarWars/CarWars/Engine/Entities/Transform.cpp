@@ -16,11 +16,11 @@ const glm::vec3 Transform::UP = glm::vec3(0, 1, 0);
 
 float Transform::radius = 0;
 
-Transform::Transform() : Transform(nullptr, glm::vec3(), glm::vec3(1.f), glm::quat(), false) {}
+Transform::Transform() : Transform(SHRT_MAX, glm::vec3(), glm::vec3(1.f), glm::quat(), false) {}
 
-Transform::Transform(glm::vec3 _position, glm::vec3 _scale) : Transform(nullptr, _position, _scale, glm::quat(), false) { }
+Transform::Transform(glm::vec3 _position, glm::vec3 _scale) : Transform(SHRT_MAX, _position, _scale, glm::quat(), false) { }
 
-Transform::Transform(nlohmann::json data) : parent(nullptr) {
+Transform::Transform(nlohmann::json data) : parentID(SHRT_MAX) {
 	connectedToCylinder = ContentManager::GetFromJson<bool>(data["CylinderPart"], false);
 	SetPosition(ContentManager::JsonToVec3(data["Position"], glm::vec3()));
     SetScale(ContentManager::JsonToVec3(data["Scale"], glm::vec3(1.f)));
@@ -30,16 +30,16 @@ Transform::Transform(nlohmann::json data) : parent(nullptr) {
     }
 }
 
-Transform::Transform(physx::PxTransform t) : Transform(nullptr, FromPx(t.p), glm::vec3(1.f), FromPx(t.q), false) {}
+Transform::Transform(physx::PxTransform t) : Transform(SHRT_MAX, FromPx(t.p), glm::vec3(1.f), FromPx(t.q), false) {}
 
-Transform::Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::vec3 pEulerRotation, bool connected) : parent(pParent) {
+Transform::Transform(unsigned short pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::vec3 pEulerRotation, bool connected) : parentID(pParent) {
 	connectedToCylinder = connected;
 	SetPosition(pPosition);
 	SetScale(pScale);
 	SetRotationEulerAngles(pEulerRotation);
 }
 
-Transform::Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::quat pRotation, bool connected) : parent(pParent) {
+Transform::Transform(unsigned short pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::quat pRotation, bool connected) : parentID(pParent) {
 	connectedToCylinder = connected;
 	SetPosition(pPosition);
 	SetScale(pScale);
@@ -95,8 +95,11 @@ glm::vec3 Transform::GetGlobalScale() {
 	Transform* transform = this;
 	do {
 		globalScale = transform->GetLocalScale() * globalScale;
-		transform = transform->parent;
-	} while (transform != nullptr);
+		if (transform->parentID != SHRT_MAX)
+			transform = &EntityManager::GetTransform(transform->parentID);
+		else
+			break;
+	} while (true);
 	return globalScale;
 }
 
@@ -211,8 +214,11 @@ glm::mat4 Transform::GetTransformationMatrix() {
 	Transform* transform = this;
 	do {
 		matrix = transform->GetLocalTransformationMatrix() * matrix;
-		transform = transform->parent;
-	} while (transform != nullptr);
+		if (transform->parentID != SHRT_MAX)
+			transform = &EntityManager::GetTransform(transform->parentID);
+		else
+			break;
+	} while (true);
 	return matrix;
 }
 

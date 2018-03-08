@@ -119,7 +119,7 @@ public:
 
 	static void WindowSizeCallback(GLFWwindow *window, int width, int height);
 	void SetWindowDimensions(size_t width, size_t height);
-	void UpdateViewports(std::vector<Component*> cameraComponents) const;
+	void UpdateViewports(std::vector<CameraComponent>& cameraComponents) const;
 
 	glm::vec2 GetWindowSize() const;
 	glm::vec2 GetViewportSize() const;
@@ -133,7 +133,7 @@ private:
 	void LoadModel(ShaderProgram* shaderProgram, MeshComponent* model);
     void Graphics::LoadModel(ShaderProgram *shaderProgram, glm::mat4 modelMatrix, Material *material, Mesh* mesh, Texture *texture = nullptr, glm::vec2 uvScale = glm::vec2(1.f));
 
-	void LoadCameras(std::vector<Component*> cameraComponents);
+	void LoadCameras(std::vector<CameraComponent>& cameraComponents);
 	std::vector<Camera> cameras;
 	
 	GLFWwindow* window;
@@ -161,8 +161,8 @@ private:
     bool renderNavigationPaths;
     float bloomScale;
 
-	void LoadLights(std::vector<Component*> _pointLights, std::vector<Component*> _directionLights, std::vector<Component*> _spotLights);
-	void LoadLights(std::vector<PointLight> pointLights, std::vector<DirectionLight> directionLights, std::vector<SpotLight> spotLights);
+	void LoadLights(std::vector<PointLightComponent>& _pointLights, std::vector<DirectionLightComponent>& _directionLights, std::vector<SpotLightComponent>& _spotLights);
+	void LoadLights(std::vector<PointLight>& pointLights, std::vector<DirectionLight>& directionLights, std::vector<SpotLight>& spotLights);
 
 	void DestroyIds();
 	void GenerateIds();

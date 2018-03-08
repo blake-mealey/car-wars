@@ -6,32 +6,35 @@
 #include "../Component.h"
 #include "../Engine/Systems/Time.h"
 
-class WeaponComponent : public Component {
+template<class T, EventType... events>
+class WeaponComponent : public Component<T, events...> {
+	friend class Component<T, events...>;
 	friend class MachineGunComponent;
 	friend class RocketLauncherComponent;
 	friend class RailGunComponent;
 public:
-	virtual void Shoot() = 0;
-	virtual void Charge() = 0;
+	void Shoot() { static_cast<T*>(this)->InternalShoot(); }
+	void Charge() { static_cast<T*>(this)->InternalCharge(); }
 
-	void SetTargetRotation(float _horizontalAngle, float _verticalAngle);
+	void SetTargetRotation(float _horizontalAngle, float _verticalAngle) {
+		targetHorizontalAngle = _horizontalAngle * -1.0f;
+		targetVerticalAngle = _verticalAngle * -1.0f;
 
-	ComponentType GetType() override;
-	void HandleEvent(Event *event) override;
-
-	void RenderDebugGui() override;
+		horizontalAngle = glm::mix(horizontalAngle, targetHorizontalAngle, 0.05f);
+		verticalAngle = glm::mix(verticalAngle, targetVerticalAngle, 0.05f);
+	}
 
 	float horizontalAngle;
 	float verticalAngle;
 
 	Time timeBetweenShots;
+
 private:
 
 	float targetHorizontalAngle;
 	float targetVerticalAngle;
 
 	Time nextShotTime = 0;
-	//Time timeBetweenShots;
 
 	float damage;
 };

@@ -202,14 +202,14 @@ std::vector<Entity*> ContentManager::LoadScene(std::string filePath, Entity *par
 	return entities;
 }
 
-std::vector<Entity*> ContentManager::DestroySceneAndLoadScene(std::string filePath, Entity* parent) {
+/*std::vector<Entity*> ContentManager::DestroySceneAndLoadScene(std::string filePath, Entity* parent) {
     EntityManager::DestroyScene();
     std::vector<Entity*> scene = LoadScene(filePath, parent);
     Graphics::Instance().SceneChanged();
     return scene;
-}
+}*/
 
-Component* ContentManager::LoadComponent(json data) {
+bool ContentManager::LoadComponent(json data, Entity& entity) {
     while (data.is_string()) {
         data = LoadJson(COMPONENT_PREFAB_DIR_PATH + data.get<std::string>());
     }
@@ -222,32 +222,40 @@ Component* ContentManager::LoadComponent(json data) {
         data = prefabData;
     }
 
-    Component *component = nullptr;
+    //Component *component = nullptr;
     bool supportedType = true;
     std::string type = data["Type"];
-    if (type == "Mesh") component = new MeshComponent(data);
-    else if (type == "Camera") component = new CameraComponent(data);
-    else if (type == "PointLight") component = new PointLightComponent(data);
-    else if (type == "DirectionLight") component = new DirectionLightComponent(data);
-    else if (type == "SpotLight") component = new SpotLightComponent(data);
-    else if (type == "RigidStatic") component = new RigidStaticComponent(data);
-    else if (type == "RigidDynamic") component = new RigidDynamicComponent(data);
-    else if (type == "Vehicle") component = new VehicleComponent(data);
-	else if (type == "MachineGun") component = new MachineGunComponent();
-	else if (type == "RailGun") component = new RailGunComponent();
-    else if (type == "RocketLauncher") component = new RocketLauncherComponent();
-	else if (type == "AI") component = new AiComponent(data);
-	else if (type == "GUI") component = new GuiComponent(data);
-    else {
-        std::cout << "Unsupported component type: " << type << std::endl;
-        supportedType = false;
-    }
-    if (supportedType) {
-        component->enabled = GetFromJson<bool>(data["Enabled"], true);
-        return component;
-    }
-
-    return nullptr;
+	if (type == "Mesh")
+		LoadComponent<MeshComponent>(data, entity);
+	else if (type == "Camera")
+		LoadComponent<CameraComponent>(data, entity);
+	else if (type == "PointLight")
+		LoadComponent<PointLightComponent>(data, entity);
+	else if (type == "DirectionLight")
+		LoadComponent<DirectionLightComponent>(data, entity);
+	else if (type == "SpotLight")
+		LoadComponent<SpotLightComponent>(data, entity);
+	else if (type == "RigidStatic")
+		LoadComponent<RigidStaticComponent>(data, entity);
+	else if (type == "RigidDynamic")
+		LoadComponent<RigidDynamicComponent>(data, entity);
+	else if (type == "Vehicle")
+		LoadComponent<VehicleComponent>(data, entity);
+	else if (type == "MachineGun")
+		LoadComponent<MachineGunComponent>(entity);
+	else if (type == "RailGun")
+		LoadComponent<RailGunComponent>(entity);
+	else if (type == "RocketLauncher")
+		LoadComponent<RocketLauncherComponent>(entity);
+	else if (type == "AI")
+		LoadComponent<AiComponent>(data, entity);
+	else if (type == "GUI")
+		LoadComponent<GuiComponent>(data, entity);
+	else {
+		std::cout << "Unsupported component type: " << type << std::endl;
+		return false;
+	}
+	return true;
 }
 
 Entity* ContentManager::LoadEntity(json data, Entity *parent) {
@@ -264,25 +272,38 @@ Entity* ContentManager::LoadEntity(json data, Entity *parent) {
 	}
 
     // TODO: Determine whether or not the entity is static (parameter?)
-    Entity *entity = EntityManager::CreateDynamicEntity(parent);
+	//This is where the parent relationship is established so don't worry about it Colt
+	Entity *entity;
+	if (parent) {
+		short parentID = parent->GetId();
+		entity = EntityManager::CreateDynamicEntity(parent);
+		parent = &EntityManager::GetEntity(parentID);
+	}
+	else {
+		entity = EntityManager::CreateDynamicEntity(parent);
+	}
 
     if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);
-    entity->transform = Transform(data);
-    if (parent) entity->transform.parent = &parent->transform;
+	EntityManager::SetTransform(entity->transformID, Transform(data));
+    if (parent) entity->GetTransform().parentID = parent->transformID;
 
     for (const auto componentData : data["Components"]) {
-        Component *component = LoadComponent(componentData);
+		LoadComponent(componentData, *entity);
+		/*Component *component = LoadComponent(componentData);
         if (component != nullptr) {
             EntityManager::AddComponent(entity, component);
-        }
+        }*/
     }
 
+	int index = entity->GetId();
     json children = data["Children"];
     if (children.is_array()) {
         for (const auto childData : data["Children"]) {
+			entity = &EntityManager::GetEntity(index);
             Entity *child = LoadEntity(childData, entity);
         }
     } else if (children.is_string()) {
+		entity = &EntityManager::GetEntity(index);
         LoadScene(children.get<std::string>(), entity);
     }
 
@@ -427,4 +448,11 @@ GLuint ContentManager::LoadShader(std::string filePath, const GLenum shaderType)
 
 	// Return the shader's ID
 	return shaderId;
+}
+
+std::vector<Entity*> ContentManager::DestroySceneAndLoadScene(std::string filePath, Entity* parent) {
+	EntityManager::DestroyScene();
+	std::vector<Entity*> scene = LoadScene(filePath, parent);
+	Graphics::Instance().SceneChanged();
+	return scene;
 }

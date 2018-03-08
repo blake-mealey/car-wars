@@ -1,104 +1,114 @@
 #include "EntityManager.h"
+#include "Entity.h"
+#include "Transform.h"
 #include "../Components/CameraComponent.h"
-#include "../Systems/Graphics.h"
-#include "../Components/RigidbodyComponents/RigidbodyComponent.h"
+#include "../Components/MeshComponent.h"
+#include "../Components/DirectionLightComponent.h"
+#include "../Components/PointLightComponent.h"
+#include "../Components/SpotLightComponent.h"
+#include "../Components/RigidbodyComponents/RigidDynamicComponent.h"
+#include "../Components/RigidbodyComponents/RigidStaticComponent.h"
 #include "../Components/RigidbodyComponents/VehicleComponent.h"
-#include <PxRigidActor.h>
+#include "../Components/WeaponComponents/MachineGunComponent.h"
+#include "../Components/WeaponComponents/RailGunComponent.h"
+#include "../Components/WeaponComponents/RocketLauncherComponent.h"
+#include "../Components/WeaponComponents/MissileComponent.h"
+#include "../Components/AiComponent.h"
+#include "../Components/GuiComponents/GuiComponent.h"
+#include "../Systems/Graphics.h"
+//#include <PxRigidActor.h>
+#include "imgui/imgui.h"
 
-Entity* EntityManager::root = new Entity(0);
-std::vector<Entity*> EntityManager::staticEntities;
-std::vector<Entity*> EntityManager::dynamicEntities;
-std::map<size_t, Entity*> EntityManager::idToEntity;
-std::map<std::string, std::vector<Entity*>> EntityManager::tagToEntities;
+class physx::PxRigidActor;
 
-std::map<ComponentType, std::vector<Component*>> EntityManager::components;
+unsigned short EntityManager::root = 0;
+vector<Transform> EntityManager::transforms;
+ComponentTuple EntityManager::components;
 
-size_t EntityManager::nextEntityId = 1;
-
-Entity* EntityManager::GetRoot() {
-    return root;
+vector<Entity>& EntityManager::getDynamicEntities() {
+	static vector<Entity> entities;
+	return entities;
 }
 
-Entity* EntityManager::FindEntity(size_t id) {
-	return idToEntity[id];
+vector<Entity>& EntityManager::getStaticEntities() {
+	static vector<Entity> entities;
+	return entities;
+}
+
+Entity* EntityManager::GetRoot() {
+    return EntityManager::FindEntity(root);
+}
+
+unsigned short EntityManager::GetEntityIndex(short id) {
+	return id & ~(infoMask << idEnd);
+}
+
+Entity* EntityManager::FindEntity(short id) {
+	unsigned short i = id & ~(infoMask << idEnd);
+	return (id & (1 << typeBit)) ? &getDynamicEntities()[i] : &getStaticEntities()[i];
 }
 
 Entity* EntityManager::FindEntity(physx::PxRigidActor* _actor) {
-	for (size_t i = 0; i < dynamicEntities.size(); i++) {
-		for (size_t j = 0; j < dynamicEntities[i]->components.size(); j++) {
-			if (dynamicEntities[i]->components[j]->GetType() == ComponentType_Vehicle) {
-				if (static_cast<VehicleComponent*>(dynamicEntities[i]->components[j])->pxRigid == _actor) {
-					return dynamicEntities[i];
-				}
+	for (size_t i = 0; i < getDynamicEntities().size(); i++) {
+		VehicleComponent* vehicle = getDynamicEntities()[i].GetComponent<VehicleComponent>();
+		if (vehicle != nullptr) {
+			if (vehicle->pxRigid == _actor) {
+				return &getDynamicEntities()[i];
 			}
 		}
 	}
 	return nullptr;
 }
 
-std::vector<Entity*> EntityManager::FindEntities(std::string tag) {
-	std::vector<Entity*> ret = tagToEntities[tag];
-	for (size_t i = 0; i < ret.size(); i++) ret[i]->transform.Update();
-	return ret;
+Entity& EntityManager::GetEntity(short id) {
+	unsigned short i = id & ~(infoMask << idEnd);
+	return (id & (1 << typeBit)) ? getDynamicEntities()[i] : getStaticEntities()[i];
 }
 
-Entity* EntityManager::CreateDynamicEntity(Entity *parent) {
-    if (!parent) parent = root;
-	return CreateEntity(dynamicEntities, parent);
+//Might have to update all transforms before returning
+vector<Entity*> EntityManager::FindEntities(std::string tag) {
+	vector<Entity*> taggedEntities;
+	for (Entity &e : getDynamicEntities()) {
+		if (tag == e.GetTag())
+			taggedEntities.push_back(&e);
+	}
+	for (Entity &e : getStaticEntities()) {
+		if (tag == e.GetTag())
+			taggedEntities.push_back(&e);
+	}
+	return taggedEntities;
 }
 
-Entity* EntityManager::CreateStaticEntity(Entity *parent) {
-    if (!parent) parent = root;
-	return CreateEntity(staticEntities, parent);
+void EntityManager::CreateRoot() {
+	getStaticEntities().push_back(Entity((getStaticEntities().size() | (0 << typeBit) | (1 << activeBit))));
+	getStaticEntities()[0].transformID = 0;
+	transforms.push_back(Transform());
 }
 
-Entity* EntityManager::CreateEntity(std::vector<Entity*> &entities, Entity *parent) {
-	const size_t id = nextEntityId++;
-	Entity* entity = new Entity(id);
-	entities.push_back(entity);
-	idToEntity[id] = entity;
-    SetParent(entity, parent);
+Entity* EntityManager::CreateEntity(std::vector<Entity> &entities, Entity *parent, unsigned short i) {
+	short parentID = parent->GetId();
+	entities.push_back(Entity((entities.size() | (i << typeBit) | (1 << activeBit))));
+	Entity* entity;
+	entity = &entities.back();
+	if(parentID != SHRT_MAX)
+		parent = &GetEntity(parentID);
+	entity->transformID = transforms.size();
+	transforms.push_back(Transform());
+	SetParent(entity, parent);
 	return entity;
 }
 
-void EntityManager::DestroyDynamicEntity(Entity *entity) {
-	DestroyEntity(entity, dynamicEntities);
+Entity* EntityManager::CreateDynamicEntity(Entity *parent) {
+    if (!parent) parent = GetRoot();
+	return CreateEntity(getDynamicEntities(), parent, 1);
 }
 
-void EntityManager::DestroyEntity(Entity* entity) {
-    const auto it = std::find(dynamicEntities.begin(), dynamicEntities.end(), entity);
-    if (it != dynamicEntities.end()) return DestroyDynamicEntity(entity);
-    const auto it2 = std::find(staticEntities.begin(), staticEntities.end(), entity);
-    if (it2 != staticEntities.end()) DestroyStaticEntity(entity);
+Entity* EntityManager::CreateStaticEntity(Entity *parent) {
+    if (!parent) parent = GetRoot();
+	return CreateEntity(getStaticEntities(), parent, 0);
 }
 
-void EntityManager::DestroyStaticEntity(Entity *entity) {
-    DestroyEntity(entity, staticEntities);
-}
-
-void EntityManager::DestroyEntity(Entity *entity, std::vector<Entity*> &entities) {
-    if (!entity) return;
-    ClearTag(entity);
-    SetParent(entity, nullptr);
-    idToEntity.erase(entity->id);
-    const auto it = std::find(entities.begin(), entities.end(), entity);
-    entities.erase(it);
-    delete entity;
-}
-
-void EntityManager::DestroyScene() {
-    while (!dynamicEntities.empty()) {
-        Entity *entity = dynamicEntities.back();
-        DestroyDynamicEntity(entity);
-    }
-
-    while (!staticEntities.empty()) {
-        Entity *entity = staticEntities.back();
-        DestroyStaticEntity(entity);
-    }
-}
-
-void EntityManager::SetTag(size_t entityId, std::string tag) {
+void EntityManager::SetTag(short entityId, std::string tag) {
 	return SetTag(FindEntity(entityId), tag);
 }
 
@@ -110,31 +120,22 @@ void EntityManager::SetTag(Entity* entity, std::string tag) {
 
     // Set this entity's tag and add this entity to the list of entities with this tag
 	entity->SetTag(tag);
-	tagToEntities[tag].push_back(entity);
 }
 
 void EntityManager::ClearTag(Entity* entity) {
     // Find the list of entities with this entity's tag
-    auto it = tagToEntities.find(entity->GetTag());
-    if (it != tagToEntities.end()) {
-        std::vector<Entity*> &entities = it->second;
-        // Remove this entity from that list
-        const auto it2 = std::find(entities.begin(), entities.end(), entity);
-        if (it2 != entities.end())
-            entities.erase(it2);
-    }
     entity->SetTag("");
 }
 
 void EntityManager::SetParent(Entity* child, Entity* parent) {
     // Double check we aren't changing it to the same parent
-    Entity *previousParent = child->parent;
-    if (previousParent == parent) return;
+    //if (child->parentID == parent->GetId()) return;
 
     // Check if there was a previous parent
-    if (previousParent) {
+    if (child->parentID != SHRT_MAX) {
+		Entity* previousParent = FindEntity(child->parentID);
         // Remove this child from its old parent's children vector
-        const auto it = std::find(previousParent->children.begin(), previousParent->children.end(), child);
+        const auto it = std::find(previousParent->children.begin(), previousParent->children.end(), child->GetId());
         if (it != previousParent->children.end())
             previousParent->children.erase(it);
     }
@@ -142,82 +143,149 @@ void EntityManager::SetParent(Entity* child, Entity* parent) {
     // Check if there is a new parent
     if (parent) {
         // Update this child's and its transform's parent pointers
-        child->parent = parent;
-        child->transform.parent = &parent->transform;
+        child->parentID = parent->GetId();
+        GetTransform(child->transformID).parentID = parent->transformID;
 
         // Add this child to the new parent's children vector
-        parent->children.push_back(child);
+        parent->children.push_back(child->GetId());
     }
 }
 
 Entity* EntityManager::GetParent(Entity* entity) {
-    return entity->parent;
+    return FindEntity(entity->parentID);
 }
 
-std::vector<Entity*> EntityManager::FindChildren(Entity* entity, std::string tag, size_t maxCount) {
-    std::vector<Entity*> children;
-    if (maxCount == 0) return children;
-    
-    for (Entity *child : entity->children) {
-        if (child->HasTag(tag)) {
-            children.push_back(child);
-            if (maxCount == children.size()) break;
-        }
-    }
-    
-    return children;
+Transform& EntityManager::GetEntityTransform(short entityID) {
+	return transforms[GetEntityIndex(entityID)];
+}
+
+Transform& EntityManager::GetTransform(unsigned short transformID) {
+	return transforms[transformID];
+}
+
+unsigned short EntityManager::AddTransform(Transform& trans) {
+	transforms.push_back(trans);
+	return transforms.size() - 1;
+}
+
+void EntityManager::SetTransform(unsigned short index, Transform& transform) {
+	transforms[index] = transform;
+}
+
+void EntityManager::EntityRenderDebug(Entity& e) {
+	if (ImGui::TreeNode((void*)(intptr_t)e.GetId(), "Entity %d (%s)", e.GetId(), e.GetTag().c_str())) {
+		if (ImGui::TreeNode("Properties")) {
+			if (ImGui::TreeNode("Transform")) {
+				GetTransform(e.transformID).RenderDebugGui();
+				ImGui::TreePop();
+			}
+			ImGui::TreePop();
+		}
+
+		/*if (!e.components.empty() && ImGui::TreeNode("Components")) {
+			//std::unordered_map<std::type_index, vector<unsigned short>>::iterator
+			for (auto itr = e.components.begin(); itr < e.components.end(); itr++) {
+				for(itr->second)
+				if (ImGui::TreeNode((void*)(intptr_t)i, "Component (%s)", Component::GetTypeName(component->GetType()))) {
+					component->RenderDebugGui();
+					ImGui::TreePop();
+				}
+				i++;
+			}
+			ImGui::TreePop();
+		}*/
+		size_t i = 0;
+#define X(ARG) \
+		{ \
+			const vector<unsigned short>* ids = e.GetComponentIDs<ARG>(); \
+			if (ids != nullptr && ImGui::TreeNode("Components")) { \
+					for (unsigned short i = 0; i < ids->size(); i++) { \
+						ARG& comp = EntityManager::Components<ARG>()[(*ids)[i]]; \
+						if (ImGui::TreeNode((void*)(intptr_t)i, "Component (%s)", CameraComponent::GetTypeName(comp.GetType()))) { \
+								comp.RenderDebugGui(); \
+								ImGui::TreePop(); \
+						} \
+						i++; \
+					} \
+				ImGui::TreePop(); \
+			} \
+		}
+		COMPONENTS
+#undef X
+/*#define X(ARG) \
+		{ \
+			vector<ARG*>* comps = e.GetComponents<ARG>(); \
+			if (comps != nullptr && ImGui::TreeNode("Components")) { \
+					for (ARG* comp : *comps) { \
+							if (ImGui::TreeNode((void*)(intptr_t)i, "Component (%s)", CameraComponent::GetTypeName(comp->GetType()))) { \
+									comp->RenderDebugGui(); \
+									ImGui::TreePop(); \
+							} \
+								i++; \
+					} \
+				ImGui::TreePop(); \
+			} \
+		}
+		COMPONENTS
+#undef X*/
+
+		if (!e.GetChildren().empty() && ImGui::TreeNode("Children")) {
+			for (short childID : e.children) {
+				EntityRenderDebug(GetEntity(childID));
+			}
+			ImGui::TreePop();
+		}
+
+		ImGui::TreePop();
+	}
 }
 
 std::vector<Entity*> EntityManager::FindChildren(Entity* entity, std::string tag) {
-    return FindChildren(entity, tag, entity->children.size());
-}
+	std::vector<Entity*> children;
 
-Entity* EntityManager::FindFirstChild(Entity* entity, std::string tag) {
-    return FindChildren(entity, tag, 1)[0];
-}
-
-std::vector<Entity*> EntityManager::GetChildren(Entity* entity) {
-    return entity->children;
-}
-
-void EntityManager::AddComponent(size_t entityId, Component* component) {
-	AddComponent(FindEntity(entityId), component);
-}
-
-void EntityManager::AddComponent(Entity* entity, Component* component) {
-	entity->AddComponent(component);
-	components[component->GetType()].push_back(component);
-	component->SetEntity(entity);
-}
-
-void EntityManager::DestroyComponent(Component* component) {
-	std::vector<Component*>& list = components[component->GetType()];
-	const auto it = std::find(list.begin(), list.end(), component);
-	if (it != list.end())
-		list.erase(it);
-    if (component->GetEntity())
-	    component->GetEntity()->RemoveComponent(component);
-	delete component;
-}
-
-std::vector<Component*> EntityManager::GetComponents(ComponentType type) {
-	return components[type];
-}
-
-std::vector<Component*> EntityManager::GetComponents(std::vector<ComponentType> types) {
-    std::vector<Component*> all;
-    for (ComponentType type : types) {
-        std::vector<Component*> components = GetComponents(type);
-        all.insert(all.end(), components.begin(), components.end());
-    }
-    return all;
-}
-
-void EntityManager::BroadcastEvent(Event* event) {
-	for (size_t i = 0; i < staticEntities.size(); i++) {
-		staticEntities[i]->HandleEvent(event);
+	for (short childID : entity->children) {
+		Entity* child = &EntityManager::GetEntity(childID);
+		if (child->HasTag(tag)) {
+			children.push_back(child);
+		}
 	}
-	for (size_t i = 0; i < dynamicEntities.size(); i++) {
-		dynamicEntities[i]->HandleEvent(event);
-	}
+
+	return children;
+}
+
+//Need to work on destruction
+void EntityManager::DestroyEntity(short entityID) {
+	Entity::isDynamic(entityID) ? DestroyDynamicEntity(entityID) : DestroyStaticEntity(entityID);
+}
+
+void EntityManager::DestroyDynamicEntity(short entityID) {
+
+}
+
+void EntityManager::DestroyStaticEntity(short entityID) {
+
+}
+
+void EntityManager::DestroyEntities() {
+	getDynamicEntities().clear();
+	getStaticEntities().clear();
+	//root->children.clear();
+}
+
+void EntityManager::DestroyComponents() {
+#define X(ARG) Components<ARG>().clear();
+	COMPONENTS
+#undef X
+}
+
+void EntityManager::DestroyTransforms() {
+	transforms.clear();
+}
+
+
+void EntityManager::DestroyScene() { 
+	DestroyEntities();
+	DestroyComponents();
+	DestroyTransforms();
+	CreateRoot(); //This is for the root
 }

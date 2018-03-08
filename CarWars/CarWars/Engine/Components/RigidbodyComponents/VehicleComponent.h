@@ -17,63 +17,62 @@ struct AxleData {
 
 class VehicleComponent : public RigidDynamicComponent {
 public:
-    ~VehicleComponent() override;
-    VehicleComponent(nlohmann::json data);
-    VehicleComponent(size_t _wheelCount, bool _inputTypeDigital);
-    VehicleComponent();
+	~VehicleComponent();
+	VehicleComponent(nlohmann::json data);
+	VehicleComponent(size_t _wheelCount, bool _inputTypeDigital);
+	VehicleComponent();
 
-    ComponentType GetType();
-    void HandleEvent(Event *event);
+	static constexpr ComponentType GetType() { return ComponentType_Vehicle; }
 
-    bool inAir;
-    physx::PxVehicleDrive4W* pxVehicle = nullptr;
-    physx::PxVehicleDrive4WRawInputData pxVehicleInputData;
-    bool inputTypeDigital;
+	bool inAir;
+	physx::PxVehicleDrive4W* pxVehicle = nullptr;
+	physx::PxVehicleDrive4WRawInputData pxVehicleInputData;
+	bool inputTypeDigital;
 
-    void SetEntity(Entity* _entity) override;
+	void SetEntity(Entity& _entity);
 
-    void UpdateFromPhysics(physx::PxTransform t) override;
-    void UpdateWheelTransforms();
+	void UpdateFromPhysics(physx::PxTransform t);
+	void UpdateWheelTransforms();
 
-    float GetChassisMass() const;
-    glm::vec3 GetChassisSize() const;
-    glm::vec3 GetChassisMomentOfInertia() const;
-    glm::vec3 GetChassisCenterOfMassOffset() const;
+	float GetChassisMass() const;
+	glm::vec3 GetChassisSize() const;
+	glm::vec3 GetChassisMomentOfInertia() const;
+	glm::vec3 GetChassisCenterOfMassOffset() const;
 
-    float GetWheelMass() const;
-    float GetWheelRadius() const;
-    float GetWheelWidth() const;
-    float GetWheelMomentOfIntertia() const;
-    size_t GetWheelCount() const;
+	float GetWheelMass() const;
+	float GetWheelRadius() const;
+	float GetWheelWidth() const;
+	float GetWheelMomentOfIntertia() const;
+	size_t GetWheelCount() const;
 
-    std::vector<AxleData> GetAxleData() const;
+	std::vector<AxleData> GetAxleData() const;
 
-    void RenderDebugGui() override;
+	void RenderDebugGui();
 
 	void TakeDamage(float _damageValue);
 	float GetHealth();
 
 private:
-    MeshComponent* wheelMeshPrefab;
-    std::vector<MeshComponent*> wheelMeshes;
-    std::vector<Collider*> wheelColliders;
+	MeshComponent* wheelMeshPrefab;
+	std::vector<unsigned short> wheelMeshes;
+	std::vector<Collider*> wheelColliders;
 
-    physx::PxVehicleDriveSimData4W driveSimData;
-    physx::PxVehicleWheelsSimData* wheelsSimData;
+	physx::PxVehicleDriveSimData4W driveSimData;
+	physx::PxVehicleWheelsSimData* wheelsSimData;
 
-    glm::vec3 chassisSize;
+	glm::vec3 chassisSize;
 
-    float wheelMass;
-    float wheelRadius;
-    float wheelWidth;
-    size_t wheelCount;
+	float wheelMass;
+	float wheelRadius;
+	float wheelWidth;
+	size_t wheelCount;
 
-    std::vector<AxleData> axleData;
+	std::vector<AxleData> axleData;
 
 	float health = 1000.f;
 	float resistance = 0.5f;
 
-    void Initialize();
-    void CreateVehicle();
-    void InitializeWheelsSimulationData(const physx::PxVec3* wheelCenterActorOffsets);
+	void Initialize();
+	void CreateVehicle();
+	void InitializeWheelsSimulationData(const physx::PxVec3* wheelCenterActorOffsets);
 };

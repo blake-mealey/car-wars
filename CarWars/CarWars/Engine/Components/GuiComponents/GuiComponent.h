@@ -16,21 +16,20 @@ struct TextYAlignment {
 	enum { Top=0, Centre, Bottom };
 };
 
-class GuiComponent : public Component {
+class GuiComponent : public Component<GuiComponent> {
+	friend class Component<GuiComponent>;
 public:
-    ~GuiComponent() override;
+	//~GuiComponent();
 	GuiComponent(nlohmann::json data);
 
-	Transform transform;		// TODO: GuiTransform
-
-	ComponentType GetType() override;
-	void HandleEvent(Event *event) override;
-
-	void RenderDebugGui() override;
+	unsigned short transformID;
+	static constexpr ComponentType InternalGetType() { return ComponentType_GUI; }
+	void InternalRenderDebugGui();
+	void InternalSetEntity(Entity& _entity);
 
 	void SetText(std::string _text);
 	std::string GetText() const;
-    bool HasText(std::string _text) const;
+	bool HasText(std::string _text) const;
 
 	void SetTexture(Texture *_texture);
 	Texture* GetTexture() const;
@@ -50,43 +49,41 @@ public:
 	size_t GetTextXAlignment() const;
 	size_t GetTextYAlignment() const;
 
-	void SetEntity(Entity *_entity) override;
+	void SetUvScale(glm::vec2 _uvScale);
+	glm::vec2 GetUvScale() const;
 
-    void SetUvScale(glm::vec2 _uvScale);
-    glm::vec2 GetUvScale() const;
+	glm::vec2 GetScaledScale() const;
+	void SetScaledScale(glm::vec2 scale);
 
-    glm::vec2 GetScaledScale() const;
-    void SetScaledScale(glm::vec2 scale);
+	glm::vec2 GetScaledPosition() const;
+	void SetScaledPosition(glm::vec2 position);
 
-    glm::vec2 GetScaledPosition() const;
-    void SetScaledPosition(glm::vec2 position);
+	glm::vec2 GetAnchorPoint() const;
+	void SetAnchorPoint(glm::vec2 _anchorPoint);
 
-    glm::vec2 GetAnchorPoint() const;
-    void SetAnchorPoint(glm::vec2 _anchorPoint);
+	bool IsSelected() const;
+	void SetSelected(bool _selected);
 
-    bool IsSelected() const;
-    void SetSelected(bool _selected);
-
-    glm::vec4 GetSelectedFontColor() const;
-    void SetSelectedFontColor(glm::vec4 color);
+	glm::vec4 GetSelectedFontColor() const;
+	void SetSelectedFontColor(glm::vec4 color);
 
 private:
-    bool selected;
+	bool selected;
 
-    glm::vec2 anchorPoint;
+	glm::vec2 anchorPoint;
 
-    glm::vec2 scaledPosition;
-    glm::vec2 scaledScale;
+	glm::vec2 scaledPosition;
+	glm::vec2 scaledScale;
 
 	Entity *guiRoot;
 
-    int textAlignment[2];
+	int textAlignment[2];
 
 	FTFont *font;		// TODO: Decide which kind of font to use
 	glm::vec4 fontColor;
-    glm::vec4 selectedFontColor;
+	glm::vec4 selectedFontColor;
 	std::string text;
 
 	Texture *texture;
-    glm::vec2 uvScale;
+	glm::vec2 uvScale;
 };

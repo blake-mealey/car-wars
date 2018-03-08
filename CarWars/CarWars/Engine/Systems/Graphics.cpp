@@ -15,6 +15,7 @@
 #include "../Components/CameraComponent.h"
 #include "../Components/MeshComponent.h"
 #include "../Components/SpotLightComponent.h"
+#include "../Components/AiComponent.h"
 #include <glm/gtc/matrix_transform.inl>
 #include "../Components/RigidbodyComponents/RigidbodyComponent.h"
 #include "../Components/Colliders/BoxCollider.h"
@@ -224,21 +225,18 @@ void Graphics::Update() {
 	glfwPollEvents();			// Should this be here or in InputManager?
 
 	// Get components
-	const std::vector<Component*> pointLights = EntityManager::GetComponents(ComponentType_PointLight);
-	const std::vector<Component*> directionLights = EntityManager::GetComponents(ComponentType_DirectionLight);
-	const std::vector<Component*> spotLights = EntityManager::GetComponents(ComponentType_SpotLight);
-	const std::vector<Component*> meshes = EntityManager::GetComponents(ComponentType_Mesh);
-	const std::vector<Component*> cameraComponents = EntityManager::GetComponents(ComponentType_Camera);
-	const std::vector<Component*> aiComponents = EntityManager::GetComponents(ComponentType_AI);
-	const std::vector<Component*> guiComponents = EntityManager::GetComponents(ComponentType_GUI);
-    const std::vector<Component*> rigidbodyComponents = EntityManager::GetComponents({
-        ComponentType_RigidDynamic,
-        ComponentType_RigidStatic,
-        ComponentType_Vehicle
-    });
+	/*const std::vector<PointLightComponent>& pointLights = EntityManager::Components<PointLightComponent>();
+	const std::vector<DirectionLightComponent>& directionLights = EntityManager::Components<DirectionLightComponent>();
+	const std::vector<SpotLightComponent>& spotLights = EntityManager::Components<SpotLightComponent>();
+	const std::vector<MeshComponent>& meshes = EntityManager::Components<MeshComponent>();
+	const std::vector<CameraComponent>& cameraComponents = EntityManager::Components<CameraComponent>();
+	const std::vector<AiComponent>& aiComponents = EntityManager::Components<AiComponent>();
+	const std::vector<GuiComponent>& guiComponents = EntityManager::Components<GuiComponent>();
+	const std::vector<RigidStaticComponent>& rigidStaticComponents = EntityManager::Components<RigidStaticComponent>();
+	const std::vector<RigidDynamicComponent>& rigidDynamicComponents = EntityManager::Components<RigidDynamicComponent>();*/
 
     // Get the active cameras and setup their viewports
-    LoadCameras(cameraComponents);
+    LoadCameras(EntityManager::Components<CameraComponent>());
 
 
 	// -------------------------------------------------------------------------------------------------------------- //
@@ -247,11 +245,11 @@ void Graphics::Update() {
 
 	// Get the shadow caster
 	DirectionLightComponent* shadowCaster = nullptr;
-	for (Component* component : directionLights) {
-		DirectionLightComponent* light = static_cast<DirectionLightComponent*>(component);
-		if (!light->enabled) continue;
-		if (light->IsShadowCaster()) {
-			shadowCaster = light;
+	for (DirectionLightComponent& light : EntityManager::Components<DirectionLightComponent>()) {
+		//DirectionLightComponent* light = static_cast<DirectionLightComponent*>(component);
+		if (!light.enabled) continue;
+		if (light.IsShadowCaster()) {
+			shadowCaster = &light;
 			break;
 		}
 	}
@@ -277,13 +275,13 @@ void Graphics::Update() {
 
 		// Draw the scene
 		glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
-		for (size_t j = 0; j < meshes.size(); j++) {
+		for (size_t j = 0; j < EntityManager::Components<MeshComponent>().size(); j++) {
 			// Get enabled models
-			MeshComponent* model = static_cast<MeshComponent*>(meshes[j]);
+			MeshComponent* model = &EntityManager::Components<MeshComponent>()[j];
 			if (!model->enabled) continue;
 
 			// Load the depth model view projection matrix into the GPU
-			const glm::mat4 depthModelMatrix = model->transform.GetTransformationMatrix();
+			const glm::mat4 depthModelMatrix = EntityManager::GetTransform(model->transformID).GetTransformationMatrix();
 			const glm::mat4 depthModelViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
             shadowProgram->LoadUniform(UniformName::DepthModelViewProjectionMatrix, depthModelViewProjectionMatrix);
 
@@ -328,13 +326,13 @@ void Graphics::Update() {
 
 	// Load our lights into the GPU
     geometryProgram->LoadUniform(UniformName::AmbientColor, AMBIENT_COLOR);
-	LoadLights(pointLights, directionLights, spotLights);
+	LoadLights(EntityManager::Components<PointLightComponent>(), EntityManager::Components<DirectionLightComponent>(), EntityManager::Components<SpotLightComponent>());
 
 	// Draw the scene
     if (renderMeshes) {
-        for (size_t j = 0; j < meshes.size(); j++) {
+        for (size_t j = 0; j < EntityManager::Components<MeshComponent>().size(); j++) {
             // Get enabled models
-            MeshComponent* model = static_cast<MeshComponent*>(meshes[j]);
+			MeshComponent* model = &EntityManager::Components<MeshComponent>()[j];
             if (!model->enabled) continue;
 
             // Load the model's triangles, vertices, uvs, normals, materials, and textures into the GPU
@@ -342,7 +340,7 @@ void Graphics::Update() {
 
             if (shadowCaster != nullptr) {
                 // Load the depth bias model view projection matrix into the GPU
-                const glm::mat4 depthModelMatrix = model->transform.GetTransformationMatrix();
+                const glm::mat4 depthModelMatrix = EntityManager::GetTransform(model->transformID).GetTransformationMatrix();
                 const glm::mat4 depthModelViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
                 const glm::mat4 depthBiasMVP = BIAS_MATRIX*depthModelViewProjectionMatrix;
                 geometryProgram->LoadUniform(UniformName::DepthBiasModelViewProjectionMatrix, depthBiasMVP);
@@ -353,7 +351,7 @@ void Graphics::Update() {
                 glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
 
                 // Load the model view projection matrix into the GPU
-                const glm::mat4 modelViewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix * model->transform.GetTransformationMatrix();
+                const glm::mat4 modelViewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix * EntityManager::GetTransform(model->transformID).GetTransformationMatrix();
                 geometryProgram->LoadUniform(UniformName::ViewMatrix, camera.viewMatrix);
                 geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
 
@@ -371,9 +369,11 @@ void Graphics::Update() {
         // Use wireframe polygon mode
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        for (size_t j = 0; j < rigidbodyComponents.size(); j++) {
+
+		//For Dynamic Components
+        for (size_t j = 0; j < EntityManager::Components<RigidDynamicComponent>().size(); j++) {
             // Get enabled models
-            RigidbodyComponent* rigidbody = static_cast<RigidbodyComponent*>(rigidbodyComponents[j]);
+			RigidDynamicComponent* rigidbody = &EntityManager::Components<RigidDynamicComponent>()[j];
             if (!rigidbody->enabled) continue;
 
             if (renderPhysicsColliders) {
@@ -420,7 +420,7 @@ void Graphics::Update() {
                 Mesh *cubeMesh = skyboxCube;
                 
                 PxBounds3 bounds = rigidbody->pxRigid->getWorldBounds(0.5f);
-                Transform transform = Transform(nullptr,
+                Transform transform = Transform(SHRT_MAX,
                     Transform::FromPx(bounds.getCenter()),
                     Transform::FromPx(bounds.getDimensions()), glm::vec3(0.f), false);
                 
@@ -455,6 +455,94 @@ void Graphics::Update() {
                 }
             }
         }
+
+
+		//For Static Components
+		for (size_t j = 0; j < EntityManager::Components<RigidStaticComponent>().size(); j++) {
+			// Get enabled models
+			RigidStaticComponent* rigidbody = &EntityManager::Components<RigidStaticComponent>()[j];
+			if (!rigidbody->enabled) continue;
+
+			if (renderPhysicsColliders) {
+				for (Collider *collider : rigidbody->colliders) {
+					// Check if the collider has a render mesh
+					Mesh *renderMesh = collider->GetRenderMesh();
+					if (!renderMesh) continue;
+
+					// Get the global transformation matrix of the collider
+					const glm::mat4 modelMatrix = collider->GetGlobalTransform().GetTransformationMatrix();
+
+					// Load the model's triangles, vertices, uvs, normals, and textures into the GPU
+					LoadModel(
+						geometryProgram,
+						modelMatrix,
+						ContentManager::GetMaterial("PhysicsCollider.json"),
+						renderMesh
+					);
+
+					if (shadowCaster != nullptr) {
+						// Load the depth bias model view projection matrix into the GPU
+						const glm::mat4 depthModelMatrix = modelMatrix;
+						const glm::mat4 depthModelViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+						const glm::mat4 depthBiasMVP = BIAS_MATRIX*depthModelViewProjectionMatrix;
+						geometryProgram->LoadUniform(UniformName::DepthBiasModelViewProjectionMatrix, depthBiasMVP);
+					}
+
+					for (Camera camera : cameras) {
+						// Setup the viewport for each camera (split-screen)
+						glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+
+						// Load the model view projection matrix into the GPU
+						const glm::mat4 modelViewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix * modelMatrix;
+						geometryProgram->LoadUniform(UniformName::ViewMatrix, camera.viewMatrix);
+						geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
+
+						// Render the model
+						glDrawElements(GL_TRIANGLES, renderMesh->triangleCount * 3, GL_UNSIGNED_SHORT, static_cast<void*>(nullptr));
+					}
+				}
+			}
+
+			if (renderPhysicsBoundingBoxes) {
+				Mesh *cubeMesh = skyboxCube;
+
+				PxBounds3 bounds = rigidbody->pxRigid->getWorldBounds(0.5f);
+				Transform transform = Transform(SHRT_MAX,
+					Transform::FromPx(bounds.getCenter()),
+					Transform::FromPx(bounds.getDimensions()), glm::vec3(0.f), false);
+
+				const glm::mat4 modelMatrix = transform.GetTransformationMatrix();
+
+				LoadModel(
+					geometryProgram,
+					modelMatrix,
+					ContentManager::GetMaterial("PhysicsBoundingBox.json"),
+					cubeMesh
+				);
+
+				if (shadowCaster != nullptr) {
+					// Load the depth bias model view projection matrix into the GPU
+					const glm::mat4 depthModelMatrix = modelMatrix;
+					const glm::mat4 depthModelViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+					const glm::mat4 depthBiasMVP = BIAS_MATRIX*depthModelViewProjectionMatrix;
+					geometryProgram->LoadUniform(UniformName::DepthBiasModelViewProjectionMatrix, depthBiasMVP);
+				}
+
+				for (Camera camera : cameras) {
+					// Setup the viewport for each camera (split-screen)
+					glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+
+					// Load the model view projection matrix into the GPU
+					const glm::mat4 modelViewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix * modelMatrix;
+					geometryProgram->LoadUniform(UniformName::ViewMatrix, camera.viewMatrix);
+					geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
+
+					// Render the model
+					glDrawElements(GL_TRIANGLES, cubeMesh->triangleCount * 3, GL_UNSIGNED_SHORT, static_cast<void*>(nullptr));
+				}
+			}
+		}
+
 
         // Reset polygon mode
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -502,16 +590,15 @@ void Graphics::Update() {
     // -------------------------------------------------------------------------------------------------------------- //
 
     if (renderNavigationPaths) {
-        for (Component *component : aiComponents) {
-            if (!component->enabled) continue;
-            AiComponent *ai = static_cast<AiComponent*>(component);
+        for (AiComponent& ai : EntityManager::Components<AiComponent>()) {
+            if (!ai.enabled) continue;
 
             // Use the geometry shader program
             ShaderProgram *pathProgram = shaders[Shaders::Path];
             glUseProgram(pathProgram->GetId());
 
             // Load the vertices to the GPU
-            glBindVertexArray(ai->pathVao);
+            glBindVertexArray(ai.pathVao);
 
             for (Camera camera : cameras) {
                 // Setup the viewport for each camera (split-screen)
@@ -522,7 +609,7 @@ void Graphics::Update() {
                 pathProgram->LoadUniform(UniformName::ViewProjectionMatrix, viewProjectionMatrix);
 
                 // Draw the nav mesh's points
-                glDrawArrays(GL_LINE_STRIP, 0, ai->GetPathLength());
+                glDrawArrays(GL_LINE_STRIP, 0, ai.GetPathLength());
             }
         }
     }
@@ -694,12 +781,11 @@ void Graphics::Update() {
 		// Setup the viewport for each camera (split-screen)
 		glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
 
-		for (Component *component : guiComponents) {
-			if (!component->enabled) continue;
-			GuiComponent *gui = static_cast<GuiComponent*>(component);
+		for (GuiComponent& gui : EntityManager::Components<GuiComponent>()) {
+			if (!gui.enabled) continue;
 			
             // Get a GUI for this camera
-			Entity *guiRoot = gui->GetGuiRoot();
+			Entity *guiRoot = gui.GetGuiRoot();
 			if (!guiRoot || guiRoot != camera.guiRoot) continue;
 
             glEnable(GL_BLEND);
@@ -707,14 +793,14 @@ void Graphics::Update() {
             glDisable(GL_DEPTH_TEST);
 
             // Get the scale and position of the GUI
-            const glm::vec2 anchorPoint = gui->GetAnchorPoint();
-            const glm::vec3 scale = gui->transform.GetGlobalScale() +
-                glm::vec3(camera.viewportSize * gui->GetScaledScale(), 0.f);
-            const glm::vec3 position = gui->transform.GetGlobalPosition() +
-                glm::vec3(camera.viewportSize * gui->GetScaledPosition(), 0.f);
+            const glm::vec2 anchorPoint = gui.GetAnchorPoint();
+            const glm::vec3 scale = EntityManager::GetTransform(gui.transformID).GetGlobalScale() +
+                glm::vec3(camera.viewportSize * gui.GetScaledScale(), 0.f);
+            const glm::vec3 position = EntityManager::GetTransform(gui.transformID).GetGlobalPosition() +
+                glm::vec3(camera.viewportSize * gui.GetScaledPosition(), 0.f);
 
             // RENDER THE FRAME
-			Texture *frameTexture = gui->GetTexture();
+			Texture *frameTexture = gui.GetTexture();
 			if (frameTexture) {
                 // Convert from pixel to screen space
                 const glm::vec3 toScreenScale = glm::vec3(
@@ -745,7 +831,7 @@ void Graphics::Update() {
                 guiProgram->LoadUniform(UniformName::DiffuseTexture, 0);
 
                 // Send the UV scale to the GPU
-                guiProgram->LoadUniform(UniformName::UvScale, gui->GetUvScale());
+                guiProgram->LoadUniform(UniformName::UvScale, gui.GetUvScale());
 
                 // Send the transform to the GPU
 				Transform transform = Transform(screenPosition, screenScale);
@@ -765,17 +851,17 @@ void Graphics::Update() {
 			glPushAttrib(GL_ALL_ATTRIB_BITS);
 
 			// Set the color
-			const glm::vec4 color = gui->IsSelected() ? gui->GetSelectedFontColor() : gui->GetFontColor();
+			const glm::vec4 color = gui.IsSelected() ? gui.GetSelectedFontColor() : gui.GetFontColor();
 			glPixelTransferf(GL_RED_BIAS, color.r - 1.f);
 			glPixelTransferf(GL_GREEN_BIAS, color.g - 1.f);
 			glPixelTransferf(GL_BLUE_BIAS, color.b - 1.f);
 			glPixelTransferf(GL_ALPHA_BIAS, color.a - 1.f);
 
 			// Render the text
-			FTFont *font = gui->GetFont();
+			FTFont *font = gui.GetFont();
 
             // Font dimensions
-			FTBBox bbox = font->BBox(gui->GetText().c_str());
+			FTBBox bbox = font->BBox(gui.GetText().c_str());
             const float fontWidth = bbox.Upper().X() - bbox.Lower().X();
 			const float fontHeight = font->Ascender() * 0.5f;
 
@@ -784,7 +870,7 @@ void Graphics::Update() {
                 glm::vec2(fontPosition.x, camera.viewportSize.y - fontPosition.y - fontHeight);
 			
 			glm::vec2 alignmentXOffset = glm::vec2(scale.x - fontWidth, 0.f);
-			switch (gui->GetTextXAlignment()) {
+			switch (gui.GetTextXAlignment()) {
 				case TextXAlignment::Left:
 					alignmentXOffset *= 0.f;
 					break;
@@ -797,7 +883,7 @@ void Graphics::Update() {
 			}
 
 			glm::vec2 alignmentYOffset = -glm::vec2(0.f, scale.y - fontHeight);
-			switch (gui->GetTextYAlignment()) {
+			switch (gui.GetTextYAlignment()) {
 				case TextYAlignment::Top:
 					alignmentYOffset *= 0.f;
 					break;
@@ -811,7 +897,7 @@ void Graphics::Update() {
 
 			fontScreenPosition += alignmentXOffset + alignmentYOffset - glm::vec2(scale.x, -scale.y) * anchorPoint;
 
-			font->Render(gui->GetText().c_str(), -1, FTPoint(fontScreenPosition.x, fontScreenPosition.y));
+			font->Render(gui.GetText().c_str(), -1, FTPoint(fontScreenPosition.x, fontScreenPosition.y));
 
 			// Reset stuff
 			glPopAttrib();
@@ -832,7 +918,7 @@ void Graphics::Update() {
 }
 
 void Graphics::SceneChanged() {
-    UpdateViewports(EntityManager::GetComponents(ComponentType_Camera));
+    UpdateViewports(EntityManager::Components<CameraComponent>());
 }
 
 void Graphics::RenderDebugGui() {
@@ -842,7 +928,8 @@ void Graphics::RenderDebugGui() {
     if (showSceneGraph) {
         ImGui::Begin("Scene Graph", &showSceneGraph);
         ImGui::PushItemWidth(-100);
-        EntityManager::GetRoot()->RenderDebugGui();
+        //EntityManager::GetRoot()->RenderDebugGui();
+		EntityManager::EntityRenderDebug(*EntityManager::GetRoot());
         ImGui::End();
     }
 
@@ -877,7 +964,7 @@ void Graphics::LoadModel(ShaderProgram *shaderProgram, MeshComponent *model) {
 
     LoadModel(
         shaderProgram,
-        model->transform.GetTransformationMatrix(),
+        EntityManager::GetTransform(model->transformID).GetTransformationMatrix(),
         model->GetMaterial(),
         model->GetMesh(),
         model->GetTexture(),
@@ -913,14 +1000,13 @@ void Graphics::LoadModel(ShaderProgram *shaderProgram, glm::mat4 modelMatrix, Ma
     }
 }
 
-void Graphics::LoadCameras(std::vector<Component*> cameraComponents) {
+void Graphics::LoadCameras(std::vector<CameraComponent>& cameraComponents) {
 	// Find up to MAX_CAMERAS enabled cameras
 	const size_t lastCount = cameras.size();
 	cameras.clear();
-	for (Component *component: cameraComponents) {
-		if (component->enabled) {
-			CameraComponent *camera = static_cast<CameraComponent*>(component);
-			cameras.push_back(Camera(camera->GetViewMatrix(), camera->GetProjectionMatrix(), camera->GetGuiRoot()));
+	for (CameraComponent camera: cameraComponents) {
+		if (camera.enabled) {
+			cameras.push_back(Camera(camera.GetViewMatrix(), camera.GetProjectionMatrix(), camera.GetGuiRoot()));
 			if (cameras.size() == MAX_CAMERAS) break;
 		}
 	}
@@ -971,16 +1057,15 @@ void Graphics::SetWindowDimensions(size_t width, size_t height) {
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-	UpdateViewports(EntityManager::GetComponents(ComponentType_Camera));
+	UpdateViewports(EntityManager::Components<CameraComponent>());
 }
 
-void Graphics::UpdateViewports(std::vector<Component*> cameraComponents) const {
+void Graphics::UpdateViewports(std::vector<CameraComponent>& cameraComponents) const {
 	const glm::vec2 viewportSize = GetViewportSize();
 	const float aspectRatio = viewportSize.x / viewportSize.y;
-	for (Component *component : cameraComponents) {
-		if (component->enabled) {
-			CameraComponent *camera = static_cast<CameraComponent*>(component);
-			camera->SetAspectRatio(aspectRatio);
+	for (CameraComponent camera : cameraComponents) {
+		if (camera.enabled) {
+			camera.SetAspectRatio(aspectRatio);
 		}
 	}
 }
@@ -994,34 +1079,34 @@ glm::vec2 Graphics::GetViewportSize() const {
 	return glm::vec2(cameras.size() == 1 ? 1 : 0.5, cameras.size() < 3 ? 1 : 0.5) * windowSize;
 }
 
-void Graphics::LoadLights(std::vector<Component*> _pointLights,
-	std::vector<Component*> _directionLights, std::vector<Component*> _spotLights) {
+void Graphics::LoadLights(std::vector<PointLightComponent>& _pointLights,
+	std::vector<DirectionLightComponent>& _directionLights, std::vector<SpotLightComponent>& _spotLights) {
 
 	// Get the point light data which can be directly passed to the shader	
 	std::vector<PointLight> pointLights;
-	for (Component *component : _pointLights) {
-		if (component->enabled)
-			pointLights.push_back(static_cast<PointLightComponent*>(component)->GetData());
+	for (PointLightComponent component : _pointLights) {
+		if (component.enabled)
+			pointLights.push_back(component.GetData());
 	}
 
 	// Get the direction light data which can be directly passed to the shader
 	std::vector<DirectionLight> directionLights;
-	for (Component *component : _directionLights) {
-		if (component->enabled)
-			directionLights.push_back(static_cast<DirectionLightComponent*>(component)->GetData());
+	for (DirectionLightComponent component : _directionLights) {
+		if (component.enabled)
+			directionLights.push_back(component.GetData());
 	}
 
 	// Get the spot light data which can be directly passed to the shader
 	std::vector<SpotLight> spotLights;
-	for (Component *component : _spotLights) {
-		if (component->enabled)
-			spotLights.push_back(static_cast<SpotLightComponent*>(component)->GetData());
+	for (SpotLightComponent component : _spotLights) {
+		if (component.enabled)
+			spotLights.push_back(component.GetData());
 	}
 
 	LoadLights(pointLights, directionLights, spotLights);
 }
 
-void Graphics::LoadLights(std::vector<PointLight> pointLights, std::vector<DirectionLight> directionLights, std::vector<SpotLight> spotLights) {
+void Graphics::LoadLights(std::vector<PointLight>& pointLights, std::vector<DirectionLight>& directionLights, std::vector<SpotLight>& spotLights) {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboIds[SSBOs::PointLights]);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, pointLights.size() * sizeof(PointLight), pointLights.data(), GL_DYNAMIC_COPY);
 

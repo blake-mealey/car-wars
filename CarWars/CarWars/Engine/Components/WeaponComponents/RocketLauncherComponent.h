@@ -16,16 +16,16 @@
 
 #include "WeaponComponent.h"
 
-class RocketLauncherComponent : public WeaponComponent {
+class RocketLauncherComponent : public WeaponComponent<RocketLauncherComponent> {
+	friend class WeaponComponent<RocketLauncherComponent>;
 public:
 	RocketLauncherComponent();
-	void Shoot() override;
-	void Charge() override;
+	void InternalShoot();
+	void InternalCharge();
 
-	ComponentType GetType() override;
-	void HandleEvent(Event *event) override;
+	static constexpr ComponentType InternalGetType() { return ComponentType_RailGun; }
 
-	void RenderDebugGui() override;
+	void InternalRenderDebugGui();
 private:
 	Time timeBetweenShots = 1.0f / 0.75f;
 

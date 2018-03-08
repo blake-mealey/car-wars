@@ -12,19 +12,19 @@ enum AiMode {
     AiMode_Chase
 };
 
-class AiComponent : public Component {
+class AiComponent : public Component<AiComponent> {
+	friend class Component<AiComponent>;
 public:
-    ~AiComponent() override;
+	~AiComponent();
     AiComponent(nlohmann::json data);
     size_t GetPathLength() const;
 
     GLuint pathVbo;
     GLuint pathVao;
 
-    ComponentType GetType() override;
-    void HandleEvent(Event* event) override;
+	static constexpr ComponentType InternalGetType() { return ComponentType_AI; }
 
-    void RenderDebugGui() override;
+	void InternalRenderDebugGui();
 
     void SetTargetEntity(Entity* target);
     Entity* GetTargetEntity() const;

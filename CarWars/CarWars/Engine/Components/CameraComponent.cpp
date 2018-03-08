@@ -10,19 +10,13 @@ const float CameraComponent::NEAR_CLIPPING_PLANE = 0.1f;
 const float CameraComponent::FAR_CLIPPING_PLANE = 1000.f;
 const float CameraComponent::DEFAULT_FIELD_OF_VIEW = 60.f;		// In degrees
 
-ComponentType CameraComponent::GetType() {
-	return ComponentType_Camera;
-}
-
-void CameraComponent::HandleEvent(Event* event) {}
-
 CameraComponent::~CameraComponent() {
-    EntityManager::DestroyStaticEntity(guiRoot);
+	EntityManager::DestroyStaticEntity(guiRoot);
 }
 
 CameraComponent::CameraComponent() : CameraComponent(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)) {}
 
-CameraComponent::CameraComponent(nlohmann::json data) : guiRoot(nullptr) {
+CameraComponent::CameraComponent(nlohmann::json data) : guiRoot(SHRT_MAX) {
 	fieldOfView = ContentManager::GetFromJson(data["FOV"], DEFAULT_FIELD_OF_VIEW);
 	position = ContentManager::JsonToVec3(data["Position"], glm::vec3(0.f, 0.f, 1.f));
 	target = ContentManager::JsonToVec3(data["Target"], glm::vec3(0.f, 0.f, 0.f));
@@ -34,19 +28,19 @@ CameraComponent::CameraComponent(nlohmann::json data) : guiRoot(nullptr) {
 }
 
 CameraComponent::CameraComponent(glm::vec3 _position, glm::vec3 _target, glm::vec3 _upVector) : targetInLocalSpace(false),
-	position(_position), target(_target), upVector(_upVector), fieldOfView(DEFAULT_FIELD_OF_VIEW), distanceFromCenter(15.f), guiRoot(nullptr) {
+	position(_position), target(_target), upVector(_upVector), fieldOfView(DEFAULT_FIELD_OF_VIEW), distanceFromCenter(15.f), guiRoot(SHRT_MAX) {
 	
 	UpdateViewMatrix();
 }
 
 glm::vec3 CameraComponent::GetPosition() const {
-	if (!entity) return position;
-	return position + entity->transform.GetGlobalPosition();
+	if (entityID == SHRT_MAX) return position;
+	return position + EntityManager::GetEntityTransform(entityID).GetGlobalPosition();
 }
 
 glm::vec3 CameraComponent::GetTarget() const {
-    if (!entity || !targetInLocalSpace) return target;
-	return target + entity->transform.GetGlobalPosition();
+    if (entityID == SHRT_MAX || !targetInLocalSpace) return target;
+	return target + EntityManager::GetEntityTransform(entityID).GetGlobalPosition();
 }
 
 float CameraComponent::GetFieldOfView() const {
@@ -108,8 +102,7 @@ float CameraComponent::GetCameraSpeed() {
 	return cameraSpeed;
 }
 
-void CameraComponent::RenderDebugGui() {
-    Component::RenderDebugGui();
+void CameraComponent::InternalRenderDebugGui() {
     if (ImGui::DragFloat("FOV", &fieldOfView, 0, 180)) UpdateProjectionMatrix();
     if (ImGui::SliderAngle("Horizontal Angle", &cameraAngle)) UpdatePositionFromAngles();
     if (ImGui::SliderAngle("Vertical Angle", &cameraLift, 5, 175)) UpdatePositionFromAngles();
@@ -144,11 +137,11 @@ void CameraComponent::UpdateProjectionMatrix() {
 }
 
 Entity* CameraComponent::GetGuiRoot() {
-	if (guiRoot == nullptr) {
-		guiRoot = EntityManager::CreateStaticEntity();
+	if (guiRoot == SHRT_MAX) {
+		guiRoot = EntityManager::CreateStaticEntity()->GetId();
 		EntityManager::SetTag(guiRoot, "GuiRoot");
 	}
-	return guiRoot;
+	return &EntityManager::GetEntity(guiRoot);
 }
 
 /*std::vector<Entity*>& CameraComponent::GetGuiEntities() {

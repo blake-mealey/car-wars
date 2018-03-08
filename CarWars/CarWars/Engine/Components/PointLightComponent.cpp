@@ -19,17 +19,10 @@ float PointLightComponent::GetPower() const {
 }
 
 PointLight PointLightComponent::GetData() const {
-	return PointLight(color, power, GetEntity()->transform.GetGlobalPosition());
+	return PointLight(color, power, EntityManager::GetEntityTransform(entityID).GetGlobalPosition());
 }
 
-ComponentType PointLightComponent::GetType() {
-	return ComponentType_PointLight;
-}
-
-void PointLightComponent::HandleEvent(Event* event) {}
-
-void PointLightComponent::RenderDebugGui() {
-    Component::RenderDebugGui();
+void PointLightComponent::InternalRenderDebugGui() {
     ImGui::DragFloat("Power", &power);
     ImGui::ColorEdit3("Colour", glm::value_ptr(color));
 }

@@ -19,10 +19,6 @@ RigidDynamicComponent::RigidDynamicComponent(nlohmann::json data) : RigidbodyCom
     RigidDynamicComponent::InitializeRigidbody();
 }
 
-RigidDynamicComponent::~RigidDynamicComponent() {
-	//pxRigid->release();
-}
-
 void RigidDynamicComponent::SetMass(float _mass) {
     mass = _mass;
     actor->setMass(mass);
@@ -50,12 +46,6 @@ void RigidDynamicComponent::InitializeRigidbody() {
 
     RigidbodyComponent::InitializeRigidbody(actor);
 }
-
-ComponentType RigidDynamicComponent::GetType() {
-    return ComponentType_RigidDynamic;
-}
-
-void RigidDynamicComponent::HandleEvent(Event* event) {}
 
 void RigidDynamicComponent::RenderDebugGui() {
     RigidbodyComponent::RenderDebugGui();

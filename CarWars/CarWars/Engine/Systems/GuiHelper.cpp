@@ -7,10 +7,13 @@
 #include "Content/ContentManager.h"
 
 GuiComponent* GuiHelper::GetSelectedGui(Entity* entity) {
-    for (Component *component : entity->components) {
-        GuiComponent *gui = static_cast<GuiComponent*>(component);
+	for (GuiComponent* gui : *entity->GetComponents<GuiComponent>()) {
+		if (gui->IsSelected()) return gui;
+	}
+	/*for (unsigned short index : entity->GetComponentIDs<GuiComponent>()) {
+        GuiComponent* gui = &EntityManager::Components<GuiComponent>()[index];
         if (gui->IsSelected()) return gui;
-    }
+    }*/
 }
 
 GuiComponent* GuiHelper::GetSelectedGui(std::string entityTag) {
@@ -26,18 +29,32 @@ std::string GuiHelper::GetSelectedGuiText(std::string entityTag) {
 }
 
 void GuiHelper::SelectNextGui(Entity* entity) {
-    for (auto it = entity->components.begin(); it != entity->components.end(); ++it) {
-        GuiComponent *gui = static_cast<GuiComponent*>(*it);
-        if (gui->IsSelected()) {
-            gui->SetSelected(false);
-            if (it + 1 != entity->components.end()) {
-                static_cast<GuiComponent*>(*(it + 1))->SetSelected(true);
+	const vector<unsigned short>& compids = *entity->GetComponentIDs<GuiComponent>();
+	for (auto it = compids.begin(); it != compids.end(); ++it) {
+		GuiComponent& gui = EntityManager::Components<GuiComponent>()[*it];
+		if (gui.IsSelected()) {
+			gui.SetSelected(false);
+			if (it + 1 != compids.end()) {
+				EntityManager::Components<GuiComponent>()[*(it + 1)].SetSelected(true);
+			}
+			else {
+				EntityManager::Components<GuiComponent>()[compids.front()].SetSelected(true);
+			}
+			break;
+		}
+	}
+    /*for (auto it = entity->GetGuiComponents().begin(); it != entity->GetGuiComponents().end(); ++it) {
+        GuiComponent& gui = EntityManager::Components<GuiComponent>()[*it];
+        if (gui.IsSelected()) {
+            gui.SetSelected(false);
+            if (it + 1 != entity->GetGuiComponents().end()) {
+				EntityManager::Components<GuiComponent>()[*it+1].SetSelected(true);
             } else {
-                static_cast<GuiComponent*>(entity->components.front())->SetSelected(true);
+                EntityManager::Components<GuiComponent>()[entity->GetGuiComponents().front()].SetSelected(true);
             }
             break;
         }
-    }
+    }*/
 }
 
 void GuiHelper::SelectNextGui(std::string entityTag) {
@@ -45,14 +62,15 @@ void GuiHelper::SelectNextGui(std::string entityTag) {
 }
 
 void GuiHelper::SelectPreviousGui(Entity* entity) {
-    for (auto it = entity->components.begin(); it != entity->components.end(); ++it) {
-        GuiComponent *gui = static_cast<GuiComponent*>(*it);
-        if (gui->IsSelected()) {
-            gui->SetSelected(false);
-            if (it - 1 != entity->components.begin() - 1) {
-                static_cast<GuiComponent*>(*(it - 1))->SetSelected(true);
+	const vector<unsigned short>& compids = *entity->GetComponentIDs<GuiComponent>();
+    for (auto it = compids.begin(); it != compids.end(); ++it) {
+		GuiComponent& gui = EntityManager::Components<GuiComponent>()[*it];
+        if (gui.IsSelected()) {
+            gui.SetSelected(false);
+            if (it - 1 != compids.begin() - 1) {
+				EntityManager::Components<GuiComponent>()[*(it - 1)].SetSelected(true);
             } else {
-                static_cast<GuiComponent*>(entity->components.back())->SetSelected(true);
+				EntityManager::Components<GuiComponent>()[compids.back()].SetSelected(true);
             }
             break;
         }
@@ -64,14 +82,14 @@ void GuiHelper::SelectPreviousGui(std::string entityTag) {
 }
 
 void GuiHelper::LoadGuiSceneToCamera(size_t cameraIndex, std::string guiScene) {
-    CameraComponent *camera = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[cameraIndex]);
+    CameraComponent *camera = &EntityManager::Components<CameraComponent>()[cameraIndex];
     ContentManager::LoadScene(guiScene, camera->GetGuiRoot());
 }
 
 void GuiHelper::SetGuisEnabled(Entity *entity, bool enabled) {
-	for (Component *component : entity->components) {
-		component->enabled = enabled;
-	}
+	//for (Component *component : entity->components) {
+		//component->enabled = enabled;
+	//}
 }
 
 void GuiHelper::SetGuisEnabled(std::string entityTag, bool enabled) {
@@ -79,7 +97,7 @@ void GuiHelper::SetGuisEnabled(std::string entityTag, bool enabled) {
 }
 
 void GuiHelper::SetFirstGuiText(Entity *entity, std::string text) {
-	GuiComponent *gui = static_cast<GuiComponent*>(entity->components[0]);
+	GuiComponent *gui = entity->GetComponent<GuiComponent>();
 	gui->SetText(text);
 }
 
@@ -88,7 +106,7 @@ void GuiHelper::SetFirstGuiText(std::string entityTag, std::string text) {
 }
 
 bool GuiHelper::FirstGuiTextIs(Entity *entity, std::string text) {
-	GuiComponent *gui = static_cast<GuiComponent*>(entity->components[0]);
+	GuiComponent *gui = entity->GetComponent<GuiComponent>();
 	return gui->GetText().compare(text) == 0;
 }
 

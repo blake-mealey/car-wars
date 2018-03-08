@@ -9,17 +9,16 @@
 
 #include "WeaponComponent.h"
 
-class RailGunComponent : public WeaponComponent {
+class RailGunComponent : public WeaponComponent<RailGunComponent> {
+	friend class WeaponComponent<RailGunComponent>;
 public:
 	RailGunComponent();
-	void Shoot() override;
-	void Charge() override;
+	void InternalShoot();
+	void InternalCharge();
 
-	ComponentType GetType() override;
-	void HandleEvent(Event* event) override;
+	static constexpr ComponentType InternalGetType() { return ComponentType_RailGun; }
 
-	void RenderDebugGui() override;
-
+	void InternalRenderDebugGui();
 private:
 	Time timeBetweenShots = 1.0f;
 	Time chargeTime = 2.0f;

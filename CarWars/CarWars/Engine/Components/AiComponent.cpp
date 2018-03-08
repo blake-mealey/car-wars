@@ -6,8 +6,8 @@
 #include "../Systems/StateManager.h"
 
 AiComponent::~AiComponent() {
-    glDeleteBuffers(1, &pathVbo);
-    glDeleteVertexArrays(1, &pathVao);
+	glDeleteBuffers(1, &pathVbo);
+	glDeleteVertexArrays(1, &pathVao);
 }
 
 AiComponent::AiComponent(nlohmann::json data) : targetEntity(nullptr), waypointIndex(0), lastPathUpdate(0) {
@@ -25,14 +25,8 @@ size_t AiComponent::GetPathLength() const {
     return path.size();
 }
 
-ComponentType AiComponent::GetType() {
-    return ComponentType_AI;
-}
-
-void AiComponent::HandleEvent(Event* event) { }
-
-void AiComponent::RenderDebugGui() {
-    Component::RenderDebugGui();
+void AiComponent::InternalRenderDebugGui() {
+    //Component::RenderDebugGui();
 }
 
 void AiComponent::SetTargetEntity(Entity* target) {
@@ -55,9 +49,9 @@ void AiComponent::UpdatePath() {
     if (!FinishedPath() && StateManager::gameTime - lastPathUpdate < 0.01f) return;
     lastPathUpdate = StateManager::gameTime;
 
-    const glm::vec3 currentPosition = GetEntity()->transform.GetGlobalPosition();
-    const glm::vec3 targetPosition = GetTargetEntity()->transform.GetGlobalPosition();
-    const glm::vec3 offsetDirection = normalize(-GetEntity()->transform.GetForward() * 1.f + normalize(targetPosition - currentPosition));
+    const glm::vec3 currentPosition = GetEntity().GetTransform().GetGlobalPosition();
+    const glm::vec3 targetPosition = GetTargetEntity()->GetTransform().GetGlobalPosition();
+    const glm::vec3 offsetDirection = normalize(-GetEntity().GetTransform().GetForward() * 1.f + normalize(targetPosition - currentPosition));
 //    const glm::vec3 offsetDirection = -GetEntity()->transform.GetForward();
     auto newPath = Pathfinder::FindPath(
         Game::Instance().GetNavigationMesh(),
@@ -76,7 +70,7 @@ void AiComponent::NextNodeInPath() {
 }
 
 glm::vec3 AiComponent::NodeInPath() const {
-    if (FinishedPath()) return targetEntity->transform.GetGlobalPosition();
+    if (FinishedPath()) return targetEntity->GetTransform().GetGlobalPosition();
     return path.back();
 }
 

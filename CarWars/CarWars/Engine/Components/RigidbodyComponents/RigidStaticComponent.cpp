@@ -13,12 +13,6 @@ void RigidStaticComponent::InitializeRigidbody() {
     RigidbodyComponent::InitializeRigidbody(actor);
 }
 
-ComponentType RigidStaticComponent::GetType() {
-    return ComponentType_RigidStatic;
-}
-
-void RigidStaticComponent::HandleEvent(Event* event) { }
-
 void RigidStaticComponent::RenderDebugGui() {
     RigidbodyComponent::RenderDebugGui();
 }

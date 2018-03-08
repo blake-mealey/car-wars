@@ -5,7 +5,8 @@
 #include <glm/glm.hpp>
 #include "../Systems/Content/SpotLight.h"
 
-class SpotLightComponent : public Component {
+class SpotLightComponent : public Component<SpotLightComponent> {
+	friend class Component<SpotLightComponent>;
 public:
 	SpotLightComponent(nlohmann::json data);
 	SpotLightComponent(glm::vec3 _color, float _power, float _angle, glm::vec3 _direction);
@@ -16,10 +17,9 @@ public:
 	glm::vec3 GetDirection() const;
 	SpotLight GetData() const;
 
-	ComponentType GetType() override;
-	void HandleEvent(Event* event) override;
+	static constexpr ComponentType InternalGetType() { return ComponentType_SpotLight; }
 
-    void RenderDebugGui() override;
+	void InternalRenderDebugGui();
 private:
 	glm::vec3 color;
 	float power;

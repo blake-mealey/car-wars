@@ -27,17 +27,11 @@ glm::vec3 SpotLightComponent::GetDirection() const {
 }
 
 SpotLight SpotLightComponent::GetData() const {
-	return SpotLight(color, power, GetEntity()->transform.GetGlobalPosition(), angle, GetEntity()->transform.GetGlobalDirection(direction));
+	Transform& trans = EntityManager::GetEntityTransform(entityID);
+	return SpotLight(color, power, trans.GetGlobalPosition(), angle, trans.GetGlobalDirection(direction));
 }
 
-ComponentType SpotLightComponent::GetType() {
-	return ComponentType_SpotLight;
-}
-
-void SpotLightComponent::HandleEvent(Event* event) {}
-
-void SpotLightComponent::RenderDebugGui() {
-    Component::RenderDebugGui();
+void SpotLightComponent::InternalRenderDebugGui() {
     ImGui::SliderAngle("Angle", &angle);
     ImGui::DragFloat("Power", &power);
     ImGui::DragFloat3("Direction", glm::value_ptr(direction), 0.01f);

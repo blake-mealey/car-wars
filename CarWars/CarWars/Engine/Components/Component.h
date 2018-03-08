@@ -1,47 +1,94 @@
 #pragma once
-#include <string>
-#include <foundation/PxTransform.h>
 
-class Event;
+#include "ComponentType.h"
+#include "../Events/Event.h"
+#include "imgui/imgui.h"
+#include <foundation/PxTransform.h>
+#include<iostream>
+#include "../Entities/EntityManager.h"
+
 class Entity;
 
-enum ComponentType {
-	ComponentType_Mesh,
-	ComponentType_Camera,
-	ComponentType_PointLight,
-	ComponentType_DirectionLight,
-	ComponentType_SpotLight,
-	ComponentType_Rigidbody,
-	ComponentType_RigidStatic,
-	ComponentType_RigidDynamic,
-	ComponentType_Vehicle,
-	ComponentType_Weapons,
-	ComponentType_MachineGun,
-	ComponentType_RailGun,
-	ComponentType_RocketLauncher,
-	ComponentType_AI,
-	ComponentType_GUI,
-	ComponentType_Missile
-};
-
+template<class T, EventType... events>
 class Component {
+private:
+
+	//Recursive template helpers
+	template <EventType Last>
+	static constexpr unsigned short BitCalc() {
+		return 1 << Last;
+	}
+
+	template<EventType ...Rest>
+	static constexpr unsigned short BitCalc();
+
+	template <EventType First, EventType Second, EventType ...Rest>
+	static constexpr unsigned short BitCalc() {
+		return BitCalc<First>() | BitCalc<Second, Rest...>();
+	}
+
+	template<>
+	static constexpr unsigned short BitCalc<>() {
+		return 0;
+	}
+
+
+
+	//Actual bitmask we will use
+	static constexpr unsigned short listeners = BitCalc<events...>();
+
 public:
-    virtual ~Component() = default;
-    Component();
-	
-	bool enabled;
-	
-    static std::string GetTypeName(ComponentType type);
+	bool enabled = true;
 
-	virtual ComponentType GetType() = 0;
-	virtual void HandleEvent(Event *event) = 0;
+	short entityID = SHRT_MAX;
 
-    virtual void RenderDebugGui();
+	void RenderDebugGui() { ImGui::Checkbox("Enabled", &enabled); static_cast<T*>(this)->InternalRenderDebugGui(); }
 
-    virtual void UpdateFromPhysics(physx::PxTransform t);
+	void UpdateFromPhysics(physx::PxTransform t) { 
+		EntityManager::GetEntityTransform(entityID).SetPosition(Transform::FromPx(t.p));
+		EntityManager::GetEntityTransform(entityID).SetRotation(Transform::FromPx(t.q));
+		static_cast<T*>(this)->InternalUpdateFromPhysics(t); 
+	}
 
-	virtual void SetEntity(Entity *_entity);
-	Entity* GetEntity() const;
+	void SetEntity(Entity& _entity) { entityID = _entity.GetId(); static_cast<T*>(this)->InternalSetEntity(_entity); }
+
+	Entity& GetEntity() const { return EntityManager::GetEntity(entityID); }
+	Transform& GetEntityTransform() const { return EntityManager::GetEntityTransform(entityID); }
+
+	//Getters
+	static constexpr ComponentType GetType() { return T::InternalGetType(); }
+	//Ensures that derived classes must implement their own InternalGetType() method
+	//template<class E>
+	//void HandleEvent(E *e) { return static_cast<T>(this)->InternalHandleEvent(E *e); }
+	static constexpr int GetListeners() { return listeners; }
+
+	static std::string GetTypeName(ComponentType type) {
+		switch (type) {
+		case ComponentType_Mesh: return "Mesh";
+		case ComponentType_Camera: return "Camera";
+		case ComponentType_PointLight: return "PointLight";
+		case ComponentType_DirectionLight: return "DirectionLight";
+		case ComponentType_SpotLight: return "SpotLight";
+		case ComponentType_Rigidbody: return "Rigidbody";
+		case ComponentType_RigidStatic: return "RigidStatic";
+		case ComponentType_RigidDynamic: return "RigidDynamic";
+		case ComponentType_Vehicle: return "Vehicle";
+		case ComponentType_Weapons: return "Weapons";
+		case ComponentType_MachineGun: return "MachineGun";
+		case ComponentType_RailGun: return "RailGun";
+		case ComponentType_RocketLauncher: return "RocketLauncher";
+		case ComponentType_AI: return "AI";
+		case ComponentType_GUI: return "GUI";
+		default: return std::to_string(type);
+		}
+	}
+
+
 protected:
-	Entity *entity;
+	void InternalSetEntity(Entity& _entity) {};
+	void InternalUpdateFromPhysics(physx::PxTransform t) {
+		//Transform& trans = EntityManager::GetEntityTransform(GetEntity());
+		//trans.SetPosition(Transform::FromPx(t.p));
+		//trans.SetRotation(Transform::FromPx(t.q));
+	}
 };

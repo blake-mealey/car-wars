@@ -3,7 +3,6 @@
 #include "ContentManager.h"
 
 #include <iostream>
-#include "../../Entities/EntityManager.h"
 #include "../../Components/RigidbodyComponents/RigidbodyComponent.h"
 
 NavigationMesh::NavigationMesh(nlohmann::json data) {
@@ -24,7 +23,10 @@ float NavigationMesh::GetSpacing() const {
 
 void NavigationMesh::Initialize() {
     vertices = new NavigationVertex[GetVertexCount()];
-    coveringBodies = new std::unordered_set<RigidbodyComponent*>[GetVertexCount()];
+#define X(ARG) new std::unordered_set<ARG*>[GetVertexCount()]
+	coveringBodies = std::make_tuple(RIGBODIES);
+#undef X
+    //coveringBodies = new std::unordered_set<RigidbodyComponent*>[GetVertexCount()];
 
     const float radius = 40.f - 1.f;
 
@@ -54,85 +56,9 @@ void NavigationMesh::Initialize() {
 }
 
 void NavigationMesh::UpdateMesh() {
-    UpdateMesh(EntityManager::GetComponents(ComponentType_RigidStatic));
-    UpdateMesh(EntityManager::GetComponents(ComponentType_RigidDynamic));
-    UpdateMesh(EntityManager::GetComponents(ComponentType_Vehicle));
-}
-
-void NavigationMesh::UpdateMesh(std::vector<Component*> rigidbodies) {
-    // Check if covered vertices became uncovered
-    for (auto it = coveredVertices.begin(); it != coveredVertices.end(); ) {
-        const size_t index = *it;
-        NavigationVertex& vertex = vertices[index];
-        
-        // Check if any of the bodies covering this vertex are no longer covering it
-        auto &vertexCoveringBodies = coveringBodies[index];
-        for (auto it2 = vertexCoveringBodies.begin(); it2 != vertexCoveringBodies.end(); ) {
-            const physx::PxBounds3 bounds = (*it2)->pxRigid->getWorldBounds(1.f);
-            if (!IsContainedBy(index, bounds)) {
-                it2 = vertexCoveringBodies.erase(it2);
-            } else {
-                ++it2;
-            }
-        }
-
-        // If this vertex is no longer covered, remove it from the set of covered bodies
-        if (vertexCoveringBodies.empty()) {
-            vertex.score = 0.5f;
-            it = coveredVertices.erase(it);
-        } else {
-            ++it;
-        }
-    }
-
-    // Check if any of the bodies that were updated this frame are covering new vertices
-    for (Component* component : rigidbodies) {
-        RigidbodyComponent *rigidbody = static_cast<RigidbodyComponent*>(component);
-        if (!rigidbody->enabled || !rigidbody->DoesBlockNavigationMesh()) continue;
-
-        // Find all the vertices this body covers
-        const physx::PxBounds3 bounds = rigidbody->pxRigid->getWorldBounds(1.f);
-        std::vector<size_t> contained = FindAllContainedBy(bounds);
-
-        // Add this body to any vertices that it covers and mark them as covered
-        for (size_t index : contained) {
-            NavigationVertex &vertex = vertices[index];
-            auto &vertexCoveringBodies = coveringBodies[index];
-            if (vertexCoveringBodies.empty()) {
-                vertex.score = 0.f;
-                coveredVertices.insert(index);
-            }
-            vertexCoveringBodies.insert(rigidbody);
-        }
-    }
-
-    UpdateRenderBuffers();
-}
-
-void NavigationMesh::RemoveRigidbody(RigidbodyComponent *rigidbody) {
-	// Check if covered vertices became uncovered
-	for (auto it = coveredVertices.begin(); it != coveredVertices.end(); ) {
-		const size_t index = *it;
-		NavigationVertex& vertex = vertices[index];
-
-		// Check if any of the bodies covering this vertex are the given rigidbody, and remove them
-		auto &vertexCoveringBodies = coveringBodies[index];
-		for (auto it2 = vertexCoveringBodies.begin(); it2 != vertexCoveringBodies.end(); ) {
-			if ((*it2) == rigidbody) {
-				it2 = vertexCoveringBodies.erase(it2);
-			} else {
-				++it2;
-			}
-		}
-
-		// If this vertex is no longer covered, remove it from the set of covered bodies
-		if (vertexCoveringBodies.empty()) {
-			vertex.score = 0.5f;
-			it = coveredVertices.erase(it);
-		} else {
-			++it;
-		}
-	}
+    UpdateMesh<RigidStaticComponent>();
+    UpdateMesh<RigidDynamicComponent>();
+    UpdateMesh<VehicleComponent>();
 }
 
 size_t NavigationMesh::FindClosestVertex(glm::vec3 worldPosition) const {

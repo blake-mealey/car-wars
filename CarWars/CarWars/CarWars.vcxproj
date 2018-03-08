@@ -209,6 +209,7 @@
     <ClInclude Include="Engine\Components\Colliders\BoxCollider.h" />
     <ClInclude Include="Engine\Components\Colliders\Collider.h" />
     <ClInclude Include="Engine\Components\Component.h" />
+    <ClInclude Include="Engine\Components\ComponentType.h" />
     <ClInclude Include="Engine\Components\DirectionLightComponent.h" />
     <ClInclude Include="Engine\Components\Colliders\ConvexMeshCollider.h" />
     <ClInclude Include="Engine\Components\GuiComponents\GuiComponent.h" />
@@ -228,6 +229,7 @@
     <ClInclude Include="Engine\Entities\EntityManager.h" />
     <ClInclude Include="Engine\Entities\Transform.h" />
     <ClInclude Include="Engine\Events\Event.h" />
+    <ClInclude Include="Engine\Events\EventHandler.h" />
     <ClInclude Include="Engine\Systems\Audio.h" />
     <ClInclude Include="Engine\Systems\Content\ContentManager.h" />
     <ClInclude Include="Engine\Systems\Content\DirectionLight.h" />

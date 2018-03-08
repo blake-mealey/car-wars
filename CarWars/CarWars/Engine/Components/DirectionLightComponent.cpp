@@ -36,13 +36,7 @@ void DirectionLightComponent::SetDirection(glm::vec3 _direction) {
     direction = glm::normalize(_direction);
 }
 
-ComponentType DirectionLightComponent::GetType() {
-	return ComponentType_DirectionLight;
-}
-
-void DirectionLightComponent::HandleEvent(Event* event) {}
-void DirectionLightComponent::RenderDebugGui() {
-    Component::RenderDebugGui();
+void DirectionLightComponent::InternalRenderDebugGui() {
     ImGui::Checkbox("Casts Shadows", &castsShadows);
     ImGui::DragFloat3("Direction", glm::value_ptr(direction), 0.01f);
     ImGui::ColorEdit3("Colour", glm::value_ptr(color));
