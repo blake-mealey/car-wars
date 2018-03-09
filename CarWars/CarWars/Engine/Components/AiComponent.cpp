@@ -110,7 +110,7 @@ Time AiComponent::GetModeDuration() {
 }
 
 void AiComponent::StartStuckTime() {
-	if (startedStuck.GetTimeSeconds = -1)	startedStuck = StateManager::gameTime;
+	if (startedStuck.GetTimeSeconds() == -1)	startedStuck = StateManager::gameTime;
 }
 
 Time AiComponent::GetStuckDuration() {
@@ -124,7 +124,7 @@ void AiComponent::SetMode() {
 
 	// check if stuck
 	float speed = vehicle->pxVehicle->computeForwardSpeed();
-	if (GetStuckDuration().GetTimeSeconds > 1.0f) {
+	if (GetStuckDuration().GetTimeSeconds() > 1.0f) {
 		mode = AiMode_Stuck;
 		return;
 	}
@@ -139,5 +139,79 @@ void AiComponent::SetMode() {
 		//set target powerup
 		
 		mode = AiMode_DriveTo;
+	}
+}
+
+void AiComponent::Update() {
+	if (!enabled) return;
+	VehicleComponent* vehicle = GetEntity()->GetComponent<VehicleComponent>();
+
+	Transform &myTransform = GetEntity()->transform;
+	const glm::vec3 position = myTransform.GetGlobalPosition();
+	const glm::vec3 forward = myTransform.GetForward();
+	const glm::vec3 right = myTransform.GetRight();
+
+	UpdatePath();       // Will only update every x seconds
+	const glm::vec3 targetPosition = GetTargetEntity()->transform.GetGlobalPosition();
+	const glm::vec3 nodePosition = NodeInPath();
+
+	glm::vec3 direction = nodePosition - position;
+	const float distance = glm::length(direction);
+	direction = glm::normalize(direction);
+
+	NavigationMesh* navigationMesh = Game::Instance().GetNavigationMesh();
+
+	if (distance <= navigationMesh->GetSpacing() * 2.f) {
+		NextNodeInPath();
+	}
+
+	//update mode
+	SetMode();
+	if (mode == AiMode_Attack){
+		if (previousMode != mode) {
+			std::vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
+			float bestDistance = INFINITY;
+			for (Component *component : vehicleComponents) {
+				VehicleComponent *enemy = static_cast<VehicleComponent*>(component);
+				if (enemy->GetEntity()->GetId() != GetEntity()->GetId()) {
+					float distance = glm::length(enemy->GetEntity()->transform.GetGlobalPosition - GetEntity()->transform.GetGlobalPosition());
+					if (distance < bestDistance) {
+						bestDistance = distance;
+						targetEntity = enemy->GetEntity();
+					}
+				}
+			}
+		}
+
+		float distanceToEnemy = glm::length(targetEntity->transform.GetGlobalPosition - GetEntity()->transform.GetGlobalPosition());
+		if (distanceToEnemy < 30) { // if close enough to enemy shoot
+			WeaponComponent* weapon;
+			
+			if (!charged) {
+				weapon->Charge();
+				charged = true;
+			}
+			weapon->Shoot();
+		}
+		else {
+			charged = false;
+		}
+	}/*
+	case AiMode_Chase:
+	case AiMode_DriveTo:
+	case AiMode_Evade:
+		
+	case AiMode_Reverse:
+	case AiMode_Stuck:
+
+	case AiMode_Waypoints:
+	case AiMode_Chase:
+		const float steer = glm::dot(direction, right);
+		const PxReal speed = vehicle->pxVehicle->computeForwardSpeed();
+		break;
+	}
+	*/
+	if (FinishedPath()) {
+		UpdatePath();
 	}
 }

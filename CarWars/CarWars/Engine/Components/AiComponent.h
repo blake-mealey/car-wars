@@ -46,7 +46,8 @@ public:
 	void StartStuckTime();
 	Time GetStuckDuration();
 
-	
+	void Update();
+
 private:
 
     Time lastPathUpdate;

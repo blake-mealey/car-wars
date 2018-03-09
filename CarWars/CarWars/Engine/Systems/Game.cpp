@@ -149,79 +149,7 @@ void AiDrive() {
 }
 
 
-void UpdateAi(AiComponent* ai) {
-	if (!ai->enabled) return;
-	VehicleComponent* vehicle = ai->GetEntity()->GetComponent<VehicleComponent>();
 
-	Transform &myTransform = ai->GetEntity()->transform;
-	const glm::vec3 position = myTransform.GetGlobalPosition();
-	const glm::vec3 forward = myTransform.GetForward();
-	const glm::vec3 right = myTransform.GetRight();
-
-	ai->UpdatePath();       // Will only update every x seconds
-	const glm::vec3 targetPosition = ai->GetTargetEntity()->transform.GetGlobalPosition();
-	const glm::vec3 nodePosition = ai->NodeInPath();
-
-	glm::vec3 direction = nodePosition - position;
-	const float distance = glm::length(direction);
-	direction = glm::normalize(direction);
-
-	NavigationMesh* navigationMesh = Game::Instance().GetNavigationMesh();
-
-	if (distance <= navigationMesh->GetSpacing() * 2.f) {
-		ai->NextNodeInPath();
-	}
-
-	//update mode
-	AiMode mode = ai->GetMode();\
-	const PxReal speed = vehicle->pxVehicle->computeForwardSpeed();
-
-	if (abs(speed) < 0.5f) {
-		ai->
-	}
-
-	switch (ai->GetMode()) {
-	case AiMode_Waypoints:
-	case AiMode_Chase:
-		const float steer = glm::dot(direction, right);
-		const PxReal speed = vehicle->pxVehicle->computeForwardSpeed();
-
-		if (!ai->IsStuck() && abs(speed) <= 0.5f) {
-			ai->SetStuck(true);
-		}
-		else if (ai->IsStuck() && abs(speed) >= 1.f) {
-			ai->SetStuck(false);
-		}
-
-		if (!ai->IsReversing() && ai->IsStuck() && ai->GetStuckDuration().GetTimeSeconds() >= 1.f) {
-			ai->StartReversing();
-		}
-
-		if (ai->IsReversing() && ai->GetReversingDuration().GetTimeSeconds() >= 2.f) {
-			ai->StopReversing();
-		}
-
-		const bool reverse = ai->IsReversing();// speed < 1.f; // glm::dot(direction, forward) > -0.1;
-
-		const float accel = glm::clamp(distance / 20.f, 0.1f, 0.8f) * reverse ? 0.8f : 0.8f;
-
-		if (!reverse && vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
-			vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-		}
-		else if (reverse && vehicle->pxVehicle->mDriveDynData.getCurrentGear() != PxVehicleGearsData::eREVERSE) {
-			vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
-		}
-
-		vehicle->pxVehicleInputData.setAnalogSteer(reverse ? -steer : steer);
-		vehicle->pxVehicleInputData.setAnalogAccel(accel);
-
-		break;
-	}
-
-	if (ai->FinishedPath()) {
-		ai->UpdatePath();
-	}
-}
 
 void Game::Update() {
     if (StateManager::GetState() < __GameState_Menu_End) {
@@ -236,7 +164,7 @@ void Game::Update() {
 		std::vector<Component*> aiComponents = EntityManager::GetComponents(ComponentType_AI);
 		for (Component *component : aiComponents) {
 			AiComponent *ai = static_cast<AiComponent*>(component);
-			UpdateAi(ai);
+			ai->Update();
 		}
 
         // Update sun direction
@@ -247,7 +175,7 @@ void Game::Update() {
         // Update player cameras
         for (int i = 0; i < gameData.playerCount; ++i) {
             PlayerData& player = players[i];
-            player.cameraEntity->transform.SetPosition(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
+	            player.cameraEntity->transform.SetPosition(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
             player.camera->SetTarget(player.vehicleEntity->transform.GetGlobalPosition() +
                 player.vehicleEntity->transform.GetUp() * 2.f + player.vehicleEntity->transform.GetForward() * -1.25f);
         }
