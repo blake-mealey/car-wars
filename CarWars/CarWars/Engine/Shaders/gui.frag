@@ -8,5 +8,5 @@ uniform vec2 uvScale;
 out vec4 fragmentColor;
 
 void main() {
-	fragmentColor = texture(diffuseTexture, uvScale*vec2(1.f - fragmentUv.x, fragmentUv.y));
+	fragmentColor = texture(diffuseTexture, uvScale*fragmentUv);
 }

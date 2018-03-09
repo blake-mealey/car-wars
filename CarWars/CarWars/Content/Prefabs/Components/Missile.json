@@ -1,6 +1,0 @@
-{
-	"Type": "Mesh",
-	"Mesh": "Missile.obj",
-	"Texture": "Boulder.jpg",
-	"Material": "Basic.json"
-}

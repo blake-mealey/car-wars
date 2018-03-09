@@ -3,7 +3,7 @@
 	"Components": [
 		{
 			"Type": "Camera",
-			"Position": [0, 3, 10],
+			"Position": [0, 0.8, 7.2],
 			"Target": [0, 0, 0],
 			"TargetInLocalSpace": true
 		}

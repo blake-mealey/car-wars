@@ -66,6 +66,10 @@ public:
 	static Entity* LoadEntity(nlohmann::json data, Entity *parent=nullptr);
 
 private:
+    static std::map<std::string, nlohmann::json> scenePrefabs;
+    static std::map<std::string, nlohmann::json> entityPrefabs;
+    static std::map<std::string, nlohmann::json> componentPrefabs;
+
 	static std::map<std::string, Mesh*> meshes;
 	static std::map<std::string, Texture*> textures;
 	static std::map<std::string, Material*> materials;

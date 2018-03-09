@@ -15,6 +15,29 @@ public:
 
 	Transform transform;
 
+	template <class T>
+	T* GetComponent() {
+		for (Component* component : components) {
+			T* typedComponent = dynamic_cast<T*>(component);
+			if (typedComponent) {
+				return typedComponent;
+			}
+		}
+		return nullptr;
+	}
+
+	template <class T>
+	std::vector<T*> GetComponents() {
+		std::vector<T*> found;
+		for (Component* component : components) {
+			T* typedComponent = dynamic_cast<T*>(component);
+			if (typedComponent) {
+				found.push_back(typedComponent);
+			}
+		}
+		return found;
+	}
+
 	void HandleEvent(Event *event);
 
     void RenderDebugGui();
@@ -38,6 +61,5 @@ private:
 
     Entity *parent;
     std::vector<Entity*> children;
-public:
 	std::vector<Component*> components;
 };
