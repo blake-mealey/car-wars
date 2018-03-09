@@ -185,6 +185,9 @@ void AiComponent::SetMode() {
 void AiComponent::Update() {
 	if (!enabled) return;
 
+	PxScene* scene = &Physics::Instance().GetScene();
+	PxRaycastBuffer hit;
+
 	std::cout << mode << std::endl;
 
 	WeaponComponent* weapon = GetEntity()->GetComponent<WeaponComponent>();
@@ -197,14 +200,19 @@ void AiComponent::Update() {
 			for (Component *component : vehicleComponents) {
 				VehicleComponent *enemy = static_cast<VehicleComponent*>(component);
 				if (enemy->GetEntity()->GetId() != GetEntity()->GetId()) {
-					if (1) {/* check for visibility */
-						float distance = glm::length(enemy->GetEntity()->transform.GetGlobalPosition() - GetEntity()->transform.GetGlobalPosition());
-						float rating = distance * enemy->GetHealth();
-						if (rating <= bestRating) {
-							if (rating < bestRating || distance < glm::length(targetEntity->transform.GetGlobalPosition() - targetEntity->transform.GetGlobalPosition())) { // if two are same rating attack the closer one
-								bestRating = rating;
-								targetEntity = enemy->GetEntity();
-							}
+					glm::vec3 direction = enemy->GetEntity()->transform.GetGlobalPosition() - GetEntity()->transform.GetGlobalPosition();
+					float distance = glm::length(direction);
+					direction = glm::normalize(direction);
+					//bool status = scene->raycast(Transform::ToPx(GetEntity()->transform.GetGlobalPosition()), Transform::ToPx(direction), distance, hit);
+					//if (status){
+					//	if (EntityManager::FindEntity(hit.block.actor)){
+					float rating = distance * enemy->GetHealth();
+					if (rating <= bestRating) {
+						if (rating < bestRating 
+							|| distance < glm::length(targetEntity->transform.GetGlobalPosition() - targetEntity->transform.GetGlobalPosition())) { // if two are same rating attack the closer one
+							bestRating = rating;
+							targetEntity = enemy->GetEntity();
+							//}
 						}
 					}
 				}
