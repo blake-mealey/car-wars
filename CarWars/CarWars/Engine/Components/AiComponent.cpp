@@ -191,7 +191,7 @@ void AiComponent::Update() {
 				weapon->Charge();
 				charged = true;
 			}
-			weapon->Shoot();
+			weapon->Shoot(targetPosition);
 		}
 		else {
 			charged = false;
