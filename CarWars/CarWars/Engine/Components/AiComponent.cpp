@@ -185,11 +185,12 @@ void AiComponent::SetMode() {
 void AiComponent::Update() {
 	if (!enabled) return;
 
-	WeaponComponent* weapon = GetEntity()->GetComponent<WeaponComponent>();
+	std::cout << mode << std::endl;
 
+	WeaponComponent* weapon = GetEntity()->GetComponent<WeaponComponent>();
 	float distanceToEnemy = INFINITY;
 
-	if (mode == AiMode_Attack){
+	if (mode == AiMode_Attack) {
 		if (previousMode != mode || targetEntity == nullptr) { // target entiy is still alive??
 			std::vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
 			float bestRating = INFINITY;
@@ -213,10 +214,13 @@ void AiComponent::Update() {
 			}
 		}
 
+		distanceToEnemy = glm::length(targetEntity->transform.GetGlobalPosition() - targetEntity->transform.GetGlobalPosition());
+
 		if (mode == AiMode_Attack) {
 			if (1) { /* check for visibility */
 				lostTarget = Time(-1);
-			} else {
+			}
+			else {
 				LostTargetTime();
 				if (LostTargetDuration().GetTimeSeconds() > 0.5f) { //if out of sight for so long stop shooting TUNEABLE
 					charged = false;
@@ -238,12 +242,12 @@ void AiComponent::Update() {
 	}
 
 
-	if (mode == AiMode_GetPowerup) {
-		if (targetEntity == nullptr) { // target entiy exists??
-			std::vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle); // find poweups
-			float bestDistance = INFINITY;
-			for (Component *component : vehicleComponents) {
-				if (component->GetEntity()->GetId() != GetEntity()->GetId()) {
+	if (mode == AiMode_GetPowerup) { // target entiy exists??
+		std::vector<Component*> powerupComponents = EntityManager::GetComponents(ComponentType_Vehicle); // find powerup spawns???
+		float bestDistance = INFINITY;
+		for (Component *component : powerupComponents) {
+			if (component->GetEntity()->GetId() != GetEntity()->GetId()) {
+				if (1) { /*is something there || no visibility */
 					float distance = glm::length(component->GetEntity()->transform.GetGlobalPosition() - GetEntity()->transform.GetGlobalPosition());
 					if (distance < bestDistance) {
 						bestDistance = distance;
@@ -280,7 +284,22 @@ void AiComponent::Update() {
 	}
 
 	/*Do Driving Stuff here*/
+	const float steer = glm::dot(directionToNode, right);
+	const PxReal speed = vehicle->pxVehicle->computeForwardSpeed();
 
+	const bool reverse = 0;
+
+	const float accel = 0.8f;
+
+	if (!reverse && vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
+			vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+	}
+	else if (reverse && vehicle->pxVehicle->mDriveDynData.getCurrentGear() != PxVehicleGearsData::eREVERSE) {
+		vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+	}
+	vehicle->pxVehicleInputData.setAnalogSteer(reverse ? -steer : steer);
+	vehicle->pxVehicleInputData.setAnalogAccel(accel);
+	
 	if (FinishedPath()) {
 		UpdatePath();
 	}
