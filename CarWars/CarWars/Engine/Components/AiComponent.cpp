@@ -279,6 +279,8 @@ void AiComponent::Update() {
 		NextNodeInPath();
 	}
 
+	/*Do Driving Stuff here*/
+
 	if (FinishedPath()) {
 		UpdatePath();
 	}
