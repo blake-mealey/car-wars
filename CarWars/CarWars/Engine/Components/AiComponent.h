@@ -63,6 +63,8 @@ private:
     Entity *targetEntity;
     size_t waypointIndex;
 
+	bool charged = false;
+
     void InitializeRenderBuffers();
     void UpdateRenderBuffers();
 };
