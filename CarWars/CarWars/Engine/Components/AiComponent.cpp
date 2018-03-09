@@ -174,7 +174,7 @@ void AiComponent::Update() {
 			for (Component *component : vehicleComponents) {
 				VehicleComponent *enemy = static_cast<VehicleComponent*>(component);
 				if (enemy->GetEntity()->GetId() != GetEntity()->GetId()) {
-					float distance = glm::length(enemy->GetEntity()->transform.GetGlobalPosition - GetEntity()->transform.GetGlobalPosition());
+					float distance = glm::length(enemy->GetEntity()->transform.GetGlobalPosition() - GetEntity()->transform.GetGlobalPosition());
 					if (distance < bestDistance) {
 						bestDistance = distance;
 						targetEntity = enemy->GetEntity();
@@ -183,15 +183,15 @@ void AiComponent::Update() {
 			}
 		}
 
-		float distanceToEnemy = glm::length(targetEntity->transform.GetGlobalPosition - GetEntity()->transform.GetGlobalPosition());
+		float distanceToEnemy = glm::length(targetEntity->transform.GetGlobalPosition() - GetEntity()->transform.GetGlobalPosition());
 		if (distanceToEnemy < 30) { // if close enough to enemy shoot
-			WeaponComponent* weapon;
+			WeaponComponent* weapon = GetEntity()->GetComponent<WeaponComponent>();
 			
 			if (!charged) {
 				weapon->Charge();
 				charged = true;
 			}
-			weapon->Shoot(targetPosition);
+			//weapon->Shoot(targetPosition);
 		}
 		else {
 			charged = false;

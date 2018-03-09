@@ -144,13 +144,6 @@ void Game::InitializeGame() {
 }
 
 
-void AiDrive() {
-
-}
-
-
-
-
 void Game::Update() {
     if (StateManager::GetState() < __GameState_Menu_End) {
         for (Entity* entity : EntityManager::FindEntities("VehicleBox")) {
