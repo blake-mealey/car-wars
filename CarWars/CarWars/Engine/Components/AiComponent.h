@@ -8,11 +8,11 @@
 #include <GL/glew.h>
 
 enum AiMode {
-	AiMode_Reverse,
 	AiMode_Stuck,
-	AiMode_DriveTo,
+	AiMode_GetPowerup,
 	AiMode_Attack,
-	AiMode_Evade,
+	AiMode_Damaged,
+	AiMode_Hide,
 
     AiMode_Waypoints,
     AiMode_Chase
@@ -48,7 +48,11 @@ public:
 
 	void Update();
 
+	void UpdateMode(AiMode _mode);
+
 private:
+	void LostTargetTime();
+	Time LostTargetDuration();
 
     Time lastPathUpdate;
 
@@ -59,9 +63,11 @@ private:
     AiMode mode;
 	AiMode previousMode;
 	Time modeStart;
+	Time lostTarget;
 
     Entity *targetEntity;
     size_t waypointIndex;
+
 
 	bool charged = false;
 

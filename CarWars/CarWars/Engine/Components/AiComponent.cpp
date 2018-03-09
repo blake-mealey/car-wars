@@ -9,18 +9,24 @@
 #include "../Components/WeaponComponents/WeaponComponent.h"
 #include "../Systems/Physics.h"
 
+
+#include <iostream>
+
 AiComponent::~AiComponent() {
     glDeleteBuffers(1, &pathVbo);
     glDeleteVertexArrays(1, &pathVao);
 }
 
 AiComponent::AiComponent(nlohmann::json data) : targetEntity(nullptr), waypointIndex(0), lastPathUpdate(0) {
+	mode = AiMode_Waypoints;
     std::string modeName = ContentManager::GetFromJson<std::string>(data["Mode"], "Waypoints");
     if (modeName == "Waypoints") {
-        mode = AiMode_Waypoints;
+        UpdateMode(AiMode_Waypoints);
     } else if (modeName == "Chase") {
-        mode = AiMode_Chase;
+        UpdateMode(AiMode_Chase);
     }
+
+	startedStuck = Time(-1);
 
     InitializeRenderBuffers();
 }
@@ -117,33 +123,141 @@ Time AiComponent::GetStuckDuration() {
 	return StateManager::gameTime - startedStuck;
 }
 
-void AiComponent::SetMode() {
-	previousMode = mode;
 
+void AiComponent::LostTargetTime() {
+	if (lostTarget.GetTimeSeconds() == -1)	lostTarget = StateManager::gameTime;
+}
+
+Time AiComponent::LostTargetDuration() {
+	return StateManager::gameTime - lostTarget;
+}
+
+
+void AiComponent::UpdateMode(AiMode _mode) {
+	previousMode = mode;
+	mode = _mode;
+	modeStart = StateManager::gameTime;
+}
+
+
+void AiComponent::SetMode() {
 	VehicleComponent* vehicle = GetEntity()->GetComponent<VehicleComponent>();
 
 	// check if stuck
 	float speed = vehicle->pxVehicle->computeForwardSpeed();
-	if (GetStuckDuration().GetTimeSeconds() > 1.0f) {
-		mode = AiMode_Stuck;
+	if (GetStuckDuration().GetTimeSeconds() > 1000000.0f) {
+		UpdateMode(AiMode_Stuck);
 		return;
 	}
+
+	//detect being stuck
 	if (abs(speed) <= 0.5f) {
 		if (startedStuck.GetTimeSeconds() < 0.f) {
 			StartStuckTime();
 		}
-	}
-	else startedStuck = Time(-1);
+	} else startedStuck = Time(-1);
 
-	if (0/*doesNot have powerup*/){
-		//set target powerup
-		
-		mode = AiMode_DriveTo;
+	int choice = -1;
+
+	std::cout << StateManager::gameTime.GetTimeSeconds() << " time till change " << modeStart.GetTimeSeconds() + 10 << std::endl;
+
+	if (StateManager::gameTime.GetTimeSeconds() > modeStart.GetTimeSeconds() + 10) { // every ten seconds select a mode
+		choice = rand() % 2;
+
+		if (rand() % 2/*doesNot have powerup (random for testing)*/ ) {
+			if (choice == 0) {
+				UpdateMode(AiMode_GetPowerup);
+				return;
+			}
+		} else choice++;
+
+		if (choice == 1) {
+			UpdateMode(AiMode_Attack);
+		} else {
+			UpdateMode(mode);
+		}
 	}
+	return;
 }
+
+
 
 void AiComponent::Update() {
 	if (!enabled) return;
+
+	WeaponComponent* weapon = GetEntity()->GetComponent<WeaponComponent>();
+
+	float distanceToEnemy = INFINITY;
+
+	if (mode == AiMode_Attack){
+		if (previousMode != mode || targetEntity == nullptr) { // target entiy is still alive??
+			std::vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
+			float bestRating = INFINITY;
+			for (Component *component : vehicleComponents) {
+				VehicleComponent *enemy = static_cast<VehicleComponent*>(component);
+				if (enemy->GetEntity()->GetId() != GetEntity()->GetId()) {
+					if (1) {/* check for visibility */
+						float distance = glm::length(enemy->GetEntity()->transform.GetGlobalPosition() - GetEntity()->transform.GetGlobalPosition());
+						float rating = distance * enemy->GetHealth();
+						if (rating <= bestRating) {
+							if (rating < bestRating || distance < glm::length(targetEntity->transform.GetGlobalPosition() - targetEntity->transform.GetGlobalPosition())) { // if two are same rating attack the closer one
+								bestRating = rating;
+								targetEntity = enemy->GetEntity();
+							}
+						}
+					}
+				}
+			}
+			if (bestRating == INFINITY) {
+				UpdateMode(AiMode_GetPowerup);
+			}
+		}
+
+		if (mode == AiMode_Attack) {
+			if (1) { /* check for visibility */
+				lostTarget = Time(-1);
+			} else {
+				LostTargetTime();
+				if (LostTargetDuration().GetTimeSeconds() > 0.5f) { //if out of sight for so long stop shooting TUNEABLE
+					charged = false;
+				}
+			}
+
+			if (distanceToEnemy < 50) { // if close enough to enemy shoot TUNEABLE
+				// aim weapon TUNEABLE
+				if (!charged) {
+					weapon->Charge();
+					charged = true;
+				}
+				weapon->Shoot();
+			}
+			else {
+				LostTargetTime();
+			}
+		}
+	}
+
+
+	if (mode == AiMode_GetPowerup) {
+		if (targetEntity == nullptr) { // target entiy exists??
+			std::vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle); // find poweups
+			float bestDistance = INFINITY;
+			for (Component *component : vehicleComponents) {
+				if (component->GetEntity()->GetId() != GetEntity()->GetId()) {
+					float distance = glm::length(component->GetEntity()->transform.GetGlobalPosition() - GetEntity()->transform.GetGlobalPosition());
+					if (distance < bestDistance) {
+						bestDistance = distance;
+						targetEntity = component->GetEntity();
+					}
+				}
+			}
+			if (bestDistance == INFINITY) {
+				UpdateMode(AiMode_Attack);
+				return;
+			}
+		}
+	}
+
 	VehicleComponent* vehicle = GetEntity()->GetComponent<VehicleComponent>();
 
 	Transform &myTransform = GetEntity()->transform;
@@ -151,67 +265,23 @@ void AiComponent::Update() {
 	const glm::vec3 forward = myTransform.GetForward();
 	const glm::vec3 right = myTransform.GetRight();
 
-	UpdatePath();       // Will only update every x seconds
-	const glm::vec3 targetPosition = GetTargetEntity()->transform.GetGlobalPosition();
+	UpdatePath(); // Will only update every x seconds
+
 	const glm::vec3 nodePosition = NodeInPath();
 
-	glm::vec3 direction = nodePosition - position;
-	const float distance = glm::length(direction);
-	direction = glm::normalize(direction);
+	glm::vec3 directionToNode = nodePosition - position;
+	const float distanceToNode = glm::length(directionToNode);
+	directionToNode = glm::normalize(directionToNode);
 
 	NavigationMesh* navigationMesh = Game::Instance().GetNavigationMesh();
 
-	if (distance <= navigationMesh->GetSpacing() * 2.f) {
+	if (distanceToNode <= navigationMesh->GetSpacing() * 2.f) {
 		NextNodeInPath();
 	}
 
-	//update mode
-	SetMode();
-	if (mode == AiMode_Attack){
-		if (previousMode != mode) {
-			std::vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-			float bestDistance = INFINITY;
-			for (Component *component : vehicleComponents) {
-				VehicleComponent *enemy = static_cast<VehicleComponent*>(component);
-				if (enemy->GetEntity()->GetId() != GetEntity()->GetId()) {
-					float distance = glm::length(enemy->GetEntity()->transform.GetGlobalPosition() - GetEntity()->transform.GetGlobalPosition());
-					if (distance < bestDistance) {
-						bestDistance = distance;
-						targetEntity = enemy->GetEntity();
-					}
-				}
-			}
-		}
-
-		float distanceToEnemy = glm::length(targetEntity->transform.GetGlobalPosition() - GetEntity()->transform.GetGlobalPosition());
-		if (distanceToEnemy < 30) { // if close enough to enemy shoot
-			WeaponComponent* weapon = GetEntity()->GetComponent<WeaponComponent>();
-			
-			if (!charged) {
-				weapon->Charge();
-				charged = true;
-			}
-			//weapon->Shoot(targetPosition);
-		}
-		else {
-			charged = false;
-		}
-	}/*
-	case AiMode_Chase:
-	case AiMode_DriveTo:
-	case AiMode_Evade:
-		
-	case AiMode_Reverse:
-	case AiMode_Stuck:
-
-	case AiMode_Waypoints:
-	case AiMode_Chase:
-		const float steer = glm::dot(direction, right);
-		const PxReal speed = vehicle->pxVehicle->computeForwardSpeed();
-		break;
-	}
-	*/
 	if (FinishedPath()) {
 		UpdatePath();
 	}
+
+	SetMode();
 }
