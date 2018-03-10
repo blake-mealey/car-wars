@@ -8,8 +8,8 @@
 
 using namespace physx;
 
-Collider::Collider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData)
-    : collisionGroup(_collisionGroup), material(_material), queryFilterData(_queryFilterData), shape(nullptr), geometry(nullptr) {}
+Collider::Collider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, bool _isTrigger)
+    : collisionGroup(_collisionGroup), material(_material), queryFilterData(_queryFilterData), shape(nullptr), geometry(nullptr), isTrigger(_isTrigger) {}
 
 Collider::Collider(nlohmann::json data) : shape(nullptr), geometry(nullptr) {
     collisionGroup = ContentManager::GetFromJson<std::string>(data["CollisionGroup"], "Default");
@@ -22,6 +22,7 @@ Collider::Collider(nlohmann::json data) : shape(nullptr), geometry(nullptr) {
     }
 	queryFilterData.word0 = RaycastGroups::GetDefaultGroup();
     transform = Transform(data);
+	isTrigger = ContentManager::GetFromJson<bool>(data["IsTrigger"], false);
 }
 
 Collider::~Collider() {
@@ -39,6 +40,11 @@ physx::PxShape* Collider::GetShape() const {
 
 void Collider::CreateShape(PxRigidActor *actor) {
     shape = physx::PxRigidActorExt::createExclusiveShape(*actor, *geometry, *material);
+
+	if (isTrigger) {
+		shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+		shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+	}
 
     shape->setQueryFilterData(queryFilterData);                                         // For raycasts
     shape->setSimulationFilterData(CollisionGroups::GetFilterData(collisionGroup));     // For collisions

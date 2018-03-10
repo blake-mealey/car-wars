@@ -22,6 +22,20 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 	}
 }
 
+void CollisionCallback::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) {
+	Physics& physicsInstance = Physics::Instance();
+	RigidbodyComponent* actor0RB = static_cast<RigidbodyComponent*>(pairs->triggerActor->userData);
+	Entity* actor0 = actor0RB->GetEntity();
+	RigidbodyComponent* actor1RB = static_cast<RigidbodyComponent*>(pairs->otherActor->userData);
+	Entity* actor1 = actor1RB->GetEntity();
+
+	if (actor0 && actor1) {
+		HandleMissileCollision(actor0, actor1);
+		HandleMissileCollision(actor1, actor0);
+	}
+}
+
+/*
 void CollisionCallback::onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs) {
 	Physics& physicsInstance = Physics::Instance();
 	RigidbodyComponent* actor0RB = static_cast<RigidbodyComponent*>(pairHeader.actors[0]->userData);
@@ -34,3 +48,4 @@ void CollisionCallback::onContact(const physx::PxContactPairHeader& pairHeader, 
 		HandleMissileCollision(actor1, actor0);
 	}
 }
+*/

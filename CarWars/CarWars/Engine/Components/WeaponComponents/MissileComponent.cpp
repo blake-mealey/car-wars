@@ -53,15 +53,19 @@ void MissileComponent::Initialize(Entity* _entity) {
 
 	//Variables Needed
 	glm::vec3 gunPosition = gunTurret->transform.GetGlobalPosition();
-	glm::vec3 gunDirection = cameraHitPosition - gunPosition;
+	glm::vec3 gunDirection = glm::normalize(cameraHitPosition - gunPosition);
 
-	constexpr float offsetFromGun = 0.0f;
 	float missileSpeed = missile->GetComponent<MissileComponent>()->GetSpeed();
 
-	//TODO: FIX MISSILE ROTATION - BASED ON CAMERA
-	glm::vec3 missilePos = gunPosition + (glm::normalize(cameraDirection) * offsetFromGun);
-	glm::quat missileRotation = owner->transform.GetLocalRotation() * gunTurret->transform.GetLocalRotation();
-	Transform missileTransform = Transform(nullptr, missilePos, glm::vec3(1), missileRotation, false);
+	//Calculate Missile Orientation
+	glm::vec3 a = glm::cross(-missile->transform.GetForward(), gunDirection);
+	glm::quat q(0.f, a);
+	q.w = 1 + glm::dot(-missile->transform.GetForward(), gunDirection);
+
+	//TODO: FIX MISSILE ROTATION - BASED ON gunDirection
+	glm::vec3 missilePos = gunPosition;
+	glm::quat missileRotation =  owner->transform.GetLocalRotation() * gunTurret->transform.GetLocalRotation();
+	Transform missileTransform = Transform(nullptr, missilePos, glm::vec3(1), glm::normalize(q), false);
 
 	missileRigidDynamic->actor->setGlobalPose(Transform::ToPx(missileTransform));
 	missileRigidDynamic->actor->setLinearVelocity(Transform::ToPx(-missileTransform.GetForward() * missileSpeed), true);
