@@ -21,6 +21,8 @@
 #include "Game.h"
 #include "../Components/AiComponent.h"
 
+//#define RENDER_DOC_DEBUG_MODE
+
 // Constants
 const size_t Graphics::MAX_CAMERAS = 4;
 
@@ -89,6 +91,11 @@ bool Graphics::Initialize(char* windowTitle) {
 	}
 
 	//Create Window
+#ifdef RENDER_DOC_DEBUG_MODE
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
 	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, windowTitle, NULL, NULL);
 	if (window == NULL) {
 		std::cout << "Error Creating Window terminate" << std::endl;
@@ -262,7 +269,7 @@ void Graphics::Update() {
 	glm::mat4 depthViewMatrix;
 	if (shadowCaster != nullptr) {
         // Define depth transformation matrices
-		depthProjectionMatrix = glm::ortho<float>(-80, 80, -80, 80, -160, 160) * 2.f;
+		depthProjectionMatrix = glm::ortho<float>(-200, 200, -10, 30, -80, 80);
 		depthViewMatrix = glm::lookAt(-shadowCaster->GetDirection(), glm::vec3(0), glm::vec3(0, 1, 0));
 
         // Render to the shadow map framebuffer
