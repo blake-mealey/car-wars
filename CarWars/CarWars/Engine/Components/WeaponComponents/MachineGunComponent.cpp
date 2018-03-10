@@ -5,6 +5,8 @@
 #include "../../Entities/EntityManager.h"
 #include "../../Components/CameraComponent.h"
 #include "../../Systems/Content/ContentManager.h"
+#include "../../Systems/Physics/CollisionGroups.h"
+#include "../../Systems/Physics/RaycastGroups.h"
 
 MachineGunComponent::MachineGunComponent() : WeaponComponent(20.0f) {}
 
@@ -41,11 +43,14 @@ void MachineGunComponent::Shoot() {
 		float rayLength = 100.0f;
 		//Cast Camera Ray
 		PxRaycastBuffer cameraHit;
+		PxQueryFilterData filterData;
+		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
 		glm::vec3 cameraHitPosition;
-		if (scene->raycast(Transform::ToPx(vehicleCamera->GetTarget()), Transform::ToPx(cameraDirection), rayLength, cameraHit)) {
+		if (scene->raycast(Transform::ToPx(vehicleCamera->GetTarget()), Transform::ToPx(cameraDirection), rayLength, cameraHit, PxHitFlag::eDEFAULT, filterData)) {
 			//cameraHit has hit something
 			if (cameraHit.hasAnyHits()) {
 				cameraHitPosition = Transform::FromPx(cameraHit.block.position);
+				EntityManager::FindEntity(cameraHit.block.actor);
 			} else {
 				//cameraHit has not hit anything
 				cameraHitPosition = vehicleCamera->GetTarget() + (cameraDirection * rayLength);
@@ -58,7 +63,8 @@ void MachineGunComponent::Shoot() {
 
 		//Cast Gun Ray
 		PxRaycastBuffer gunHit;
-		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit)) {
+
+		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
 			if (gunHit.hasAnyHits()) {
 				Entity* hitMarker = ContentManager::LoadEntity("Marker.json");
 				hitMarker->transform.SetPosition(Transform::FromPx(gunHit.block.position));

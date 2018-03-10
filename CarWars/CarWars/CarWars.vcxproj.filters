@@ -52,6 +52,7 @@
     <ClCompile Include="Engine\Systems\StateManager.cpp" />
     <ClCompile Include="Engine\Systems\Time.cpp" />
     <ClCompile Include="HelloWorld.cpp" />
+    <ClCompile Include="Engine\Systems\Physics\RaycastGroups.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -115,6 +116,7 @@
     <ClInclude Include="Engine\Systems\StateManager.h" />
     <ClInclude Include="Engine\Systems\System.h" />
     <ClInclude Include="Engine\Systems\Time.h" />
+    <ClInclude Include="Engine\Systems\Physics\RaycastGroups.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\CollisionGroups\Vehicles.json" />
@@ -128,6 +130,9 @@
     <None Include="Content\Prefabs\Components\Camera.json" />
     <None Include="Content\Prefabs\Components\GUIs\MainMenuButton.json" />
     <None Include="Content\Prefabs\Components\GUIs\MenuButton.json" />
+    <None Include="Content\Prefabs\Entities\AiSewage.json" />
+    <None Include="Content\Prefabs\Entities\Boulder.json" />
+    <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
     <None Include="Content\Prefabs\Components\Missile.json" />
     <None Include="Content\Prefabs\Entities\AiSewage.json" />
     <None Include="Content\Prefabs\Entities\Boulder.json" />
@@ -165,15 +170,10 @@
     <None Include="Engine\Shaders\skybox.frag" />
     <None Include="Engine\Shaders\skybox.vert" />
     <None Include="Content\Prefabs\Components\Weapons\MachineGun.json" />
-    <None Include="Content\Prefabs\Components\Weapons\RailGun.json" />
     <None Include="Content\Prefabs\Components\Weapons\RocketLauncher.json" />
-    <None Include="Content\Prefabs\Entities\Game\Camera.json" />
-    <None Include="Content\Prefabs\Entities\Menu\Pillar.json" />
-    <None Include="Content\Prefabs\Entities\Vehicles\Flatbed.json" />
-    <None Include="Content\Prefabs\Entities\Vehicles\Hearse.json" />
+    <None Include="Content\Prefabs\Components\Weapons\RailGun.json" />
     <None Include="Content\Prefabs\Entities\Vehicles\Sewage.json" />
     <None Include="Content\Prefabs\Entities\Weapons\GunTurret.json" />
-    <None Include="Content\Prefabs\Entities\Weapons\MachineGunTurret.json" />
     <None Include="Content\Prefabs\Entities\Weapons\RailGunTurret.json" />
     <None Include="Content\Prefabs\Entities\Weapons\RocketLauncherTurret.json" />
   </ItemGroup>
