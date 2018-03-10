@@ -149,6 +149,13 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                 Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
                 EntityManager::DestroyEntity(EntityManager::FindFirstChild(vehicleBox, "Vehicle"));
                 ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType], vehicleBox);
+
+				Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[playerIndex];
+				EntityManager::DestroyChildren(stats);
+				for (size_t i = 0; i < VehicleType::STAT_COUNT; ++i) {
+					Entity* stat = ContentManager::LoadEntity("Menu/CharacterMenuStat.json");
+					EntityManager::SetParent(stat, stats);
+				}
             } else if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "weapon", playerIndex)) {
 				player.weaponType = (player.weaponType + diff) % WeaponType::Count;
 				if (player.weaponType < 0) player.weaponType += WeaponType::Count;
@@ -160,6 +167,13 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                 EntityManager::DestroyEntity(EntityManager::FindFirstChild(vehicle, "GunTurret"));
                 Entity* weapon = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType], vehicle);
                 weapon->transform.SetPosition(EntityManager::FindFirstChild(vehicle, "GunTurretBase")->transform.GetLocalPosition());
+				
+				Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[playerIndex];
+				EntityManager::DestroyChildren(stats);
+				for (size_t i = 0; i < WeaponType::STAT_COUNT; ++i) {
+					Entity* stat = ContentManager::LoadEntity("CharacterMenuStat.json");
+					EntityManager::SetParent(stat, stats);
+				}
 			}
 		}
 	}
@@ -184,7 +198,6 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 			}
 		}
 		else if (gameState == GameState_Menu_Start) {
-			//Press Enter to Go to Confirm
 			GuiComponent *selected = GuiHelper::GetSelectedGui("StartMenu_Buttons");
 			if (selected->HasText("back")) {
 				StateManager::SetState(GameState_Menu);
@@ -198,6 +211,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                 Game::gameData.playerCount++;
 
 				GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", true, playerIndex);
+				GuiHelper::SetGuisEnabled("CharacterMenu_Stats", true, playerIndex);
 				GuiHelper::SetFirstGuiText("CharacterMenu_Title", "vehicle selection", playerIndex);
 				GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", VehicleType::displayNames[player.vehicleType], playerIndex);
 
@@ -216,6 +230,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                     weapon->transform.SetPosition(EntityManager::FindFirstChild(vehicle, "GunTurretBase")->transform.GetLocalPosition());
                 } else {
                     GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", false, playerIndex);
+					GuiHelper::SetGuisEnabled("CharacterMenu_Stats", false, playerIndex);
                     GuiHelper::SetFirstGuiText("CharacterMenu_Title", "", playerIndex);
                     GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", "", playerIndex);
                     selected->SetText("Ready");
@@ -247,6 +262,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
             } else {
                 if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle", playerIndex)) {
                     GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", false, playerIndex);
+					GuiHelper::SetGuisEnabled("CharacterMenu_Stats", false, playerIndex);
                     GuiHelper::SetFirstGuiText("CharacterMenu_Title", "", playerIndex);
                     GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", "", playerIndex);
 
@@ -264,6 +280,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                     EntityManager::DestroyEntity(EntityManager::FindFirstChild(vehicle, "GunTurret"));
                 } else {
                     GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", true, playerIndex);
+					GuiHelper::SetGuisEnabled("CharacterMenu_Stats", true, playerIndex);
                     GuiHelper::SetFirstGuiText("CharacterMenu_Title", "weapon selection", playerIndex);
                     GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", WeaponType::displayNames[player.weaponType], playerIndex);
                     selected->SetText("a to continue");

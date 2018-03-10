@@ -23,6 +23,9 @@ struct VehicleType {
     enum { Light = 0, Medium, Heavy, Count };
     static const std::string displayNames[Count];
     static const std::string prefabPaths[Count];
+	static constexpr size_t STAT_COUNT = 3;
+	static const std::string statDisplayNames[STAT_COUNT];
+	static const std::string statValues[Count][STAT_COUNT];		// accel, handle, resist
 };
 
 struct WeaponType {
@@ -30,16 +33,23 @@ struct WeaponType {
     static const std::string displayNames[Count];
     static const std::string prefabPaths[Count];
     static const std::string turretPrefabPaths[Count];
+	static constexpr size_t STAT_COUNT = 3;
+	static const std::string statDisplayNames[STAT_COUNT];
+	static const std::string statValues[Count][STAT_COUNT];		// rof, damage, type
 };
 
 struct PlayerData {
     PlayerData() : ready(false), vehicleType(0), weaponType(0),
         alive(false), vehicleEntity(nullptr), cameraEntity(nullptr), camera(nullptr) {}
 
+	// Menu state
     bool ready;
+
+	// Settings
     int vehicleType;
     int weaponType;
 
+	// Game state
     bool alive;
     Entity* vehicleEntity;
     Entity* cameraEntity;

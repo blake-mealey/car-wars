@@ -80,6 +80,17 @@ void GuiHelper::SetGuisEnabled(std::string entityTag, bool enabled, int playerIn
 	SetGuisEnabled(EntityManager::FindEntities(entityTag)[playerIndex], enabled);
 }
 
+void GuiHelper::DestroyGuis(Entity* entity) {
+	std::vector<GuiComponent*> guis = entity->GetComponents<GuiComponent>();
+	for (GuiComponent* gui : guis) {
+		EntityManager::DestroyComponent(gui);
+	}
+}
+
+void GuiHelper::DestroyGuis(std::string entityTag, int playerIndex) {
+	DestroyGuis(EntityManager::FindEntities(entityTag)[playerIndex]);
+}
+
 void GuiHelper::SetFirstGuiText(Entity *entity, std::string text) {
 	GuiComponent *gui = entity->GetComponent<GuiComponent>();
     if (!gui) return;

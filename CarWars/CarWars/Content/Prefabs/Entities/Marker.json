@@ -11,11 +11,6 @@
         "Specularity": 1,
         "Emissiveness": 1
       }
-    },
-    {
-      "Type": "PointLight",
-      "Color": [ 0, 1, 0 ],
-      "Power": 10
     }
   ]
 }

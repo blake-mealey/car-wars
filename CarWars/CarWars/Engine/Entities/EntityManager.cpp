@@ -87,6 +87,12 @@ void EntityManager::DestroyEntity(Entity *entity, std::vector<Entity*> &entities
     delete entity;
 }
 
+void EntityManager::DestroyChildren(Entity *entity) {
+	for (Entity* child : GetChildren(entity)) {
+		DestroyEntity(child);
+	}
+}
+
 void EntityManager::DestroyScene() {
     while (!dynamicEntities.empty()) {
         Entity *entity = dynamicEntities.back();

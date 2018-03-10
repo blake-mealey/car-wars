@@ -23,6 +23,9 @@ public:
 	static void SetGuisEnabled(Entity *entity, bool enabled);
 	static void SetGuisEnabled(std::string entityTag, bool enabled, int playerIndex = 0);
 
+	static void DestroyGuis(Entity* entity);
+	static void DestroyGuis(std::string entityTag, int playerIndex = 0);
+
 	static void SetFirstGuiText(Entity *entity, std::string text);
 	static void SetFirstGuiText(std::string entityTag, std::string text, int playerIndex = 0);
 
