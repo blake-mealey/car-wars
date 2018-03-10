@@ -80,14 +80,41 @@ void GuiHelper::SetGuisEnabled(std::string entityTag, bool enabled, int playerIn
 	SetGuisEnabled(EntityManager::FindEntities(entityTag)[playerIndex], enabled);
 }
 
+void GuiHelper::DestroyGuis(Entity* entity) {
+	std::vector<GuiComponent*> guis = entity->GetComponents<GuiComponent>();
+	for (GuiComponent* gui : guis) {
+		EntityManager::DestroyComponent(gui);
+	}
+}
+
+void GuiHelper::DestroyGuis(std::string entityTag, int playerIndex) {
+	DestroyGuis(EntityManager::FindEntities(entityTag)[playerIndex]);
+}
+
+void GuiHelper::SetGuiText(Entity* entity, int guiIndex, std::string text) {
+    std::vector<GuiComponent*> guis = entity->GetComponents<GuiComponent>();
+    if (guis.size() <= guiIndex) return;
+    guis[guiIndex]->SetText(text);
+}
+
+void GuiHelper::SetGuiText(std::string entityTag, int guiIndex, std::string text, int playerIndex) {
+    SetGuiText(EntityManager::FindEntities(entityTag)[playerIndex], guiIndex, text);
+}
+
 void GuiHelper::SetFirstGuiText(Entity *entity, std::string text) {
-	GuiComponent *gui = entity->GetComponent<GuiComponent>();
-    if (!gui) return;
-	gui->SetText(text);
+    SetGuiText(entity, 0, text);
 }
 
 void GuiHelper::SetFirstGuiText(std::string entityTag, std::string text, int playerIndex) {
 	SetFirstGuiText(EntityManager::FindEntities(entityTag)[playerIndex], text);
+}
+
+void GuiHelper::SetSecondGuiText(Entity* entity, std::string text) {
+    SetGuiText(entity, 1, text);
+}
+
+void GuiHelper::SetSecondGuiText(std::string entityTag, std::string text, int playerIndex) {
+    SetSecondGuiText(EntityManager::FindEntities(entityTag)[playerIndex], text);
 }
 
 bool GuiHelper::FirstGuiHasText(Entity *entity, std::string text) {
@@ -108,4 +135,14 @@ bool GuiHelper::FirstGuiContainsText(Entity* entity, std::string text) {
 
 bool GuiHelper::FirstGuiContainsText(std::string entityTag, std::string text, int playerIndex) {
     return FirstGuiContainsText(EntityManager::FindEntities(entityTag)[playerIndex], text);
+}
+
+void GuiHelper::SetGuiPositions(Entity* entity, glm::vec3 position) {
+    for (GuiComponent* gui : entity->GetComponents<GuiComponent>()) {
+        gui->transform.SetPosition(position);
+    }
+}
+
+void GuiHelper::SetGuiPositions(std::string entityTag, glm::vec3 position, int playerIndex) {
+    SetGuiPositions(EntityManager::FindEntities(entityTag)[playerIndex], position);
 }
