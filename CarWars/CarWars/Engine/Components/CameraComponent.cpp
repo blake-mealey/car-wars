@@ -122,10 +122,18 @@ void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, f
 	SetCameraHorizontalAngle(_cameraHor);
 	SetCameraVerticalAngle(_cameraVer);
 
+	glm::vec3 vehicleForward = _vehicle->transform.GetForward();
+	glm::vec3 vehicleUp = _vehicle->transform.GetUp();
+	glm::vec3 vehicleRight = _vehicle->transform.GetRight();
+
+	float dotFR = glm::dot(vehicleForward, Transform::RIGHT);
+	float dotRU = glm::dot(vehicleRight, Transform::UP);
+	float dotUF = glm::dot(vehicleUp, Transform::FORWARD);
+
 	SetPosition(distanceFromCenter * (
-		-_vehicle->transform.GetForward() * cos(GetCameraHorizontalAngle()) * sin(GetCameraVerticalAngle()) +
-		_vehicle->transform.GetUp() * cos(GetCameraVerticalAngle()) +
-		-_vehicle->transform.GetRight() * (sin(GetCameraHorizontalAngle())) * (sin(GetCameraVerticalAngle()))));
+		(-_vehicle->transform.GetForward()) * cos(GetCameraHorizontalAngle()) * sin(GetCameraVerticalAngle()) +
+		(_vehicle->transform.GetUp()) * cos(GetCameraVerticalAngle()) +
+		(-_vehicle->transform.GetRight()) * (sin(GetCameraHorizontalAngle())) * (sin(GetCameraVerticalAngle()))));
 }
 
 void CameraComponent::UpdatePositionFromAngles() {

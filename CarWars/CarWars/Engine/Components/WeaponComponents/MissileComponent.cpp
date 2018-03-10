@@ -55,7 +55,7 @@ void MissileComponent::Initialize(Entity* _entity) {
 	glm::vec3 gunPosition = gunTurret->transform.GetGlobalPosition();
 	glm::vec3 gunDirection = cameraHitPosition - gunPosition;
 
-	constexpr float offsetFromGun = 5.0f;
+	constexpr float offsetFromGun = 0.0f;
 	float missileSpeed = missile->GetComponent<MissileComponent>()->GetSpeed();
 
 	//TODO: FIX MISSILE ROTATION - BASED ON CAMERA

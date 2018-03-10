@@ -1,6 +1,7 @@
 #include "Collider.h"
 #include <extensions/PxRigidActorExt.h>
 #include "../../Systems/Physics/CollisionGroups.h"
+#include "../../Systems/Physics/RaycastGroups.h"
 #include "../../Systems/Content/ContentManager.h"
 #include "../../Systems/Physics/VehicleSceneQuery.h"
 #include "imgui/imgui.h"
@@ -19,6 +20,7 @@ Collider::Collider(nlohmann::json data) : shape(nullptr), geometry(nullptr) {
     } else {
         setupNonDrivableSurface(queryFilterData);
     }
+	queryFilterData.word0 = RaycastGroups::GetDefaultGroup();
     transform = Transform(data);
 }
 

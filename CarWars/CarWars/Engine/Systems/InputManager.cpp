@@ -47,8 +47,6 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	float dotRU = glm::dot(vehicleRight, Transform::UP);
 	float dotUF = glm::dot(vehicleUp, Transform::FORWARD);
 
-	std::cout << "dotFR: " << dotFR << std::endl;
-
 	//Update Camera Angles
 	float cameraHor = camera->GetCameraHorizontalAngle();
 	float cameraVer = camera->GetCameraVerticalAngle();
