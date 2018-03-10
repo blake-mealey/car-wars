@@ -12,7 +12,8 @@
 			"Colliders": [
 				{
 					"Type": "Box",
-					"CollisionGroup": "Missiles",
+          "CollisionGroup": "Missiles",
+          "IsTrigger": true,
 					"Scale": [0.1, 0.1, 1.0]
 				}
 			]

@@ -53,6 +53,8 @@ public:
 	void TakeDamage(float _damageValue);
 	float GetHealth();
 
+	size_t GetRaycastGroup() const;
+
 private:
     MeshComponent* wheelMeshPrefab;
     std::vector<MeshComponent*> wheelMeshes;
@@ -72,6 +74,8 @@ private:
 
 	float health = 1000.f;
 	float resistance = 0.5f;
+
+	size_t raycastGroup;
 
     void Initialize();
     void CreateVehicle();

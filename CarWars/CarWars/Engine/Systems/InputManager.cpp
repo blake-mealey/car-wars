@@ -42,7 +42,10 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	glm::vec3 vehicleForward = vehicle->transform.GetForward();
 	glm::vec3 vehicleUp = vehicle->transform.GetUp();
 	glm::vec3 vehicleRight = vehicle->transform.GetRight();
-	float dotFU = glm::dot(vehicleForward, Transform::UP);
+
+	float dotFR = glm::dot(vehicleForward, Transform::RIGHT);
+	float dotRU = glm::dot(vehicleRight, Transform::UP);
+	float dotUF = glm::dot(vehicleUp, Transform::FORWARD);
 
 	//Update Camera Angles
 	float cameraHor = camera->GetCameraHorizontalAngle();
@@ -52,6 +55,7 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	float cameraNewVer = (cameraVer + (angleDiffs.y * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
 
 	/*
+	//Clamping
 	float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
 	float minAngle = (M_PI_4)					+ dotFU;
 	float maxAngle = (M_PI_2 + (M_PI_4 / 4.0f)) + dotFU;	
@@ -62,11 +66,11 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	camera->SetUpVector(vehicle->transform.GetUp());
 
 	//Get Weapon Child - Weapon Rotation
-//	Entity* vehicleGunTurret = EntityManager::FindChildren(vehicle, "GunTurret")[0];
-//	float gunHor = -cameraNewHor + M_PI + (acos(dotFF) * (correctForward ? 1.0f : -1.0f));
-//	vehicleGunTurret->transform.SetRotationAxisAngles(vehicle->transform.GetUp(), gunHor);
-//	float gunVer = -cameraNewVer + (M_PI_2 - (M_PI_4 / 4.0f)) + (acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f));
-//	vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
+	Entity* vehicleGunTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
+	float gunHor = -cameraNewHor + M_PI;
+	vehicleGunTurret->transform.SetRotationAxisAngles(vehicle->transform.GetUp(), gunHor);
+	float gunVer = -cameraNewVer + (M_PI_2 - (M_PI_4 / 4.0f));
+	vehicleGunTurret->transform.Rotate(vehicleRight, gunVer);
 }
 
 void InputManager::HandleMouse() {
@@ -332,6 +336,9 @@ void InputManager::HandleKeyboard() {
 void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleComponent *vehicle, int &leftVibrate, int &rightVibrate) {
 
 	XboxController *controller = xboxControllers[controllerNum];
+
+	if (controllerNum > Game::gameData.playerCount - 1) return;
+	//if (!Game::players[controllerNum].alive) return;
 
 	// -------------------------------------------------------------------------------------------------------------- //
 	// TRIGGERS

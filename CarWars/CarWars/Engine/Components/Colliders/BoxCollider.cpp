@@ -6,8 +6,8 @@ using namespace physx;
 
 BoxCollider::~BoxCollider() {}
 
-BoxCollider::BoxCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, glm::vec3 _scale)
-    : Collider(_collisionGroup, _material, _queryFilterData) {
+BoxCollider::BoxCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, bool _isTrigger, glm::vec3 _scale)
+    : Collider(_collisionGroup, _material, _queryFilterData, _isTrigger) {
     
 	transform.SetScale(_scale);
 

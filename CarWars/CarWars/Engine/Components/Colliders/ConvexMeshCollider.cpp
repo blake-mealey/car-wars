@@ -10,15 +10,15 @@ ConvexMeshCollider::~ConvexMeshCollider() {
     delete renderMesh;
 }
 
-ConvexMeshCollider::ConvexMeshCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, Mesh *_mesh)
-    : Collider(_collisionGroup, _material, _queryFilterData) {
+ConvexMeshCollider::ConvexMeshCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, bool _isTrigger, Mesh *_mesh)
+    : Collider(_collisionGroup, _material, _queryFilterData, _isTrigger) {
     
     InitializeGeometry(_mesh);
 	InitializeRenderMesh();
 }
 
-ConvexMeshCollider::ConvexMeshCollider(std::string _collisionGroup, physx::PxMaterial* _material, physx::PxFilterData _queryFilterData, physx::PxConvexMesh* _mesh)
-    : Collider(_collisionGroup, _material, _queryFilterData), convexMesh(_mesh) {
+ConvexMeshCollider::ConvexMeshCollider(std::string _collisionGroup, physx::PxMaterial* _material, physx::PxFilterData _queryFilterData, bool _isTrigger, physx::PxConvexMesh* _mesh)
+    : Collider(_collisionGroup, _material, _queryFilterData, _isTrigger), convexMesh(_mesh) {
     
     InitializeGeometry();
 	InitializeRenderMesh();

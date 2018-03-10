@@ -1,45 +1,80 @@
 #include "MachineGunComponent.h"
 
+#include "../Component.h"
+#include "../../Systems/Game.h"
+#include "../../Entities/EntityManager.h"
+#include "../../Components/CameraComponent.h"
+#include "../../Systems/Content/ContentManager.h"
+#include "../../Systems/Physics/CollisionGroups.h"
+#include "../../Systems/Physics/RaycastGroups.h"
+
 MachineGunComponent::MachineGunComponent() : WeaponComponent(20.0f) {}
 
 void MachineGunComponent::Shoot() {
 	if (StateManager::gameTime.GetTimeSeconds() > nextShotTime.GetTimeSeconds()) {
-		//std::cout << "Bullet Shot, Dealt : " << damage << std::endl;
 		//Get Vehicle
 		Entity* vehicle = GetEntity();
 		Entity* mgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
 
 		//Calculate Next Shooting Time
-		nextShotTime = StateManager::gameTime.GetTimeSeconds() + timeBetweenShots.GetTimeSeconds();
-		
+		nextShotTime = StateManager::gameTime + timeBetweenShots;
+		std::cout << "Bullet Shot" << damage << std::endl;
+
 		//Play Shooting Sound
 		Audio& audioManager = Audio::Instance();
 		audioManager.PlayAudio("Content/Sounds/machine_gun_shot.mp3");
 
+		//Determine Player and Get Camera
+		CameraComponent* vehicleCamera = nullptr;
+		glm::vec3 cameraDirection;
+		Game& gameInstance = Game::Instance();
+		for (int i = 0; i < gameInstance.gameData.playerCount; ++i) {
+			PlayerData& player = gameInstance.players[i];
+			if (player.vehicleEntity->GetId() == vehicle->GetId()) {
+				if (player.camera) {
+					vehicleCamera = player.camera;
+					cameraDirection = player.camera->GetTarget() - player.camera->GetPosition();
+				}
+			}
+		}
+
 		//Load Scene
 		PxScene* scene = &Physics::Instance().GetScene();
+		float rayLength = 100.0f;
 		//Cast Camera Ray
 		PxRaycastBuffer cameraHit;
-		//if (scene->raycast()) {
+		PxQueryFilterData filterData;
+		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
+		glm::vec3 cameraHitPosition;
+		if (scene->raycast(Transform::ToPx(vehicleCamera->GetTarget()), Transform::ToPx(cameraDirection), rayLength, cameraHit, PxHitFlag::eDEFAULT, filterData)) {
+			//cameraHit has hit something
+			if (cameraHit.hasAnyHits()) {
+				cameraHitPosition = Transform::FromPx(cameraHit.block.position);
+				EntityManager::FindEntity(cameraHit.block.actor);
+			} else {
+				//cameraHit has not hit anything
+				cameraHitPosition = vehicleCamera->GetTarget() + (cameraDirection * rayLength);
+			}
+		}
+		
+		//Variables Needed
+		glm::vec3 gunPosition = mgTurret->transform.GetGlobalPosition();
+		glm::vec3 gunDirection = cameraHitPosition - gunPosition;
 
-		//}
+		//Cast Gun Ray
+		PxRaycastBuffer gunHit;
 
-		PxRaycastBuffer hit;
-		if (scene->raycast(Transform::ToPx(mgTurret->transform.GetGlobalPosition() - mgTurret->transform.GetForward() * 5.0f), -Transform::ToPx(mgTurret->transform.GetForward()), 400.0f, hit)) {
-			if (hit.hasAnyHits()) {
-				//Cube at Hit Location
-				Entity* cube = EntityManager::CreateStaticEntity();
-				EntityManager::AddComponent(cube, new MeshComponent("Cube.obj", "Basic.json"));
-				cube->transform.SetPosition(Transform::FromPx(hit.block.position));
-				cube->transform.SetScale(glm::vec3(0.1f, 0.1f, 0.1f));
+		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
+			if (gunHit.hasAnyHits()) {
+				Entity* hitMarker = ContentManager::LoadEntity("Marker.json");
+				hitMarker->transform.SetPosition(Transform::FromPx(gunHit.block.position));
 
-				Entity* thingHit = EntityManager::FindEntity(hit.block.actor);
-				std::vector<Component*> comps = EntityManager::GetComponents(ComponentType_Vehicle);
-				for (size_t i = 0; i < comps.size(); i++) {
-					if (thingHit != NULL && (comps[i]->GetEntity()->GetId() == thingHit->GetId())) {
-						std::cout << "Entered Here" << std::endl;
-						static_cast<VehicleComponent*>(comps[i])->TakeDamage(damage);
-					}
+				Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
+				if (thingHit)
+				if (thingHit->HasTag("Vehicle") || thingHit->HasTag("AiVehicle")) {
+					std::cout << "Dealt : " << damage << std::endl;
+					VehicleComponent* thingHitVehicleComponent = thingHit->GetComponent<VehicleComponent>();
+					thingHitVehicleComponent->TakeDamage(damage);
 				}
 			}
 		}

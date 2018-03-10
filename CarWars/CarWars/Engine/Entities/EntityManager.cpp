@@ -25,16 +25,8 @@ Entity* EntityManager::FindEntity(size_t id) {
 }
 
 Entity* EntityManager::FindEntity(physx::PxRigidActor* _actor) {
-	for (size_t i = 0; i < dynamicEntities.size(); i++) {
-		for (size_t j = 0; j < dynamicEntities[i]->components.size(); j++) {
-			if (dynamicEntities[i]->components[j]->GetType() == ComponentType_Vehicle) {
-				if (static_cast<VehicleComponent*>(dynamicEntities[i]->components[j])->pxRigid == _actor) {
-					return dynamicEntities[i];
-				}
-			}
-		}
-	}
-	return nullptr;
+	Component* component = static_cast<Component*>(_actor->userData);
+	return component->GetEntity();
 }
 
 std::vector<Entity*> EntityManager::FindEntities(std::string tag) {

@@ -188,6 +188,7 @@
     <ClCompile Include="Engine\Systems\Physics.cpp" />
     <ClCompile Include="Engine\Systems\Physics\CollisionCallback.cpp" />
     <ClCompile Include="Engine\Systems\Physics\CollisionGroups.cpp" />
+    <ClCompile Include="Engine\Systems\Physics\RaycastGroups.cpp" />
     <ClCompile Include="Engine\Systems\Physics\VehicleCreate.cpp" />
     <ClCompile Include="Engine\Systems\Physics\VehicleSceneQuery.cpp" />
     <ClCompile Include="Engine\Systems\Physics\VehicleTireFriction.cpp" />
@@ -249,6 +250,7 @@
     <ClInclude Include="Engine\Systems\Physics.h" />
     <ClInclude Include="Engine\Systems\Physics\CollisionCallback.h" />
     <ClInclude Include="Engine\Systems\Physics\CollisionGroups.h" />
+    <ClInclude Include="Engine\Systems\Physics\RaycastGroups.h" />
     <ClInclude Include="Engine\Systems\Physics\VehicleConcurrency.h" />
     <ClInclude Include="Engine\Systems\Physics\VehicleCreate.h" />
     <ClInclude Include="Engine\Systems\Physics\VehicleSceneQuery.h" />
