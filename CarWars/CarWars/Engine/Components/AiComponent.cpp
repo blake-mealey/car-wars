@@ -120,6 +120,7 @@ void AiComponent::StartStuckTime() {
 }
 
 Time AiComponent::GetStuckDuration() {
+	if (startedStuck.GetTimeSeconds() == -1) return -1;
 	return StateManager::gameTime - startedStuck;
 }
 
@@ -206,15 +207,14 @@ void AiComponent::Update() {
 					filterData.data.word0 = RaycastGroups::GetGroupsMask(enemy->GetRaycastGroup());
 
 					//Raycast
-					if (scene->raycast(Transform::ToPx(localPosition), Transform::ToPx(direction), distance, hit, PxHitFlag::eDEFAULT, filterData)){
-						if (EntityManager::FindEntity(hit.block.actor)->GetId() == enemy->GetEntity()->GetId()) { // if you can see the enemy
+					if (scene->raycast(Transform::ToPx(localPosition), Transform::ToPx(direction), distance, hit, PxHitFlag::eDEFAULT, filterData) &&
+						EntityManager::FindEntity(hit.block.actor)->GetId() == enemy->GetEntity()->GetId()) { // if you can see the enemy
 							float rating = distance * enemy->GetHealth(); // this is used to select who to attack
 							if (rating <= bestRating) {
 								if (rating < bestRating
 									|| distance < glm::length(enemyPosition - targetEntity->transform.GetGlobalPosition())) { // if two are same rating. attack the closer one
 									bestRating = rating;
 									targetEntity = enemy->GetEntity();
-								}
 							}
 						}
 					}
@@ -311,8 +311,8 @@ void AiComponent::Update() {
 	const float steer = glm::dot(directionToNode, right);
 	const PxReal speed = vehicle->pxVehicle->computeForwardSpeed();
 
-	const bool reverse = 0 && ((int)(GetStuckDuration().GetTimeSeconds()+1) % 5) < 3; // 5 second loop 3 in reverse 2 in forward
-
+	const bool reverse = 0 && (((int)GetStuckDuration().GetTimeSeconds()+1) % 5) > 2; // 5 second loop 3 in reverse 2 in forward
+	std::cout << (((int)GetStuckDuration().GetTimeSeconds()) % 5) << std::endl;
 	const float accel = 0.8f;
 
 	if (!reverse && vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
