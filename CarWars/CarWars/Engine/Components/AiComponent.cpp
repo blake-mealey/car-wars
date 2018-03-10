@@ -8,7 +8,7 @@
 #include "../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../Components/WeaponComponents/WeaponComponent.h"
 #include "../Systems/Physics.h"
-
+#include "../Systems/Physics/RaycastGroups.h"
 
 #include <iostream>
 
@@ -116,7 +116,7 @@ Time AiComponent::GetModeDuration() {
 }
 
 void AiComponent::StartStuckTime() {
-	if (startedStuck.GetTimeSeconds() == -1)	startedStuck = StateManager::gameTime;
+	if (startedStuck.GetTimeSeconds() < 0) startedStuck = StateManager::gameTime;
 }
 
 Time AiComponent::GetStuckDuration() {
@@ -125,7 +125,7 @@ Time AiComponent::GetStuckDuration() {
 
 
 void AiComponent::LostTargetTime() {
-	if (lostTarget.GetTimeSeconds() == -1)	lostTarget = StateManager::gameTime;
+	if (lostTarget.GetTimeSeconds() < 0) lostTarget = StateManager::gameTime;
 }
 
 Time AiComponent::LostTargetDuration() {
@@ -136,32 +136,28 @@ Time AiComponent::LostTargetDuration() {
 void AiComponent::UpdateMode(AiMode _mode) {
 	previousMode = mode;
 	mode = _mode;
-	modeStart = StateManager::gameTime;
+	if (mode != previousMode) modeStart = StateManager::gameTime;
 }
 
 
 void AiComponent::SetMode() {
 	VehicleComponent* vehicle = GetEntity()->GetComponent<VehicleComponent>();
+	float speed = vehicle->pxVehicle->computeForwardSpeed();
+
+	//detect being stuck
+	if (abs(speed) <= 0.5f) {
+		StartStuckTime();
+	}
+	else startedStuck = Time(-1);
 
 	// check if stuck
-	float speed = vehicle->pxVehicle->computeForwardSpeed();
-	if (GetStuckDuration().GetTimeSeconds() > 1000000.0f) {
+	if (GetStuckDuration().GetTimeSeconds() > 1.0f) {
 		UpdateMode(AiMode_Stuck);
 		return;
 	}
 
-	//detect being stuck
-	if (abs(speed) <= 0.5f) {
-		if (startedStuck.GetTimeSeconds() < 0.f) {
-			StartStuckTime();
-		}
-	} else startedStuck = Time(-1);
-
 	int choice = -1;
-
-	std::cout << StateManager::gameTime.GetTimeSeconds() << " time till change " << modeStart.GetTimeSeconds() + 10 << std::endl;
-
-	if (StateManager::gameTime.GetTimeSeconds() > modeStart.GetTimeSeconds() + 10) { // every ten seconds select a mode
+	if (StateManager::gameTime.GetTimeSeconds() > modeStart.GetTimeSeconds() + 10) { // every ten seconds select a mode TUNEABLE
 		choice = rand() % 2;
 
 		if (rand() % 2/*doesNot have powerup (random for testing)*/ ) {
@@ -188,50 +184,70 @@ void AiComponent::Update() {
 	PxScene* scene = &Physics::Instance().GetScene();
 	PxRaycastBuffer hit;
 
-	std::cout << mode << std::endl;
-
 	WeaponComponent* weapon = GetEntity()->GetComponent<WeaponComponent>();
 	float distanceToEnemy = INFINITY;
+	glm::vec3 localPosition = GetEntity()->transform.GetGlobalPosition();
 
 	if (mode == AiMode_Attack) {
 		if (previousMode != mode || targetEntity == nullptr) { // target entiy is still alive??
 			std::vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
 			float bestRating = INFINITY;
+
 			for (Component *component : vehicleComponents) {
 				VehicleComponent *enemy = static_cast<VehicleComponent*>(component);
 				if (enemy->GetEntity()->GetId() != GetEntity()->GetId()) {
-					glm::vec3 direction = enemy->GetEntity()->transform.GetGlobalPosition() - GetEntity()->transform.GetGlobalPosition();
+					
+					//Setup raycasting for the vehicle
+					glm::vec3 enemyPosition = enemy->GetEntity()->transform.GetGlobalPosition();
+					glm::vec3 direction = enemyPosition - localPosition;
 					float distance = glm::length(direction);
 					direction = glm::normalize(direction);
-					//bool status = scene->raycast(Transform::ToPx(GetEntity()->transform.GetGlobalPosition()), Transform::ToPx(direction), distance, hit);
-					//if (status){
-					//	if (EntityManager::FindEntity(hit.block.actor)){
-					float rating = distance * enemy->GetHealth();
-					if (rating <= bestRating) {
-						if (rating < bestRating 
-							|| distance < glm::length(targetEntity->transform.GetGlobalPosition() - targetEntity->transform.GetGlobalPosition())) { // if two are same rating attack the closer one
-							bestRating = rating;
-							targetEntity = enemy->GetEntity();
-							//}
+					PxQueryFilterData filterData;
+					filterData.data.word0 = RaycastGroups::GetGroupsMask(enemy->GetRaycastGroup());
+
+					//Raycast
+					if (scene->raycast(Transform::ToPx(localPosition), Transform::ToPx(direction), distance, hit, PxHitFlag::eDEFAULT, filterData)){
+						if (EntityManager::FindEntity(hit.block.actor)->GetId() == enemy->GetEntity()->GetId()) { // if you can see the enemy
+							float rating = distance * enemy->GetHealth(); // this is used to select who to attack
+							if (rating <= bestRating) {
+								if (rating < bestRating
+									|| distance < glm::length(enemyPosition - targetEntity->transform.GetGlobalPosition())) { // if two are same rating. attack the closer one
+									bestRating = rating;
+									targetEntity = enemy->GetEntity();
+								}
+							}
 						}
 					}
 				}
-			}
-			if (bestRating == INFINITY) {
-				UpdateMode(AiMode_GetPowerup);
+				if (bestRating == INFINITY) {
+					UpdateMode(AiMode_GetPowerup);
+					return;
+				}
 			}
 		}
 
 		distanceToEnemy = glm::length(targetEntity->transform.GetGlobalPosition() - targetEntity->transform.GetGlobalPosition());
-
+		
 		if (mode == AiMode_Attack) {
-			if (1) { /* check for visibility */
-				lostTarget = Time(-1);
+			//Setup raycasting for the vehicle
+			glm::vec3 enemyPosition = targetEntity->transform.GetGlobalPosition();
+			glm::vec3 direction = enemyPosition - localPosition;
+			float distance = glm::length(direction);
+			direction = glm::normalize(direction);
+			PxQueryFilterData filterData;
+			filterData.data.word0 = RaycastGroups::GetGroupsMask(targetEntity->GetComponent<VehicleComponent>()->GetRaycastGroup());
+
+			//Raycast
+			if (scene->raycast(Transform::ToPx(localPosition), Transform::ToPx(direction), distance, hit, PxHitFlag::eDEFAULT, filterData) &&
+				EntityManager::FindEntity(hit.block.actor)->GetId() == targetEntity->GetId()) { // if you can see the enemy
+				lostTarget = Time(-1); // target is not lost 
 			}
 			else {
 				LostTargetTime();
 				if (LostTargetDuration().GetTimeSeconds() > 0.5f) { //if out of sight for so long stop shooting TUNEABLE
 					charged = false;
+					UpdateMode(AiMode_GetPowerup);
+					return;
 				}
 			}
 
@@ -295,7 +311,7 @@ void AiComponent::Update() {
 	const float steer = glm::dot(directionToNode, right);
 	const PxReal speed = vehicle->pxVehicle->computeForwardSpeed();
 
-	const bool reverse = 0;
+	const bool reverse = 0 && ((int)(GetStuckDuration().GetTimeSeconds()+1) % 5) < 3; // 5 second loop 3 in reverse 2 in forward
 
 	const float accel = 0.8f;
 
