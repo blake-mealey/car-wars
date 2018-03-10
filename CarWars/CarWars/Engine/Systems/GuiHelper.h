@@ -1,5 +1,8 @@
 #pragma once
+
 #include <string>
+
+#include "glm/glm.hpp"
 
 class CameraComponent;
 class Entity;
@@ -26,12 +29,21 @@ public:
 	static void DestroyGuis(Entity* entity);
 	static void DestroyGuis(std::string entityTag, int playerIndex = 0);
 
+    static void SetGuiText(Entity *entity, int guiIndex, std::string text);
+    static void SetGuiText(std::string entityTag, int guiIndex, std::string text, int playerIndex = 0);
+
 	static void SetFirstGuiText(Entity *entity, std::string text);
 	static void SetFirstGuiText(std::string entityTag, std::string text, int playerIndex = 0);
+
+    static void SetSecondGuiText(Entity *entity, std::string text);
+    static void SetSecondGuiText(std::string entityTag, std::string text, int playerIndex = 0);
 
 	static bool FirstGuiHasText(Entity *entity, std::string text);
 	static bool FirstGuiHasText(std::string entityTag, std::string text, int playerIndex = 0);
 
 	static bool FirstGuiContainsText(Entity *entity, std::string text);
 	static bool FirstGuiContainsText(std::string entityTag, std::string text, int playerIndex = 0);
+    
+    static void SetGuiPositions(Entity* entity, glm::vec3 position);
+    static void SetGuiPositions(std::string entityTag, glm::vec3 position, int playerIndex = 0);
 };

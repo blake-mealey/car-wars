@@ -109,6 +109,30 @@ void InputManager::HandleMouse() {
 	}
 }
 
+void UpdateVehicleStats(const int playerIndex) {
+    PlayerData& player = Game::players[playerIndex];
+    Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[playerIndex];
+    EntityManager::DestroyChildren(stats);
+    for (size_t i = 0; i < VehicleType::STAT_COUNT; ++i) {
+        Entity* stat = ContentManager::LoadEntity("Menu/CharacterMenuStat.json", stats);
+        GuiHelper::SetGuiPositions(stat, glm::vec3(-25.f, 40.f + i*20.f, 0.f));
+        GuiHelper::SetFirstGuiText(stat, VehicleType::statDisplayNames[i]);
+        GuiHelper::SetSecondGuiText(stat, VehicleType::statValues[player.vehicleType][i]);
+    }
+}
+
+void UpdateWeaponStats(const int playerIndex) {
+    PlayerData& player = Game::players[playerIndex];
+    Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[playerIndex];
+    EntityManager::DestroyChildren(stats);
+    for (size_t i = 0; i < WeaponType::STAT_COUNT; ++i) {
+        Entity* stat = ContentManager::LoadEntity("Menu/CharacterMenuStat.json", stats);
+        GuiHelper::SetGuiPositions(stat, glm::vec3(-25.f, 40.f + i*20.f, 0.f));
+        GuiHelper::SetFirstGuiText(stat, WeaponType::statDisplayNames[i]);
+        GuiHelper::SetSecondGuiText(stat, WeaponType::statValues[player.weaponType][i]);
+    }
+}
+
 void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, int playerIndex) {
     PlayerData& player = Game::players[playerIndex];      // TODO: From passed index
 
@@ -150,12 +174,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                 EntityManager::DestroyEntity(EntityManager::FindFirstChild(vehicleBox, "Vehicle"));
                 ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType], vehicleBox);
 
-				Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[playerIndex];
-				EntityManager::DestroyChildren(stats);
-				for (size_t i = 0; i < VehicleType::STAT_COUNT; ++i) {
-					Entity* stat = ContentManager::LoadEntity("Menu/CharacterMenuStat.json");
-					EntityManager::SetParent(stat, stats);
-				}
+                UpdateVehicleStats(playerIndex);
             } else if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "weapon", playerIndex)) {
 				player.weaponType = (player.weaponType + diff) % WeaponType::Count;
 				if (player.weaponType < 0) player.weaponType += WeaponType::Count;
@@ -168,12 +187,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                 Entity* weapon = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType], vehicle);
                 weapon->transform.SetPosition(EntityManager::FindFirstChild(vehicle, "GunTurretBase")->transform.GetLocalPosition());
 				
-				Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[playerIndex];
-				EntityManager::DestroyChildren(stats);
-				for (size_t i = 0; i < WeaponType::STAT_COUNT; ++i) {
-					Entity* stat = ContentManager::LoadEntity("CharacterMenuStat.json");
-					EntityManager::SetParent(stat, stats);
-				}
+                UpdateWeaponStats(playerIndex);
 			}
 		}
 	}
@@ -218,6 +232,8 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                 Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
                 ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType], vehicleBox);
 
+                UpdateVehicleStats(playerIndex);
+
 				selected->SetText("a to continue");
 			} else {
                 if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle", playerIndex)) {
@@ -228,6 +244,8 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                     Entity* vehicle = EntityManager::FindFirstChild(vehicleBox, "Vehicle");
                     Entity* weapon = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType], vehicle);
                     weapon->transform.SetPosition(EntityManager::FindFirstChild(vehicle, "GunTurretBase")->transform.GetLocalPosition());
+
+                    UpdateWeaponStats(playerIndex);
                 } else {
                     GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", false, playerIndex);
 					GuiHelper::SetGuisEnabled("CharacterMenu_Stats", false, playerIndex);
@@ -269,6 +287,9 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                     Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
                     EntityManager::DestroyEntity(EntityManager::FindFirstChild(vehicleBox, "Vehicle"));
 
+                    Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[playerIndex];
+                    EntityManager::DestroyChildren(stats);
+
                     Game::gameData.playerCount--;
                     selected->SetText("a to join");
                 } else if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "weapon", playerIndex)) {
@@ -278,12 +299,16 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                     Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
                     Entity* vehicle = EntityManager::FindFirstChild(vehicleBox, "Vehicle");
                     EntityManager::DestroyEntity(EntityManager::FindFirstChild(vehicle, "GunTurret"));
+
+                    UpdateVehicleStats(playerIndex);
                 } else {
                     GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", true, playerIndex);
 					GuiHelper::SetGuisEnabled("CharacterMenu_Stats", true, playerIndex);
                     GuiHelper::SetFirstGuiText("CharacterMenu_Title", "weapon selection", playerIndex);
                     GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", WeaponType::displayNames[player.weaponType], playerIndex);
                     selected->SetText("a to continue");
+
+                    UpdateWeaponStats(playerIndex);
 
                     player.ready = false;
                 }
