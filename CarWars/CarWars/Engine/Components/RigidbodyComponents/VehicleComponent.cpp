@@ -194,12 +194,12 @@ void VehicleComponent::CreateVehicle() {
         //Construct a convex mesh for a cylindrical wheel.
         PxConvexMesh* wheelMesh = createWheelMesh(wheelWidth, wheelRadius, physics.GetApi(), physics.GetCooking());
         for (PxU32 i = 0; i < wheelCount; ++i) {
-            ConvexMeshCollider *collider = new ConvexMeshCollider("Wheels", material, wheelQryFilterData, wheelMesh);
+            ConvexMeshCollider *collider = new ConvexMeshCollider("Wheels", material, wheelQryFilterData, false, wheelMesh);
             AddCollider(collider);
             wheelColliders.push_back(collider);
         }
 
-        AddCollider(new BoxCollider("Chassis", material, chassisQryFilterData, chassisSize));
+        AddCollider(new BoxCollider("Chassis", material, chassisQryFilterData, false, chassisSize));
     }
 
     //Set up the sim data for the wheels.

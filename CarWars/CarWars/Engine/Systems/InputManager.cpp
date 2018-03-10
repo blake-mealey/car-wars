@@ -337,6 +337,9 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleCom
 
 	XboxController *controller = xboxControllers[controllerNum];
 
+	if (controllerNum > Game::gameData.playerCount - 1) return;
+	//if (!Game::players[controllerNum].alive) return;
+
 	// -------------------------------------------------------------------------------------------------------------- //
 	// TRIGGERS
 	// -------------------------------------------------------------------------------------------------------------- //
