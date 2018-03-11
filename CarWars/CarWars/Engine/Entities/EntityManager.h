@@ -22,6 +22,7 @@ public:
 	static void DestroyDynamicEntity(Entity *entity);
     static void DestroyEntity(Entity *entity);
 	static void DestroyChildren(Entity *entity);
+    static size_t GetEntityCount();
 
     static void DestroyScene();
 
@@ -43,6 +44,8 @@ public:
 	static void DestroyComponent(Component* component);
 	static std::vector<Component*> GetComponents(ComponentType type);
     static std::vector<Component*> GetComponents(std::vector<ComponentType> types);
+    static size_t GetComponentCount(ComponentType type);
+    static size_t GetComponentCount();
 	
 	template <class T>
 	static std::vector<T*> GetComponents(ComponentType type) {
