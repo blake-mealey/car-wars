@@ -44,8 +44,7 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 				if (thingHit)
 				if (thingHit->HasTag("Vehicle") || thingHit->HasTag("AiVehicle")) {
 					std::cout << "Dealt : " << damage << std::endl;
-					VehicleComponent* thingHitVehicleComponent = thingHit->GetComponent<VehicleComponent>();
-					thingHitVehicleComponent->TakeDamage(damage);
+					thingHit->TakeDamage(damage);
 				}
 			}
 		}

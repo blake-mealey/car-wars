@@ -40,6 +40,8 @@ public:
 
     virtual void UpdateFromPhysics(physx::PxTransform t);
 
+	virtual void TakeDamage(float amount);
+
 	virtual void SetEntity(Entity *_entity);
 	Entity* GetEntity() const;
 protected:

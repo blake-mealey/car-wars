@@ -530,7 +530,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 			vehicle->GetEntity()->GetComponent<WeaponComponent>()->Shoot(cameraHit);
 		}
 		
-		// an attempt to rest camera behind the vehicle
+		// an attempt to reset camera behind the vehicle
 		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
 			x = -cameraC->GetCameraHorizontalAngle();
 			y = -cameraC->GetCameraVerticalAngle() + M_PI / 3;
