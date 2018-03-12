@@ -505,18 +505,19 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 
 		//LEFT-SHOULDER
 		float handbrake = 0;
-		if (heldButtons & XINPUT_GAMEPAD_A) {
+		if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
 			handbrake = 1;
 		}
 
 		//RIGHT-SHOULDER
-		if (pressedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
 			weapon->Charge();
 		}
-		else if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+		else if (heldButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
 			weapon->Shoot();
 		}
-
+		
+		// an attempt to rest camera behind the vehicle
 		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
 			x = -cameraC->GetCameraHorizontalAngle();
 			y = -cameraC->GetCameraVerticalAngle() + M_PI / 3;
