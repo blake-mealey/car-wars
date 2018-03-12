@@ -172,9 +172,12 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
     // If there was no navigation, do nothing
     if (!vertDir && !horizDir && !enter && !back) return;
 
+	bool horizontal = abs(vertDir) < abs(horizDir);
+	bool vertical = abs(vertDir) > abs(horizDir);
+
     // Normalize inputs
-    vertDir = vertDir == 0 ? 0 : vertDir < 0 ? -1 : 1;
-    horizDir = horizDir == 0 ? 0 : horizDir < 0 ? -1 : 1;
+    vertDir =  vertical ? vertDir / abs(vertDir) : 0;
+    horizDir = horizontal ? horizDir / abs(horizDir) : 0;
 
     // Get the player for the current controller
     PlayerData& player = Game::players[playerIndex];      // TODO: From passed index
@@ -200,8 +203,8 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 			noNavigation = true;
 		}
 
-        Entity* buttonGroup = EntityManager::FindEntities(buttonGroupName)[0];
 		if (!noNavigation) {
+			Entity* buttonGroup = EntityManager::FindEntities(buttonGroupName)[0];
             if (!entityNavigation) {
                 GuiHelper::SelectNextGui(buttonGroup, -vertDir);
             } else {
@@ -386,8 +389,12 @@ void InputManager::HandleKeyboard() {
     const GameState gameState = StateManager::GetState();
 
 	if (gameState < __GameState_Menu_End) {
-		int vertDir = Keyboard::KeyPressed(GLFW_KEY_UP) || Keyboard::KeyPressed(GLFW_KEY_W) ? 1 : Keyboard::KeyPressed(GLFW_KEY_DOWN) || Keyboard::KeyPressed(GLFW_KEY_S) ? -1 : 0;
-		int horizDir = Keyboard::KeyPressed(GLFW_KEY_RIGHT) || Keyboard::KeyPressed(GLFW_KEY_D) ? 1 : Keyboard::KeyPressed(GLFW_KEY_LEFT) || Keyboard::KeyPressed(GLFW_KEY_A) ? -1 : 0;
+		int vertDir = Keyboard::KeyPressed(GLFW_KEY_UP) || Keyboard::KeyPressed(GLFW_KEY_W) ? 1 
+			: Keyboard::KeyPressed(GLFW_KEY_DOWN) || Keyboard::KeyPressed(GLFW_KEY_S) ? -1 : 0;
+
+		int horizDir = Keyboard::KeyPressed(GLFW_KEY_RIGHT) || Keyboard::KeyPressed(GLFW_KEY_D) ? 1 
+			: Keyboard::KeyPressed(GLFW_KEY_LEFT) || Keyboard::KeyPressed(GLFW_KEY_A) ? -1 : 0;
+
 		NavigateGuis(vertDir, horizDir, Keyboard::KeyPressed(GLFW_KEY_ENTER), Keyboard::KeyPressed(GLFW_KEY_ESCAPE), 0);
 	} else if (gameState == GameState_Playing) {
         //Get Vehicle Component
@@ -406,30 +413,37 @@ void InputManager::HandleKeyboard() {
         }
         //Reverse
         if (Keyboard::KeyDown(GLFW_KEY_S)) {
+			//TODO: reverse(vehicle, 1);
             if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eFIRST) {
                 vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
             }
             vehicle->pxVehicleInputData.setAnalogAccel(1.f);
         }
         if (Keyboard::KeyReleased(GLFW_KEY_S)) {
+			//TODO: drive(vehicle, 1);
             vehicle->pxVehicleInputData.setAnalogAccel(0.0f);
         }
         //Steer Left
         if (Keyboard::KeyDown(GLFW_KEY_A)) {
+			//TODO: steer(vehicle, 1);
             vehicle->pxVehicleInputData.setAnalogSteer(1.f);
         }
         if (Keyboard::KeyReleased(GLFW_KEY_A)) {
+			//TODO: steer(vehicle, 0);
             vehicle->pxVehicleInputData.setAnalogSteer(0);
         }
         //Steer Right
         if (Keyboard::KeyDown(GLFW_KEY_D)) {
+			//TODO: steer(vehicle, -1);
             vehicle->pxVehicleInputData.setAnalogSteer(-1.f);
         }
         if (Keyboard::KeyReleased(GLFW_KEY_D)) {
+			//TODO: steer(vehicle, 0);
             vehicle->pxVehicleInputData.setAnalogSteer(0);
         }
         //Go to Pause Screen
         if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
+			//TODO: pause();
             StateManager::SetState(GameState_Paused);
         }
     } else if (gameState == GameState_Paused) {
@@ -451,13 +465,13 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleCom
 	// TRIGGERS
 	// -------------------------------------------------------------------------------------------------------------- //
 
-	bool active = controller->GetState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||
-		controller->GetState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||
-		abs(controller->GetState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE ||
-		abs(controller->GetState().Gamepad.sThumbLY) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE ||
-		abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE ||
-		abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE ||
-		controller->GetState().Gamepad.wButtons;
+	bool active = controller->GetPreviousState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||
+		controller->GetPreviousState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||
+		abs(controller->GetPreviousState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE ||
+		abs(controller->GetPreviousState().Gamepad.sThumbLY) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE ||
+		abs(controller->GetPreviousState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE ||
+		abs(controller->GetPreviousState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE ||
+		controller->GetPreviousState().Gamepad.wButtons;
 
 	if (active) {
 
@@ -585,7 +599,7 @@ void InputManager::HandleController() {
             //        cout << "Current speed: " << vehicle->pxVehicle->computeForwardSpeed() << endl;
             HandleVehicleControllerInput(controllerNum, vehicle, leftVibrate, rightVibrate);
 
-			//LEFT-SHOULDER
+			//RIGHT-SHOULDER
 			if (pressedButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
 				cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-SHOULDER pressed" << endl;
 				weapon->Charge();
@@ -596,19 +610,32 @@ void InputManager::HandleController() {
 		}
 		else if (StateManager::GetState() < __GameState_Menu_End) {
 			int vertDir = 0;
-			if ((controller->GetPreviousState().Gamepad.sThumbLY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && controller->GetState().Gamepad.sThumbLY >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-				|| (controller->GetPreviousState().Gamepad.sThumbLY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && controller->GetState().Gamepad.sThumbLY <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) {
-				vertDir = controller->GetState().Gamepad.sThumbLY;
+			if (abs(controller->GetPreviousState().Gamepad.sThumbLY) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && abs(controller->GetState().Gamepad.sThumbLY) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+				vertDir = controller->GetState().Gamepad.sThumbLY / abs(controller->GetState().Gamepad.sThumbLY);
+			}
+			if (pressedButtons & XINPUT_GAMEPAD_DPAD_UP) {
+				vertDir = 1;
+			}
+			if (pressedButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
+				vertDir = -1;
 			}
 
 			int horizDir = 0;
-			if ((controller->GetPreviousState().Gamepad.sThumbLX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && controller->GetState().Gamepad.sThumbLX >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-				|| (controller->GetPreviousState().Gamepad.sThumbLX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && controller->GetState().Gamepad.sThumbLX <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)) {
-				horizDir = controller->GetState().Gamepad.sThumbLX;
+			if (abs(controller->GetPreviousState().Gamepad.sThumbLX) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && abs(controller->GetState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+				horizDir = controller->GetState().Gamepad.sThumbLX / abs(controller->GetState().Gamepad.sThumbLX);
 			}
+			if (pressedButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
+				horizDir = -1;
+			}
+			if (pressedButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
+				horizDir = 1;
+			}
+
 
 			NavigateGuis(vertDir, horizDir, pressedButtons & XINPUT_GAMEPAD_A, pressedButtons & XINPUT_GAMEPAD_B, controllerNum);
 		}
+
+		//TODO: Get vibrate
 
         //Vibrate Controller
         controller->Vibrate(leftVibrate, rightVibrate);
