@@ -55,6 +55,10 @@ public:
 
 	size_t GetRaycastGroup() const;
 
+	void HandleAcceleration( float forwardPower, float backwardPower);
+	void Steer( float amount);
+	void Handbrake( float amount);
+
 private:
     MeshComponent* wheelMeshPrefab;
     std::vector<MeshComponent*> wheelMeshes;

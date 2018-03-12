@@ -383,49 +383,6 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 	}
 }
 
-void InputManager::HandleAcceleration(VehicleComponent* vehicle, float forwardPower, float backwardPower) {
-	const float amountPressed = abs(forwardPower - backwardPower);
-	bool brake = false;
-	if (backwardPower) {
-		if (amountPressed < 0.01) { // if both are pressed 
-			brake = true;
-			vehicle->pxVehicleInputData.setAnalogBrake(1.f);
-		}
-		else { // just backward power
-			if (vehicle->pxVehicle->computeForwardSpeed() > 5.f) { // going fast brake 
-				brake = true;
-				vehicle->pxVehicleInputData.setAnalogBrake(backwardPower);
-			}
-			else { // go to reverse
-				vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
-				vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
-			}
-		}
-	}else {// if not trying to reverse release brake
-		vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
-	}
-
-	if (forwardPower) {
-		if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eFIRST) {
-			vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-		}
-	}
-
-	if (!brake && amountPressed > 0.01) vehicle->pxVehicleInputData.setAnalogAccel(amountPressed);
-	else {
-		vehicle->pxVehicleInputData.setAnalogAccel(0);
-		vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eNEUTRAL);
-	}
-}
-
-void InputManager::Steer(VehicleComponent* vehicle, float amount) {
-	vehicle->pxVehicleInputData.setAnalogSteer(amount);
-}
-
-void InputManager::Handbrake(VehicleComponent* vehicle, float amount) {
-	vehicle->pxVehicleInputData.setAnalogHandbrake(amount);
-}
-
 void InputManager::HandleKeyboard() {
 	//Keyboard Inputs
 
@@ -466,9 +423,9 @@ void InputManager::HandleKeyboard() {
             StateManager::SetState(GameState_Paused);
         }
 
-		HandleAcceleration(vehicle, forwardPower, backwardPower);
-		Handbrake(vehicle, handbrake);
-		Steer(vehicle, steer);
+		vehicle->HandleAcceleration( forwardPower, backwardPower);
+		vehicle->Handbrake(handbrake);
+		vehicle->Steer(steer);
 
     } else if (gameState == GameState_Paused) {
 		//Go to Game Playing
@@ -565,9 +522,9 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 			y = -cameraC->GetCameraVerticalAngle() + M_PI / 3;
 		}
 
-		HandleAcceleration(vehicle, forwardPower, backwardPower);
-		Steer(vehicle, steer);
-		Handbrake(vehicle, handbrake);
+		vehicle->HandleAcceleration(forwardPower, backwardPower);
+		vehicle->Handbrake(handbrake);
+		vehicle->Steer(steer);
 
 		UpdateCamera(vehicle->GetEntity(), cameraC, glm::vec2(x, y));
 	}
