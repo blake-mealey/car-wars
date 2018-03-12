@@ -181,8 +181,8 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
     // If there was no navigation, do nothing
     if (!vertDir && !horizDir && !enter && !back) return;
 
-	bool horizontal = abs(vertDir) < abs(horizDir);
-	bool vertical = abs(vertDir) > abs(horizDir);
+	const bool horizontal = abs(vertDir) < abs(horizDir);
+	const bool vertical = abs(vertDir) > abs(horizDir);
 
     // Normalize inputs
     vertDir =  vertical ? vertDir / abs(vertDir) : 0;
@@ -326,6 +326,9 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                     GuiHelper::SetFirstGuiText("CharacterMenu_Title", "", playerIndex);
                     GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", "", playerIndex);
                     selected->SetText("Ready");
+
+                    Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[playerIndex];
+                    EntityManager::DestroyChildren(stats);
 
                     player.ready = true;
                     bool allReady = true;
