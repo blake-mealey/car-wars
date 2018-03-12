@@ -383,6 +383,41 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 	}
 }
 
+void HandleAcceleration(VehicleComponent* vehicle, float forwardPower, float backwardPower) {
+	const float amountPressed = abs(forwardPower - backwardPower);
+	bool brake = false;
+	if (backwardPower) {
+		if (amountPressed < 0.01) { // if both are pressed 
+			brake = true;
+			vehicle->pxVehicleInputData.setAnalogBrake(1.f);
+		}
+		else { // just backward power
+			if (vehicle->pxVehicle->computeForwardSpeed() > 5.f) { // going fast brake 
+				brake = true;
+				vehicle->pxVehicleInputData.setAnalogBrake(backwardPower);
+			}
+			else { // go to reverse
+				vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
+				vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+			}
+		}
+	}else {// if not trying to reverse release brake
+		vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
+	}
+
+	if (forwardPower) {
+		if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eFIRST) {
+			vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+		}
+	}
+
+	if (!brake && amountPressed > 0.01) vehicle->pxVehicleInputData.setAnalogAccel(amountPressed);
+	else {
+		vehicle->pxVehicleInputData.setAnalogAccel(0);
+		vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eNEUTRAL);
+	}
+}
+
 void InputManager::HandleKeyboard() {
 	//Keyboard Inputs
 
@@ -396,33 +431,16 @@ void InputManager::HandleKeyboard() {
 			: Keyboard::KeyPressed(GLFW_KEY_LEFT) || Keyboard::KeyPressed(GLFW_KEY_A) ? -1 : 0;
 
 		NavigateGuis(vertDir, horizDir, Keyboard::KeyPressed(GLFW_KEY_ENTER), Keyboard::KeyPressed(GLFW_KEY_ESCAPE), 0);
+
 	} else if (gameState == GameState_Playing) {
         //Get Vehicle Component
         VehicleComponent* vehicle = static_cast<VehicleComponent*>(EntityManager::GetComponents(ComponentType_Vehicle)[0]);
 
-        //Drive Forward
-        if (Keyboard::KeyDown(GLFW_KEY_W)) {
-            //cout << (int)(vehicle->pxVehicle->mDriveDynData.getCurrentGear() - PxVehicleGearsData::eNEUTRAL) << endl;
-            if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
-                vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-            }
-            vehicle->pxVehicleInputData.setAnalogAccel(1.f);
-        }
-        if (Keyboard::KeyReleased(GLFW_KEY_W)) {
-            vehicle->pxVehicleInputData.setAnalogAccel(0.0f);
-        }
-        //Reverse
-        if (Keyboard::KeyDown(GLFW_KEY_S)) {
-			//TODO: reverse(vehicle, 1);
-            if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eFIRST) {
-                vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
-            }
-            vehicle->pxVehicleInputData.setAnalogAccel(1.f);
-        }
-        if (Keyboard::KeyReleased(GLFW_KEY_S)) {
-			//TODO: drive(vehicle, 1);
-            vehicle->pxVehicleInputData.setAnalogAccel(0.0f);
-        }
+		float forwardPower = Keyboard::KeyPressed(GLFW_KEY_W)? 1 : 0;
+		float backwardPower = Keyboard::KeyPressed(GLFW_KEY_S) ? 1 : 0;
+
+		HandleAcceleration(vehicle, forwardPower, backwardPower);
+
         //Steer Left
         if (Keyboard::KeyDown(GLFW_KEY_A)) {
 			//TODO: steer(vehicle, 1);
@@ -474,54 +492,18 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleCom
 		controller->GetPreviousState().Gamepad.wButtons;
 
 	if (active) {
+		//Manage Triggers
 
-		//Manage Trigger States
-		//Left Trigger
-		const float amountPressed = abs(controller->GetState().Gamepad.bRightTrigger - controller->GetState().Gamepad.bLeftTrigger);
-		bool brake = false;
-		if (controller->GetState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-			cout << "Controller: " << controller->GetControllerNumber() << " L-TRIGGER pressed" << endl;
-			if (amountPressed < XINPUT_GAMEPAD_TRIGGER_THRESHOLD * 2) {
-				brake = true;
-				vehicle->pxVehicleInputData.setAnalogBrake(1.f);
-			}
-			else {
-				if (vehicle->pxVehicle->computeForwardSpeed() > 5.f) {
-					brake = true;
-					vehicle->pxVehicleInputData.setAnalogBrake(controller->GetState().Gamepad.bLeftTrigger / 255.0f);
-				}
-
-				else {
-					vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
-					vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
-				}
-			}
-		}
-		else {
-			vehicle->pxVehicleInputData.setAnalogBrake(0.0f);
-		}
-
-		//Right Trigger
-		if (controller->GetState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-			cout << "Controller: " << controller->GetControllerNumber() << " R-TRIGGER pressed" << endl;
-			if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eFIRST) {
-				vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-			}
-
-		}
-
-		if (!brake && amountPressed >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD * 2) vehicle->pxVehicleInputData.setAnalogAccel(amountPressed / 255.0f);
-		else {
-			vehicle->pxVehicleInputData.setAnalogAccel(0);
-			vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eNEUTRAL);
-		}
+		float forwardPower = controller->GetState().Gamepad.bRightTrigger / 255;
+		float backwardPower = controller->GetState().Gamepad.bLeftTrigger / 255;
+		HandleAcceleration(vehicle, forwardPower, backwardPower);
 
 		// -------------------------------------------------------------------------------------------------------------- //
 		// STICKS
 		// -------------------------------------------------------------------------------------------------------------- //
 
 		//Left Joystick X-Axis
-		if (controller->GetState().Gamepad.sThumbLX >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || controller->GetState().Gamepad.sThumbLX <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+		if (abs(controller->GetState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
 			cout << "Controller: " << controller->GetControllerNumber() << " LEFT-JOYSTICK X-AXIS movement" << endl;
 
 			vehicle->pxVehicleInputData.setAnalogSteer(-controller->GetState().Gamepad.sThumbLX / 32768.0f);
@@ -531,7 +513,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleCom
 		}
 
 		//Left Joystick Y-Axis
-		if (controller->GetState().Gamepad.sThumbLY >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE || controller->GetState().Gamepad.sThumbLY <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+		if (abs(controller->GetState().Gamepad.sThumbLY) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
 			cout << "Controller: " << controller->GetControllerNumber() << " LEFT-JOYSTICK Y-AXIS movement" << endl;
 		}
 
@@ -540,7 +522,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleCom
 		CameraComponent* cameraC = camera->GetComponent<CameraComponent>();
 
 		//Right Joystick X-Axis
-		if (controller->GetState().Gamepad.sThumbRX >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || controller->GetState().Gamepad.sThumbRX <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+		if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
 			cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-JOYSTICK X-AXIS movement" << endl;
 
 			float x = -static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 30000.f;
@@ -548,13 +530,12 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleCom
 		}
 
 		//Right Joystick Y-Axis
-		if (((controller->GetPreviousState().Gamepad.sThumbRY >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || (controller->GetPreviousState().Gamepad.sThumbRY <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)) && ((controller->GetState().Gamepad.sThumbRY >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) || (controller->GetState().Gamepad.sThumbRY <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE))) {
+		if (abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
 			cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-JOYSTICK Y-AXIS movement" << endl;
 
 			float y = static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 30000.f;
 			UpdateCamera(vehicle->GetEntity(), cameraC, glm::vec2(0.f, y));
 		}
-
 
 		// -------------------------------------------------------------------------------------------------------------- //
 		// BUTTONS
