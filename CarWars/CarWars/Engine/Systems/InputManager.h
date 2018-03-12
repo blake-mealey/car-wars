@@ -22,9 +22,12 @@ public:
 
     size_t GetControllerCount();
 private:
+	void HandleAcceleration(VehicleComponent* vehicle, float forwardPower, float backwardPower);
+	void Steer(VehicleComponent* vehicle, float amount);
+	void Handbrake(VehicleComponent* vehicle, float amount);
 	void NavigateGuis(int vertDir, int horizDir, int enter, int back, int playerIndex);
 
 	static vector<XboxController*> xboxControllers;
 
-    void HandleVehicleControllerInput(size_t controllerNum, VehicleComponent *vehicle, int &leftVibrate, int &rightVibrate);
+    void HandleVehicleControllerInput(size_t controllerNum, int &leftVibrate, int &rightVibrate);
 };

@@ -57,8 +57,8 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	/*
 	//Clamping
 	float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
-	float minAngle = (M_PI_4)					+ dotFU;
-	float maxAngle = (M_PI_2 + (M_PI_4 / 4.0f)) + dotFU;	
+	float minAngle = (M_PI_4)					+ acos(dotFU);
+	float maxAngle = (M_PI_2 + (M_PI_4 / 4.0f)) + acos(dotFU);	
 	cameraNewVer = glm::clamp(cameraNewVer, minAngle, maxAngle);
 	*/
 
@@ -383,7 +383,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 	}
 }
 
-void HandleAcceleration(VehicleComponent* vehicle, float forwardPower, float backwardPower) {
+void InputManager::HandleAcceleration(VehicleComponent* vehicle, float forwardPower, float backwardPower) {
 	const float amountPressed = abs(forwardPower - backwardPower);
 	bool brake = false;
 	if (backwardPower) {
@@ -418,6 +418,14 @@ void HandleAcceleration(VehicleComponent* vehicle, float forwardPower, float bac
 	}
 }
 
+void InputManager::Steer(VehicleComponent* vehicle, float amount) {
+	vehicle->pxVehicleInputData.setAnalogSteer(amount);
+}
+
+void InputManager::Handbrake(VehicleComponent* vehicle, float amount) {
+	vehicle->pxVehicleInputData.setAnalogHandbrake(amount);
+}
+
 void InputManager::HandleKeyboard() {
 	//Keyboard Inputs
 
@@ -439,31 +447,29 @@ void InputManager::HandleKeyboard() {
 		float forwardPower = Keyboard::KeyPressed(GLFW_KEY_W)? 1 : 0;
 		float backwardPower = Keyboard::KeyPressed(GLFW_KEY_S) ? 1 : 0;
 
-		HandleAcceleration(vehicle, forwardPower, backwardPower);
+		float steer = 0;
+        if (Keyboard::KeyPressed(GLFW_KEY_A)) { //Steer Left
+			steer += 1;
+        }
+        if (Keyboard::KeyPressed(GLFW_KEY_D)) { //Steer Right
+			steer += -1;
+        }
 
-        //Steer Left
-        if (Keyboard::KeyDown(GLFW_KEY_A)) {
-			//TODO: steer(vehicle, 1);
-            vehicle->pxVehicleInputData.setAnalogSteer(1.f);
-        }
-        if (Keyboard::KeyReleased(GLFW_KEY_A)) {
-			//TODO: steer(vehicle, 0);
-            vehicle->pxVehicleInputData.setAnalogSteer(0);
-        }
-        //Steer Right
-        if (Keyboard::KeyDown(GLFW_KEY_D)) {
-			//TODO: steer(vehicle, -1);
-            vehicle->pxVehicleInputData.setAnalogSteer(-1.f);
-        }
-        if (Keyboard::KeyReleased(GLFW_KEY_D)) {
-			//TODO: steer(vehicle, 0);
-            vehicle->pxVehicleInputData.setAnalogSteer(0);
-        }
+		float handbrake = 0;
+		if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+			handbrake = 1;
+		}
+
         //Go to Pause Screen
         if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
 			//TODO: pause();
             StateManager::SetState(GameState_Paused);
         }
+
+		HandleAcceleration(vehicle, forwardPower, backwardPower);
+		Handbrake(vehicle, handbrake);
+		Steer(vehicle, steer);
+
     } else if (gameState == GameState_Paused) {
 		//Go to Game Playing
 		if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
@@ -472,7 +478,7 @@ void InputManager::HandleKeyboard() {
 	}
 }
 
-void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleComponent *vehicle, int &leftVibrate, int &rightVibrate) {
+void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftVibrate, int &rightVibrate) {
 
 	XboxController *controller = xboxControllers[controllerNum];
 
@@ -492,49 +498,43 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleCom
 		controller->GetPreviousState().Gamepad.wButtons;
 
 	if (active) {
-		//Manage Triggers
-
-		float forwardPower = controller->GetState().Gamepad.bRightTrigger / 255;
-		float backwardPower = controller->GetState().Gamepad.bLeftTrigger / 255;
-		HandleAcceleration(vehicle, forwardPower, backwardPower);
-
-		// -------------------------------------------------------------------------------------------------------------- //
-		// STICKS
-		// -------------------------------------------------------------------------------------------------------------- //
-
-		//Left Joystick X-Axis
-		if (abs(controller->GetState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-			cout << "Controller: " << controller->GetControllerNumber() << " LEFT-JOYSTICK X-AXIS movement" << endl;
-
-			vehicle->pxVehicleInputData.setAnalogSteer(-controller->GetState().Gamepad.sThumbLX / 32768.0f);
-		}
-		else {
-			vehicle->pxVehicleInputData.setAnalogSteer(0.0f);
-		}
-
-		//Left Joystick Y-Axis
-		if (abs(controller->GetState().Gamepad.sThumbLY) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-			cout << "Controller: " << controller->GetControllerNumber() << " LEFT-JOYSTICK Y-AXIS movement" << endl;
-		}
-
-		// ---- RIGHT STICK ---- //
+		VehicleComponent* vehicle = static_cast<VehicleComponent*>(EntityManager::GetComponents(ComponentType_Vehicle)[controllerNum]); // maybe a better way to access entity
+		WeaponComponent* weapon = vehicle->GetEntity()->GetComponent<WeaponComponent>();
 		Entity *camera = EntityManager::FindEntities("Camera")[controllerNum];
 		CameraComponent* cameraC = camera->GetComponent<CameraComponent>();
-
-		//Right Joystick X-Axis
-		if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-JOYSTICK X-AXIS movement" << endl;
-
-			float x = -static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 30000.f;
-			UpdateCamera(vehicle->GetEntity(), cameraC, glm::vec2(x, 0.f));
+		
+		// -------------------------------------------------------------------------------------------------------------- //
+		// Manage Triggers
+		// -------------------------------------------------------------------------------------------------------------- //
+		float forwardPower = 0; 
+		float backwardPower = 0; 
+		if (abs(controller->GetState().Gamepad.bRightTrigger) >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
+			forwardPower = controller->GetState().Gamepad.bRightTrigger / 255;
+		}
+		if (abs(controller->GetState().Gamepad.bLeftTrigger) >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
+			backwardPower = controller->GetState().Gamepad.bLeftTrigger / 255;
 		}
 
-		//Right Joystick Y-Axis
-		if (abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-JOYSTICK Y-AXIS movement" << endl;
+		// -------------------------------------------------------------------------------------------------------------- //
+		// Manage Left Stick
+		// -------------------------------------------------------------------------------------------------------------- //
+		float steer = 0;
+		if (abs(controller->GetState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+			steer = -controller->GetState().Gamepad.sThumbLX / 32768.0f;
+		}
 
-			float y = static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 30000.f;
-			UpdateCamera(vehicle->GetEntity(), cameraC, glm::vec2(0.f, y));
+
+		// -------------------------------------------------------------------------------------------------------------- //
+		// Manage Right Stick
+		// -------------------------------------------------------------------------------------------------------------- //
+		float x = 0;
+		float y = 0;
+
+		if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+			x = -static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 30000.f;
+		}
+		if (abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+			y = static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 30000.f;
 		}
 
 		// -------------------------------------------------------------------------------------------------------------- //
@@ -547,14 +547,29 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleCom
 		int releasedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetPreviousState().Gamepad.wButtons;
 
 		//LEFT-SHOULDER
-		if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
-			cout << "Controller: " << controller->GetControllerNumber() << " LEFT-SHOULDER held" << endl;
+		float handbrake = 0;
+		if (heldButtons & XINPUT_GAMEPAD_A) {
+			handbrake = 1;
+		}
 
-			vehicle->pxVehicleInputData.setAnalogHandbrake(1.f);
+		//RIGHT-SHOULDER
+		if (pressedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+			weapon->Charge();
 		}
-		else {
-			vehicle->pxVehicleInputData.setAnalogHandbrake(0.f);
+		else if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+			weapon->Shoot();
 		}
+
+		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
+			x = -cameraC->GetCameraHorizontalAngle();
+			y = -cameraC->GetCameraVerticalAngle() + M_PI / 3;
+		}
+
+		HandleAcceleration(vehicle, forwardPower, backwardPower);
+		Steer(vehicle, steer);
+		Handbrake(vehicle, handbrake);
+
+		UpdateCamera(vehicle->GetEntity(), cameraC, glm::vec2(x, y));
 	}
 }
 
@@ -574,20 +589,7 @@ void InputManager::HandleController() {
 		int releasedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetPreviousState().Gamepad.wButtons;
 
         if (StateManager::GetState() == GameState_Playing) {
-            vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-            VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
-			WeaponComponent *weapon = vehicle->GetEntity()->GetComponent<WeaponComponent>();
-            //        cout << "Current speed: " << vehicle->pxVehicle->computeForwardSpeed() << endl;
-            HandleVehicleControllerInput(controllerNum, vehicle, leftVibrate, rightVibrate);
-
-			//RIGHT-SHOULDER
-			if (pressedButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
-				cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-SHOULDER pressed" << endl;
-				weapon->Charge();
-			} else if (heldButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
-				cout << "Controller: " << controller->GetControllerNumber() << " RIGHT-SHOULDER held" << endl;
-				weapon->Shoot();
-			}
+            HandleVehicleControllerInput(controllerNum, leftVibrate, rightVibrate);
 		}
 		else if (StateManager::GetState() < __GameState_Menu_End) {
 			int vertDir = 0;
