@@ -2,6 +2,10 @@
 
 #include "../Component.h"
 
+
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 class MissileComponent : public Component {
 public:
 	MissileComponent();
