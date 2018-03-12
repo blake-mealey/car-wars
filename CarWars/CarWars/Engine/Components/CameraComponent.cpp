@@ -162,3 +162,23 @@ Entity* CameraComponent::GetGuiRoot() {
 /*std::vector<Entity*>& CameraComponent::GetGuiEntities() {
 	return guiEntities;
 }*/
+
+glm::vec3 CameraComponent::CastRay( float distanceToStart, float rayLength, PxQueryFilterData filterData) {
+	PxScene* scene = &Physics::Instance().GetScene();
+	glm::vec3 cameraDirection = glm::normalize(GetTarget() - GetPosition());
+	//Cast Camera Ray
+	PxRaycastBuffer cameraHit;
+	glm::vec3 cameraHitPosition;
+	if (scene->raycast(Transform::ToPx(cameraDirection * distanceToStart + GetPosition()), Transform::ToPx(cameraDirection), rayLength, cameraHit, PxHitFlag::eDEFAULT, filterData)) {
+		//cameraHit has hit something
+		if (cameraHit.hasAnyHits()) {
+			cameraHitPosition = Transform::FromPx(cameraHit.block.position);
+			EntityManager::FindEntity(cameraHit.block.actor);
+		}
+		else {
+			//cameraHit has not hit anything
+			cameraHitPosition = (cameraDirection * (rayLength + distanceToStart)) + GetPosition();
+		}
+	}
+	return cameraHitPosition;
+}

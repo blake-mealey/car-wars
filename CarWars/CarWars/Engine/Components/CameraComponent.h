@@ -3,6 +3,7 @@
 #include "Component.h"
 #include <glm/glm.hpp>
 #include <json/json.hpp>
+#include "../Systems/Physics.h"
 
 class Graphics;
 
@@ -44,6 +45,8 @@ public:
 	float GetCameraSpeed();
 
     void RenderDebugGui() override;
+
+	glm::vec3 CastRay(float distanceToStart, float rayLength, PxQueryFilterData filterData);
 
 	Entity* GetGuiRoot();
 	//std::vector<Entity*>& GetGuiEntities();
