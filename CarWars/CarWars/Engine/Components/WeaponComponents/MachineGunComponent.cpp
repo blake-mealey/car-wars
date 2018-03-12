@@ -10,7 +10,7 @@
 
 MachineGunComponent::MachineGunComponent() : WeaponComponent(20.0f) {}
 
-void MachineGunComponent::Shoot() {
+void MachineGunComponent::Shoot(glm::vec3 position) {
 	if (StateManager::gameTime.GetTimeSeconds() > nextShotTime.GetTimeSeconds()) {
 		//Get Vehicle
 		Entity* vehicle = GetEntity();
@@ -24,46 +24,17 @@ void MachineGunComponent::Shoot() {
 		Audio& audioManager = Audio::Instance();
 		audioManager.PlayAudio("Content/Sounds/machine_gun_shot.mp3");
 
-		//Determine Player and Get Camera
-		CameraComponent* vehicleCamera = nullptr;
-		glm::vec3 cameraDirection;
-		Game& gameInstance = Game::Instance();
-		for (int i = 0; i < gameInstance.gameData.playerCount; ++i) {
-			PlayerData& player = gameInstance.players[i];
-			if (player.vehicleEntity->GetId() == vehicle->GetId()) {
-				if (player.camera) {
-					vehicleCamera = player.camera;
-					cameraDirection = player.camera->GetTarget() - player.camera->GetPosition();
-				}
-			}
-		}
+		//Variables Needed
+		glm::vec3 gunPosition = mgTurret->transform.GetGlobalPosition();
+		glm::vec3 gunDirection = position - gunPosition;
 
-		//Load Scene
+		//Cast Gun Ray
 		PxScene* scene = &Physics::Instance().GetScene();
 		float rayLength = 100.0f;
-		//Cast Camera Ray
 		PxRaycastBuffer cameraHit;
 		PxQueryFilterData filterData;
 		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
-		glm::vec3 cameraHitPosition;
-		if (scene->raycast(Transform::ToPx(vehicleCamera->GetTarget()), Transform::ToPx(cameraDirection), rayLength, cameraHit, PxHitFlag::eDEFAULT, filterData)) {
-			//cameraHit has hit something
-			if (cameraHit.hasAnyHits()) {
-				cameraHitPosition = Transform::FromPx(cameraHit.block.position);
-				EntityManager::FindEntity(cameraHit.block.actor);
-			} else {
-				//cameraHit has not hit anything
-				cameraHitPosition = vehicleCamera->GetTarget() + (cameraDirection * rayLength);
-			}
-		}
-		
-		//Variables Needed
-		glm::vec3 gunPosition = mgTurret->transform.GetGlobalPosition();
-		glm::vec3 gunDirection = cameraHitPosition - gunPosition;
-
-		//Cast Gun Ray
 		PxRaycastBuffer gunHit;
-
 		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
 			if (gunHit.hasAnyHits()) {
 				Entity* hitMarker = ContentManager::LoadEntity("Marker.json");
@@ -84,7 +55,7 @@ void MachineGunComponent::Shoot() {
 }
 
 void MachineGunComponent::Charge() {
-	Shoot();
+	return;
 }
 
 ComponentType MachineGunComponent::GetType() {

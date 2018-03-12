@@ -2,7 +2,7 @@
 
 RocketLauncherComponent::RocketLauncherComponent() : WeaponComponent(500.f) {}
 
-void RocketLauncherComponent::Shoot() {
+void RocketLauncherComponent::Shoot(glm::vec3 position) {
 	if (StateManager::gameTime.GetTimeSeconds() > nextShotTime.GetTimeSeconds()) {
 		//Get Vehicle
 		Entity* vehicle = GetEntity();
@@ -24,7 +24,7 @@ void RocketLauncherComponent::Shoot() {
 }
 
 void RocketLauncherComponent::Charge() {
-	Shoot();
+	return;
 }
 
 ComponentType RocketLauncherComponent::GetType() {

@@ -18,6 +18,11 @@
 #include "GuiHelper.h"
 #include "Content/ContentManager.h"
 
+#include "../Systems/Physics/CollisionGroups.h"
+#include "../Systems/Physics/RaycastGroups.h"
+#include "../Systems/Physics.h"
+
+
 vector<XboxController*> InputManager::xboxControllers;
 
 Time dt;
@@ -80,12 +85,16 @@ void InputManager::HandleMouse() {
 	if (StateManager::GetState() == GameState_Playing) {
 		//Get Vehicle Entity
 		Entity* vehicle = EntityManager::FindEntities("Vehicle")[0];
+		CameraComponent* cameraComponent = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[0]);
 
 		//Shoot Weapon
 		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
 			vehicle->GetComponent<WeaponComponent>()->Charge();
 		} else if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
-			vehicle->GetComponent<WeaponComponent>()->Shoot();
+			PxQueryFilterData filterData;
+			filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
+			glm::vec3 cameraHit = cameraComponent->CastRay(glm::length(cameraComponent->GetTarget() - cameraComponent->GetPosition()), 100, filterData);
+			vehicle->GetComponent<WeaponComponent>()->Shoot(cameraHit);
 		}
 
 		//Cursor Inputs
@@ -95,7 +104,7 @@ void InputManager::HandleMouse() {
 		Mouse::GetCursorPosition(graphicsInstance.GetWindow(), &xPos, &yPos);
 
 		//Get Camera Component
-		CameraComponent* cameraComponent = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[0]);
+
 		glm::vec2 angleDiffs = 10.f * (windowSize*0.5f - glm::vec2(xPos, yPos)) / windowSize;
 		UpdateCamera(vehicle, cameraComponent, angleDiffs);
 
@@ -514,7 +523,11 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 			weapon->Charge();
 		}
 		else if (heldButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
-			weapon->Shoot();
+			PxQueryFilterData filterData;
+			filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
+			glm::vec3 cameraHit = cameraC->CastRay(glm::length(cameraC->GetTarget() - cameraC->GetPosition()),
+				100, filterData);
+			vehicle->GetEntity()->GetComponent<WeaponComponent>()->Shoot(cameraHit);
 		}
 		
 		// an attempt to rest camera behind the vehicle

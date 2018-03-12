@@ -19,7 +19,7 @@
 class RocketLauncherComponent : public WeaponComponent {
 public:
 	RocketLauncherComponent();
-	void Shoot() override;
+	void Shoot(glm::vec3 position) override;
 	void Charge() override;
 
 	ComponentType GetType() override;

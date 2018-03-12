@@ -16,7 +16,7 @@
 class MachineGunComponent : public WeaponComponent {
 public:
 	MachineGunComponent();
-	void Shoot() override;
+	void Shoot(glm::vec3 position) override;
 	void Charge() override;
 
 	ComponentType GetType() override;
