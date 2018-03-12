@@ -60,13 +60,28 @@ struct GameData {
     GameData() : map(0), gameMode(0), playerCount(0), aiCount(5),
         numberOfLives(3), killLimit(10), timeLimitMinutes(10) {}
 
-    int map;
-    int gameMode;
+    size_t map;
+    size_t gameMode;
+
     size_t playerCount;
+    static constexpr size_t MIN_PLAYER_COUNT = 1;
+    static constexpr size_t MAX_PLAYER_COUNT = 4;
+
     size_t aiCount;
+    static constexpr size_t MIN_AI_COUNT = 0;
+    static constexpr size_t MAX_AI_COUNT = 20;
+
     size_t numberOfLives;
+    static constexpr size_t MIN_NUMBER_OF_LIVES = 1;
+    static constexpr size_t MAX_NUMBER_OF_LIVES = 100;
+
     size_t killLimit;
+    static constexpr size_t MIN_KILL_LIMIT = 1;
+    static constexpr size_t MAX_KILL_LIMIT = 100;
+
     size_t timeLimitMinutes;
+    static constexpr size_t MIN_TIME_LIMIT_MINUTES = 1;
+    static constexpr size_t MAX_TIME_LIMIT_MINUTES = 60;
 };
 
 class Entity;

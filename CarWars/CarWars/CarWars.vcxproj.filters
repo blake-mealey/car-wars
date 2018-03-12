@@ -154,21 +154,6 @@
     <None Include="Content\Scenes\MainMenu.json" />
     <None Include="Content\Scenes\Menu.json" />
     <None Include="Content\Scenes\PhysicsDemo.json" />
-    <None Include="Engine\Shaders\blur.frag" />
-    <None Include="Engine\Shaders\geometry.frag" />
-    <None Include="Engine\Shaders\geometry.vert" />
-    <None Include="Engine\Shaders\gui.frag" />
-    <None Include="Engine\Shaders\navMesh.frag" />
-    <None Include="Engine\Shaders\navMesh.geom" />
-    <None Include="Engine\Shaders\navMesh.vert" />
-    <None Include="Engine\Shaders\path.frag" />
-    <None Include="Engine\Shaders\path.vert" />
-    <None Include="Engine\Shaders\screen.frag" />
-    <None Include="Engine\Shaders\screen.vert" />
-    <None Include="Engine\Shaders\shadowMap.frag" />
-    <None Include="Engine\Shaders\shadowMap.vert" />
-    <None Include="Engine\Shaders\skybox.frag" />
-    <None Include="Engine\Shaders\skybox.vert" />
     <None Include="Content\Prefabs\Components\Weapons\MachineGun.json" />
     <None Include="Content\Prefabs\Components\Weapons\RocketLauncher.json" />
     <None Include="Content\Prefabs\Components\Weapons\RailGun.json" />
@@ -182,5 +167,21 @@
     <None Include="Content\Prefabs\Entities\Menu\Pillar.json" />
     <None Include="Content\Prefabs\Entities\Game\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\CharacterMenuStat.json" />
+    <None Include="Content\Prefabs\Entities\Menu\MenuOption.json" />
+    <None Include="Content\Shaders\blur.frag" />
+    <None Include="Content\Shaders\geometry.frag" />
+    <None Include="Content\Shaders\geometry.vert" />
+    <None Include="Content\Shaders\gui.frag" />
+    <None Include="Content\Shaders\navMesh.frag" />
+    <None Include="Content\Shaders\navMesh.geom" />
+    <None Include="Content\Shaders\navMesh.vert" />
+    <None Include="Content\Shaders\path.frag" />
+    <None Include="Content\Shaders\path.vert" />
+    <None Include="Content\Shaders\screen.frag" />
+    <None Include="Content\Shaders\screen.vert" />
+    <None Include="Content\Shaders\shadowMap.frag" />
+    <None Include="Content\Shaders\shadowMap.vert" />
+    <None Include="Content\Shaders\skybox.frag" />
+    <None Include="Content\Shaders\skybox.vert" />
   </ItemGroup>
 </Project>

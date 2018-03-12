@@ -60,7 +60,7 @@ const string ContentManager::COMPONENT_PREFAB_DIR_PATH = PREFAB_DIR_PATH + "Comp
 
 const string ContentManager::COLLISION_GROUPS_DIR_PATH = CONTENT_DIR_PATH + "CollisionGroups/";
 
-const string ContentManager::SHADERS_DIR_PATH = "./Engine/Shaders/";
+const string ContentManager::SHADERS_DIR_PATH = CONTENT_DIR_PATH + "Shaders/";
 
 glm::vec3 AssimpVectorToGlm(aiVector3D v) {
 	return glm::vec3(v.x, v.y, v.z);

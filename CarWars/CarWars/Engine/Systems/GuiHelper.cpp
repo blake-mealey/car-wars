@@ -7,14 +7,25 @@
 #include "Content/ContentManager.h"
 
 GuiComponent* GuiHelper::GetSelectedGui(Entity* entity) {
-    for (Component *component : entity->GetComponents<GuiComponent>()) {
-        GuiComponent *gui = static_cast<GuiComponent*>(component);
+    for (GuiComponent* gui : entity->GetComponents<GuiComponent>()) {
         if (gui->IsSelected()) return gui;
     }
+    return nullptr;
 }
 
 GuiComponent* GuiHelper::GetSelectedGui(std::string entityTag, int playerIndex) {
     return GetSelectedGui(EntityManager::FindEntities(entityTag)[playerIndex]);
+}
+
+Entity* GuiHelper::GetSelectedEntity(Entity* parent) {
+    for (Entity* child : EntityManager::GetChildren(parent)) {
+        if (IsEntitySelected(child)) return child;
+    }
+    return nullptr;
+}
+
+Entity* GuiHelper::GetSelectedEntity(std::string parentTag, int playerIndex) {
+    return GetSelectedEntity(EntityManager::FindEntities(parentTag)[playerIndex]);
 }
 
 std::string GuiHelper::GetSelectedGuiText(Entity* entity) {
@@ -25,44 +36,114 @@ std::string GuiHelper::GetSelectedGuiText(std::string entityTag, int playerIndex
     return GetSelectedGui(entityTag, playerIndex)->GetText();
 }
 
-void GuiHelper::SelectNextGui(Entity* entity) {
-	std::vector<GuiComponent*> components = entity->GetComponents<GuiComponent>();
+void GuiHelper::SelectNextGui(Entity* entity, int dir) {
+    if (dir == 0) return;
+    dir = dir == 0 ? 0 : dir < 0 ? -1 : 1;
+
+    std::vector<GuiComponent*> components = entity->GetComponents<GuiComponent>();
     for (auto it = components.begin(); it != components.end(); ++it) {
+        // Find the currently selected GUI and make it not selected
         GuiComponent *gui = *it;
-        if (gui->IsSelected()) {
-            gui->SetSelected(false);
-            if (it + 1 != components.end()) {
-                static_cast<GuiComponent*>(*(it + 1))->SetSelected(true);
-            } else {
-                static_cast<GuiComponent*>(components.front())->SetSelected(true);
+        if (!gui->IsSelected()) continue;
+        gui->SetSelected(false);
+
+        // Try to find the next GUI in the given direction (wrapping) that is enabled
+        // and not the same GUI and make it selected
+        auto it2 = it;
+        while ((it2 += dir) != it) {
+            // Wrap
+            if (it2 == components.end()) {
+                it2 = components.begin();
+            } else if (it2 == components.begin() - 1) {
+                it2 = components.end() - 1;
             }
+            
+            // Make sure it is enabled
+            GuiComponent* gui2 = *it2;
+            if (!gui2->enabled) continue;
+
+            // Select it and finish
+            gui2->SetSelected(true);
             break;
         }
+
+        break;
     }
+}
+
+void GuiHelper::SelectNextGui(Entity* entity) {
+    SelectNextGui(entity, 1);
 }
 
 void GuiHelper::SelectNextGui(std::string entityTag, int playerIndex) {
-    return SelectNextGui(EntityManager::FindEntities(entityTag)[playerIndex]);
+    SelectNextGui(EntityManager::FindEntities(entityTag)[playerIndex]);
 }
 
 void GuiHelper::SelectPreviousGui(Entity* entity) {
-	std::vector<GuiComponent*> components = entity->GetComponents<GuiComponent>();
-    for (auto it = components.begin(); it != components.end(); ++it) {
-		GuiComponent *gui = *it;
-        if (gui->IsSelected()) {
-            gui->SetSelected(false);
-            if (it - 1 != components.begin() - 1) {
-                static_cast<GuiComponent*>(*(it - 1))->SetSelected(true);
-            } else {
-                static_cast<GuiComponent*>(components.back())->SetSelected(true);
-            }
-            break;
-        }
-    }
+    SelectNextGui(entity, -1);
 }
 
 void GuiHelper::SelectPreviousGui(std::string entityTag, int playerIndex) {
-    return SelectPreviousGui(EntityManager::FindEntities(entityTag)[playerIndex]);
+    SelectPreviousGui(EntityManager::FindEntities(entityTag)[playerIndex]);
+}
+
+bool GuiHelper::IsEntitySelected(Entity* entity) {
+    GuiComponent* gui = entity->GetComponent<GuiComponent>();
+    return gui && gui->IsSelected();
+}
+
+bool GuiHelper::IsEntityEnabled(Entity* entity) {
+    GuiComponent* gui = entity->GetComponent<GuiComponent>();
+    return gui && gui->enabled;
+}
+
+void GuiHelper::SelectNextEntity(Entity* parent, int dir) {
+    if (dir == 0) return;
+    dir = dir == 0 ? 0 : dir < 0 ? -1 : 1;
+
+    auto children = EntityManager::GetChildren(parent);
+    for (auto it = children.begin(); it != children.end(); ++it) {
+        // Find the currently selected entity and make it not selected
+        Entity* child = *it;
+        if (!IsEntitySelected(child)) continue;
+        SetGuisSelected(child, false);
+
+        auto it2 = it;
+        while ((it2 += dir) != it) {
+            // Wrap
+            if (it2 == children.end()) {
+                it2 = children.begin();
+            } else if (it2 == children.begin() - 1) {
+                it2 = children.end() - 1;
+            }
+
+            // Make sure it is enabled
+            Entity* child2 = *it2;
+            if (!IsEntityEnabled(child2)) continue;
+
+            // Select it and finish
+            SetGuisSelected(child2, true);
+            break;
+        }
+
+        break;
+    }
+}
+
+void GuiHelper::SelectNextEntity(Entity* parent) {
+    SelectNextEntity(parent, 1);
+}
+
+void GuiHelper::SelectNextEntity(std::string parentTag, int playerIndex) {
+    SelectNextEntity(EntityManager::FindEntities(parentTag)[playerIndex]);
+}
+
+void GuiHelper::SelectPreviousEntity(Entity* parent) {
+    SelectNextEntity(parent, -1);
+}
+
+void GuiHelper::SelectPreviousEntity(std::string parentTag, int playerIndex) {
+    SelectPreviousEntity(EntityManager::FindEntities(parentTag)[playerIndex]);
 }
 
 void GuiHelper::LoadGuiSceneToCamera(size_t cameraIndex, std::string guiScene) {
@@ -71,13 +152,23 @@ void GuiHelper::LoadGuiSceneToCamera(size_t cameraIndex, std::string guiScene) {
 }
 
 void GuiHelper::SetGuisEnabled(Entity *entity, bool enabled) {
-	for (Component *component : entity->GetComponents<GuiComponent>()) {
-		component->enabled = enabled;
+	for (GuiComponent *gui : entity->GetComponents<GuiComponent>()) {
+		gui->enabled = enabled;
 	}
 }
 
 void GuiHelper::SetGuisEnabled(std::string entityTag, bool enabled, int playerIndex) {
 	SetGuisEnabled(EntityManager::FindEntities(entityTag)[playerIndex], enabled);
+}
+
+void GuiHelper::SetGuisSelected(Entity* entity, bool selected) {
+    for (GuiComponent *gui : entity->GetComponents<GuiComponent>()) {
+        gui->SetSelected(selected);
+    }
+}
+
+void GuiHelper::SetGuisSelected(std::string entityTag, bool selected, int playerIndex) {
+    SetGuisSelected(EntityManager::FindEntities(entityTag)[playerIndex], selected);
 }
 
 void GuiHelper::DestroyGuis(Entity* entity) {
@@ -145,4 +236,14 @@ void GuiHelper::SetGuiPositions(Entity* entity, glm::vec3 position) {
 
 void GuiHelper::SetGuiPositions(std::string entityTag, glm::vec3 position, int playerIndex) {
     SetGuiPositions(EntityManager::FindEntities(entityTag)[playerIndex], position);
+}
+
+void GuiHelper::AddGuiPositions(Entity* entity, glm::vec3 offset) {
+    for (GuiComponent* gui : entity->GetComponents<GuiComponent>()) {
+        gui->transform.Translate(offset);
+    }
+}
+
+void GuiHelper::AddGuiPositions(std::string entityTag, glm::vec3 offset, int playerIndex) {
+    AddGuiPositions(EntityManager::FindEntities(entityTag)[playerIndex], offset);
 }

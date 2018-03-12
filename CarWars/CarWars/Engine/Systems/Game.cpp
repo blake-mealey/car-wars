@@ -160,6 +160,11 @@ void Game::Update() {
         for (Entity* entity : EntityManager::FindEntities("VehicleBox")) {
             entity->transform.Rotate(Transform::UP, 0.005f);
         }
+        if (StateManager::GetState() == GameState_Menu_Settings || StateManager::GetState() == GameState_Menu_Start) {
+            CameraComponent* camera = EntityManager::FindEntities("Camera")[0]->GetComponent<CameraComponent>();
+            const double tick = StateManager::globalTime.GetTimeSeconds() / 10.f;
+            camera->SetPosition(100.f * glm::vec3(cos(tick), 0.f, sin(tick)));
+        }
     } else if (StateManager::GetState() == GameState_Playing) {
         // Set the cylinder's rotation
         cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));

@@ -131,20 +131,67 @@ void UpdateWeaponStats(const int playerIndex) {
     }
 }
 
+void CreateStartMenuOption(Entity* container, std::string optionName, std::string optionValue, float index, float count) {
+    Entity* option = ContentManager::LoadEntity("Menu/MenuOption.json", container);
+    GuiHelper::AddGuiPositions(option, glm::vec3(0.f, 70.f * (index - (count*0.5f)), 0.f));
+    GuiHelper::SetFirstGuiText(option ,optionName);
+    GuiHelper::SetSecondGuiText(option, optionValue);
+    if (index == 0) GuiHelper::SetGuisSelected(option, true);
+}
+
+void CreateStartMenu() {
+    Entity* optionsContainer = EntityManager::FindEntities("StartMenu_Options")[0];
+    const size_t optionsCount = 6;
+    CreateStartMenuOption(optionsContainer, "number of lives", to_string(Game::gameData.numberOfLives), 0, optionsCount);
+    CreateStartMenuOption(optionsContainer, "number of ai", to_string(Game::gameData.aiCount), 1, optionsCount);
+    CreateStartMenuOption(optionsContainer, "map", MapType::displayNames[Game::gameData.map], 2, optionsCount);
+    CreateStartMenuOption(optionsContainer, "time limit", to_string(Game::gameData.timeLimitMinutes) + " minutes", 3, optionsCount);
+    CreateStartMenuOption(optionsContainer, "kill limit", to_string(Game::gameData.killLimit), 4, optionsCount);
+    CreateStartMenuOption(optionsContainer, "game mode", GameModeType::displayNames[Game::gameData.gameMode], 5, optionsCount);
+}
+
+void NextNumberOption(Entity* option, int dir, size_t &value, size_t min, size_t max, std::string unit = "") {
+    if (!dir) return;
+    dir = dir == 0 ? 0 : dir < 0 ? -1 : 1;
+    if (value == min && dir < 0) value = max;
+    else if (value == max && dir > 0) value = min;
+    else value += dir;
+    GuiHelper::SetSecondGuiText(option, to_string(value) + unit);
+}
+
+void NextEnumOption(Entity* option, int dir, size_t &value, size_t count, const std::string* displayNames) {
+    if (!dir) return;
+    dir = dir == 0 ? 0 : dir < 0 ? -1 : 1;
+    if (value == 0 && dir < 0) value = count - 1;
+    else if (value == count - 1 && dir > 0) value = 0;
+    else value += dir;
+    GuiHelper::SetSecondGuiText(option, displayNames[value]);
+}
+
 void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, int playerIndex) {
+    // If there was no navigation, do nothing
+    if (!vertDir && !horizDir && !enter && !back) return;
+
+    // Normalize inputs
+    vertDir = vertDir == 0 ? 0 : vertDir < 0 ? -1 : 1;
+    horizDir = horizDir == 0 ? 0 : horizDir < 0 ? -1 : 1;
+
+    // Get the player for the current controller
     PlayerData& player = Game::players[playerIndex];      // TODO: From passed index
 
 	const GameState gameState = StateManager::GetState();
 	// Navigate buttons up/down
-	if (vertDir != 0 && gameState >= GameState_Menu && gameState < __GameState_Menu_End) {
+	if (vertDir && gameState >= GameState_Menu && gameState < __GameState_Menu_End) {
 		std::string buttonGroupName;
 		bool noNavigation = false;
+        bool entityNavigation = false;
 		switch (gameState) {
 		case GameState_Menu:
 			buttonGroupName = "MainMenu_Buttons";
 			break;
 		case GameState_Menu_Start:
-			buttonGroupName = "StartMenu_Buttons";
+			buttonGroupName = "StartMenu_Options";
+            entityNavigation = true;
 			break;
 		case GameState_Menu_Settings:
 			buttonGroupName = "OptionsMenu_Buttons";
@@ -153,17 +200,35 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 			noNavigation = true;
 		}
 
+        Entity* buttonGroup = EntityManager::FindEntities(buttonGroupName)[0];
 		if (!noNavigation) {
-			if (vertDir > 0) GuiHelper::SelectPreviousGui(buttonGroupName);
-			if (vertDir < 0) GuiHelper::SelectNextGui(buttonGroupName);
+            if (!entityNavigation) {
+                GuiHelper::SelectNextGui(buttonGroup, -vertDir);
+            } else {
+                GuiHelper::SelectNextEntity(buttonGroup, -vertDir);
+            }
 		}
 	}
 
-	if (horizDir != 0) {
-		if (gameState == GameState_Menu_Start_CharacterSelect) {
-            const int diff = horizDir < 0 ? -1 : 1;
+	if (horizDir) {
+        if (gameState == GameState_Menu_Start) {
+            Entity* selected = GuiHelper::GetSelectedEntity("StartMenu_Options");
+            if (GuiHelper::FirstGuiContainsText(selected, "lives")) {
+                NextNumberOption(selected, horizDir, Game::gameData.numberOfLives, GameData::MIN_NUMBER_OF_LIVES, GameData::MAX_NUMBER_OF_LIVES);
+            } else if (GuiHelper::FirstGuiContainsText(selected, "ai")) {
+                NextNumberOption(selected, horizDir, Game::gameData.aiCount, GameData::MIN_AI_COUNT, GameData::MAX_AI_COUNT);
+            } else if (GuiHelper::FirstGuiContainsText(selected, "map")) {
+                NextEnumOption(selected, horizDir, Game::gameData.map, MapType::Count, MapType::displayNames);
+            } else if (GuiHelper::FirstGuiContainsText(selected, "time")) {
+                NextNumberOption(selected, horizDir, Game::gameData.timeLimitMinutes, GameData::MIN_TIME_LIMIT_MINUTES, GameData::MAX_TIME_LIMIT_MINUTES, " minutes");
+            } else if (GuiHelper::FirstGuiContainsText(selected, "kill")) {
+                NextNumberOption(selected, horizDir, Game::gameData.killLimit, GameData::MIN_KILL_LIMIT, GameData::MAX_KILL_LIMIT);
+            } else if (GuiHelper::FirstGuiContainsText(selected, "game")) {
+                NextEnumOption(selected, horizDir, Game::gameData.gameMode, GameModeType::Count, GameModeType::displayNames);
+            }
+        } else if (gameState == GameState_Menu_Start_CharacterSelect) {
             if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle", playerIndex)) {
-                player.vehicleType = (player.vehicleType + diff) % VehicleType::Count;
+                player.vehicleType = (player.vehicleType + horizDir) % VehicleType::Count;
                 if (player.vehicleType < 0) player.vehicleType += VehicleType::Count;
                 const string text = VehicleType::displayNames[player.vehicleType];
                 GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", text, playerIndex);
@@ -174,7 +239,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 
                 UpdateVehicleStats(playerIndex);
             } else if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "weapon", playerIndex)) {
-				player.weaponType = (player.weaponType + diff) % WeaponType::Count;
+				player.weaponType = (player.weaponType + horizDir) % WeaponType::Count;
 				if (player.weaponType < 0) player.weaponType += WeaponType::Count;
 				const string text = WeaponType::displayNames[player.weaponType];
 				GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", text, playerIndex);
@@ -195,11 +260,10 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 			GuiComponent *selected = GuiHelper::GetSelectedGui("MainMenu_Buttons");
 			if (selected->HasText("start")) {
 				StateManager::SetState(GameState_Menu_Start);
-			}
-			else if (selected->HasText("options")) {
+                CreateStartMenu();
+			} else if (selected->HasText("options")) {
 				StateManager::SetState(GameState_Menu_Settings);
-			}
-			else if (selected->HasText("exit")) {
+			} else if (selected->HasText("exit")) {
 				StateManager::SetState(GameState_Exit);
 			}
 		}
@@ -210,8 +274,8 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 			}
 		}
 		else if (gameState == GameState_Menu_Start) {
-			GuiComponent *selected = GuiHelper::GetSelectedGui("StartMenu_Buttons");
-			if (selected->HasText("back")) {
+			Entity* selected = GuiHelper::GetSelectedEntity("StartMenu_Options");
+			if (GuiHelper::FirstGuiContainsText(selected, "back")) {
 				StateManager::SetState(GameState_Menu);
 			} else {
 				StateManager::SetState(GameState_Menu_Start_CharacterSelect);
@@ -275,6 +339,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
             GuiComponent *selected = GuiHelper::GetSelectedGui("CharacterMenu_Buttons", playerIndex);
             if (selected->ContainsText("join")) {
                 StateManager::SetState(GameState_Menu_Start);
+                CreateStartMenu();
             } else {
                 if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle", playerIndex)) {
                     GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", false, playerIndex);

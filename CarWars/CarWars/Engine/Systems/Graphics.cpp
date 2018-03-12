@@ -92,7 +92,7 @@ bool Graphics::Initialize(char* windowTitle) {
 	}
 
 	//Create Window
-#ifdef _DOC_DEBUG_MODE
+#ifdef RENDER_DOC_DEBUG_MODE
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -754,8 +754,9 @@ void Graphics::Update() {
                     glBindTexture(GL_TEXTURE_2D, frameTexture->textureId);
                     guiProgram->LoadUniform(UniformName::DiffuseTexture, 0);
 
-                    // Send the UV scale to the GPU
+                    // Send the UV scale and texture color to the GPU
                     guiProgram->LoadUniform(UniformName::UvScale, gui->GetUvScale());
+                    guiProgram->LoadUniform(UniformName::DiffuseColor, gui->GetTextureColor());
 
                     // Send the transform to the GPU
                     Transform transform = Transform(screenPosition, screenScale);
@@ -775,7 +776,7 @@ void Graphics::Update() {
                 glPushAttrib(GL_ALL_ATTRIB_BITS);
 
                 // Set the color
-                const glm::vec4 color = gui->IsSelected() ? gui->GetSelectedFontColor() : gui->GetFontColor();
+                const glm::vec4 color = gui->GetFontColor();
                 glPixelTransferf(GL_RED_BIAS, color.r - 1.f);
                 glPixelTransferf(GL_GREEN_BIAS, color.g - 1.f);
                 glPixelTransferf(GL_BLUE_BIAS, color.b - 1.f);
