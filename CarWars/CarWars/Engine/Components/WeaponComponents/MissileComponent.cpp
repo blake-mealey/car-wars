@@ -62,7 +62,6 @@ void MissileComponent::Initialize(Entity* _entity) {
 	glm::quat q(0.f, a);
 	q.w = 1 + glm::dot(-missile->transform.GetForward(), gunDirection);
 
-	//TODO: FIX MISSILE ROTATION - BASED ON gunDirection
 	glm::vec3 missilePos = gunPosition;
 	glm::quat missileRotation =  owner->transform.GetLocalRotation() * gunTurret->transform.GetLocalRotation();
 	Transform missileTransform = Transform(nullptr, missilePos, glm::vec3(1), glm::normalize(q), false);

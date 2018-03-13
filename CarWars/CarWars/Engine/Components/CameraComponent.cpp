@@ -126,14 +126,23 @@ void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, f
 	glm::vec3 vehicleUp = _vehicle->transform.GetUp();
 	glm::vec3 vehicleRight = _vehicle->transform.GetRight();
 
-	float dotFR = glm::dot(vehicleForward, Transform::RIGHT);
-	float dotRU = glm::dot(vehicleRight, Transform::UP);
-	float dotUF = glm::dot(vehicleUp, Transform::FORWARD);
+	float dotFR = glm::dot(vehicleForward, Transform::RIGHT);		//Detect Direction im Facing
+	float dotFU = glm::dot(vehicleForward, Transform::UP);			//Tilted Up or Down
+	float dotUR = glm::dot(vehicleRight, Transform::UP);			//Rolled Right or Left - Angle of Roll
 
+	float dotUU = glm::dot(vehicleUp, Transform::UP);				//Angle of Tilt
+	float dotFF = glm::dot(vehicleForward, Transform::FORWARD);		//Angle of Rotation
+
+	bool correctForward = dotFR > 0;
+	bool correctUp = dotFU < 0;
+	bool correctRight = dotUR > 0;
+
+	//TODO Figure out Vehicle Roll
 	SetPosition(distanceFromCenter * (
-		(-_vehicle->transform.GetForward()) * cos(GetCameraHorizontalAngle()) * sin(GetCameraVerticalAngle()) +
-		(_vehicle->transform.GetUp()) * cos(GetCameraVerticalAngle()) +
-		(-_vehicle->transform.GetRight()) * (sin(GetCameraHorizontalAngle())) * (sin(GetCameraVerticalAngle()))));
+		(-_vehicle->transform.GetForward() * cos(GetCameraHorizontalAngle() + (correctForward ? -acos(dotFF) : acos(dotFF))) * sin(GetCameraVerticalAngle() + (correctUp ? -acos(dotUU) : acos(dotUU)))) +
+		(_vehicle->transform.GetUp() * cos(GetCameraVerticalAngle() + (correctUp ? -acos(dotUU) : acos(dotUU)))) +
+		(-_vehicle->transform.GetRight() * sin(GetCameraHorizontalAngle() + (correctForward ? -acos(dotFF) : acos(dotFF))) * sin(GetCameraVerticalAngle() + (correctUp ? -acos(dotUU) : acos(dotUU)))))
+	);
 }
 
 void CameraComponent::UpdatePositionFromAngles() {

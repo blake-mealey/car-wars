@@ -44,14 +44,6 @@ void InputManager::Update() {
 }
 
 void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs) {
-	glm::vec3 vehicleForward = vehicle->transform.GetForward();
-	glm::vec3 vehicleUp = vehicle->transform.GetUp();
-	glm::vec3 vehicleRight = vehicle->transform.GetRight();
-
-	float dotFR = glm::dot(vehicleForward, Transform::RIGHT);
-	float dotRU = glm::dot(vehicleRight, Transform::UP);
-	float dotUF = glm::dot(vehicleUp, Transform::FORWARD);
-
 	//Update Camera Angles
 	float cameraHor = camera->GetCameraHorizontalAngle();
 	float cameraVer = camera->GetCameraVerticalAngle();
@@ -68,14 +60,37 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	*/
 
 	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
-	camera->SetUpVector(vehicle->transform.GetUp());
+	//Set the camera up to be the same as the vehicle?
+	//camera->SetUpVector(vehicle->transform.GetUp());
 
 	//Get Weapon Child - Weapon Rotation
 	Entity* vehicleGunTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
-	float gunHor = -cameraNewHor + M_PI;
+	glm::vec3 gunPosition = vehicleGunTurret->transform.GetGlobalPosition();
+	glm::vec3 cameraDirection = glm::normalize(camera->GetTarget() - camera->GetPosition());
+	glm::vec3 gunDirection = glm::normalize((camera->GetTarget() + (5.0f * cameraDirection))  - gunPosition);
+
+	/*
+	glm::vec3 a = glm::cross(-vehicle->transform.GetForward(), gunDirection);
+	glm::quat q(0.f, a);
+	q.w = 1 + glm::dot(-vehicle->transform.GetForward(), gunDirection);
+
+	vehicleGunTurret->transform.SetRotation(glm::normalize(q));
+	*/
+	glm::vec3 vehicleForward = vehicle->transform.GetForward();
+	glm::vec3 vehicleUp = vehicle->transform.GetUp();
+	glm::vec3 vehicleRight = vehicle->transform.GetRight();
+
+	float dotFR = glm::dot(vehicleForward, Transform::RIGHT);		//Detect Direction im Facing
+
+	float dotFF = glm::dot(vehicleForward, Transform::FORWARD);		//Angle of Rotation
+	bool correctForward = dotFR > 0;;
+
+	float gunHor = -camera->GetCameraHorizontalAngle() + M_PI - (correctForward ? -acos(dotFF) : acos(dotFF));
 	vehicleGunTurret->transform.SetRotationAxisAngles(vehicle->transform.GetUp(), gunHor);
+	/*
 	float gunVer = -cameraNewVer + (M_PI_2 - (M_PI_4 / 4.0f));
 	vehicleGunTurret->transform.Rotate(vehicleRight, gunVer);
+	*/
 }
 
 void InputManager::HandleMouse() {
@@ -497,10 +512,10 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		float y = 0;
 
 		if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			x = -static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 30000.f;
+			x = -static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f;
 		}
 		if (abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			y = static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 30000.f;
+			y = static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f;
 		}
 
 		// -------------------------------------------------------------------------------------------------------------- //
