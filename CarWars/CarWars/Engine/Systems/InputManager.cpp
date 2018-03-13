@@ -413,19 +413,19 @@ void InputManager::HandleKeyboard() {
         //Get Vehicle Component
         VehicleComponent* vehicle = static_cast<VehicleComponent*>(EntityManager::GetComponents(ComponentType_Vehicle)[0]);
 
-		float forwardPower = Keyboard::KeyPressed(GLFW_KEY_W)? 1 : 0;
-		float backwardPower = Keyboard::KeyPressed(GLFW_KEY_S) ? 1 : 0;
+		float forwardPower = Keyboard::KeyDown(GLFW_KEY_W) ? 1 : 0;
+		float backwardPower = Keyboard::KeyDown(GLFW_KEY_S) ? 1 : 0;
 
 		float steer = 0;
-        if (Keyboard::KeyPressed(GLFW_KEY_A)) { //Steer Left
+        if (Keyboard::KeyDown(GLFW_KEY_A)) { //Steer Left
 			steer += 1;
         }
-        if (Keyboard::KeyPressed(GLFW_KEY_D)) { //Steer Right
+        if (Keyboard::KeyDown(GLFW_KEY_D)) { //Steer Right
 			steer += -1;
         }
 
 		float handbrake = 0;
-		if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+		if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
 			handbrake = 1;
 		}
 
@@ -491,7 +491,6 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		if (abs(controller->GetState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
 			steer = -controller->GetState().Gamepad.sThumbLX / 32768.0f;
 		}
-
 
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Manage Right Stick
