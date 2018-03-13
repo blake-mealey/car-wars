@@ -412,7 +412,6 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 
 void InputManager::HandleKeyboard() {
 	//Keyboard Inputs
-
     const GameState gameState = StateManager::GetState();
 
 	if (gameState < __GameState_Menu_End) {
@@ -428,19 +427,19 @@ void InputManager::HandleKeyboard() {
         //Get Vehicle Component
         VehicleComponent* vehicle = static_cast<VehicleComponent*>(EntityManager::GetComponents(ComponentType_Vehicle)[0]);
 
-		float forwardPower = Keyboard::KeyPressed(GLFW_KEY_W)? 1 : 0;
-		float backwardPower = Keyboard::KeyPressed(GLFW_KEY_S) ? 1 : 0;
+		float forwardPower = Keyboard::KeyDown(GLFW_KEY_W) ? 1 : 0;
+		float backwardPower = Keyboard::KeyDown(GLFW_KEY_S) ? 1 : 0;
 
 		float steer = 0;
-        if (Keyboard::KeyPressed(GLFW_KEY_A)) { //Steer Left
+        if (Keyboard::KeyDown(GLFW_KEY_A)) { //Steer Left
 			steer += 1;
         }
-        if (Keyboard::KeyPressed(GLFW_KEY_D)) { //Steer Right
+        if (Keyboard::KeyDown(GLFW_KEY_D)) { //Steer Right
 			steer += -1;
         }
 
 		float handbrake = 0;
-		if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+		if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
 			handbrake = 1;
 		}
 
@@ -585,25 +584,14 @@ void InputManager::HandleController() {
 			if (abs(controller->GetPreviousState().Gamepad.sThumbLY) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && abs(controller->GetState().Gamepad.sThumbLY) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
 				vertDir = controller->GetState().Gamepad.sThumbLY / abs(controller->GetState().Gamepad.sThumbLY);
 			}
-			if (pressedButtons & XINPUT_GAMEPAD_DPAD_UP) {
-				vertDir = 1;
-			}
-			if (pressedButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
-				vertDir = -1;
-			}
+			vertDir = pressedButtons & XINPUT_GAMEPAD_DPAD_DOWN ? -1 : pressedButtons & XINPUT_GAMEPAD_DPAD_UP ? 1 : vertDir;
 
 			int horizDir = 0;
 			if (abs(controller->GetPreviousState().Gamepad.sThumbLX) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && abs(controller->GetState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
 				horizDir = controller->GetState().Gamepad.sThumbLX / abs(controller->GetState().Gamepad.sThumbLX);
 			}
-			if (pressedButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
-				horizDir = -1;
-			}
-			if (pressedButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
-				horizDir = 1;
-			}
-
-
+			horizDir = pressedButtons & XINPUT_GAMEPAD_DPAD_LEFT ? -1 : pressedButtons & XINPUT_GAMEPAD_DPAD_RIGHT ? 1 : horizDir;
+			
 			NavigateGuis(vertDir, horizDir, pressedButtons & XINPUT_GAMEPAD_A, pressedButtons & XINPUT_GAMEPAD_B, controllerNum);
 		}
 
