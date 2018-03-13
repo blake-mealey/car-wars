@@ -6,8 +6,9 @@
 #include "Game.h"
 
 
-Time StateManager::deltaTime = 0;
-Time StateManager::gameTime = 0;
+Time StateManager::deltaTime = 0.0;
+Time StateManager::gameTime = 0.0;
+Time StateManager::globalTime = 0.0;
 
 GameState StateManager::currentState = GameState_Menu;
 

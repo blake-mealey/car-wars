@@ -21,6 +21,8 @@
 #include "Game.h"
 #include "../Components/AiComponent.h"
 
+//#define RENDER_DOC_DEBUG_MODE
+
 // Constants
 const size_t Graphics::MAX_CAMERAS = 4;
 
@@ -61,7 +63,8 @@ const glm::mat4 Graphics::BIAS_MATRIX = glm::mat4(
 );
 
 // Singleton
-Graphics::Graphics() : renderMeshes(true), renderPhysicsColliders(false), renderPhysicsBoundingBoxes(false),
+Graphics::Graphics() : framesPerSecond(0.0), lastTime(0.0), frameCount(0), renderMeshes(true),
+    renderGuis(true), renderPhysicsColliders(false), renderPhysicsBoundingBoxes(false),
     renderNavigationMesh(false), renderNavigationPaths(false), bloomScale(0.1f) { }
 Graphics &Graphics::Instance() {
 	static Graphics instance;
@@ -89,6 +92,11 @@ bool Graphics::Initialize(char* windowTitle) {
 	}
 
 	//Create Window
+#ifdef RENDER_DOC_DEBUG_MODE
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
 	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, windowTitle, NULL, NULL);
 	if (window == NULL) {
 		std::cout << "Error Creating Window terminate" << std::endl;
@@ -262,7 +270,7 @@ void Graphics::Update() {
 	glm::mat4 depthViewMatrix;
 	if (shadowCaster != nullptr) {
         // Define depth transformation matrices
-		depthProjectionMatrix = glm::ortho<float>(-80, 80, -80, 80, -160, 160) * 2.f;
+		depthProjectionMatrix = glm::ortho<float>(-200, 200, -10, 30, -80, 80);
 		depthViewMatrix = glm::lookAt(-shadowCaster->GetDirection(), glm::vec3(0), glm::vec3(0, 1, 0));
 
         // Render to the shadow map framebuffer
@@ -691,136 +699,139 @@ void Graphics::Update() {
     // Get the GUI program
     ShaderProgram *guiProgram = shaders[Shaders::GUI];
 
-	for (Camera camera : cameras) {
-		// Setup the viewport for each camera (split-screen)
-		glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+    if (renderGuis) {
+        for (Camera camera : cameras) {
+            // Setup the viewport for each camera (split-screen)
+            glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
 
-		for (Component *component : guiComponents) {
-			if (!component->enabled) continue;
-			GuiComponent *gui = static_cast<GuiComponent*>(component);
-			
-            // Get a GUI for this camera
-			Entity *guiRoot = gui->GetGuiRoot();
-			if (!guiRoot || guiRoot != camera.guiRoot) continue;
+            for (Component *component : guiComponents) {
+                if (!component->enabled) continue;
+                GuiComponent *gui = static_cast<GuiComponent*>(component);
 
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glDisable(GL_DEPTH_TEST);
+                // Get a GUI for this camera
+                Entity *guiRoot = gui->GetGuiRoot();
+                if (!guiRoot || guiRoot != camera.guiRoot) continue;
 
-            // Get the scale and position of the GUI
-            const glm::vec2 anchorPoint = gui->GetAnchorPoint();
-            const glm::vec3 scale = gui->transform.GetGlobalScale() +
-                glm::vec3(camera.viewportSize * gui->GetScaledScale(), 0.f);
-            const glm::vec3 position = gui->transform.GetGlobalPosition() +
-                glm::vec3(camera.viewportSize * gui->GetScaledPosition(), 0.f);
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glDisable(GL_DEPTH_TEST);
 
-            // RENDER THE FRAME
-			Texture *frameTexture = gui->GetTexture();
-			if (frameTexture) {
-                // Convert from pixel to screen space
-                const glm::vec3 toScreenScale = glm::vec3(
-                    1.f / camera.viewportSize.x,
-                    1.f / camera.viewportSize.y,
-                    1.f
-                );
+                // Get the scale and position of the GUI
+                const glm::vec2 anchorPoint = gui->GetAnchorPoint();
+                const glm::vec3 scale = gui->transform.GetGlobalScale() +
+                    glm::vec3(camera.viewportSize * gui->GetScaledScale(), 0.f);
+                const glm::vec3 position = gui->transform.GetGlobalPosition() +
+                    glm::vec3(camera.viewportSize * gui->GetScaledPosition(), 0.f);
 
-                // Pixel size ratio
-                const glm::vec2 viewportRatio = glm::vec2(
-                    camera.viewportSize.x / static_cast<float>(windowWidth),
-                    camera.viewportSize.y / static_cast<float>(windowHeight));
+                // RENDER THE FRAME
+                Texture *frameTexture = gui->GetTexture();
+                if (frameTexture) {
+                    // Convert from pixel to screen space
+                    const glm::vec3 toScreenScale = glm::vec3(
+                        1.f / camera.viewportSize.x,
+                        1.f / camera.viewportSize.y,
+                        1.f
+                    );
 
-                // Get the screen-space scale and position of the GUI
-                const glm::vec3 screenScale = toScreenScale * scale * glm::vec3(viewportRatio, 1.f);
-                const glm::vec3 screenPosition = glm::vec3(-1.f, -1.f, 0.f) + toScreenScale *
-                    2.f * glm::vec3(
-                        viewportRatio.x * (camera.viewportPosition.x + position.x + scale.x*(0.5f - anchorPoint.x)),
-                        viewportRatio.y * (camera.viewportPosition.y + camera.viewportSize.y - position.y - scale.y*(0.5f - anchorPoint.y)),
-                        0.f);
+                    // Pixel size ratio
+                    const glm::vec2 viewportRatio = glm::vec2(
+                        camera.viewportSize.x / static_cast<float>(windowWidth),
+                        camera.viewportSize.y / static_cast<float>(windowHeight));
 
-				// Use the GUI program
-				glUseProgram(guiProgram->GetId());
+                    // Get the screen-space scale and position of the GUI
+                    const glm::vec3 screenScale = toScreenScale * scale * glm::vec3(viewportRatio, 1.f);
+                    const glm::vec3 screenPosition = glm::vec3(-1.f, -1.f, 0.f) + toScreenScale *
+                        2.f * glm::vec3(
+                            viewportRatio.x * (camera.viewportPosition.x + position.x + scale.x*(0.5f - anchorPoint.x)),
+                            viewportRatio.y * (camera.viewportPosition.y + camera.viewportSize.y - position.y - scale.y*(0.5f - anchorPoint.y)),
+                            0.f);
 
-				// Send the screen to the GPU
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, frameTexture->textureId);
-                guiProgram->LoadUniform(UniformName::DiffuseTexture, 0);
+                    // Use the GUI program
+                    glUseProgram(guiProgram->GetId());
 
-                // Send the UV scale to the GPU
-                guiProgram->LoadUniform(UniformName::UvScale, gui->GetUvScale());
+                    // Send the screen to the GPU
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_2D, frameTexture->textureId);
+                    guiProgram->LoadUniform(UniformName::DiffuseTexture, 0);
 
-                // Send the transform to the GPU
-				Transform transform = Transform(screenPosition, screenScale);
-                guiProgram->LoadUniform(UniformName::ModelMatrix, transform.GetTransformationMatrix());
+                    // Send the UV scale and texture color to the GPU
+                    guiProgram->LoadUniform(UniformName::UvScale, gui->GetUvScale());
+                    guiProgram->LoadUniform(UniformName::DiffuseColor, gui->GetTextureColor());
 
-				// Render it
-				glViewport(0, 0, windowWidth, windowHeight);
-				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-			}
+                    // Send the transform to the GPU
+                    Transform transform = Transform(screenPosition, screenScale);
+                    guiProgram->LoadUniform(UniformName::ModelMatrix, transform.GetTransformationMatrix());
 
-			// RENDER THE FONT
+                    // Render it
+                    glViewport(0, 0, windowWidth, windowHeight);
+                    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                }
 
-			// Unbind shader program
-			glUseProgram(0);
+                // RENDER THE FONT
 
-			// Set stuff
-			glPushAttrib(GL_ALL_ATTRIB_BITS);
+                // Unbind shader program
+                glUseProgram(0);
 
-			// Set the color
-			const glm::vec4 color = gui->IsSelected() ? gui->GetSelectedFontColor() : gui->GetFontColor();
-			glPixelTransferf(GL_RED_BIAS, color.r - 1.f);
-			glPixelTransferf(GL_GREEN_BIAS, color.g - 1.f);
-			glPixelTransferf(GL_BLUE_BIAS, color.b - 1.f);
-			glPixelTransferf(GL_ALPHA_BIAS, color.a - 1.f);
+                // Set stuff
+                glPushAttrib(GL_ALL_ATTRIB_BITS);
 
-			// Render the text
-			FTFont *font = gui->GetFont();
+                // Set the color
+                const glm::vec4 color = gui->GetFontColor();
+                glPixelTransferf(GL_RED_BIAS, color.r - 1.f);
+                glPixelTransferf(GL_GREEN_BIAS, color.g - 1.f);
+                glPixelTransferf(GL_BLUE_BIAS, color.b - 1.f);
+                glPixelTransferf(GL_ALPHA_BIAS, color.a - 1.f);
 
-            // Font dimensions
-			FTBBox bbox = font->BBox(gui->GetText().c_str());
-            const float fontWidth = bbox.Upper().X() - bbox.Lower().X();
-			const float fontHeight = font->Ascender() * 0.5f;
+                // Render the text
+                FTFont *font = gui->GetFont();
 
-			const glm::vec3 fontPosition = position;
-			glm::vec2 fontScreenPosition = camera.viewportPosition +
-                glm::vec2(fontPosition.x, camera.viewportSize.y - fontPosition.y - fontHeight);
-			
-			glm::vec2 alignmentXOffset = glm::vec2(scale.x - fontWidth, 0.f);
-			switch (gui->GetTextXAlignment()) {
-				case TextXAlignment::Left:
-					alignmentXOffset *= 0.f;
-					break;
-				case TextXAlignment::Centre:
-					alignmentXOffset *= 0.5f;
-					break;
-				case TextXAlignment::Right:
-					alignmentXOffset *= 1.f;
-					break;
-			}
+                // Font dimensions
+                FTBBox bbox = font->BBox(gui->GetText().c_str());
+                const float fontWidth = bbox.Upper().X() - bbox.Lower().X();
+                const float fontHeight = font->Ascender() * 0.5f;
 
-			glm::vec2 alignmentYOffset = -glm::vec2(0.f, scale.y - fontHeight);
-			switch (gui->GetTextYAlignment()) {
-				case TextYAlignment::Top:
-					alignmentYOffset *= 0.f;
-					break;
-				case TextYAlignment::Centre:
-					alignmentYOffset *= 0.5f;
-					break;
-				case TextYAlignment::Bottom:
-					alignmentYOffset *= 1.f;
-					break;
-			}
+                const glm::vec3 fontPosition = position;
+                glm::vec2 fontScreenPosition = camera.viewportPosition +
+                    glm::vec2(fontPosition.x, camera.viewportSize.y - fontPosition.y - fontHeight);
 
-			fontScreenPosition += alignmentXOffset + alignmentYOffset - glm::vec2(scale.x, -scale.y) * anchorPoint;
+                glm::vec2 alignmentXOffset = glm::vec2(scale.x - fontWidth, 0.f);
+                switch (gui->GetTextXAlignment()) {
+                case TextXAlignment::Left:
+                    alignmentXOffset *= 0.f;
+                    break;
+                case TextXAlignment::Centre:
+                    alignmentXOffset *= 0.5f;
+                    break;
+                case TextXAlignment::Right:
+                    alignmentXOffset *= 1.f;
+                    break;
+                }
 
-			font->Render(gui->GetText().c_str(), -1, FTPoint(fontScreenPosition.x, fontScreenPosition.y));
+                glm::vec2 alignmentYOffset = -glm::vec2(0.f, scale.y - fontHeight);
+                switch (gui->GetTextYAlignment()) {
+                case TextYAlignment::Top:
+                    alignmentYOffset *= 0.f;
+                    break;
+                case TextYAlignment::Centre:
+                    alignmentYOffset *= 0.5f;
+                    break;
+                case TextYAlignment::Bottom:
+                    alignmentYOffset *= 1.f;
+                    break;
+                }
 
-			// Reset stuff
-			glPopAttrib();
+                fontScreenPosition += alignmentXOffset + alignmentYOffset - glm::vec2(scale.x, -scale.y) * anchorPoint;
 
-            glEnable(GL_DEPTH_TEST);
-            glDisable(GL_BLEND);
-		}
-	}
+                font->Render(gui->GetText().c_str(), -1, FTPoint(fontScreenPosition.x, fontScreenPosition.y));
+
+                // Reset stuff
+                glPopAttrib();
+
+                glEnable(GL_DEPTH_TEST);
+                glDisable(GL_BLEND);
+            }
+        }
+    }
 
     // -------------------------------------------------------------------------------------------------------------- //
     // RENDER DEBUG GUI
@@ -852,7 +863,26 @@ void Graphics::RenderDebugGui() {
         ImGui::Begin("Graphics", &showGraphicsMenu);
         ImGui::PushItemWidth(-100);
 
+        frameCount++;
+        if (StateManager::globalTime - lastTime >= 1.0) {
+            framesPerSecond = double(frameCount);
+            frameCount = 0;
+            lastTime = StateManager::globalTime;
+        }
+
+        ImGui::LabelText("FPS", "%.0f", framesPerSecond);
+        ImGui::LabelText("ms/frame", "%.3f", 1000.0 / framesPerSecond);
+
+        ImGui::LabelText("Entity Count", "%d", EntityManager::GetEntityCount());
+        ImGui::LabelText("Component Count", "%d", EntityManager::GetComponentCount());
+        ImGui::LabelText("Mesh Count", "%d", EntityManager::GetComponentCount(ComponentType_Mesh));
+        ImGui::LabelText("GUI Count", "%d", EntityManager::GetComponentCount(ComponentType_GUI));
+        ImGui::LabelText("Vehicle Count", "%d", EntityManager::GetComponentCount(ComponentType_Vehicle));
+        ImGui::LabelText("Rigid Dynamic Count", "%d", EntityManager::GetComponentCount(ComponentType_RigidDynamic));
+        ImGui::LabelText("Rigid Static Count", "%d", EntityManager::GetComponentCount(ComponentType_RigidStatic));
+
         ImGui::Checkbox("Render Meshes", &renderMeshes);
+        ImGui::Checkbox("Render GUIs", &renderGuis);
         ImGui::Checkbox("Render Colliders", &renderPhysicsColliders);
         ImGui::Checkbox("Render Bounding Boxes", &renderPhysicsBoundingBoxes);
         ImGui::Checkbox("Render Nav Mesh", &renderNavigationMesh);

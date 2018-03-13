@@ -41,3 +41,7 @@ void Component::SetEntity(Entity* _entity) {
 Entity* Component::GetEntity() const {
 	return entity;
 }
+
+void Component::TakeDamage(float amount) {
+	return;
+}

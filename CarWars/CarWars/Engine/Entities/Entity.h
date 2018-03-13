@@ -48,6 +48,9 @@ public:
 
 	bool IsMarkedForDeletion() const;
 	void MarkForDeletion();
+
+	void TakeDamage(float amount);
+
 private:
 	bool markedForDeletion;
 

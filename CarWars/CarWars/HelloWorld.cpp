@@ -15,10 +15,6 @@
 using namespace std;
 
 int main() {
-	//Initialize Time Variables
-	Time currentTime = 0;
-	Time lastTime = 0;
-
 	//Declare System Vector
 	vector<System*> systems;
 
@@ -55,16 +51,17 @@ int main() {
     systems.push_back(&audioManager);
 
 	//Game Loop
-	Time lastFrame(0);
 	while (!glfwWindowShouldClose(graphicsManager.GetWindow())) {
 		//Calculate Delta Time
-		currentTime = glfwGetTime();
-		StateManager::deltaTime = currentTime - lastTime;
-		lastTime = currentTime;
+        const Time lastTime = StateManager::globalTime;
+        StateManager::globalTime = glfwGetTime();
+		StateManager::deltaTime = StateManager::globalTime - lastTime;
+
 		//Calculate Game Time
 		if (StateManager::IsState(GameState_Playing)) {
 			StateManager::gameTime += StateManager::deltaTime;
 		}
+
 		// Iterate through each system and call their update methods
 		for (System* system : systems) {
 			system->Update();

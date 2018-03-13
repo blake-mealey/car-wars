@@ -21,7 +21,7 @@ public:
     ~GuiComponent() override;
 	GuiComponent(nlohmann::json data);
 
-	Transform transform;		// TODO: GuiTransform
+    Transform transform;		// TODO: GuiTransform
 
 	ComponentType GetType() override;
 	void HandleEvent(Event *event) override;
@@ -44,7 +44,7 @@ public:
 	FTFont* GetFont() const;
 	glm::vec4 GetFontColor() const;
 
-	Entity* GetGuiRoot();
+	Entity* GetGuiRoot() const;
 
 	void SetTextXAlignment(size_t alignment);
 	void SetTextYAlignment(size_t alignment);
@@ -71,6 +71,8 @@ public:
 
     glm::vec4 GetSelectedFontColor() const;
     void SetSelectedFontColor(glm::vec4 color);
+    
+    glm::vec4 GetTextureColor() const;
 
 private:
     bool selected;
@@ -89,6 +91,8 @@ private:
     glm::vec4 selectedFontColor;
 	std::string text;
 
+    glm::vec4 textureColor;
+    glm::vec4 selectedTextureColor;
 	Texture *texture;
     glm::vec2 uvScale;
 };

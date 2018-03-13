@@ -43,27 +43,57 @@
 			}
 		]
 	},
-	{
-		"Tag": "CharacterMenu_Arrows",
-		"Components": [
-			{
-				"Type": "GUI",
-				"ScaledPosition": [0.5, 0],
-				"AnchorPoint": [1, 0.5],
-				"Position": [-150, 80, 0],
-				"Scale": [15, 25, 1],
-				"Texture": "Menu/Arrow-Left.png",
-				"Enabled": false
-			},
-			{
-				"Type": "GUI",
-				"ScaledPosition": [0.5, 0],
-				"AnchorPoint": [0, 0.5],
-				"Position": [150, 80, 0],
-				"Scale": [15, 25, 1],
-				"Texture": "Menu/Arrow-Right.png",
-				"Enabled": false
-			}
-		]
+  {
+    "Tag": "CharacterMenu_Arrows",
+    "Components": [
+      {
+        "Type": "GUI",
+        "ScaledPosition": [ 0.5, 0 ],
+        "AnchorPoint": [ 1, 0.5 ],
+        "Position": [ -150, 80, 0 ],
+        "Scale": [ 15, 25, 1 ],
+        "TextureColor": [1, 1, 0, 1],
+        "Texture": "Menu/Arrow-Left.png",
+        "Enabled": false
+      },
+      {
+        "Type": "GUI",
+        "ScaledPosition": [ 0.5, 0 ],
+        "AnchorPoint": [ 0, 0.5 ],
+        "Position": [ 150, 80, 0 ],
+        "Scale": [ 15, 25, 1 ],
+        "TextureColor": [1, 1, 0, 1],
+        "Texture": "Menu/Arrow-Right.png",
+        "Enabled": false
+      }
+    ]
+  },
+  {
+	"Tag": "CharacterMenu_Stats",
+    "Components": [
+          {
+            "Type": "GUI",
+            "Position": [ -20, 0, 0 ],
+            "ScaledPosition": [ 1, 0.5 ],
+            "AnchorPoint": [ 1, 0.5 ],
+            "ScaledScale": [ 0.2, 0.4 ],
+            "Texture": "DiamondPlate.jpg",
+            "UvScale": [ 1.0, 1.33 ],
+            "Enabled": false
+          },
+          {
+            "Type": "GUI",
+            "Position": [ -20, 10, 0 ],
+            "ScaledPosition": [ 1, 0.3 ],
+            "AnchorPoint": [ 1, 0.5 ],
+            "ScaledScale": [ 0.2, 0 ],
+            "Scale": [ 0, 20, 1 ],
+            "Text": "stats",
+            "Font": "Starjedi.ttf",
+            "FontColor": [ 1, 1, 0, 1 ],
+            "FontSize": 20,
+            "Enabled": false
+          }
+        ]
 	}
 ]

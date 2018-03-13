@@ -12,6 +12,7 @@ const char* UniformName::MaterialSpecularColor = "materialSpecularColor";
 const char* UniformName::MaterialSpecularity = "materialSpecularity";
 const char* UniformName::MaterialEmissiveness = "materialEmissiveness";
 
+const char* UniformName::DiffuseColor = "diffuseColor";
 const char* UniformName::DiffuseTexture = "diffuseTexture";
 const char* UniformName::DiffuseTextureEnabled = "diffuseTextureEnabled";
 const char* UniformName::UvScale = "uvScale";

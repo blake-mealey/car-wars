@@ -34,10 +34,22 @@ const string MapType::scenePaths[Count] = { "PhysicsDemo.json" };
 
 const string VehicleType::displayNames[Count] = { "Heavy", "Medium", "Light" };
 const string VehicleType::prefabPaths[Count] = { "Vehicles/Sewage.json", "Vehicles/Hearse.json", "Vehicles/Flatbed.json" };
+const string VehicleType::statDisplayNames[STAT_COUNT] = { "Speed", "Handling", "Armour" };
+const string VehicleType::statValues[Count][STAT_COUNT] = {
+	{ "1", "10", "100" },      // Heavy
+	{ "10", "10", "50" },      // Medium
+	{ "20", "10", "10" }       // Light
+};
 
 const string WeaponType::displayNames[Count] = { "Machine Gun", "Rocket Launcher", "Rail Gun" };
 const string WeaponType::prefabPaths[Count] = { "Weapons/MachineGun.json", "Weapons/RocketLauncher.json", "Weapons/RailGun.json" };
 const string WeaponType::turretPrefabPaths[Count] = { "Weapons/MachineGunTurret.json", "Weapons/RocketLauncherTurret.json", "Weapons/RailGunTurret.json" };
+const string WeaponType::statDisplayNames[STAT_COUNT] = {"rof", "Damage", "Type"};
+const string WeaponType::statValues[Count][STAT_COUNT] = {
+	{ "100", "1", "bullet" },      // Machine Gun
+	{ "50", "50", "rocket" },      // Rocket Launcher
+	{ "1", "100", "charge" }       // Rail Gun
+};
 
 const unsigned int Game::MAX_VEHICLE_COUNT = 20;
 
@@ -148,6 +160,11 @@ void Game::Update() {
     if (StateManager::GetState() < __GameState_Menu_End) {
         for (Entity* entity : EntityManager::FindEntities("VehicleBox")) {
             entity->transform.Rotate(Transform::UP, 0.005f);
+        }
+        if (StateManager::GetState() == GameState_Menu_Settings || StateManager::GetState() == GameState_Menu_Start) {
+            CameraComponent* camera = EntityManager::FindEntities("Camera")[0]->GetComponent<CameraComponent>();
+            const double tick = StateManager::globalTime.GetTimeSeconds() / 10.f;
+            camera->SetPosition(100.f * glm::vec3(cos(tick), 0.f, sin(tick)));
         }
     } else if (StateManager::GetState() == GameState_Playing) {
         // Set the cylinder's rotation

@@ -79,6 +79,16 @@ void EntityManager::DestroyEntity(Entity *entity, std::vector<Entity*> &entities
     delete entity;
 }
 
+void EntityManager::DestroyChildren(Entity *entity) {
+	for (Entity* child : GetChildren(entity)) {
+		DestroyEntity(child);
+	}
+}
+
+size_t EntityManager::GetEntityCount() {
+    return dynamicEntities.size() + staticEntities.size();
+}
+
 void EntityManager::DestroyScene() {
     while (!dynamicEntities.empty()) {
         Entity *entity = dynamicEntities.back();
@@ -204,6 +214,16 @@ std::vector<Component*> EntityManager::GetComponents(std::vector<ComponentType> 
         all.insert(all.end(), components.begin(), components.end());
     }
     return all;
+}
+
+size_t EntityManager::GetComponentCount(ComponentType type) {
+    return components[type].size();
+}
+
+size_t EntityManager::GetComponentCount() {
+    size_t count = 0;
+    for (auto it : components) count += it.second.size();
+    return count;
 }
 
 void EntityManager::BroadcastEvent(Event* event) {

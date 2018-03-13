@@ -455,3 +455,48 @@ float VehicleComponent::GetHealth() {
 size_t VehicleComponent::GetRaycastGroup() const {
 	return raycastGroup;
 }
+
+
+void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPower) {
+	const float amountPressed = abs(forwardPower - backwardPower);
+	bool brake = false;
+	if (backwardPower) {
+		if (amountPressed < 0.01) { // if both are pressed 
+			brake = true;
+			pxVehicleInputData.setAnalogBrake(1.f);
+		}
+		else { // just backward power
+			if (pxVehicle->computeForwardSpeed() > 5.f) { // going fast brake 
+				brake = true;
+				pxVehicleInputData.setAnalogBrake(backwardPower);
+			}
+			else { // go to reverse
+				pxVehicleInputData.setAnalogBrake(0.0f);
+				pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+			}
+		}
+	}
+	else {// if not trying to reverse release brake
+		pxVehicleInputData.setAnalogBrake(0.0f);
+	}
+
+	if (forwardPower) {
+		if (pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eFIRST) {
+			pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+		}
+	}
+
+	if (!brake && amountPressed > 0.01) pxVehicleInputData.setAnalogAccel(amountPressed);
+	else {
+		pxVehicleInputData.setAnalogAccel(0);
+		pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eNEUTRAL);
+	}
+}
+
+void VehicleComponent::Steer( float amount) {
+	pxVehicleInputData.setAnalogSteer(amount);
+}
+
+void VehicleComponent::Handbrake( float amount) {
+	pxVehicleInputData.setAnalogHandbrake(amount);
+}

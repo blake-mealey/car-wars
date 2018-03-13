@@ -23,6 +23,9 @@ struct VehicleType {
     enum { Light = 0, Medium, Heavy, Count };
     static const std::string displayNames[Count];
     static const std::string prefabPaths[Count];
+	static constexpr size_t STAT_COUNT = 3;
+	static const std::string statDisplayNames[STAT_COUNT];
+	static const std::string statValues[Count][STAT_COUNT];		// accel, handle, resist
 };
 
 struct WeaponType {
@@ -30,16 +33,23 @@ struct WeaponType {
     static const std::string displayNames[Count];
     static const std::string prefabPaths[Count];
     static const std::string turretPrefabPaths[Count];
+	static constexpr size_t STAT_COUNT = 3;
+	static const std::string statDisplayNames[STAT_COUNT];
+	static const std::string statValues[Count][STAT_COUNT];		// rof, damage, type
 };
 
 struct PlayerData {
     PlayerData() : ready(false), vehicleType(0), weaponType(0),
         alive(false), vehicleEntity(nullptr), cameraEntity(nullptr), camera(nullptr) {}
 
+	// Menu state
     bool ready;
+
+	// Settings
     int vehicleType;
     int weaponType;
 
+	// Game state
     bool alive;
     Entity* vehicleEntity;
     Entity* cameraEntity;
@@ -50,13 +60,28 @@ struct GameData {
     GameData() : map(0), gameMode(0), playerCount(0), aiCount(5),
         numberOfLives(3), killLimit(10), timeLimitMinutes(10) {}
 
-    int map;
-    int gameMode;
+    size_t map;
+    size_t gameMode;
+
     size_t playerCount;
+    static constexpr size_t MIN_PLAYER_COUNT = 1;
+    static constexpr size_t MAX_PLAYER_COUNT = 4;
+
     size_t aiCount;
+    static constexpr size_t MIN_AI_COUNT = 0;
+    static constexpr size_t MAX_AI_COUNT = 20;
+
     size_t numberOfLives;
+    static constexpr size_t MIN_NUMBER_OF_LIVES = 1;
+    static constexpr size_t MAX_NUMBER_OF_LIVES = 100;
+
     size_t killLimit;
+    static constexpr size_t MIN_KILL_LIMIT = 1;
+    static constexpr size_t MAX_KILL_LIMIT = 100;
+
     size_t timeLimitMinutes;
+    static constexpr size_t MIN_TIME_LIMIT_MINUTES = 1;
+    static constexpr size_t MAX_TIME_LIMIT_MINUTES = 60;
 };
 
 class Entity;

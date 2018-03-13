@@ -26,6 +26,9 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
     
     selected = ContentManager::GetFromJson<bool>(data["Selected"], false);
 
+    textureColor = ContentManager::JsonToVec4(data["TextureColor"], glm::vec4(1.f));
+    selectedTextureColor = ContentManager::JsonToVec4(data["SelectedTextureColor"], glm::vec4(1.f));
+
     std::string textXAlignment = ContentManager::GetFromJson<std::string>(data["TextXAlignment"], "Centre");
     if (textXAlignment == "Left") {
         textAlignment[0] = TextXAlignment::Left;
@@ -65,7 +68,10 @@ void GuiComponent::RenderDebugGui() {
     ImGui::DragInt2("Text Alignment", textAlignment, 1, TextXAlignment::Left, TextXAlignment::Right);
     //ImGui::InputText("Font", );
     ImGui::ColorEdit4("Font Color", glm::value_ptr(fontColor));
+    ImGui::ColorEdit4("Selected Font Color", glm::value_ptr(selectedFontColor));
     //ImGui::InputText("Text", );
+    ImGui::ColorEdit4("Texture Color", glm::value_ptr(textureColor));
+    ImGui::ColorEdit4("Selected Texture Color", glm::value_ptr(selectedTextureColor));
     ImGui::DragFloat2("UV Scale", glm::value_ptr(uvScale), 0.01f);
 }
 
@@ -112,10 +118,10 @@ FTFont *GuiComponent::GetFont() const {
 }
 
 glm::vec4 GuiComponent::GetFontColor() const {
-	return fontColor;
+	return selected ? selectedFontColor : fontColor;
 }
 
-Entity* GuiComponent::GetGuiRoot() {
+Entity* GuiComponent::GetGuiRoot() const {
 	return guiRoot;
 }
 
@@ -182,6 +188,10 @@ glm::vec4 GuiComponent::GetSelectedFontColor() const {
 
 void GuiComponent::SetSelectedFontColor(glm::vec4 color) {
     selectedFontColor = color;
+}
+
+glm::vec4 GuiComponent::GetTextureColor() const {
+    return selected ? selectedTextureColor : textureColor;
 }
 
 bool GuiComponent::IsSelected() const {
