@@ -72,7 +72,7 @@ public:
     static void AddGuiPositions(Entity* entity, glm::vec3 offset);
     static void AddGuiPositions(std::string entityTag, glm::vec3 offset, int playerIndex = 0);
     
-    static void OpacityEffect(GuiComponent* gui, Time duration, float transparencyMod, OpacityEffect::Mode mode);
+    static void OpacityEffect(GuiComponent* gui, Time duration, float opacityMod, Time tweenInTime = 0.0, Time tweenOutTime = 0.0);
     
     static GuiComponent* GetFirstGui(Entity* entity);
     static GuiComponent* GetFirstGui(std::string entityTag, int playerIndex = 0);

@@ -56,6 +56,17 @@
     <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
     <ClCompile Include="Engine\Systems\GuiEffects.cpp" />
     <ClCompile Include="Engine\Components\GuiEffects\OpacityEffect.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Back.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Bounce.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Circ.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Cubic.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Elastic.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Expo.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Linear.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Quad.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Quart.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Quint.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Sine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -123,6 +134,17 @@
     <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
     <ClInclude Include="Engine\Systems\GuiEffects.h" />
     <ClInclude Include="Engine\Components\GuiEffects\OpacityEffect.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Back.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Bounce.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Circ.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Cubic.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Elastic.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Expo.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Linear.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Quad.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Quart.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Quint.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Sine.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\CollisionGroups\Vehicles.json" />

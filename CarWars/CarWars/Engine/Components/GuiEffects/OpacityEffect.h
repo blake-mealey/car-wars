@@ -4,17 +4,19 @@
 
 class OpacityEffect : public GuiEffect {
 public:
-    enum Mode { Add = 0, Multiply, Set };
-
     ~OpacityEffect() = default;
-    OpacityEffect(Time duration, float _opacityMod, Mode _mode = Set);
+    OpacityEffect(Time duration, float _opacityMod, Time _tweenInTime = 0.0, Time _tweenOutTime = 0.0);
 
     void Apply(GuiComponent* gui) override;
     void Remove(GuiComponent* gui) override;
+    void Update(GuiComponent* gui) override;
 private:
+    float finish;
     float opacityMod;
     float previousTextureOpacity;
     float previousFontOpacity;
-    Mode mode;
+
+    Time tweenInTime;
+    Time tweenOutTime;
 };
 

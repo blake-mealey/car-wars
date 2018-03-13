@@ -454,7 +454,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
     if (attacker) {
         Entity* entity = EntityManager::FindFirstChild(attacker->camera->GetGuiRoot(), "HitIndicator");
         GuiComponent* gui = entity->GetComponent<GuiComponent>();
-        GuiHelper::OpacityEffect(gui, 0.5, 0.7f, OpacityEffect::Add);
+        GuiHelper::OpacityEffect(gui, 0.5, 0.8f, 0.1, 0.1);
     }
 
     if (health <= 0) {

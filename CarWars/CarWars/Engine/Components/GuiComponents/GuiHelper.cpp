@@ -246,14 +246,12 @@ void GuiHelper::AddGuiPositions(std::string entityTag, glm::vec3 offset, int pla
     AddGuiPositions(EntityManager::FindEntities(entityTag)[playerIndex], offset);
 }
 
-void GuiHelper::OpacityEffect(GuiComponent* gui, Time duration, float transparencyMod,
-    OpacityEffect::Mode mode) {
-    
-    ::OpacityEffect* effect = gui->GetEffect<::OpacityEffect>();
+void GuiHelper::OpacityEffect(GuiComponent* gui, Time duration, float opacityMod, Time tweenInTime, Time tweenOutTime) {
+    auto effect = gui->GetEffect<::OpacityEffect>();
     if (effect) {
-        effect->UpdateDuration(duration);
+        effect->UpdateStartTime();
     } else {
-        effect = new ::OpacityEffect(duration, transparencyMod, mode);
+        effect = new ::OpacityEffect(duration, opacityMod, tweenInTime, tweenOutTime);
         gui->AddEffect(effect);
     }
 }
