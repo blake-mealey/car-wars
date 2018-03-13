@@ -65,6 +65,12 @@ void EntityManager::DestroyEntity(Entity* entity) {
     if (it2 != staticEntities.end()) DestroyStaticEntity(entity);
 }
 
+void EntityManager::DestroyEntities(std::vector<Entity*> entities) {
+    for (Entity* entity : entities) {
+        DestroyEntity(entity);
+    }
+}
+
 void EntityManager::DestroyStaticEntity(Entity *entity) {
     DestroyEntity(entity, staticEntities);
 }

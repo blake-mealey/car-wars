@@ -759,7 +759,7 @@ void Graphics::Update() {
                     guiProgram->LoadUniform(UniformName::DiffuseColor, gui->GetTextureColor());
 
                     // Send the transform to the GPU
-                    Transform transform = Transform(screenPosition, screenScale);
+                    Transform transform = Transform(screenPosition, screenScale, gui->transform.GetLocalRotation());
                     guiProgram->LoadUniform(UniformName::ModelMatrix, transform.GetTransformationMatrix());
 
                     // Render it

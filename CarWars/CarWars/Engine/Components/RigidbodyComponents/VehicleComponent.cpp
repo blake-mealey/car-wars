@@ -448,27 +448,36 @@ void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
 
 
 void VehicleComponent::TakeDamage(WeaponComponent* damager) {
+    VehicleData *attacker = Game::GetDataFromEntity(damager->GetEntity());
+    VehicleData* me = Game::GetDataFromEntity(GetEntity());
+
+    if (attacker->teamIndex == me->teamIndex) return;
     health -= damager->GetDamage() * resistance;
 
-    PlayerData *attacker = Game::GetPlayerFromEntity(damager->GetEntity());
-    if (attacker) {
-        Entity* entity = EntityManager::FindFirstChild(attacker->camera->GetGuiRoot(), "HitIndicator");
+    PlayerData* attackerPlayer = Game::GetPlayerFromEntity(damager->GetEntity());
+    if (attackerPlayer) {
+        Entity* entity = EntityManager::FindFirstChild(attackerPlayer->camera->GetGuiRoot(), "HitIndicator");
         GuiComponent* gui = entity->GetComponent<GuiComponent>();
         GuiHelper::OpacityEffect(gui, 0.5, 0.8f, 0.1, 0.1);
     }
 
-    if (health <= 0) {
-        VehicleData *killer = Game::GetDataFromEntity(damager->GetEntity());
-        if (killer) {
-            killer->killCount++;
-            Game::gameData.teams[killer->teamIndex].killCount++;
-        }
+    PlayerData *myPlayer = Game::GetPlayerFromEntity(GetEntity());
+    if (myPlayer) {
+        Entity* entity = EntityManager::FindFirstChild(myPlayer->camera->GetGuiRoot(), "DamageIndicator");
+        GuiComponent* gui = entity->GetComponent<GuiComponent>();
+        const glm::vec3 direction = glm::normalize(GetEntity()->transform.GetGlobalPosition() - damager->GetEntity()->transform.GetGlobalPosition());
+        const float sign = glm::dot(GetEntity()->transform.GetForward(), direction);
+        const float theta = sign * acos(glm::dot(GetEntity()->transform.GetRight(), direction));
+        gui->transform.SetRotationAxisAngles(glm::vec3(0.0, 0.0, 1.0), theta);
+        GuiHelper::OpacityEffect(gui, 1.0, 1.0, 0.25, 0.25);
+    }
 
-        VehicleData* me = Game::GetDataFromEntity(GetEntity());
-        if (me) {
-            me->deathCount++;
-            me->alive = false;
-        }
+    if (health <= 0) {
+        attacker->killCount++;
+        Game::gameData.teams[attacker->teamIndex].killCount++;
+
+        me->deathCount++;
+        me->alive = false;
 
         Physics::Instance().AddToDelete(GetEntity());
     }

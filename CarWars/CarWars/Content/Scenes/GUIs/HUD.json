@@ -114,8 +114,8 @@
 				"AnchorPoint": [0.5, 0.5],
 				"ScaledPosition": [0.5, 0.5],
 				"Scale": [500, 500, 1],
-				"Texture": "HUD/damage-indicator.png",
-				"Enabled": false
+                "TextureColor": [1, 1, 1, 0],
+				"Texture": "HUD/damage-indicator.png"
 			}
 		]
 	}

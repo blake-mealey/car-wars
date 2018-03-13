@@ -18,7 +18,7 @@ float Transform::radius = 0;
 
 Transform::Transform() : Transform(nullptr, glm::vec3(), glm::vec3(1.f), glm::quat(), false) {}
 
-Transform::Transform(glm::vec3 _position, glm::vec3 _scale) : Transform(nullptr, _position, _scale, glm::quat(), false) { }
+Transform::Transform(glm::vec3 _position, glm::vec3 _scale, glm::quat _quat) : Transform(nullptr, _position, _scale, _quat, false) { }
 
 Transform::Transform(nlohmann::json data) : parent(nullptr) {
 	connectedToCylinder = ContentManager::GetFromJson<bool>(data["CylinderPart"], false);
@@ -121,7 +121,7 @@ glm::vec3 Transform::GetUp() {
 }
 
 void Transform::UpdateTransformationMatrix() {
-	transformationMatrix = translationMatrix * rotationMatrix * scalingMatrix;
+	transformationMatrix = translationMatrix * scalingMatrix * rotationMatrix;
 }
 
 void Transform::SetPosition(glm::vec3 pPosition) {
