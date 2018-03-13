@@ -56,7 +56,7 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	if (cameraNewHor > M_PI) cameraNewHor -= M_PI * 2;
 	if (cameraNewHor < -M_PI) cameraNewHor += M_PI * 2;
 
-	cout << cameraNewHor << endl;
+	//cout << cameraNewHor << endl;
 
 	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
 
@@ -122,6 +122,7 @@ void InputManager::HandleMouse() {
 		//Get Camera Component
 
 		glm::vec2 angleDiffs = 10.f * (windowSize*0.5f - glm::vec2(xPos, yPos)) / windowSize;
+		angleDiffs.x = -angleDiffs.x;
 		UpdateCamera(vehicle, cameraComponent, angleDiffs);
 
 		//Set Cursor to Middle
@@ -543,8 +544,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		// -------------------------------------------------------------------------------------------------------------- //
 		float cameraX = 0;
 		float cameraY = 0;
-		
-
+	
 		// an attempt to reset camera behind the vehicle
 		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
 			follow = !follow;

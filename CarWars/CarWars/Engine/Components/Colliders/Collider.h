@@ -12,7 +12,8 @@
 enum ColliderType {
     Collider_Box,
     Collider_ConvexMesh,
-    Collider_TriangleMesh
+    Collider_TriangleMesh,
+	Collider_Sphere
 };
 
 class Collider {

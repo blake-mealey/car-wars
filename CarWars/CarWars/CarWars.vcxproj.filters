@@ -67,6 +67,7 @@
     <ClCompile Include="Dependencies\PennerEasing\Quart.cpp" />
     <ClCompile Include="Dependencies\PennerEasing\Quint.cpp" />
     <ClCompile Include="Dependencies\PennerEasing\Sine.cpp" />
+    <ClCompile Include="Engine\Components\Colliders\SphereCollider.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -145,6 +146,7 @@
     <ClInclude Include="Dependencies\PennerEasing\Quart.h" />
     <ClInclude Include="Dependencies\PennerEasing\Quint.h" />
     <ClInclude Include="Dependencies\PennerEasing\Sine.h" />
+    <ClInclude Include="Engine\Components\Colliders\SphereCollider.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\CollisionGroups\Vehicles.json" />
@@ -212,5 +214,6 @@
     <None Include="Content\Prefabs\Components\Ai.json" />
     <None Include="Content\Scenes\Maps\CircleMap.json" />
     <None Include="Content\Prefabs\Entities\Menu\PauseMenu.json" />
+    <None Include="Content\Prefabs\Entities\Explosion.json" />
   </ItemGroup>
 </Project>

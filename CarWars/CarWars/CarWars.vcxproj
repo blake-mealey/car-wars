@@ -163,6 +163,7 @@
     <ClCompile Include="Engine\Components\CameraComponent.cpp" />
     <ClCompile Include="Engine\Components\Colliders\BoxCollider.cpp" />
     <ClCompile Include="Engine\Components\Colliders\Collider.cpp" />
+    <ClCompile Include="Engine\Components\Colliders\SphereCollider.cpp" />
     <ClCompile Include="Engine\Components\Component.cpp" />
     <ClCompile Include="Engine\Components\DirectionLightComponent.cpp" />
     <ClCompile Include="Engine\Components\Colliders\ConvexMeshCollider.cpp" />
@@ -234,6 +235,7 @@
     <ClInclude Include="Engine\Components\CameraComponent.h" />
     <ClInclude Include="Engine\Components\Colliders\BoxCollider.h" />
     <ClInclude Include="Engine\Components\Colliders\Collider.h" />
+    <ClInclude Include="Engine\Components\Colliders\SphereCollider.h" />
     <ClInclude Include="Engine\Components\Component.h" />
     <ClInclude Include="Engine\Components\DirectionLightComponent.h" />
     <ClInclude Include="Engine\Components\Colliders\ConvexMeshCollider.h" />
@@ -306,6 +308,7 @@
     <None Include="Content\Prefabs\Components\Weapons\RailGun.json" />
     <None Include="Content\Prefabs\Components\Weapons\RocketLauncher.json" />
     <None Include="Content\Prefabs\Entities\Boulder.json" />
+    <None Include="Content\Prefabs\Entities\Explosion.json" />
     <None Include="Content\Prefabs\Entities\Game\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\CharacterMenuStat.json" />

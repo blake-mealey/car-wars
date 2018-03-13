@@ -9,13 +9,20 @@
 
 void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 	if (_actor0->HasTag("Missile")) {
+		Physics& physicsInstance = Physics::Instance();
 		if (_actor1->GetId() == _actor0->GetComponent<MissileComponent>()->GetOwner()->GetId()) {
 			//Dont Explode
 			std::cout << "Missile Inside Owner - Do Not Explode" << std::endl;
 		} else {
 			//Explode
-
 			float explosionRadius = _actor0->GetComponent<MissileComponent>()->GetExplosionRadius();
+
+			//bool isOverlapping = overlap();
+			Entity* explosionEntity;
+			//Entity* explosionEntity = ContentManager::LoadEntity("Explosion.json");
+
+			explosionEntity->GetComponent<RigidDynamicComponent>()->actor->setGlobalPose(_actor0->GetComponent<RigidDynamicComponent>()->actor->getGlobalPose());
+			explosionEntity->GetComponent<RigidDynamicComponent>()->actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 
 			std::vector<Component*> carComponents = EntityManager::GetComponents(ComponentType_Vehicle);
 			for (Component* component : carComponents) {
@@ -25,7 +32,7 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 					component->TakeDamage(weapon);
 				}
 			}
-			Physics::Instance().AddToDelete(_actor0);
+			physicsInstance.AddToDelete(_actor0);
 		}
 	}
 }

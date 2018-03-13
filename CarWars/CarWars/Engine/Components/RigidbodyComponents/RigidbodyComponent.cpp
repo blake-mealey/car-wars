@@ -6,6 +6,7 @@
 #include "../Colliders/BoxCollider.h"
 #include "../Colliders/ConvexMeshCollider.h"
 #include "../Colliders/MeshCollider.h"
+#include "../Colliders/SphereCollider.h"
 #include "imgui/imgui.h"
 
 RigidbodyComponent::~RigidbodyComponent() {
@@ -30,6 +31,7 @@ RigidbodyComponent::RigidbodyComponent(nlohmann::json data) : RigidbodyComponent
         if (type == "Box") collider = new BoxCollider(colliderData);
         else if (type == "ConvexMesh") collider = new ConvexMeshCollider(colliderData);
         else if (type == "Mesh") collider = new MeshCollider(colliderData);
+		else if (type == "Sphere") collider = new SphereCollider(colliderData);
         
         if (collider) AddCollider(collider);
     }
