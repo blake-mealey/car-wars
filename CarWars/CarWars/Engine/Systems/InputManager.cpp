@@ -444,7 +444,7 @@ void InputManager::HandleKeyboard() {
 		}
 
         //Go to Pause Screen
-        if (Keyboard::KeyDown(GLFW_KEY_ESCAPE)) {
+        if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
 			//TODO: pause();
             StateManager::SetState(GameState_Paused);
         }
