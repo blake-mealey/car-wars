@@ -8,6 +8,8 @@
 #include "RigidDynamicComponent.h"
 #include "../MeshComponent.h"
 
+class WeaponComponent;
+
 struct AxleData {
     AxleData(const float _centerOffset = 0.f, const float _wheelInset = 0.f)
         : centerOffset(_centerOffset), wheelInset(_wheelInset) {};
@@ -50,7 +52,7 @@ public:
 
     void RenderDebugGui() override;
 
-	void TakeDamage(float _damageValue) override;
+	void TakeDamage(WeaponComponent* damager) override;
 	float GetHealth();
 
 	size_t GetRaycastGroup() const;

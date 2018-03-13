@@ -16,7 +16,7 @@ public:
 	virtual void Shoot(glm::vec3 position) = 0;
 	virtual void Charge() = 0;
 
-	float GetDamage();
+	virtual float GetDamage();
 
 	void SetTargetRotation(float _horizontalAngle, float _verticalAngle);
 

@@ -6,9 +6,11 @@
 #include "../../Systems/Physics.h"
 #include "../Colliders/ConvexMeshCollider.h"
 #include "../Colliders/BoxCollider.h"
+#include "../WeaponComponents/WeaponComponent.h"
 #include "../../Systems/Physics/VehicleTireFriction.h"
 
 #include "../../Systems/Physics/RaycastGroups.h"
+#include "../../Systems/Game.h"
 
 using namespace physx;
 
@@ -441,11 +443,20 @@ void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
 }
 
 
-void VehicleComponent::TakeDamage(float _damageValue) {
-	health -= _damageValue * resistance;
-	if (health <= 0) {
-		Physics::Instance().AddToDelete(GetEntity());
-	}
+void VehicleComponent::TakeDamage(WeaponComponent* damager) {
+    health -= damager->GetDamage() * resistance;
+    if (health <= 0) {
+        VehicleData* killer = Game::GetDataFromEntity(damager->GetEntity());
+        if (killer) killer->killCount++;
+
+        VehicleData* me = Game::GetDataFromEntity(GetEntity());
+        if (me) {
+            me->deathCount++;
+            me->alive = false;
+        }
+
+        Physics::Instance().AddToDelete(GetEntity());
+    }
 }
 
 float VehicleComponent::GetHealth() {

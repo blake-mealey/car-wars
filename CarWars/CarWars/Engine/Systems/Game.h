@@ -5,6 +5,7 @@
 #include "Content/NavigationMesh.h"
 
 class CameraComponent;
+class AiComponent;
 
 struct GameModeType {
     enum { Team = 0, FreeForAll, Count };
@@ -20,7 +21,7 @@ struct MapType {
 // TODO: DriverType?
 
 struct VehicleType {
-    enum { Light = 0, Medium, Heavy, Count };
+    enum { Heavy = 0, Medium, Light, Count };
     static const std::string displayNames[Count];
     static const std::string prefabPaths[Count];
 	static constexpr size_t STAT_COUNT = 3;
@@ -38,22 +39,46 @@ struct WeaponType {
 	static const std::string statValues[Count][STAT_COUNT];		// rof, damage, type
 };
 
-struct PlayerData {
-    PlayerData() : ready(false), vehicleType(0), weaponType(0),
-        alive(false), vehicleEntity(nullptr), cameraEntity(nullptr), camera(nullptr) {}
+struct TeamData {
+    TeamData() : killCount(0) {}
 
-	// Menu state
-    bool ready;
+    size_t killCount;
+};
 
-	// Settings
+struct VehicleData {
+    VehicleData(int _vehicleType = 0, int _weaponType = 0) :
+        vehicleType(_vehicleType), weaponType(_weaponType),
+        alive(false), vehicleEntity(nullptr), cameraEntity(nullptr), camera(nullptr),
+        teamIndex(0), killCount(0), deathCount(0) {}
+
+    // Settings
     int vehicleType;
     int weaponType;
 
-	// Game state
+    // Game state
     bool alive;
     Entity* vehicleEntity;
     Entity* cameraEntity;
     CameraComponent* camera;
+
+    // Gamemode state
+    size_t teamIndex;
+    size_t killCount;
+    size_t deathCount;
+};
+
+struct PlayerData : VehicleData {
+    PlayerData() : VehicleData(), ready(false) {}
+
+	// Menu state
+    bool ready;
+};
+
+struct AiData : VehicleData {
+    AiData(int _vehicleType, int _weaponType) : VehicleData(_vehicleType, _weaponType), brain(nullptr) {}
+
+    // Game state
+    AiComponent* brain;
 };
 
 struct GameData {
@@ -80,8 +105,11 @@ struct GameData {
     static constexpr size_t MAX_KILL_LIMIT = 100;
 
     size_t timeLimitMinutes;
+    Time timeLimit;
     static constexpr size_t MIN_TIME_LIMIT_MINUTES = 1;
     static constexpr size_t MAX_TIME_LIMIT_MINUTES = 60;
+
+    std::vector<TeamData> teams;
 };
 
 class Entity;
@@ -96,12 +124,16 @@ public:
 	void Update() override;
 
     void InitializeGame();
+    void FinishGame();
 
 	//Game Creation Variables
     static GameData gameData;
     static PlayerData players[4];
+    static std::vector<AiData> ais;
 
-    NavigationMesh *GetNavigationMesh();
+    NavigationMesh *GetNavigationMesh() const;
+
+    static VehicleData* GetDataFromEntity(Entity* vehicle);
 
 private:
 	// No instantiation or copying

@@ -2,6 +2,7 @@
 #include "../Physics.h"
 #include "../../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../Engine/Components/WeaponComponents/MissileComponent.h"
+#include "../../Components/WeaponComponents/RocketLauncherComponent.h"
 
 void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 	if (_actor0->HasTag("Missile")) {
@@ -11,13 +12,12 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 				std::cout << "Missile Inside Owner" << std::endl;
 			} else {
 				//Explode
-				float damage = _actor0->GetComponent<MissileComponent>()->GetDamage();
-				_actor1->GetComponent<VehicleComponent>()->TakeDamage(damage);
-				Physics::Instance().AddToDelete(_actor0);
+                RocketLauncherComponent* weapon = _actor0->GetComponent<MissileComponent>()->GetOwner()->GetComponent<RocketLauncherComponent>();
+				_actor1->GetComponent<VehicleComponent>()->TakeDamage(weapon);
+                Physics::Instance().AddToDelete(_actor0);
 			}
 		} else {
-			Physics::Instance().AddToDelete(_actor0);
-			//Explode
+            Physics::Instance().AddToDelete(_actor0);
 		}
 	}
 }

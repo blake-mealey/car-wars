@@ -568,7 +568,7 @@ void Graphics::Update() {
         skyboxProgram->LoadUniform(UniformName::SunDirection, shadowCaster->GetDirection());
     }
 
-    skyboxProgram->LoadUniform(UniformName::Time, StateManager::gameTime.GetTimeSeconds());
+    skyboxProgram->LoadUniform(UniformName::Time, StateManager::gameTime.GetSeconds());
 
     for (Camera camera : cameras) {
         // Setup the viewport for each camera (split-screen)

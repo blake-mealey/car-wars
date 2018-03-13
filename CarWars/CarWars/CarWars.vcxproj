@@ -269,6 +269,7 @@
     <None Include="Content\Materials\PhysicsCollider.json" />
     <None Include="Content\Materials\RedShiny.json" />
     <None Include="Content\PhysicsMaterials\Default.json" />
+    <None Include="Content\Prefabs\Components\Ai.json" />
     <None Include="Content\Prefabs\Components\Camera.json" />
     <None Include="Content\Prefabs\Components\GUIs\MainMenuButton.json" />
     <None Include="Content\Prefabs\Components\GUIs\MenuButton.json" />
@@ -276,7 +277,6 @@
     <None Include="Content\Prefabs\Components\Weapons\MachineGun.json" />
     <None Include="Content\Prefabs\Components\Weapons\RailGun.json" />
     <None Include="Content\Prefabs\Components\Weapons\RocketLauncher.json" />
-    <None Include="Content\Prefabs\Entities\AiSewage.json" />
     <None Include="Content\Prefabs\Entities\Boulder.json" />
     <None Include="Content\Prefabs\Entities\Game\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\Camera.json" />

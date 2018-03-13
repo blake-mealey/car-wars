@@ -19,9 +19,6 @@
 #include "../Components/RigidbodyComponents/RigidDynamicComponent.h"
 #include "../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../Components/WeaponComponents/WeaponComponent.h"
-#include "../Components/WeaponComponents/MachineGunComponent.h"
-#include "../Components/WeaponComponents/RailGunComponent.h"
-#include "../Components/WeaponComponents/RocketLauncherComponent.h"
 #include "Physics.h"
 #include "../Components/AiComponent.h"
 #include "Pathfinder.h"
@@ -55,6 +52,7 @@ const unsigned int Game::MAX_VEHICLE_COUNT = 20;
 
 GameData Game::gameData;
 PlayerData Game::players[4];
+vector<AiData> Game::ais;
 
 Time gameTime(0);
 
@@ -76,38 +74,85 @@ void Game::Initialize() {
 }
 
 void Game::InitializeGame() {
-    ContentManager::DestroySceneAndLoadScene("PhysicsDemo.json");
+    // Initialize the map
+    ContentManager::DestroySceneAndLoadScene(MapType::scenePaths[gameData.map]);
 
+    // Initialize game stuff
+    gameData.timeLimit = Time::FromMinutes(gameData.timeLimitMinutes);
+
+    // Initialize teams
+    size_t teamCount = 0;
+    if (gameData.gameMode == GameModeType::Team) teamCount = 2;
+    else if (gameData.gameMode == GameModeType::FreeForAll) teamCount = gameData.playerCount + gameData.aiCount;
+    for (size_t i = 0; i < teamCount; ++i) {
+        gameData.teams.push_back(TeamData());
+    }
+
+    // Initialize the players
 	for (int i = 0; i < gameData.playerCount; ++i) {
         PlayerData& player = players[i];
+        player.alive = true;
 
+        // Set their team
+        if (gameData.gameMode == GameModeType::FreeForAll) {
+            player.teamIndex = i;
+        } else if (gameData.gameMode == GameModeType::Team) {
+            player.teamIndex = i % 2;
+        }
+
+        // Initialize their vehicle
+        // TODO: Proper spawn location
         player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
         player.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(0.f, 10.f, i*15.f)));
 
+        // Initialize their turret mesh
         Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType], player.vehicleEntity);
         turret->transform.SetPosition(EntityManager::FindFirstChild(player.vehicleEntity, "GunTurretBase")->transform.GetLocalPosition());
 
+        // Initialize their weapon
         Component* weapon = ContentManager::LoadComponent(WeaponType::prefabPaths[player.weaponType]);
         EntityManager::AddComponent(player.vehicleEntity, weapon);
 
+        // Initialize their camera
         player.cameraEntity = ContentManager::LoadEntity("Game/Camera.json");
-        
 	    player.camera = player.cameraEntity->GetComponent<CameraComponent>();
         player.camera->SetCameraHorizontalAngle(-3.14 / 2);
         player.camera->SetCameraVerticalAngle(3.14 / 4);
+
+        // Initialize their UI
         ContentManager::LoadScene("GUIs/HUD.json", player.camera->GetGuiRoot());
 	}
 
+    // Initialize the AI
     for (size_t i = 0; i < gameData.aiCount; ++i) {
-        Entity *ai = ContentManager::LoadEntity("AiSewage.json");
-        ai->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
+        // Create the AI
+        // TODO: Choose vehicle and weapon type somehow
+        ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun));
+        AiData& ai = ais[i];
 
-        Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[WeaponType::MachineGun]);
-        turret->transform.SetPosition(EntityManager::FindFirstChild(ai, "GunTurretBase")->transform.GetLocalPosition());
-        EntityManager::SetParent(turret, ai);
+        // Set their team
+        if (gameData.gameMode == GameModeType::FreeForAll) {
+            ai.teamIndex = gameData.playerCount + i;
+        } else if (gameData.gameMode == GameModeType::Team) {
+            ai.teamIndex = (gameData.playerCount + i) % 2;
+        }
 
-		MachineGunComponent *gun = new MachineGunComponent();
-		EntityManager::AddComponent(ai, gun);
+        // Initialize their vehicle
+        // TODO: Proper spawn location
+        ai.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[ai.vehicleType]);
+        ai.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
+
+        // Initialize their turret mesh
+        Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[WeaponType::MachineGun], ai.vehicleEntity);
+        turret->transform.SetPosition(EntityManager::FindFirstChild(ai.vehicleEntity, "GunTurretBase")->transform.GetLocalPosition());
+
+        // Initialize their weapon
+        Component* weapon = ContentManager::LoadComponent(WeaponType::prefabPaths[ai.weaponType]);
+        EntityManager::AddComponent(ai.vehicleEntity, weapon);
+
+        // Initialize their AI
+        ai.brain = static_cast<AiComponent*>(ContentManager::LoadComponent("Ai.json"));
+        EntityManager::AddComponent(ai.vehicleEntity, ai.brain);
     }
 
     Physics &physics = Physics::Instance();
@@ -155,6 +200,35 @@ void Game::InitializeGame() {
     }
 }
 
+void ResetVehicleData(VehicleData& vehicle) {
+    vehicle.alive = false;
+    vehicle.killCount = 0;
+    vehicle.deathCount = 0;
+}
+
+void Game::FinishGame() {
+    // TODO: Show leaderboard GUI
+
+    // Reset players
+    for (size_t i = 0; i < gameData.playerCount; ++i) {
+        PlayerData& player = players[i];
+        player.ready = false;
+        ResetVehicleData(player);
+    }
+
+    // Reset ais
+    for (AiData& ai : ais) {
+        ResetVehicleData(ai);
+    }
+
+    // Reset game
+    gameData.playerCount = 0;
+    gameData.teams.clear();
+
+    // Load the main menu
+    StateManager::SetState(GameState_Menu);
+}
+
 void Game::Update() {
     if (StateManager::GetState() < __GameState_Menu_End) {
         for (Entity* entity : EntityManager::FindEntities("VehicleBox")) {
@@ -162,7 +236,7 @@ void Game::Update() {
         }
         if (StateManager::GetState() == GameState_Menu_Settings || StateManager::GetState() == GameState_Menu_Start) {
             CameraComponent* camera = EntityManager::FindEntities("Camera")[0]->GetComponent<CameraComponent>();
-            const double tick = StateManager::globalTime.GetTimeSeconds() / 10.f;
+            const double tick = StateManager::globalTime.GetSeconds() / 10.f;
             camera->SetPosition(100.f * glm::vec3(cos(tick), 0.f, sin(tick)));
         }
     } else if (StateManager::GetState() == GameState_Playing) {
@@ -170,53 +244,51 @@ void Game::Update() {
         cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
 
         // Update AIs
-		std::vector<Component*> aiComponents = EntityManager::GetComponents(ComponentType_AI);
-        for (Component *component : aiComponents) {
-			AiComponent *ai = static_cast<AiComponent*>(component);
-            if (!ai->enabled) continue;
-            VehicleComponent* vehicle = ai->GetEntity()->GetComponent<VehicleComponent>();
+        for (AiData &ai : ais) {
+            if (!ai.brain->enabled) continue;
+            VehicleComponent* vehicle = ai.brain->GetEntity()->GetComponent<VehicleComponent>();
 
-            Transform &myTransform = ai->GetEntity()->transform;
+            Transform &myTransform = ai.brain->GetEntity()->transform;
             const glm::vec3 position = myTransform.GetGlobalPosition();
             const glm::vec3 forward = myTransform.GetForward();
             const glm::vec3 right = myTransform.GetRight();
 
-            ai->UpdatePath();       // Will only update every x seconds
-            const glm::vec3 targetPosition = ai->GetTargetEntity()->transform.GetGlobalPosition();
-            const glm::vec3 nodePosition = ai->NodeInPath();
+            ai.brain->UpdatePath();       // Will only update every x seconds
+            const glm::vec3 targetPosition = ai.brain->GetTargetEntity()->transform.GetGlobalPosition();
+            const glm::vec3 nodePosition = ai.brain->NodeInPath();
 
             glm::vec3 direction = nodePosition - position;
             const float distance = glm::length(direction);
             direction = glm::normalize(direction);
 
             if (distance <= navigationMesh->GetSpacing() * 2.f) {
-                ai->NextNodeInPath();
+                ai.brain->NextNodeInPath();
             }
 
-            switch(ai->GetMode()) {
+            switch(ai.brain->GetMode()) {
             case AiMode_Waypoints:
                 if (glm::length(targetPosition - position) <= navigationMesh->GetSpacing()) {
-                    ai->SetTargetEntity(waypoints[ai->NextWaypoint(4)]);
+                    ai.brain->SetTargetEntity(waypoints[ai.brain->NextWaypoint(4)]);
                 }
             case AiMode_Chase:
                 const float steer = glm::dot(direction, right);
                 const PxReal speed = vehicle->pxVehicle->computeForwardSpeed();
 
-                if (!ai->IsStuck() && abs(speed) <= 0.5f) {
-                    ai->SetStuck(true);
-                } else if (ai->IsStuck() && abs(speed) >= 1.f) {
-                    ai->SetStuck(false);
+                if (!ai.brain->IsStuck() && abs(speed) <= 0.5f) {
+                    ai.brain->SetStuck(true);
+                } else if (ai.brain->IsStuck() && abs(speed) >= 1.f) {
+                    ai.brain->SetStuck(false);
                 }
 
-                if (!ai->IsReversing() && ai->IsStuck() && ai->GetStuckDuration().GetTimeSeconds() >= 1.f) {
-                    ai->StartReversing();
+                if (!ai.brain->IsReversing() && ai.brain->IsStuck() && ai.brain->GetStuckDuration().GetSeconds() >= 1.f) {
+                    ai.brain->StartReversing();
                 }
 
-                if (ai->IsReversing() && ai->GetReversingDuration().GetTimeSeconds() >= 2.f) {
-                    ai->StopReversing();
+                if (ai.brain->IsReversing() && ai.brain->GetReversingDuration().GetSeconds() >= 2.f) {
+                    ai.brain->StopReversing();
                 }
 
-                const bool reverse = ai->IsReversing();// speed < 1.f; // glm::dot(direction, forward) > -0.1;
+                const bool reverse = ai.brain->IsReversing();// speed < 1.f; // glm::dot(direction, forward) > -0.1;
 
 				const float accel = glm::clamp(distance / 20.f, 0.1f, 0.8f) * reverse ? 0.8f : 0.8f;
 
@@ -232,13 +304,13 @@ void Game::Update() {
                 break;
             }
 
-            if (ai->FinishedPath()) {
-                ai->UpdatePath();
+            if (ai.brain->FinishedPath()) {
+                ai.brain->UpdatePath();
             }
         }
 
         // Update sun direction
-		const float t = glm::radians(45.5) + StateManager::gameTime.GetTimeSeconds() / 10;
+		const float t = glm::radians(45.5) + StateManager::gameTime.GetSeconds() / 10;
         const glm::vec3 sunPosition = glm::vec3(cos(t), 0.5f, sin(t));
         EntityManager::FindEntities("Sun")[0]->GetComponent<DirectionLightComponent>()->SetDirection(-sunPosition);
 		
@@ -249,6 +321,24 @@ void Game::Update() {
             player.camera->SetTarget(player.vehicleEntity->transform.GetGlobalPosition() +
                 player.vehicleEntity->transform.GetUp() * 2.f + player.vehicleEntity->transform.GetForward() * -1.25f);
         }
+
+        // -------------------
+        // End-game conditions
+        // -------------------
+
+        // TODO: AI for kill limit and lives
+
+        // Time limit
+        if (StateManager::gameTime >= gameData.timeLimit) FinishGame();
+
+        // Kill limit and lives
+        bool allDeadForever = true;
+        for (size_t i = 0; i < gameData.playerCount; ++i) {
+            PlayerData& player = players[i];
+            if (player.killCount >= gameData.killLimit) FinishGame();
+            if (allDeadForever && player.deathCount < gameData.numberOfLives) allDeadForever = false;
+        }
+        if (allDeadForever) FinishGame();
 	} else if (StateManager::GetState() == GameState_Paused) {
 
         // PAUSED
@@ -256,6 +346,19 @@ void Game::Update() {
 	}
 }
 
-NavigationMesh* Game::GetNavigationMesh() {
+NavigationMesh* Game::GetNavigationMesh() const {
     return navigationMesh;
+}
+
+VehicleData* Game::GetDataFromEntity(Entity* vehicle) {
+    for (size_t i = 0; i < gameData.playerCount; ++i) {
+        PlayerData& player = players[i];
+        if (player.vehicleEntity == vehicle) return &player;
+    }
+
+    for (AiData& ai : ais) {
+        if (ai.vehicleEntity == vehicle) return &ai;
+    }
+
+    return nullptr;
 }

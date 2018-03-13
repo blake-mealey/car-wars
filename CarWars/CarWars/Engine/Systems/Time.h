@@ -2,15 +2,30 @@
 
 class Time{
 public:
+    // Constructors
 	Time();
-	Time(double _timeValueSeconds);
+	Time(const double _timeSeconds);
 
-	float GetTimeSeconds();
-	float GetTimeMilliSeconds();
+    // Builders
+    static Time FromMilliseconds(const double timeMilliseconds);
+    static Time FromSeconds(const double timeSeconds);
+    static Time FromMinutes(const double timeMinutes);
+    static Time FromHours(const double timeHours);
 
-	double operator-(Time _timeValueSeconds);
-	double operator+(Time _timeValueSeconds);
-	void operator+=(Time _timeValueSeconds);
+    // Unit getters
+    float GetMilliseconds() const;
+	float GetSeconds() const;
+    float GetMinutes() const;
+    float GetHours() const;
+
+    // Operator overloads
+	bool operator<(const Time other) const;
+	bool operator<=(const Time other) const;
+    bool operator>(const Time other) const;
+    bool operator>=(const Time other) const;
+	Time operator-(const Time other) const;
+	Time operator+(const Time other) const;
+	void operator+=(const Time other);
 private:
-	double timeValueSeconds;
+	double timeSeconds;
 };

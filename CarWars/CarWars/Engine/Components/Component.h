@@ -2,6 +2,7 @@
 #include <string>
 #include <foundation/PxTransform.h>
 
+class WeaponComponent;
 class Event;
 class Entity;
 
@@ -40,7 +41,7 @@ public:
 
     virtual void UpdateFromPhysics(physx::PxTransform t);
 
-	virtual void TakeDamage(float amount);
+	virtual void TakeDamage(WeaponComponent* damager);
 
 	virtual void SetEntity(Entity *_entity);
 	Entity* GetEntity() const;

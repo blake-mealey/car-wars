@@ -1,41 +1,65 @@
 #include "Time.h"
 
-#include <iostream>
-using namespace std;
+Time::Time() : timeSeconds(0.0) {}
 
-Time::Time() {
-	timeValueSeconds = 0;
+Time::Time(const double _timeSeconds) : timeSeconds(_timeSeconds) {}
+
+Time Time::FromMilliseconds(const double timeMilliseconds) {
+    return Time(timeMilliseconds / 1000.0);
 }
 
-Time::Time(double _timeValueSeconds) {
-	timeValueSeconds = _timeValueSeconds;
+Time Time::FromSeconds(const double timeSeconds) {
+    return Time(timeSeconds);
 }
 
-float Time::GetTimeSeconds() {
-	return (float)timeValueSeconds;
+Time Time::FromMinutes(const double timeMinutes) {
+    return Time(timeMinutes * 60.0);
 }
 
-/*
-Converts stored time value (seconds) to milliseconds
-*/
-float Time::GetTimeMilliSeconds() {
-	return (float)timeValueSeconds * 1000.f;
+Time Time::FromHours(const double timeHours) {
+    return FromMinutes(timeHours * 60.0);
 }
 
-/*
-Overloaded operator to allow for subtraction between Time data types
-*/
-double Time::operator-(Time _timeValueSeconds) {
-	return timeValueSeconds - _timeValueSeconds.GetTimeSeconds();
+float Time::GetMinutes() const {
+    return GetSeconds() / 60.0;
 }
 
-/*
-Overloaded operator to allow for addition between Time data types
-*/
-double Time::operator+(Time _timeValueSeconds) {
-	return timeValueSeconds + _timeValueSeconds.GetTimeSeconds();
+float Time::GetHours() const {
+    return GetMinutes() / 60.0;
 }
 
-void Time::operator+=(Time _timeValueSeconds) {
-	timeValueSeconds += _timeValueSeconds.GetTimeSeconds();
+float Time::GetSeconds() const {
+	return timeSeconds;
+}
+
+float Time::GetMilliseconds() const {
+	return GetSeconds() * 1000.0;
+}
+
+bool Time::operator<(const Time other) const {
+    return GetSeconds() < other.GetSeconds();
+}
+
+bool Time::operator<=(const Time other) const {
+    return GetSeconds() <= other.GetSeconds();
+}
+
+bool Time::operator>(const Time other) const {
+    return GetSeconds() > other.GetSeconds();
+}
+
+bool Time::operator>=(const Time other) const {
+    return GetSeconds() >= other.GetSeconds();
+}
+
+Time Time::operator-(const Time other) const {
+	return GetSeconds() - other.GetSeconds();
+}
+
+Time Time::operator+(const Time other) const {
+	return GetSeconds() + other.GetSeconds();
+}
+
+void Time::operator+=(const Time other) {
+    timeSeconds += other.GetSeconds();
 }
