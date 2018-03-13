@@ -178,7 +178,7 @@ void NextNumberOption(Entity* option, int dir, size_t &value, size_t min, size_t
     GuiHelper::SetSecondGuiText(option, to_string(value) + unit);
 
     GuiComponent* arrow = dir < 0 ? GuiHelper::GetThirdGui(option) : GuiHelper::GetFourthGui(option);
-    GuiHelper::OpacityEffect(arrow, 0.1, 0.6f, OpacityEffect::Multiply);
+    GuiHelper::OpacityEffect(arrow, 0.2, 0.5f, 0.1, 0.1);
 }
 
 void NextEnumOption(Entity* option, int dir, size_t &value, size_t count, const std::string* displayNames) {
@@ -190,7 +190,7 @@ void NextEnumOption(Entity* option, int dir, size_t &value, size_t count, const 
     GuiHelper::SetSecondGuiText(option, displayNames[value]);
 
     GuiComponent* arrow = dir < 0 ? GuiHelper::GetThirdGui(option) : GuiHelper::GetFourthGui(option);
-    GuiHelper::OpacityEffect(arrow, 0.1, 0.6f, OpacityEffect::Multiply);
+    GuiHelper::OpacityEffect(arrow, 0.2, 0.5f, 0.1, 0.1);
 }
 
 void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, int playerIndex) {
@@ -262,7 +262,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                 GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", text, playerIndex);
 
                 GuiComponent* arrow = horizDir < 0 ? GuiHelper::GetFirstGui("CharacterMenu_Arrows", playerIndex) : GuiHelper::GetSecondGui("CharacterMenu_Arrows", playerIndex);
-                GuiHelper::OpacityEffect(arrow, 0.1, 0.6f, OpacityEffect::Multiply);
+                GuiHelper::OpacityEffect(arrow, 0.2, 0.5f, 0.1, 0.1);
 
                 Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
                 EntityManager::DestroyEntity(EntityManager::FindFirstChild(vehicleBox, "Vehicle"));
@@ -276,7 +276,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 				GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", text, playerIndex);
 
                 GuiComponent* arrow = horizDir < 0 ? GuiHelper::GetFirstGui("CharacterMenu_Arrows", playerIndex) : GuiHelper::GetSecondGui("CharacterMenu_Arrows", playerIndex);
-                GuiHelper::OpacityEffect(arrow, 0.1, 0.6f, OpacityEffect::Multiply);
+                GuiHelper::OpacityEffect(arrow, 0.2, 0.5f, 0.1, 0.1);
 
                 Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
                 Entity* vehicle = EntityManager::FindFirstChild(vehicleBox, "Vehicle");
