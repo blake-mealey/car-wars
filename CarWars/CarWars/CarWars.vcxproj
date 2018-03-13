@@ -156,6 +156,8 @@
     <ClCompile Include="Engine\Components\DirectionLightComponent.cpp" />
     <ClCompile Include="Engine\Components\Colliders\ConvexMeshCollider.cpp" />
     <ClCompile Include="Engine\Components\GuiComponents\GuiComponent.cpp" />
+    <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
+    <ClCompile Include="Engine\Systems\GuiEffects.cpp" />
     <ClCompile Include="Engine\Components\MeshComponent.cpp" />
     <ClCompile Include="Engine\Components\PointLightComponent.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.cpp" />
@@ -179,7 +181,7 @@
     <ClCompile Include="Engine\Systems\Content\ShaderProgram.cpp" />
     <ClCompile Include="Engine\Systems\Game.cpp" />
     <ClCompile Include="Engine\Systems\Graphics.cpp" />
-    <ClCompile Include="Engine\Systems\GuiHelper.cpp" />
+    <ClCompile Include="Engine\Components\GuiComponents\GuiHelper.cpp" />
     <ClCompile Include="Engine\Systems\InputManager.cpp" />
     <ClCompile Include="Engine\Systems\IO\Keyboard.cpp" />
     <ClCompile Include="Engine\Systems\IO\Mouse.cpp" />
@@ -195,6 +197,7 @@
     <ClCompile Include="Engine\Systems\StateManager.cpp" />
     <ClCompile Include="Engine\Systems\Time.cpp" />
     <ClCompile Include="HelloWorld.cpp" />
+    <ClCompile Include="Engine\Components\GuiEffects\TransparencyEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -213,6 +216,8 @@
     <ClInclude Include="Engine\Components\DirectionLightComponent.h" />
     <ClInclude Include="Engine\Components\Colliders\ConvexMeshCollider.h" />
     <ClInclude Include="Engine\Components\GuiComponents\GuiComponent.h" />
+    <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
+    <ClInclude Include="Engine\Systems\GuiEffects.h" />
     <ClInclude Include="Engine\Components\MeshComponent.h" />
     <ClInclude Include="Engine\Components\PointLightComponent.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.h" />
@@ -241,7 +246,7 @@
     <ClInclude Include="Engine\Systems\Content\Texture.h" />
     <ClInclude Include="Engine\Systems\Game.h" />
     <ClInclude Include="Engine\Systems\Graphics.h" />
-    <ClInclude Include="Engine\Systems\GuiHelper.h" />
+    <ClInclude Include="Engine\Components\GuiComponents\GuiHelper.h" />
     <ClInclude Include="Engine\Systems\InputManager.h" />
     <ClInclude Include="Engine\Systems\IO\Keyboard.h" />
     <ClInclude Include="Engine\Systems\IO\Mouse.h" />
@@ -259,6 +264,7 @@
     <ClInclude Include="Engine\Systems\StateManager.h" />
     <ClInclude Include="Engine\Systems\System.h" />
     <ClInclude Include="Engine\Systems\Time.h" />
+    <ClInclude Include="Engine\Components\GuiEffects\TransparencyEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\CollisionGroups\Vehicles.json" />

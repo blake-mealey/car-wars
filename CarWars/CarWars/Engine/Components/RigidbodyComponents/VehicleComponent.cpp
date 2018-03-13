@@ -7,10 +7,14 @@
 #include "../Colliders/ConvexMeshCollider.h"
 #include "../Colliders/BoxCollider.h"
 #include "../WeaponComponents/WeaponComponent.h"
+#include "../CameraComponent.h"
 #include "../../Systems/Physics/VehicleTireFriction.h"
 
 #include "../../Systems/Physics/RaycastGroups.h"
 #include "../../Systems/Game.h"
+#include "../GuiEffects/GuiEffect.h"
+#include "../GuiEffects/TransparencyEffect.h"
+#include "../GuiComponents/GuiComponent.h"
 
 using namespace physx;
 
@@ -445,8 +449,22 @@ void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
 
 void VehicleComponent::TakeDamage(WeaponComponent* damager) {
     health -= damager->GetDamage() * resistance;
+
+    PlayerData *attacker = Game::GetPlayerFromEntity(damager->GetEntity());
+    if (attacker) {
+        Entity* entity = EntityManager::FindFirstChild(attacker->camera->GetGuiRoot(), "HitIndicator");
+        GuiComponent* gui = entity->GetComponent<GuiComponent>();
+        TransparencyEffect* effect = gui->GetEffect<TransparencyEffect>();
+        if (effect) {
+            effect->UpdateDuration(0.5);
+        } else {
+            effect = new TransparencyEffect(0.5, 0.7f, TransparencyEffect::Add);
+            gui->AddEffect(effect);
+        }
+    }
+
     if (health <= 0) {
-        VehicleData* killer = Game::GetDataFromEntity(damager->GetEntity());
+        VehicleData *killer = Game::GetDataFromEntity(damager->GetEntity());
         if (killer) {
             killer->killCount++;
             Game::gameData.teams[killer->teamIndex].killCount++;

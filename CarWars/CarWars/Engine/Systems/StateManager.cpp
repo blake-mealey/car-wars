@@ -1,5 +1,5 @@
 #include "StateManager.h"
-#include "GuiHelper.h"
+#include "../Components/GuiComponents/GuiHelper.h"
 #include "Content/ContentManager.h"
 #include "../Entities/EntityManager.h"
 #include "InputManager.h"

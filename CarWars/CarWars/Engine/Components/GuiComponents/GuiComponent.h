@@ -7,6 +7,8 @@
 #include "json/json.hpp"
 
 #include "FTGL/ftgl.h"
+#include "../GuiEffects/GuiEffect.h"
+#include <unordered_set>
 
 struct TextXAlignment {
 	enum { Left=0, Centre, Right };
@@ -73,6 +75,22 @@ public:
     void SetSelectedFontColor(glm::vec4 color);
     
     glm::vec4 GetTextureColor() const;
+    void SetTextureColor(glm::vec4 color);
+
+    std::unordered_set<GuiEffect*> GetEffects() const;
+    void AddEffect(GuiEffect* effect);
+    void RemoveEffect(GuiEffect* effect);
+
+    template<class T>
+    T* GetEffect() {
+        for (GuiEffect* effect : effects) {
+            T* typedEffect = dynamic_cast<T*>(effect);
+            if (typedEffect) {
+                return typedEffect;
+            }
+        }
+        return nullptr;
+    }
 
 private:
     bool selected;
@@ -95,4 +113,6 @@ private:
     glm::vec4 selectedTextureColor;
 	Texture *texture;
     glm::vec2 uvScale;
+
+    std::unordered_set<GuiEffect*> effects;
 };

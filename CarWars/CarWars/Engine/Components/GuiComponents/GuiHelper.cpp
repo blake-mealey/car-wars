@@ -1,10 +1,8 @@
 #include "GuiHelper.h"
 
-#include "../Entities/Entity.h"
-#include "../Components/Component.h"
-#include "../Components/GuiComponents/GuiComponent.h"
-#include "../Entities/EntityManager.h"
-#include "Content/ContentManager.h"
+#include "../../Entities/EntityManager.h"
+#include "../../Systems/Content/ContentManager.h"
+#include "GuiComponent.h"
 
 GuiComponent* GuiHelper::GetSelectedGui(Entity* entity) {
     for (GuiComponent* gui : entity->GetComponents<GuiComponent>()) {

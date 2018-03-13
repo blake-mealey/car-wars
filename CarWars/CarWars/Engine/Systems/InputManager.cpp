@@ -15,7 +15,7 @@
 #include "../Components/WeaponComponents/MachineGunComponent.h"
 #include "../Components/WeaponComponents/RailGunComponent.h"
 #include "../Components/GuiComponents/GuiComponent.h"
-#include "GuiHelper.h"
+#include "../Components/GuiComponents/GuiHelper.h"
 #include "Content/ContentManager.h"
 
 #include "../Systems/Physics/CollisionGroups.h"

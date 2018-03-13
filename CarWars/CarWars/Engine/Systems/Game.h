@@ -134,6 +134,7 @@ public:
     NavigationMesh *GetNavigationMesh() const;
 
     static VehicleData* GetDataFromEntity(Entity* vehicle);
+    static PlayerData* GetPlayerFromEntity(Entity* vehicle);
 
 private:
 	// No instantiation or copying

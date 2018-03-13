@@ -20,7 +20,7 @@
 #include "Physics.h"
 #include "../Components/AiComponent.h"
 #include "Pathfinder.h"
-#include "GuiHelper.h"
+#include "../Components/GuiComponents/GuiHelper.h"
 using namespace std;
 
 const string GameModeType::displayNames[Count] = { "Team", "Free for All" };
@@ -370,14 +370,19 @@ NavigationMesh* Game::GetNavigationMesh() const {
 }
 
 VehicleData* Game::GetDataFromEntity(Entity* vehicle) {
-    for (size_t i = 0; i < gameData.playerCount; ++i) {
-        PlayerData& player = players[i];
-        if (player.vehicleEntity == vehicle) return &player;
-    }
+    PlayerData* playerData = GetPlayerFromEntity(vehicle);
+    if (playerData) return playerData;
 
     for (AiData& ai : ais) {
         if (ai.vehicleEntity == vehicle) return &ai;
     }
+    return nullptr;
+}
 
+PlayerData* Game::GetPlayerFromEntity(Entity* vehicle) {
+    for (size_t i = 0; i < gameData.playerCount; ++i) {
+        PlayerData& player = players[i];
+        if (player.vehicleEntity == vehicle) return &player;
+    }
     return nullptr;
 }

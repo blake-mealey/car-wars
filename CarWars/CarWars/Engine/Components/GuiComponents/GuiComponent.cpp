@@ -194,10 +194,28 @@ glm::vec4 GuiComponent::GetTextureColor() const {
     return selected ? selectedTextureColor : textureColor;
 }
 
+void GuiComponent::SetTextureColor(glm::vec4 color) {
+    textureColor = color;
+}
+
+std::unordered_set<GuiEffect*> GuiComponent::GetEffects() const {
+    return effects;
+}
+
 bool GuiComponent::IsSelected() const {
     return selected;
 }
 
 void GuiComponent::SetSelected(bool _selected) {
     selected = _selected;
+}
+
+void GuiComponent::AddEffect(GuiEffect* effect) {
+    effects.insert(effect);
+    effect->Apply(this);
+}
+
+void GuiComponent::RemoveEffect(GuiEffect* effect) {
+    effects.erase(effect);
+    effect->Remove(this);
 }

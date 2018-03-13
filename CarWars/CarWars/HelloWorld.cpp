@@ -11,6 +11,7 @@
 #include "Engine/Systems/Audio.h"
 #include "Engine/Systems/Physics/CollisionGroups.h"
 #include "Engine/Systems/Content/ContentManager.h"
+#include "Engine/Systems/GuiEffects.h"
 
 using namespace std;
 
@@ -22,6 +23,8 @@ int main() {
 	// Initialize graphics (MUST come before Game)
 	Graphics &graphicsManager = Graphics::Instance();
 	graphicsManager.Initialize("Car Wars");
+
+    GuiEffects &guiEffectsManager = GuiEffects::Instance();
 	
 	// Initialize input
 	InputManager &inputManager = InputManager::Instance();
@@ -47,6 +50,7 @@ int main() {
 	systems.push_back(&inputManager);
 	systems.push_back(&physicsManager);
 	systems.push_back(&gameManager);
+	systems.push_back(&guiEffectsManager);
 	systems.push_back(&graphicsManager);
     systems.push_back(&audioManager);
 
