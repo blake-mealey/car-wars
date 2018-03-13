@@ -39,11 +39,11 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
     }
     
     std::string textYAlignment = ContentManager::GetFromJson<std::string>(data["TextYAlignment"], "Centre");
-    if (textXAlignment == "Top") {
+    if (textYAlignment == "Top") {
         textAlignment[1] = TextYAlignment::Top;
-    } else if (textXAlignment == "Centre") {
+    } else if (textYAlignment == "Centre") {
         textAlignment[1] = TextYAlignment::Centre;
-    } else if (textXAlignment == "Bottom") {
+    } else if (textYAlignment == "Bottom") {
         textAlignment[1] = TextYAlignment::Bottom;
     }
 }

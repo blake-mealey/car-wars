@@ -28,6 +28,14 @@ float Time::GetHours() const {
     return GetMinutes() / 60.0;
 }
 
+std::string Time::ToString() const {
+    char buf[6];
+    const int minutes = GetMinutes();
+    const int seconds = GetSeconds();
+    snprintf(buf, sizeof(buf), "%02d:%02d", minutes, seconds % 60);
+    return std::string(buf);
+}
+
 float Time::GetSeconds() const {
 	return timeSeconds;
 }

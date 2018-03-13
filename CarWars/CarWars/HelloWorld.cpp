@@ -50,6 +50,10 @@ int main() {
 	systems.push_back(&graphicsManager);
     systems.push_back(&audioManager);
 
+    // Define the fixed physics time step
+    constexpr double physicsTimeStep = 1.0 / 60.0;
+    Time physicsTime;
+
 	//Game Loop
 	while (!glfwWindowShouldClose(graphicsManager.GetWindow())) {
 		//Calculate Delta Time
@@ -63,8 +67,15 @@ int main() {
 		}
 
 		// Iterate through each system and call their update methods
-		for (System* system : systems) {
-			system->Update();
+        for (System* system : systems) {
+            if (system != &physicsManager) {
+                system->Update();
+            } else {
+                while (physicsTime < StateManager::globalTime) {
+                    physicsTime += physicsTimeStep;
+                    system->Update();
+                }
+            }
 		}
 	}
 }

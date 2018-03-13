@@ -447,7 +447,10 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
     health -= damager->GetDamage() * resistance;
     if (health <= 0) {
         VehicleData* killer = Game::GetDataFromEntity(damager->GetEntity());
-        if (killer) killer->killCount++;
+        if (killer) {
+            killer->killCount++;
+            Game::gameData.teams[killer->teamIndex].killCount++;
+        }
 
         VehicleData* me = Game::GetDataFromEntity(GetEntity());
         if (me) {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 class Time{
 public:
     // Constructors
@@ -17,6 +19,8 @@ public:
 	float GetSeconds() const;
     float GetMinutes() const;
     float GetHours() const;
+
+    std::string ToString() const;
 
     // Operator overloads
 	bool operator<(const Time other) const;

@@ -8,8 +8,6 @@
 #include "../Components/GuiComponents/GuiComponent.h"
 #include "../Components/RigidbodyComponents/RigidStaticComponent.h"
 
-#include "Physics\VehicleCreate.h"
-
 #include <glm/gtx/string_cast.hpp>
 
 #define _USE_MATH_DEFINES
@@ -22,6 +20,7 @@
 #include "Physics.h"
 #include "../Components/AiComponent.h"
 #include "Pathfinder.h"
+#include "GuiHelper.h"
 using namespace std;
 
 const string GameModeType::displayNames[Count] = { "Team", "Free for All" };
@@ -224,6 +223,7 @@ void Game::FinishGame() {
     // Reset game
     gameData.playerCount = 0;
     gameData.teams.clear();
+    StateManager::gameTime = 0.0;
 
     // Load the main menu
     StateManager::SetState(GameState_Menu);
@@ -245,7 +245,7 @@ void Game::Update() {
 
         // Update AIs
         for (AiData &ai : ais) {
-            if (!ai.brain->enabled) continue;
+            if (!ai.alive || !ai.brain->enabled) continue;
             VehicleComponent* vehicle = ai.brain->GetEntity()->GetComponent<VehicleComponent>();
 
             Transform &myTransform = ai.brain->GetEntity()->transform;
@@ -317,14 +317,33 @@ void Game::Update() {
         // Update player cameras
         for (int i = 0; i < gameData.playerCount; ++i) {
             PlayerData& player = players[i];
+            if (!player.alive) continue;
             player.cameraEntity->transform.SetPosition(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
             player.camera->SetTarget(player.vehicleEntity->transform.GetGlobalPosition() +
                 player.vehicleEntity->transform.GetUp() * 2.f + player.vehicleEntity->transform.GetForward() * -1.25f);
         }
 
-        // -------------------
-        // End-game conditions
-        // -------------------
+        // ---------------
+        // Gamemode update
+        // ---------------
+
+        // Update clock and score UIs
+        size_t highestTeamKillCount = 0;
+        for (TeamData& team : gameData.teams) {
+            if (team.killCount > highestTeamKillCount) highestTeamKillCount = team.killCount;
+        }
+
+        for (size_t i = 0; i < gameData.playerCount; ++i) {
+            PlayerData& player = players[i];
+            GuiHelper::SetFirstGuiText("GameClock", (gameData.timeLimit - StateManager::gameTime).ToString(), i);
+            if (gameData.gameMode == GameModeType::Team) {
+                GuiHelper::SetFirstGuiText("GameScores", to_string(gameData.teams[0].killCount), i);
+                GuiHelper::SetSecondGuiText("GameScores", to_string(gameData.teams[1].killCount), i);
+            } else if (gameData.gameMode == GameModeType::FreeForAll) {
+                GuiHelper::SetFirstGuiText("GameScores", to_string(gameData.teams[player.teamIndex].killCount), i);
+                GuiHelper::SetSecondGuiText("GameScores", to_string(highestTeamKillCount), i);
+            }
+        }
 
         // TODO: AI for kill limit and lives
 
