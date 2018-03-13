@@ -26,7 +26,7 @@ using namespace std;
 const string GameModeType::displayNames[Count] = { "Team", "Free for All" };
 
 const string MapType::displayNames[Count] = { "Cylinder" };
-const string MapType::scenePaths[Count] = { "PhysicsDemo.json" };
+const string MapType::scenePaths[Count] = { "CircleMap.json" };
 
 const string VehicleType::displayNames[Count] = { "Heavy", "Medium", "Light" };
 const string VehicleType::prefabPaths[Count] = { "Vehicles/Sewage.json", "Vehicles/Hearse.json", "Vehicles/Flatbed.json" };
