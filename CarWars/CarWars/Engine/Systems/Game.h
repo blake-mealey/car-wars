@@ -46,7 +46,7 @@ struct TeamData {
 };
 
 struct VehicleData {
-    VehicleData(int _vehicleType = 0, int _weaponType = 0) :
+    VehicleData(int _vehicleType = VehicleType::Heavy, int _weaponType = WeaponType::MachineGun) :
         vehicleType(_vehicleType), weaponType(_weaponType),
         alive(false), vehicleEntity(nullptr), cameraEntity(nullptr), camera(nullptr),
         teamIndex(0), killCount(0), deathCount(0) {}

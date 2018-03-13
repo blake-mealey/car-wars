@@ -457,14 +457,25 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
         GuiHelper::OpacityEffect(gui, 0.5, 0.8f, 0.1, 0.1);
     }
 
+    PlayerData *myPlayer = Game::GetPlayerFromEntity(GetEntity());
+    if (myPlayer) {
+        Entity* entity = EntityManager::FindFirstChild(myPlayer->camera->GetGuiRoot(), "DamageIndicator");
+        GuiComponent* gui = entity->GetComponent<GuiComponent>();
+        const glm::vec3 direction = glm::normalize(GetEntity()->transform.GetGlobalPosition() - damager->GetEntity()->transform.GetGlobalPosition());
+        const float sign = glm::dot(GetEntity()->transform.GetForward(), direction);
+        const float theta = sign * acos(glm::dot(GetEntity()->transform.GetRight(), direction));
+        gui->transform.SetRotationAxisAngles(glm::vec3(0.0, 0.0, 1.0), theta);
+        GuiHelper::OpacityEffect(gui, 1.0, 1.0, 0.25, 0.25);
+    }
+
     if (health <= 0) {
-        VehicleData *killer = Game::GetDataFromEntity(damager->GetEntity());
+        VehicleData *killer = attacker ? attacker : Game::GetDataFromEntity(damager->GetEntity());
         if (killer) {
             killer->killCount++;
             Game::gameData.teams[killer->teamIndex].killCount++;
         }
 
-        VehicleData* me = Game::GetDataFromEntity(GetEntity());
+        VehicleData* me = myPlayer ? myPlayer : Game::GetDataFromEntity(GetEntity());
         if (me) {
             me->deathCount++;
             me->alive = false;
