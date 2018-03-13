@@ -211,5 +211,6 @@
     <None Include="Content\Shaders\skybox.vert" />
     <None Include="Content\Prefabs\Components\Ai.json" />
     <None Include="Content\Scenes\Maps\CircleMap.json" />
+    <None Include="Content\Prefabs\Entities\Menu\PauseMenu.json" />
   </ItemGroup>
 </Project>

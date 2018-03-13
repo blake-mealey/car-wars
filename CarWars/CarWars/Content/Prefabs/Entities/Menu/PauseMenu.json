@@ -1,0 +1,44 @@
+{
+	"Tag": "PauseMenu",
+	"Components": [
+		{
+			"Type": "GUI",
+			"AnchorPoint": [0.5, 0.5],
+			"ScaledPosition": [0.5, 0.5],
+			"Scale": [500, 330, 0]
+		},
+		{
+			"Type": "GUI",
+			"AnchorPoint": [0, 0.5],
+			"ScaledPosition": [0.5, 0.5],
+			"Position": [0, -120, 0],
+			"Font": "Starjedi.ttf",
+			"FontSize": 64,
+			"FontColor": [1, 1, 0, 1],
+			"Text": "paused"
+		}
+	],
+	"Children": [
+		{
+			"Tag": "PauseMenuButtons",
+			"Components": [
+				{
+					"Prefab": "GUIs/MenuButton.json",
+					"Position": [0, -50, 0],
+					"Text": "resume",
+					"Selected": true
+				},
+				{
+					"Prefab": "GUIs/MenuButton.json",
+					"Position": [0, 20, 0],
+					"Text": "options"
+				},
+				{
+					"Prefab": "GUIs/MenuButton.json",
+					"Position": [0, 90, 0],
+					"Text": "exit"
+				}
+			]
+		}
+	]
+}

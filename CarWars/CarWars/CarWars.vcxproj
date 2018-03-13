@@ -310,6 +310,7 @@
     <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\CharacterMenuStat.json" />
     <None Include="Content\Prefabs\Entities\Menu\MenuOption.json" />
+    <None Include="Content\Prefabs\Entities\Menu\PauseMenu.json" />
     <None Include="Content\Prefabs\Entities\Menu\Pillar.json" />
     <None Include="Content\Prefabs\Entities\Vehicles\Flatbed.json" />
     <None Include="Content\Prefabs\Entities\HeadLamp.json" />

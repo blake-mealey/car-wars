@@ -202,9 +202,9 @@ void NextEnumOption(Entity* option, int dir, size_t &value, size_t count, const 
     GuiHelper::OpacityEffect(arrow, 0.2, 0.5f, 0.1, 0.1);
 }
 
-void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, int playerIndex) {
+void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, int escape, int playerIndex) {
     // If there was no navigation, do nothing
-    if (!vertDir && !horizDir && !enter && !back) return;
+    if (!vertDir && !horizDir && !enter && !back && !escape) return;
 
 	const bool horizontal = abs(vertDir) < abs(horizDir);
 	const bool vertical = abs(vertDir) > abs(horizDir);
@@ -218,7 +218,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 
 	const GameState gameState = StateManager::GetState();
 	// Navigate buttons up/down
-	if (vertDir && gameState >= GameState_Menu && gameState < __GameState_Menu_End) {
+	if (vertDir) {
 		std::string buttonGroupName;
 		bool noNavigation = false;
         bool entityNavigation = false;
@@ -233,6 +233,9 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 		case GameState_Menu_Settings:
 			buttonGroupName = "OptionsMenu_Buttons";
 			break;
+        case GameState_Paused:
+            buttonGroupName = "PauseMenuButtons";
+            break;
 		default:
 			noNavigation = true;
 		}
@@ -371,6 +374,13 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                     if (allReady) StateManager::SetState(GameState_Playing);
                 }
 			}
+		} else if (gameState == GameState_Paused) {
+            GuiComponent* selected = GuiHelper::GetSelectedGui("PauseMenuButtons", playerIndex);
+            if (selected->ContainsText("resume")) {
+                StateManager::SetState(GameState_Playing);
+            } else if (selected->ContainsText("exit")) {
+                Game::Instance().FinishGame();
+            }
 		}
 	}
 
@@ -423,28 +433,41 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                 }
             }
 		}
+        else if (gameState == GameState_Paused) {
+            StateManager::SetState(GameState_Playing);
+        }
 	}
+
+    if (escape) {
+        if (gameState == GameState_Playing) {
+            StateManager::SetState(GameState_Paused);
+            ContentManager::LoadEntity("Menu/PauseMenu.json", Game::players[playerIndex].camera->GetGuiRoot());
+        } else if (gameState == GameState_Paused) {
+            StateManager::SetState(GameState_Playing);
+        }
+    }
 }
 
 void InputManager::HandleKeyboard() {
 	//Keyboard Inputs
     const GameState gameState = StateManager::GetState();
 
-	if (gameState < __GameState_Menu_End) {
-		int vertDir = Keyboard::KeyPressed(GLFW_KEY_UP) || Keyboard::KeyPressed(GLFW_KEY_W) ? 1 
-			: Keyboard::KeyPressed(GLFW_KEY_DOWN) || Keyboard::KeyPressed(GLFW_KEY_S) ? -1 : 0;
+    const int vertDir = Keyboard::KeyPressed(GLFW_KEY_UP) || Keyboard::KeyPressed(GLFW_KEY_W) ? 1
+        : Keyboard::KeyPressed(GLFW_KEY_DOWN) || Keyboard::KeyPressed(GLFW_KEY_S) ? -1 : 0;
 
-		int horizDir = Keyboard::KeyPressed(GLFW_KEY_RIGHT) || Keyboard::KeyPressed(GLFW_KEY_D) ? 1 
-			: Keyboard::KeyPressed(GLFW_KEY_LEFT) || Keyboard::KeyPressed(GLFW_KEY_A) ? -1 : 0;
+    const int horizDir = Keyboard::KeyPressed(GLFW_KEY_RIGHT) || Keyboard::KeyPressed(GLFW_KEY_D) ? 1
+        : Keyboard::KeyPressed(GLFW_KEY_LEFT) || Keyboard::KeyPressed(GLFW_KEY_A) ? -1 : 0;
 
-		NavigateGuis(vertDir, horizDir, Keyboard::KeyPressed(GLFW_KEY_ENTER), Keyboard::KeyPressed(GLFW_KEY_ESCAPE), 0);
+    const int escape = Keyboard::KeyPressed(GLFW_KEY_ESCAPE);
 
-	} else if (gameState == GameState_Playing) {
+    NavigateGuis(vertDir, horizDir, Keyboard::KeyPressed(GLFW_KEY_ENTER), escape, escape, 0);
+
+	if (gameState == GameState_Playing) {
         //Get Vehicle Component
         VehicleComponent* vehicle = static_cast<VehicleComponent*>(EntityManager::GetComponents(ComponentType_Vehicle)[0]);
 
-		float forwardPower = Keyboard::KeyDown(GLFW_KEY_W) ? 1 : 0;
-		float backwardPower = Keyboard::KeyDown(GLFW_KEY_S) ? 1 : 0;
+		const float forwardPower = Keyboard::KeyDown(GLFW_KEY_W) ? 1 : 0;
+		const float backwardPower = Keyboard::KeyDown(GLFW_KEY_S) ? 1 : 0;
 
 		float steer = 0;
         if (Keyboard::KeyDown(GLFW_KEY_A)) { //Steer Left
@@ -459,22 +482,10 @@ void InputManager::HandleKeyboard() {
 			handbrake = 1;
 		}
 
-        //Go to Pause Screen
-        if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
-			//TODO: pause();
-            StateManager::SetState(GameState_Paused);
-        }
-
 		vehicle->HandleAcceleration( forwardPower, backwardPower);
 		vehicle->Handbrake(handbrake);
 		vehicle->Steer(steer);
-
-    } else if (gameState == GameState_Paused) {
-		//Go to Game Playing
-		if (Keyboard::KeyPressed(GLFW_KEY_ESCAPE)) {
-			StateManager::SetState(GameState_Playing);
-		}
-	}
+    }
 }
 
 void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftVibrate, int &rightVibrate) {
@@ -601,25 +612,26 @@ void InputManager::HandleController() {
 		int heldButtons = controller->GetState().Gamepad.wButtons & controller->GetPreviousState().Gamepad.wButtons;
 		int pressedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetState().Gamepad.wButtons;
 		int releasedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetPreviousState().Gamepad.wButtons;
-
-        if (StateManager::GetState() == GameState_Playing) {
-            HandleVehicleControllerInput(controllerNum, leftVibrate, rightVibrate);
+		
+	    
+	    int vertDir = 0;
+		if (abs(controller->GetPreviousState().Gamepad.sThumbLY) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && abs(controller->GetState().Gamepad.sThumbLY) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+			vertDir = controller->GetState().Gamepad.sThumbLY / abs(controller->GetState().Gamepad.sThumbLY);
 		}
-		else if (StateManager::GetState() < __GameState_Menu_End) {
-			int vertDir = 0;
-			if (abs(controller->GetPreviousState().Gamepad.sThumbLY) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && abs(controller->GetState().Gamepad.sThumbLY) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-				vertDir = controller->GetState().Gamepad.sThumbLY / abs(controller->GetState().Gamepad.sThumbLY);
-			}
-			vertDir = pressedButtons & XINPUT_GAMEPAD_DPAD_DOWN ? -1 : pressedButtons & XINPUT_GAMEPAD_DPAD_UP ? 1 : vertDir;
+		vertDir = pressedButtons & XINPUT_GAMEPAD_DPAD_DOWN ? -1 : pressedButtons & XINPUT_GAMEPAD_DPAD_UP ? 1 : vertDir;
 
-			int horizDir = 0;
-			if (abs(controller->GetPreviousState().Gamepad.sThumbLX) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && abs(controller->GetState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-				horizDir = controller->GetState().Gamepad.sThumbLX / abs(controller->GetState().Gamepad.sThumbLX);
-			}
-			horizDir = pressedButtons & XINPUT_GAMEPAD_DPAD_LEFT ? -1 : pressedButtons & XINPUT_GAMEPAD_DPAD_RIGHT ? 1 : horizDir;
+		int horizDir = 0;
+		if (abs(controller->GetPreviousState().Gamepad.sThumbLX) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && abs(controller->GetState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+			horizDir = controller->GetState().Gamepad.sThumbLX / abs(controller->GetState().Gamepad.sThumbLX);
+		}
+		horizDir = pressedButtons & XINPUT_GAMEPAD_DPAD_LEFT ? -1 : pressedButtons & XINPUT_GAMEPAD_DPAD_RIGHT ? 1 : horizDir;
 			
-			NavigateGuis(vertDir, horizDir, pressedButtons & XINPUT_GAMEPAD_A, pressedButtons & XINPUT_GAMEPAD_B, controllerNum);
-		}
+		NavigateGuis(vertDir, horizDir, pressedButtons & XINPUT_GAMEPAD_A, pressedButtons & XINPUT_GAMEPAD_B, pressedButtons & XINPUT_GAMEPAD_START, controllerNum);
+
+        
+	    if (StateManager::GetState() == GameState_Playing) {
+            HandleVehicleControllerInput(controllerNum, leftVibrate, rightVibrate);
+        }
 
 		//TODO: Get vibrate
 

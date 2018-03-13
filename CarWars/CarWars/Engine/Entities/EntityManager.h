@@ -21,6 +21,7 @@ public:
 	static void DestroyStaticEntity(Entity *entity);
 	static void DestroyDynamicEntity(Entity *entity);
     static void DestroyEntity(Entity *entity);
+    static void DestroyEntities(std::vector<Entity*> entities);
 	static void DestroyChildren(Entity *entity);
     static size_t GetEntityCount();
 
