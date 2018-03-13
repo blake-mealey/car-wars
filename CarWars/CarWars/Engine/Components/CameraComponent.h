@@ -46,7 +46,7 @@ public:
 
     void RenderDebugGui() override;
 
-	glm::vec3 CastRay(float distanceToStart, float rayLength, PxQueryFilterData filterData);
+	glm::vec3 CastRay(float rayLength, PxQueryFilterData filterData);
 
 	Entity* GetGuiRoot();
 	//std::vector<Entity*>& GetGuiEntities();
