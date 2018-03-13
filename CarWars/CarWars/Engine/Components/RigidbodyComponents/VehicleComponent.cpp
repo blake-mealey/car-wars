@@ -448,11 +448,15 @@ void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
 
 
 void VehicleComponent::TakeDamage(WeaponComponent* damager) {
+    VehicleData *attacker = Game::GetDataFromEntity(damager->GetEntity());
+    VehicleData* me = Game::GetDataFromEntity(GetEntity());
+
+    if (attacker->teamIndex == me->teamIndex) return;
     health -= damager->GetDamage() * resistance;
 
-    PlayerData *attacker = Game::GetPlayerFromEntity(damager->GetEntity());
-    if (attacker) {
-        Entity* entity = EntityManager::FindFirstChild(attacker->camera->GetGuiRoot(), "HitIndicator");
+    PlayerData* attackerPlayer = Game::GetPlayerFromEntity(damager->GetEntity());
+    if (attackerPlayer) {
+        Entity* entity = EntityManager::FindFirstChild(attackerPlayer->camera->GetGuiRoot(), "HitIndicator");
         GuiComponent* gui = entity->GetComponent<GuiComponent>();
         GuiHelper::OpacityEffect(gui, 0.5, 0.8f, 0.1, 0.1);
     }
@@ -469,17 +473,11 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
     }
 
     if (health <= 0) {
-        VehicleData *killer = attacker ? attacker : Game::GetDataFromEntity(damager->GetEntity());
-        if (killer) {
-            killer->killCount++;
-            Game::gameData.teams[killer->teamIndex].killCount++;
-        }
+        attacker->killCount++;
+        Game::gameData.teams[attacker->teamIndex].killCount++;
 
-        VehicleData* me = myPlayer ? myPlayer : Game::GetDataFromEntity(GetEntity());
-        if (me) {
-            me->deathCount++;
-            me->alive = false;
-        }
+        me->deathCount++;
+        me->alive = false;
 
         Physics::Instance().AddToDelete(GetEntity());
     }
