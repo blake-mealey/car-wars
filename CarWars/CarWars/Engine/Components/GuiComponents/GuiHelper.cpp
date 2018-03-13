@@ -246,7 +246,7 @@ void GuiHelper::AddGuiPositions(std::string entityTag, glm::vec3 offset, int pla
     AddGuiPositions(EntityManager::FindEntities(entityTag)[playerIndex], offset);
 }
 
-void GuiHelper::TransparencyEffect(GuiComponent* gui, Time duration, float transparencyMod,
+void GuiHelper::OpacityEffect(GuiComponent* gui, Time duration, float transparencyMod,
     OpacityEffect::Mode mode) {
     
     ::OpacityEffect* effect = gui->GetEffect<::OpacityEffect>();
