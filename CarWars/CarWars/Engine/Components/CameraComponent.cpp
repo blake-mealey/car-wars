@@ -5,6 +5,7 @@
 #include "../Systems/Content/ContentManager.h"
 #include "imgui/imgui.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 const float CameraComponent::NEAR_CLIPPING_PLANE = 0.1f;
 const float CameraComponent::FAR_CLIPPING_PLANE = 1000.f;
@@ -172,22 +173,19 @@ Entity* CameraComponent::GetGuiRoot() {
 	return guiEntities;
 }*/
 
-glm::vec3 CameraComponent::CastRay( float distanceToStart, float rayLength, PxQueryFilterData filterData) {
+glm::vec3 CameraComponent::CastRay(float rayLength, PxQueryFilterData filterData) {
 	PxScene* scene = &Physics::Instance().GetScene();
 	glm::vec3 cameraDirection = glm::normalize(GetTarget() - GetPosition());
 	//Cast Camera Ray
 	PxRaycastBuffer cameraHit;
 	glm::vec3 cameraHitPosition;
-	if (scene->raycast(Transform::ToPx(cameraDirection * distanceToStart + GetPosition()), Transform::ToPx(cameraDirection), rayLength, cameraHit, PxHitFlag::eDEFAULT, filterData)) {
+	if (scene->raycast(Transform::ToPx(GetTarget()), Transform::ToPx(cameraDirection), rayLength, cameraHit, PxHitFlag::eDEFAULT, filterData)) {
 		//cameraHit has hit something
-		if (cameraHit.hasAnyHits()) {
-			cameraHitPosition = Transform::FromPx(cameraHit.block.position);
-			EntityManager::FindEntity(cameraHit.block.actor);
-		}
-		else {
-			//cameraHit has not hit anything
-			cameraHitPosition = (cameraDirection * (rayLength + distanceToStart)) + GetPosition();
-		}
+		cameraHitPosition = Transform::FromPx(cameraHit.block.position);
+		EntityManager::FindEntity(cameraHit.block.actor);
+	} else {
+		//cameraHit has not hit anything
+		cameraHitPosition = GetPosition() + (cameraDirection * rayLength);
 	}
 	return cameraHitPosition;
 }

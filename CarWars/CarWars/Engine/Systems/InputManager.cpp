@@ -98,12 +98,13 @@ void InputManager::HandleMouse() {
 		CameraComponent* cameraComponent = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[0]);
 
 		//Shoot Weapon
+		float rayLength = 100.0f;
 		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
 			vehicle->GetComponent<WeaponComponent>()->Charge();
 		} else if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
 			PxQueryFilterData filterData;
 			filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
-			glm::vec3 cameraHit = cameraComponent->CastRay(glm::length(cameraComponent->GetTarget() - cameraComponent->GetPosition()), 100, filterData);
+			glm::vec3 cameraHit = cameraComponent->CastRay(rayLength, filterData);
 			vehicle->GetComponent<WeaponComponent>()->Shoot(cameraHit);
 		}
 
@@ -543,14 +544,14 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		}
 
 		//RIGHT-SHOULDER
+		float rayLength = 100.0f;
 		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
 			weapon->Charge();
 		}
 		else if (heldButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
 			PxQueryFilterData filterData;
 			filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
-			glm::vec3 cameraHit = cameraC->CastRay(glm::length(cameraC->GetTarget() - cameraC->GetPosition()),
-				100, filterData);
+			glm::vec3 cameraHit = cameraC->CastRay(rayLength, filterData);
 			vehicle->GetEntity()->GetComponent<WeaponComponent>()->Shoot(cameraHit);
 		}
 		
