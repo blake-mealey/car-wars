@@ -46,13 +46,13 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	float cameraNewHor = (cameraHor - (angleDiffs.x * cameraSpd * StateManager::deltaTime.GetSeconds()));
 	float cameraNewVer = (cameraVer + (angleDiffs.y * cameraSpd * StateManager::deltaTime.GetSeconds()));
 
-	/*
+	float dotFU = glm::dot(vehicle->transform.GetForward(), Transform::UP);
+
 	//Clamping
 	float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
-	float minAngle = (M_PI_4)					+ acos(dotFU);
-	float maxAngle = (M_PI_2 + (M_PI_4 / 4.0f)) + acos(dotFU);	
+	float minAngle = M_PI_2 - acos(dotFU);
+	float maxAngle = M_PI_2 + acos(dotFU);
 	cameraNewVer = glm::clamp(cameraNewVer, minAngle, maxAngle);
-	*/
 
 	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
 	//Set the camera up to be the same as the vehicle?

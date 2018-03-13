@@ -50,6 +50,10 @@ float MissileComponent::GetDamage() {
 	return damage;
 }
 
+float MissileComponent::GetExplosionRadius() {
+	return explosionRadius;
+}
+
 Entity* MissileComponent::GetOwner() {
 	return owner;
 }

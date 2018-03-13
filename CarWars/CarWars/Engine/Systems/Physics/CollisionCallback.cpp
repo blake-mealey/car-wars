@@ -3,21 +3,29 @@
 #include "../../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../Engine/Components/WeaponComponents/MissileComponent.h"
 #include "../../Components/WeaponComponents/RocketLauncherComponent.h"
+#include "../../Entities/Transform.h"
+#include "../../Systems/Physics.h"
+#include <vector>
 
 void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 	if (_actor0->HasTag("Missile")) {
-		if (_actor1->HasTag("Vehicle") || _actor1->HasTag("AiVehicle")) {
-			if (_actor1->GetId() == _actor0->GetComponent<MissileComponent>()->GetOwner()->GetId()) {
-				//Dont Explode
-				std::cout << "Missile Inside Owner" << std::endl;
-			} else {
-				//Explode
-                RocketLauncherComponent* weapon = _actor0->GetComponent<MissileComponent>()->GetOwner()->GetComponent<RocketLauncherComponent>();
-				_actor1->GetComponent<VehicleComponent>()->TakeDamage(weapon);
-                Physics::Instance().AddToDelete(_actor0);
-			}
+		if (_actor1->GetId() == _actor0->GetComponent<MissileComponent>()->GetOwner()->GetId()) {
+			//Dont Explode
+			std::cout << "Missile Inside Owner - Do Not Explode" << std::endl;
 		} else {
-            Physics::Instance().AddToDelete(_actor0);
+			//Explode
+
+			float explosionRadius = _actor0->GetComponent<MissileComponent>()->GetExplosionRadius();
+
+			std::vector<Component*> carComponents = EntityManager::GetComponents(ComponentType_Vehicle);
+			for (Component* component : carComponents) {
+				if (glm::length(component->GetEntity()->transform.GetGlobalPosition() - _actor0->transform.GetGlobalPosition()) < explosionRadius) {
+					RocketLauncherComponent* weapon = _actor0->GetComponent<MissileComponent>()->GetOwner()->GetComponent<RocketLauncherComponent>();
+					//Take Damage Equal to damage / 1 + distanceFromExplosion?
+					component->TakeDamage(weapon);
+				}
+			}
+			Physics::Instance().AddToDelete(_actor0);
 		}
 	}
 }
