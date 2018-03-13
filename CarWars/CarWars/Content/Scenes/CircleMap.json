@@ -7,7 +7,7 @@
       {
         "Type": "Mesh",
         "Mesh": "CircleMap.obj",
-        "Texture": "CircleMapTexture.png",
+        "Texture": "CircleMapTexture1.png",
         "Material": "Basic.json",
         "UvScale": [1, 1]
       },
