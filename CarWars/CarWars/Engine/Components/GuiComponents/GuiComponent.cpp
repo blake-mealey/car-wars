@@ -198,6 +198,39 @@ void GuiComponent::SetTextureColor(glm::vec4 color) {
     textureColor = color;
 }
 
+void GuiComponent::SetOpacity(float opacity) {
+    SetTextureOpacity(opacity);
+    SetFontOpacity(opacity);
+}
+
+void GuiComponent::SetTextureOpacity(float opacity) {
+    textureColor.a = opacity;
+    selectedTextureColor.a = opacity;
+}
+
+void GuiComponent::SetFontOpacity(float opacity) {
+    fontColor.a = opacity;
+    selectedFontColor.a = opacity;
+}
+
+void GuiComponent::AddOpacity(float opacity) {
+    SetTextureOpacity(GetTextureOpacity() + opacity);
+    SetFontOpacity(GetFontOpacity() + opacity);
+}
+
+void GuiComponent::MultiplyOpacity(float opacity) {
+    SetTextureOpacity(GetTextureOpacity() * opacity);
+    SetFontOpacity(GetFontOpacity() * opacity);
+}
+
+float GuiComponent::GetTextureOpacity() const {
+    return textureColor.a;
+}
+
+float GuiComponent::GetFontOpacity() const {
+    return fontColor.a;
+}
+
 std::unordered_set<GuiEffect*> GuiComponent::GetEffects() const {
     return effects;
 }

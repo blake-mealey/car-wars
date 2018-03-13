@@ -245,3 +245,47 @@ void GuiHelper::AddGuiPositions(Entity* entity, glm::vec3 offset) {
 void GuiHelper::AddGuiPositions(std::string entityTag, glm::vec3 offset, int playerIndex) {
     AddGuiPositions(EntityManager::FindEntities(entityTag)[playerIndex], offset);
 }
+
+void GuiHelper::TransparencyEffect(GuiComponent* gui, Time duration, float transparencyMod,
+    OpacityEffect::Mode mode) {
+    
+    ::OpacityEffect* effect = gui->GetEffect<::OpacityEffect>();
+    if (effect) {
+        effect->UpdateDuration(duration);
+    } else {
+        effect = new ::OpacityEffect(duration, transparencyMod, mode);
+        gui->AddEffect(effect);
+    }
+}
+
+GuiComponent* GuiHelper::GetFirstGui(Entity* entity) {
+    return entity->GetComponents<GuiComponent>()[0];
+}
+
+GuiComponent* GuiHelper::GetFirstGui(std::string entityTag, int playerIndex) {
+    return GetFirstGui(EntityManager::FindEntities(entityTag)[playerIndex]);
+}
+
+GuiComponent* GuiHelper::GetSecondGui(Entity* entity) {
+    return entity->GetComponents<GuiComponent>()[1];
+}
+
+GuiComponent* GuiHelper::GetSecondGui(std::string entityTag, int playerIndex) {
+    return GetSecondGui(EntityManager::FindEntities(entityTag)[playerIndex]);
+}
+
+GuiComponent* GuiHelper::GetThirdGui(Entity* entity) {
+    return entity->GetComponents<GuiComponent>()[2];
+}
+
+GuiComponent* GuiHelper::GetThirdGui(std::string entityTag, int playerIndex) {
+    return GetThirdGui(EntityManager::FindEntities(entityTag)[playerIndex]);
+}
+
+GuiComponent* GuiHelper::GetFourthGui(Entity* entity) {
+    return entity->GetComponents<GuiComponent>()[3];
+}
+
+GuiComponent* GuiHelper::GetFourthGui(std::string entityTag, int playerIndex) {
+    return GetFourthGui(EntityManager::FindEntities(entityTag)[playerIndex]);
+}

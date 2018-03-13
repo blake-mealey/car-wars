@@ -55,7 +55,7 @@
     <ClCompile Include="Engine\Components\GuiComponents\GuiHelper.cpp" />
     <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
     <ClCompile Include="Engine\Systems\GuiEffects.cpp" />
-    <ClCompile Include="Engine\Components\GuiEffects\TransparencyEffect.cpp" />
+    <ClCompile Include="Engine\Components\GuiEffects\OpacityEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -122,7 +122,7 @@
     <ClInclude Include="Engine\Components\GuiComponents\GuiHelper.h" />
     <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
     <ClInclude Include="Engine\Systems\GuiEffects.h" />
-    <ClInclude Include="Engine\Components\GuiEffects\TransparencyEffect.h" />
+    <ClInclude Include="Engine\Components\GuiEffects\OpacityEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\CollisionGroups\Vehicles.json" />

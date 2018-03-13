@@ -77,6 +77,14 @@ public:
     glm::vec4 GetTextureColor() const;
     void SetTextureColor(glm::vec4 color);
 
+    void SetOpacity(float opacity);
+    void SetTextureOpacity(float opacity);
+    void SetFontOpacity(float opacity);
+    void AddOpacity(float opacity);
+    void MultiplyOpacity(float opacity);
+    float GetTextureOpacity() const;
+    float GetFontOpacity() const;
+
     std::unordered_set<GuiEffect*> GetEffects() const;
     void AddEffect(GuiEffect* effect);
     void RemoveEffect(GuiEffect* effect);

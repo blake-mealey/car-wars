@@ -7,12 +7,8 @@
 #include "../Components/CameraComponent.h"
 #include "../Components/RigidbodyComponents/VehicleComponent.h"
 
-#include "Physics.h"
-
 #include "PxPhysicsAPI.h"
 
-#include "vehicle/PxVehicleUtil.h"
-#include "../Components/WeaponComponents/MachineGunComponent.h"
 #include "../Components/WeaponComponents/RailGunComponent.h"
 #include "../Components/GuiComponents/GuiComponent.h"
 #include "../Components/GuiComponents/GuiHelper.h"
@@ -20,7 +16,6 @@
 
 #include "../Systems/Physics/CollisionGroups.h"
 #include "../Systems/Physics/RaycastGroups.h"
-#include "../Systems/Physics.h"
 
 
 vector<XboxController*> InputManager::xboxControllers;
@@ -181,6 +176,9 @@ void NextNumberOption(Entity* option, int dir, size_t &value, size_t min, size_t
     else if (value == max && dir > 0) value = min;
     else value += dir;
     GuiHelper::SetSecondGuiText(option, to_string(value) + unit);
+
+    GuiComponent* arrow = dir < 0 ? GuiHelper::GetThirdGui(option) : GuiHelper::GetFourthGui(option);
+    GuiHelper::TransparencyEffect(arrow, 0.1, 0.6f, OpacityEffect::Multiply);
 }
 
 void NextEnumOption(Entity* option, int dir, size_t &value, size_t count, const std::string* displayNames) {
@@ -190,6 +188,9 @@ void NextEnumOption(Entity* option, int dir, size_t &value, size_t count, const 
     else if (value == count - 1 && dir > 0) value = 0;
     else value += dir;
     GuiHelper::SetSecondGuiText(option, displayNames[value]);
+
+    GuiComponent* arrow = dir < 0 ? GuiHelper::GetThirdGui(option) : GuiHelper::GetFourthGui(option);
+    GuiHelper::TransparencyEffect(arrow, 0.1, 0.6f, OpacityEffect::Multiply);
 }
 
 void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, int playerIndex) {
@@ -260,6 +261,9 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                 const string text = VehicleType::displayNames[player.vehicleType];
                 GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", text, playerIndex);
 
+                GuiComponent* arrow = horizDir < 0 ? GuiHelper::GetFirstGui("CharacterMenu_Arrows", playerIndex) : GuiHelper::GetSecondGui("CharacterMenu_Arrows", playerIndex);
+                GuiHelper::TransparencyEffect(arrow, 0.1, 0.6f, OpacityEffect::Multiply);
+
                 Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
                 EntityManager::DestroyEntity(EntityManager::FindFirstChild(vehicleBox, "Vehicle"));
                 ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType], vehicleBox);
@@ -270,6 +274,9 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 				if (player.weaponType < 0) player.weaponType += WeaponType::Count;
 				const string text = WeaponType::displayNames[player.weaponType];
 				GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", text, playerIndex);
+
+                GuiComponent* arrow = horizDir < 0 ? GuiHelper::GetFirstGui("CharacterMenu_Arrows", playerIndex) : GuiHelper::GetSecondGui("CharacterMenu_Arrows", playerIndex);
+                GuiHelper::TransparencyEffect(arrow, 0.1, 0.6f, OpacityEffect::Multiply);
 
                 Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
                 Entity* vehicle = EntityManager::FindFirstChild(vehicleBox, "Vehicle");

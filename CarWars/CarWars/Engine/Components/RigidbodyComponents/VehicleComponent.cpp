@@ -12,9 +12,9 @@
 
 #include "../../Systems/Physics/RaycastGroups.h"
 #include "../../Systems/Game.h"
-#include "../GuiEffects/GuiEffect.h"
-#include "../GuiEffects/TransparencyEffect.h"
+#include "../GuiEffects/OpacityEffect.h"
 #include "../GuiComponents/GuiComponent.h"
+#include "../GuiComponents/GuiHelper.h"
 
 using namespace physx;
 
@@ -454,13 +454,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
     if (attacker) {
         Entity* entity = EntityManager::FindFirstChild(attacker->camera->GetGuiRoot(), "HitIndicator");
         GuiComponent* gui = entity->GetComponent<GuiComponent>();
-        TransparencyEffect* effect = gui->GetEffect<TransparencyEffect>();
-        if (effect) {
-            effect->UpdateDuration(0.5);
-        } else {
-            effect = new TransparencyEffect(0.5, 0.7f, TransparencyEffect::Add);
-            gui->AddEffect(effect);
-        }
+        GuiHelper::TransparencyEffect(gui, 0.5, 0.7f, OpacityEffect::Add);
     }
 
     if (health <= 0) {
