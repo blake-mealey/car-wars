@@ -40,30 +40,38 @@ void InputManager::Update() {
 
 void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs) {
 	//Update Camera Angles
-	float cameraHor = camera->GetCameraHorizontalAngle();
+	/*float cameraHor = camera->GetCameraHorizontalAngle();
 	float cameraVer = camera->GetCameraVerticalAngle();
 	float cameraSpd = camera->GetCameraSpeed();
 	float cameraNewHor = (cameraHor - (angleDiffs.x * cameraSpd * StateManager::deltaTime.GetSeconds()));
 	float cameraNewVer = (cameraVer + (angleDiffs.y * cameraSpd * StateManager::deltaTime.GetSeconds()));
 
 	float dotFU = glm::dot(vehicle->transform.GetForward(), Transform::UP);
-
+	*/
 	//Clamping
-	float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
+	/*float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
 	float minAngle = M_PI_2 - acos(dotFU);
 	float maxAngle = M_PI_2 + acos(dotFU);
 	cameraNewVer = glm::clamp(cameraNewVer, minAngle, maxAngle);
+	*/
+
+	float cameraHor = camera->GetCameraHorizontalAngle();
+	float cameraVer = camera->GetCameraVerticalAngle();
+	float cameraSpd = camera->GetCameraSpeed();
+	float cameraNewHor = (cameraHor - (angleDiffs.x * cameraSpd * StateManager::deltaTime.GetSeconds()));
+	float cameraNewVer = (cameraVer + (angleDiffs.y * cameraSpd * StateManager::deltaTime.GetSeconds()));
 
 	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
+
 	//Set the camera up to be the same as the vehicle?
 	//camera->SetUpVector(vehicle->transform.GetUp());
 
 	//Get Weapon Child - Weapon Rotation
-	Entity* vehicleGunTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
+	/*Entity* vehicleGunTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
 	glm::vec3 gunPosition = vehicleGunTurret->transform.GetGlobalPosition();
 	glm::vec3 cameraDirection = glm::normalize(camera->GetTarget() - camera->GetPosition());
 	glm::vec3 gunDirection = glm::normalize((camera->GetTarget() + (5.0f * cameraDirection))  - gunPosition);
-
+	*/
 	/*
 	glm::vec3 a = glm::cross(-vehicle->transform.GetForward(), gunDirection);
 	glm::quat q(0.f, a);
@@ -71,7 +79,7 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 
 	vehicleGunTurret->transform.SetRotation(glm::normalize(q));
 	*/
-	glm::vec3 vehicleForward = vehicle->transform.GetForward();
+	/*glm::vec3 vehicleForward = vehicle->transform.GetForward();
 	glm::vec3 vehicleUp = vehicle->transform.GetUp();
 	glm::vec3 vehicleRight = vehicle->transform.GetRight();
 
@@ -489,13 +497,23 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		controller->GetPreviousState().Gamepad.wButtons;
 
 	if (active) {
+		// -------------------------------------------------------------------------------------------------------------- //
+		// Get Components
+		// -------------------------------------------------------------------------------------------------------------- //
 		VehicleComponent* vehicle = static_cast<VehicleComponent*>(EntityManager::GetComponents(ComponentType_Vehicle)[controllerNum]); // maybe a better way to access entity
 		WeaponComponent* weapon = vehicle->GetEntity()->GetComponent<WeaponComponent>();
 		Entity *camera = EntityManager::FindEntities("Camera")[controllerNum];
 		CameraComponent* cameraC = camera->GetComponent<CameraComponent>();
+
+		// -------------------------------------------------------------------------------------------------------------- //
+		// Get Button States
+		// -------------------------------------------------------------------------------------------------------------- //
+		int heldButtons = controller->GetState().Gamepad.wButtons & controller->GetPreviousState().Gamepad.wButtons;
+		int pressedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetState().Gamepad.wButtons;
+		int releasedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetPreviousState().Gamepad.wButtons;
 		
 		// -------------------------------------------------------------------------------------------------------------- //
-		// Manage Triggers
+		// Manage Speed
 		// -------------------------------------------------------------------------------------------------------------- //
 		float forwardPower = 0; 
 		float backwardPower = 0; 
@@ -507,65 +525,65 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		}
 
 		// -------------------------------------------------------------------------------------------------------------- //
-		// Manage Left Stick
+		// Manage Steering
 		// -------------------------------------------------------------------------------------------------------------- //
 		float steer = 0;
 		if (abs(controller->GetState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
 			steer = -controller->GetState().Gamepad.sThumbLX / 32768.0f;
 		}
 
-
 		// -------------------------------------------------------------------------------------------------------------- //
-		// Manage Right Stick
+		// Manage Camera
 		// -------------------------------------------------------------------------------------------------------------- //
-		float x = 0;
-		float y = 0;
+		float cameraX = 0;
+		float cameraY = 0;
 
 		if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			x = -static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f;
+			cameraX = -static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f;
 		}
 		if (abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			y = static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f;
+			cameraY = static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f;
 		}
 
-		// -------------------------------------------------------------------------------------------------------------- //
-		// BUTTONS
-		// -------------------------------------------------------------------------------------------------------------- //
+		// an attempt to reset camera behind the vehicle
+		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
+			cameraX = -cameraC->GetCameraHorizontalAngle();
+			cameraY = -cameraC->GetCameraVerticalAngle() + M_PI / 3;
+		}
 
-		//Manage Button States
-		int heldButtons = controller->GetState().Gamepad.wButtons & controller->GetPreviousState().Gamepad.wButtons;
-		int pressedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetState().Gamepad.wButtons;
-		int releasedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetPreviousState().Gamepad.wButtons;
 
+		// -------------------------------------------------------------------------------------------------------------- //
+		// Manage Handbrake
+		// -------------------------------------------------------------------------------------------------------------- //
 		//LEFT-SHOULDER
 		float handbrake = 0;
 		if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
 			handbrake = 1;
 		}
 
-		//RIGHT-SHOULDER
-		float rayLength = 100.0f;
+
+		// -------------------------------------------------------------------------------------------------------------- //
+		// Manage Shooting
+		// -------------------------------------------------------------------------------------------------------------- //
 		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
 			weapon->Charge();
 		}
 		else if (heldButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
 			PxQueryFilterData filterData;
+			float rayLength = 200.0f;
 			filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
 			glm::vec3 cameraHit = cameraC->CastRay(rayLength, filterData);
 			vehicle->GetEntity()->GetComponent<WeaponComponent>()->Shoot(cameraHit);
 		}
 		
-		// an attempt to reset camera behind the vehicle
-		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
-			x = -cameraC->GetCameraHorizontalAngle();
-			y = -cameraC->GetCameraVerticalAngle() + M_PI / 3;
-		}
-
+		// -------------------------------------------------------------------------------------------------------------- //
+		// Update
+		// -------------------------------------------------------------------------------------------------------------- //
 		vehicle->HandleAcceleration(forwardPower, backwardPower);
 		vehicle->Handbrake(handbrake);
 		vehicle->Steer(steer);
 
-		UpdateCamera(vehicle->GetEntity(), cameraC, glm::vec2(x, y));
+		UpdateCamera(vehicle->GetEntity(), cameraC, glm::vec2(cameraX, cameraY));
 	}
 }
 
