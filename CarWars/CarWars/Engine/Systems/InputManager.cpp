@@ -196,8 +196,8 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
     // If there was no navigation, do nothing
     if (!vertDir && !horizDir && !enter && !back) return;
 
-	bool horizontal = abs(vertDir) < abs(horizDir);
-	bool vertical = abs(vertDir) > abs(horizDir);
+	const bool horizontal = abs(vertDir) < abs(horizDir);
+	const bool vertical = abs(vertDir) > abs(horizDir);
 
     // Normalize inputs
     vertDir =  vertical ? vertDir / abs(vertDir) : 0;
@@ -341,6 +341,9 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                     GuiHelper::SetFirstGuiText("CharacterMenu_Title", "", playerIndex);
                     GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", "", playerIndex);
                     selected->SetText("Ready");
+
+                    Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[playerIndex];
+                    EntityManager::DestroyChildren(stats);
 
                     player.ready = true;
                     bool allReady = true;
@@ -545,7 +548,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 			vehicle->GetEntity()->GetComponent<WeaponComponent>()->Shoot(cameraHit);
 		}
 		
-		// an attempt to rest camera behind the vehicle
+		// an attempt to reset camera behind the vehicle
 		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
 			x = -cameraC->GetCameraHorizontalAngle();
 			y = -cameraC->GetCameraVerticalAngle() + M_PI / 3;

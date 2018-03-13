@@ -88,3 +88,9 @@ bool Entity::IsMarkedForDeletion() const {
 void Entity::MarkForDeletion() {
 	markedForDeletion = true;
 }
+
+void Entity::TakeDamage(float amount) {
+	for (Component* component : components) {
+		component->TakeDamage(amount);
+	}
+}

@@ -39,9 +39,7 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 				Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
 				if (thingHit)
 					if (thingHit->HasTag("Vehicle") || thingHit->HasTag("AiVehicle")) {
-						std::cout << "Dealt : " << damage << std::endl;
-						VehicleComponent* thingHitVehicleComponent = thingHit->GetComponent<VehicleComponent>();
-						thingHitVehicleComponent->TakeDamage(damage);
+						thingHit->TakeDamage(damage);
 					}
 			}
 		}

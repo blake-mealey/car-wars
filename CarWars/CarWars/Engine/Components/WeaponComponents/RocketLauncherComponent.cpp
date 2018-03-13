@@ -17,7 +17,7 @@ void RocketLauncherComponent::Shoot(glm::vec3 position) {
 
 		//Create Missile Entity
 		Entity* missile = ContentManager::LoadEntity("Missile.json");
-		missile->GetComponent<MissileComponent>()->Initialize(vehicle);
+		missile->GetComponent<MissileComponent>()->Initialize(vehicle, position);
 	} else {
 		std::cout << "Between Shots" << std::endl;
 	}

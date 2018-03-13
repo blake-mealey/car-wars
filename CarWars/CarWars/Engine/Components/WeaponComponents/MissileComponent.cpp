@@ -12,7 +12,7 @@
 
 MissileComponent::MissileComponent() {}
 
-void MissileComponent::Initialize(Entity* _entity) {
+void MissileComponent::Initialize(Entity* _entity, glm::vec3 position) {
 	//Set Owner
 	owner = _entity;
 	//Get Its Damage Ammount
@@ -21,39 +21,9 @@ void MissileComponent::Initialize(Entity* _entity) {
 	Entity* gunTurret = EntityManager::FindFirstChild(owner, "GunTurret");
 	RigidDynamicComponent* missileRigidDynamic = missile->GetComponent<RigidDynamicComponent>();
 
-	//Determine Player and Get Camera
-	CameraComponent* vehicleCamera = nullptr;
-	glm::vec3 cameraDirection;
-	Game& gameInstance = Game::Instance();
-	for (int i = 0; i < gameInstance.gameData.playerCount; ++i) {
-		PlayerData& player = gameInstance.players[i];
-		if (player.vehicleEntity->GetId() == owner->GetId()) {
-			if (player.camera) {
-				vehicleCamera = player.camera;
-				cameraDirection = player.camera->GetTarget() - player.camera->GetPosition();
-			}
-		}
-	}
-
-	//Load Scene
-	PxScene* scene = &Physics::Instance().GetScene();
-	float rayLength = 100.0f;
-	//Cast Camera Ray
-	PxRaycastBuffer cameraHit;
-	glm::vec3 cameraHitPosition;
-	if (scene->raycast(Transform::ToPx(vehicleCamera->GetTarget()), Transform::ToPx(cameraDirection), rayLength, cameraHit)) {
-		//cameraHit has hit something
-		if (cameraHit.hasAnyHits()) {
-			cameraHitPosition = Transform::FromPx(cameraHit.block.position);
-		} else {
-			//cameraHit has not hit anything
-			cameraHitPosition = vehicleCamera->GetTarget() + (cameraDirection * rayLength);
-		}
-	}
-
 	//Variables Needed
 	glm::vec3 gunPosition = gunTurret->transform.GetGlobalPosition();
-	glm::vec3 gunDirection = glm::normalize(cameraHitPosition - gunPosition);
+	glm::vec3 gunDirection = glm::normalize(position - gunPosition);
 
 	float missileSpeed = missile->GetComponent<MissileComponent>()->GetSpeed();
 
