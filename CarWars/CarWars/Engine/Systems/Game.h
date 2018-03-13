@@ -142,7 +142,7 @@ private:
 	Game(const Game&) = delete;
 	Game& operator= (const Game&) = delete;
 
-    physx::PxRigidDynamic *cylinderRigid;
+//    physx::PxRigidDynamic *cylinderRigid;
 
     std::vector<Entity*> waypoints;
 

@@ -14,7 +14,6 @@
 #include <math.h>
 #include "StateManager.h"
 #include "../Components/DirectionLightComponent.h"
-#include "../Components/RigidbodyComponents/RigidDynamicComponent.h"
 #include "../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../Components/WeaponComponents/WeaponComponent.h"
 #include "Physics.h"
@@ -25,8 +24,8 @@ using namespace std;
 
 const string GameModeType::displayNames[Count] = { "Team", "Free for All" };
 
-const string MapType::displayNames[Count] = { "Cylinder" };
-const string MapType::scenePaths[Count] = { "CircleMap.json" };
+const string MapType::displayNames[Count] = { "Circle" };
+const string MapType::scenePaths[Count] = { "Maps/CircleMap.json" };
 
 const string VehicleType::displayNames[Count] = { "Heavy", "Medium", "Light" };
 const string VehicleType::prefabPaths[Count] = { "Vehicles/Sewage.json", "Vehicles/Hearse.json", "Vehicles/Flatbed.json" };
@@ -154,7 +153,7 @@ void Game::InitializeGame() {
         EntityManager::AddComponent(ai.vehicleEntity, ai.brain);
     }
 
-    Physics &physics = Physics::Instance();
+    /*Physics &physics = Physics::Instance();
 
     Entity *cylinder = EntityManager::FindEntities("Cylinder")[0];
     RigidDynamicComponent *cylinderRigid = cylinder->GetComponent<RigidDynamicComponent>();
@@ -174,7 +173,7 @@ void Game::InitializeGame() {
     // Enable visual debugging for constraints
     physics.GetScene().setVisualizationParameter(PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f);
     physics.GetScene().setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
-    lock->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
+    lock->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);*/
 
 
     waypoints = EntityManager::FindEntities("Waypoint");
@@ -241,7 +240,7 @@ void Game::Update() {
         }
     } else if (StateManager::GetState() == GameState_Playing) {
         // Set the cylinder's rotation
-        cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
+//        cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
 
         // Update AIs
         for (AiData &ai : ais) {
