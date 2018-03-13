@@ -5,6 +5,7 @@
 #include "../../Entities/EntityManager.h"
 #include "../../Components/CameraComponent.h"
 #include "../../Systems/Content/ContentManager.h"
+#include "../../Systems/Physics/RaycastGroups.h"
 
 RailGunComponent::RailGunComponent() : WeaponComponent(1150.0f) {}
 
@@ -31,7 +32,9 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 		float rayLength = 100.0f;
 		//Cast Gun Ray
 		PxRaycastBuffer gunHit;
-		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit)) {
+		PxQueryFilterData filterData;
+		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
+		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
 			if (gunHit.hasAnyHits()) {
 				Entity* hitMarker = ContentManager::LoadEntity("Marker.json");
 				hitMarker->transform.SetPosition(Transform::FromPx(gunHit.block.position));
