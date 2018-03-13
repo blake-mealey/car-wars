@@ -319,8 +319,8 @@ void Game::Update() {
             PlayerData& player = players[i];
             if (!player.alive) continue;
             player.cameraEntity->transform.SetPosition(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
-            player.camera->SetTarget(player.vehicleEntity->transform.GetGlobalPosition() +
-                player.vehicleEntity->transform.GetUp() * 2.f + player.vehicleEntity->transform.GetForward() * -1.25f);
+			player.camera->SetTarget(player.vehicleEntity->transform.GetGlobalPosition());
+			player.camera->SetTargetOffset(glm::vec3(0,1,0) * 2.f - player.vehicleEntity->transform.GetForward() * 2.f);
         }
 
         // ---------------

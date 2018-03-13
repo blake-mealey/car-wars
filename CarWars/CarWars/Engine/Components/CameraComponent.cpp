@@ -46,8 +46,8 @@ glm::vec3 CameraComponent::GetPosition() const {
 }
 
 glm::vec3 CameraComponent::GetTarget() const {
-    if (!entity || !targetInLocalSpace) return target;
-	return target + entity->transform.GetGlobalPosition();
+    if (!entity || !targetInLocalSpace) return target + targetOffset;
+	return target + targetOffset + entity->transform.GetGlobalPosition();
 }
 
 float CameraComponent::GetFieldOfView() const {
@@ -61,6 +61,11 @@ void CameraComponent::SetPosition(const glm::vec3 _position) {
 
 void CameraComponent::SetTarget(const glm::vec3 _target) {
 	target = _target;
+	UpdateViewMatrix();
+}
+
+void CameraComponent::SetTargetOffset(const glm::vec3 _target) {
+	targetOffset = _target;
 	UpdateViewMatrix();
 }
 
@@ -93,7 +98,6 @@ float CameraComponent::GetCameraHorizontalAngle() {
 
 void CameraComponent::SetCameraHorizontalAngle(float _cameraAngle) {
 	cameraAngle = _cameraAngle;
-    //UpdatePositionFromAngles();
 }
 
 float CameraComponent::GetCameraVerticalAngle() {
@@ -102,7 +106,6 @@ float CameraComponent::GetCameraVerticalAngle() {
 
 void CameraComponent::SetCameraVerticalAngle(float _cameraLift) {
 	cameraLift = _cameraLift;
-    //UpdatePositionFromAngles();
 }
 
 float CameraComponent::GetCameraSpeed() {
@@ -120,6 +123,7 @@ void CameraComponent::RenderDebugGui() {
 }
 
 void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, float _cameraVer) {
+	/*
 	SetCameraHorizontalAngle(_cameraHor);
 	SetCameraVerticalAngle(_cameraVer);
 
@@ -136,14 +140,32 @@ void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, f
 
 	bool correctForward = dotFR > 0;
 	bool correctUp = dotFU < 0;
-	bool correctRight = dotUR > 0;
+	bool correctRight = dotUR > 0; 
+	*/
+
+	/*
+	x = r cos T sin O
+	y = r sin T sin O
+	z = r cos O
+	*/
+
+	cameraAngle = _cameraHor; 
+	cameraLift = _cameraVer;
+	float xPos = distanceFromCenter * cos(cameraAngle) * sin(cameraLift);
+	float zPos = distanceFromCenter * sin(cameraAngle) * sin(cameraLift);
+	float yPos = distanceFromCenter * cos(cameraLift);
+
+	glm::vec3 position = glm::vec3(xPos, yPos, zPos);
+
+	SetPosition(position);
+
 
 	//TODO Figure out Vehicle Roll
-	SetPosition(distanceFromCenter * (
+	/*SetPosition(distanceFromCenter * (
 		(-_vehicle->transform.GetForward() * cos(GetCameraHorizontalAngle() + (correctForward ? -acos(dotFF) : acos(dotFF))) * sin(GetCameraVerticalAngle() + (correctUp ? -acos(dotUU) : acos(dotUU)))) +
 		(_vehicle->transform.GetUp() * cos(GetCameraVerticalAngle() + (correctUp ? -acos(dotUU) : acos(dotUU)))) +
 		(-_vehicle->transform.GetRight() * sin(GetCameraHorizontalAngle() + (correctForward ? -acos(dotFF) : acos(dotFF))) * sin(GetCameraVerticalAngle() + (correctUp ? -acos(dotUU) : acos(dotUU)))))
-	);
+	);*/
 }
 
 void CameraComponent::UpdatePositionFromAngles() {
