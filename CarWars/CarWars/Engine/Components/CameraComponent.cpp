@@ -151,9 +151,9 @@ void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, f
 
 	cameraAngle = _cameraHor; 
 	cameraLift = _cameraVer;
-	float xPos = distanceFromCenter * cos(cameraAngle) * sin(cameraLift);
-	float zPos = distanceFromCenter * sin(cameraAngle) * sin(cameraLift);
-	float yPos = distanceFromCenter * cos(cameraLift);
+	float xPos = distanceFromCenter * cos(cameraAngle) * sin(-cameraLift);
+	float zPos = distanceFromCenter * sin(cameraAngle) * sin(-cameraLift);
+	float yPos = distanceFromCenter * cos(-cameraLift);
 
 	glm::vec3 position = glm::vec3(xPos, yPos, zPos);
 

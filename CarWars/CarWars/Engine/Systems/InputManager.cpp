@@ -39,15 +39,6 @@ void InputManager::Update() {
 }
 
 void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs) {
-	//Update Camera Angles
-	/*float cameraHor = camera->GetCameraHorizontalAngle();
-	float cameraVer = camera->GetCameraVerticalAngle();
-	float cameraSpd = camera->GetCameraSpeed();
-	float cameraNewHor = (cameraHor - (angleDiffs.x * cameraSpd * StateManager::deltaTime.GetSeconds()));
-	float cameraNewVer = (cameraVer + (angleDiffs.y * cameraSpd * StateManager::deltaTime.GetSeconds()));
-
-	float dotFU = glm::dot(vehicle->transform.GetForward(), Transform::UP);
-	*/
 	//Clamping
 	/*float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
 	float minAngle = M_PI_2 - acos(dotFU);
@@ -58,8 +49,14 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	float cameraHor = camera->GetCameraHorizontalAngle();
 	float cameraVer = camera->GetCameraVerticalAngle();
 	float cameraSpd = camera->GetCameraSpeed();
-	float cameraNewHor = (cameraHor - (angleDiffs.x * cameraSpd * StateManager::deltaTime.GetSeconds()));
+	float cameraNewHor = (cameraHor + (angleDiffs.x * cameraSpd * StateManager::deltaTime.GetSeconds()));
 	float cameraNewVer = (cameraVer + (angleDiffs.y * cameraSpd * StateManager::deltaTime.GetSeconds()));
+
+	cameraNewVer = glm::clamp(cameraNewVer, 0.01f, (float) M_PI - 0.01f);
+	if (cameraNewHor > M_PI) cameraNewHor -= M_PI * 2;
+	if (cameraNewHor < -M_PI) cameraNewHor += M_PI * 2;
+
+	cout << cameraNewHor << endl;
 
 	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
 
@@ -477,16 +474,14 @@ void InputManager::HandleKeyboard() {
 	}
 }
 
+static bool follow = false;
+
 void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftVibrate, int &rightVibrate) {
 
 	XboxController *controller = xboxControllers[controllerNum];
 
 	if (controllerNum > Game::gameData.playerCount - 1) return;
 	//if (!Game::players[controllerNum].alive) return;
-
-	// -------------------------------------------------------------------------------------------------------------- //
-	// TRIGGERS
-	// -------------------------------------------------------------------------------------------------------------- //
 
 	bool active = controller->GetPreviousState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||
 		controller->GetPreviousState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||
@@ -537,20 +532,29 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		// -------------------------------------------------------------------------------------------------------------- //
 		float cameraX = 0;
 		float cameraY = 0;
-
-		if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			cameraX = -static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f;
-		}
-		if (abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			cameraY = static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f;
-		}
+		
 
 		// an attempt to reset camera behind the vehicle
 		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
-			cameraX = -cameraC->GetCameraHorizontalAngle();
-			cameraY = -cameraC->GetCameraVerticalAngle() + M_PI / 3;
+			follow = !follow;
+		}
+		if (follow) {
+			glm::vec3 vehicleDirection = vehicle->GetEntity()->transform.GetForward();
+			vehicleDirection.y = 0;
+			vehicleDirection = glm::normalize(vehicleDirection);
+			cameraX = -cameraC->GetCameraHorizontalAngle() + ((acos(glm::dot(vehicleDirection, Transform::FORWARD)))) * (glm::dot(vehicleDirection, Transform::RIGHT) > 0 ? 1 : -1) + M_PI_2;
+			cameraY = -cameraC->GetCameraVerticalAngle() + M_PI * .45f;
 		}
 
+		if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+			cameraX += static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f;
+		}
+		if (abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+			cameraY += static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f;
+		}
+
+		if (cameraX > M_PI) cameraX -= M_PI * 2;
+		if (cameraX < -M_PI) cameraX += M_PI * 2;
 
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Manage Handbrake
@@ -560,7 +564,6 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
 			handbrake = 1;
 		}
-
 
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Manage Shooting
