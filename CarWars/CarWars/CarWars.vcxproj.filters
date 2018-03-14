@@ -68,6 +68,7 @@
     <ClCompile Include="Dependencies\PennerEasing\Quint.cpp" />
     <ClCompile Include="Dependencies\PennerEasing\Sine.cpp" />
     <ClCompile Include="Engine\Components\Colliders\SphereCollider.cpp" />
+    <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -147,6 +148,7 @@
     <ClInclude Include="Dependencies\PennerEasing\Quint.h" />
     <ClInclude Include="Dependencies\PennerEasing\Sine.h" />
     <ClInclude Include="Engine\Components\Colliders\SphereCollider.h" />
+    <ClInclude Include="Engine\Components\ParticleComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\CollisionGroups\Vehicles.json" />

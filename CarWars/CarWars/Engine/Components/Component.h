@@ -22,7 +22,8 @@ enum ComponentType {
 	ComponentType_RocketLauncher,
 	ComponentType_AI,
 	ComponentType_GUI,
-	ComponentType_Missile
+	ComponentType_Missile,
+	ComponentType_Particle
 };
 
 class Component {

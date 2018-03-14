@@ -169,6 +169,7 @@
     <ClCompile Include="Engine\Components\Colliders\ConvexMeshCollider.cpp" />
     <ClCompile Include="Engine\Components\GuiComponents\GuiComponent.cpp" />
     <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
+    <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
     <ClCompile Include="Engine\Systems\GuiEffects.cpp" />
     <ClCompile Include="Engine\Components\MeshComponent.cpp" />
     <ClCompile Include="Engine\Components\PointLightComponent.cpp" />
@@ -241,6 +242,7 @@
     <ClInclude Include="Engine\Components\Colliders\ConvexMeshCollider.h" />
     <ClInclude Include="Engine\Components\GuiComponents\GuiComponent.h" />
     <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
+    <ClInclude Include="Engine\Components\ParticleComponent.h" />
     <ClInclude Include="Engine\Systems\GuiEffects.h" />
     <ClInclude Include="Engine\Components\MeshComponent.h" />
     <ClInclude Include="Engine\Components\PointLightComponent.h" />
