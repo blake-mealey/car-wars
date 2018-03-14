@@ -89,6 +89,7 @@ void Game::InitializeGame() {
     // Initialize the players
 	for (int i = 0; i < gameData.playerCount; ++i) {
         PlayerData& player = players[i];
+		player.name = "Player " + to_string(i + 1);
         player.alive = true;
 
         // Set their team
@@ -127,6 +128,7 @@ void Game::InitializeGame() {
         // TODO: Choose vehicle and weapon type somehow
         ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun));
         AiData& ai = ais[i];
+		ai.name = "Computer " + to_string(i + 1);
 
         // Set their team
         if (gameData.gameMode == GameModeType::FreeForAll) {

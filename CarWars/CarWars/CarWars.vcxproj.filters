@@ -217,5 +217,8 @@
     <None Include="Content\Scenes\Maps\CircleMap.json" />
     <None Include="Content\Prefabs\Entities\Menu\PauseMenu.json" />
     <None Include="Content\Prefabs\Entities\Explosion.json" />
+    <None Include="Content\Prefabs\Components\GUIs\StarjediFont.json" />
+    <None Include="Content\Prefabs\Entities\Menu\LeaderboardMenu.json" />
+    <None Include="Content\Prefabs\Entities\Menu\LeaderboardRow.json" />
   </ItemGroup>
 </Project>

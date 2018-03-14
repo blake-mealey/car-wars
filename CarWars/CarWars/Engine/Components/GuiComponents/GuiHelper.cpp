@@ -52,7 +52,7 @@ void GuiHelper::SelectNextGui(Entity* entity, int dir) {
             // Wrap
             if (it2 == components.end()) {
                 it2 = components.begin();
-            } else if (it2 == components.begin() - 1) {
+            } else if (it2 < components.begin()) {
                 it2 = components.end() - 1;
             }
             
@@ -111,7 +111,7 @@ void GuiHelper::SelectNextEntity(Entity* parent, int dir) {
             // Wrap
             if (it2 == children.end()) {
                 it2 = children.begin();
-            } else if (it2 == children.begin() - 1) {
+            } else if (it2 < children.begin()) {
                 it2 = children.end() - 1;
             }
 

@@ -47,9 +47,15 @@ struct TeamData {
 
 struct VehicleData {
     VehicleData(int _vehicleType = VehicleType::Heavy, int _weaponType = WeaponType::MachineGun) :
-        vehicleType(_vehicleType), weaponType(_weaponType),
+        name(""), vehicleType(_vehicleType), weaponType(_weaponType),
         alive(false), vehicleEntity(nullptr), cameraEntity(nullptr), camera(nullptr),
-        teamIndex(0), killCount(0), deathCount(0) {}
+        teamIndex(0), killCount(0), deathCount(0) {
+	
+		static int nextId = 0;
+		id = nextId++;
+	}
+
+	int id;
 
     // Settings
     int vehicleType;
@@ -62,9 +68,16 @@ struct VehicleData {
     CameraComponent* camera;
 
     // Gamemode state
+	std::string name;
     size_t teamIndex;
     size_t killCount;
     size_t deathCount;
+
+	// For leaderboard sorting
+	bool operator <(const VehicleData& rhs) {
+		return killCount > rhs.killCount;
+	}
+
 };
 
 struct PlayerData : VehicleData {

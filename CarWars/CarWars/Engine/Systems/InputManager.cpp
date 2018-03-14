@@ -200,23 +200,64 @@ void NextEnumOption(Entity* option, int dir, size_t &value, size_t count, const 
     GuiHelper::OpacityEffect(arrow, 0.2, 0.5f, 0.1, 0.1);
 }
 
-void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, int escape, int playerIndex) {
+void UpdateLeaderboardMenu(Entity* leaderboard, int playerIndex) {
+	Entity* container = EntityManager::FindFirstChild(leaderboard, "LeaderboardRows");
+	std::vector<VehicleData> allVehicles;
+	
+	for (size_t i = 0; i < Game::gameData.playerCount; ++i) {
+		allVehicles.push_back(Game::players[i]);
+	}
+
+	for (AiData& ai : Game::ais) {
+		allVehicles.push_back(ai);
+	}
+
+	std::sort(allVehicles.begin(), allVehicles.end());
+
+	PlayerData& thisPlayer = Game::players[playerIndex];
+	for (size_t i = 0; i < allVehicles.size(); ++i) {
+		VehicleData& vehicle = allVehicles[i];
+		if (vehicle.id != thisPlayer.id) continue;
+
+		if (i > 9) allVehicles[9] = vehicle;
+		break;
+	}
+
+	std::vector<Entity*> rows = EntityManager::GetChildren(container);
+	for (size_t i = 0; i < rows.size(); ++i) {
+		VehicleData& vehicle = allVehicles[i];
+		Entity* row = rows[i];
+		GuiHelper::SetFirstGuiText(row, vehicle.name);
+		GuiHelper::SetSecondGuiText(row, to_string(vehicle.killCount));
+	}
+}
+
+void CreateLeaderboardMenu(Entity* leaderboard, int playerIndex) {
+	Entity* container = EntityManager::FindFirstChild(leaderboard, "LeaderboardRows");
+
+	size_t count = Game::gameData.playerCount + Game::gameData.aiCount;
+	count = count < 10 ? count : 10;
+	for (size_t i = 0; i < count; ++i) {
+		Entity* row = ContentManager::LoadEntity("Menu/LeaderboardRow.json", container);
+		GuiHelper::SetGuiPositions(row, glm::vec3(0.f, -85.f + (i * 30.f), 0.f));
+	}
+
+	UpdateLeaderboardMenu(leaderboard, playerIndex);
+}
+
+void InputManager::NavigateGuis(GuiNavData navData) {
     // If there was no navigation, do nothing
-    if (!vertDir && !horizDir && !enter && !back && !escape) return;
+    if (!navData.Valid()) return;
 
-	const bool horizontal = abs(vertDir) < abs(horizDir);
-	const bool vertical = abs(vertDir) > abs(horizDir);
-
-    // Normalize inputs
-    vertDir =  vertical ? vertDir / abs(vertDir) : 0;
-    horizDir = horizontal ? horizDir / abs(horizDir) : 0;
+	// Normalize directional inputs
+	navData.NormalizeInputs();
 
     // Get the player for the current controller
-    PlayerData& player = Game::players[playerIndex];      // TODO: From passed index
+    PlayerData& player = Game::players[navData.playerIndex];
 
 	const GameState gameState = StateManager::GetState();
 	// Navigate buttons up/down
-	if (vertDir) {
+	if (navData.vertDir) {
 		std::string buttonGroupName;
 		bool noNavigation = false;
         bool entityNavigation = false;
@@ -241,65 +282,65 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 		if (!noNavigation) {
 			Entity* buttonGroup = EntityManager::FindEntities(buttonGroupName)[0];
             if (!entityNavigation) {
-                GuiHelper::SelectNextGui(buttonGroup, -vertDir);
+                GuiHelper::SelectNextGui(buttonGroup, -navData.vertDir);
             } else {
-                GuiHelper::SelectNextEntity(buttonGroup, -vertDir);
+                GuiHelper::SelectNextEntity(buttonGroup, -navData.vertDir);
             }
 		}
 	}
 
-	if (horizDir) {
+	if (navData.horizDir) {
         if (gameState == GameState_Menu_Start) {
             Entity* selected = GuiHelper::GetSelectedEntity("StartMenu_Options");
             if (GuiHelper::FirstGuiContainsText(selected, "lives")) {
-                NextNumberOption(selected, horizDir, Game::gameData.numberOfLives, GameData::MIN_NUMBER_OF_LIVES, GameData::MAX_NUMBER_OF_LIVES);
+                NextNumberOption(selected, navData.horizDir, Game::gameData.numberOfLives, GameData::MIN_NUMBER_OF_LIVES, GameData::MAX_NUMBER_OF_LIVES);
             } else if (GuiHelper::FirstGuiContainsText(selected, "ai")) {
-                NextNumberOption(selected, horizDir, Game::gameData.aiCount, GameData::MIN_AI_COUNT, GameData::MAX_AI_COUNT);
+                NextNumberOption(selected, navData.horizDir, Game::gameData.aiCount, GameData::MIN_AI_COUNT, GameData::MAX_AI_COUNT);
             } else if (GuiHelper::FirstGuiContainsText(selected, "map")) {
-                NextEnumOption(selected, horizDir, Game::gameData.map, MapType::Count, MapType::displayNames);
+                NextEnumOption(selected, navData.horizDir, Game::gameData.map, MapType::Count, MapType::displayNames);
             } else if (GuiHelper::FirstGuiContainsText(selected, "time")) {
-                NextNumberOption(selected, horizDir, Game::gameData.timeLimitMinutes, GameData::MIN_TIME_LIMIT_MINUTES, GameData::MAX_TIME_LIMIT_MINUTES, " minutes");
+                NextNumberOption(selected, navData.horizDir, Game::gameData.timeLimitMinutes, GameData::MIN_TIME_LIMIT_MINUTES, GameData::MAX_TIME_LIMIT_MINUTES, " minutes");
             } else if (GuiHelper::FirstGuiContainsText(selected, "kill")) {
-                NextNumberOption(selected, horizDir, Game::gameData.killLimit, GameData::MIN_KILL_LIMIT, GameData::MAX_KILL_LIMIT);
+                NextNumberOption(selected, navData.horizDir, Game::gameData.killLimit, GameData::MIN_KILL_LIMIT, GameData::MAX_KILL_LIMIT);
             } else if (GuiHelper::FirstGuiContainsText(selected, "game")) {
-                NextEnumOption(selected, horizDir, Game::gameData.gameMode, GameModeType::Count, GameModeType::displayNames);
+                NextEnumOption(selected, navData.horizDir, Game::gameData.gameMode, GameModeType::Count, GameModeType::displayNames);
             }
         } else if (gameState == GameState_Menu_Start_CharacterSelect) {
-            if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle", playerIndex)) {
-                player.vehicleType = (player.vehicleType + horizDir) % VehicleType::Count;
+            if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle", navData.playerIndex)) {
+                player.vehicleType = (player.vehicleType + navData.horizDir) % VehicleType::Count;
                 if (player.vehicleType < 0) player.vehicleType += VehicleType::Count;
                 const string text = VehicleType::displayNames[player.vehicleType];
-                GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", text, playerIndex);
+                GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", text, navData.playerIndex);
 
-                GuiComponent* arrow = horizDir < 0 ? GuiHelper::GetFirstGui("CharacterMenu_Arrows", playerIndex) : GuiHelper::GetSecondGui("CharacterMenu_Arrows", playerIndex);
+                GuiComponent* arrow = navData.horizDir < 0 ? GuiHelper::GetFirstGui("CharacterMenu_Arrows", navData.playerIndex) : GuiHelper::GetSecondGui("CharacterMenu_Arrows", navData.playerIndex);
                 GuiHelper::OpacityEffect(arrow, 0.2, 0.5f, 0.1, 0.1);
 
-                Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
+                Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[navData.playerIndex];
                 EntityManager::DestroyEntity(EntityManager::FindFirstChild(vehicleBox, "Vehicle"));
                 ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType], vehicleBox);
 
-                UpdateVehicleStats(playerIndex);
-            } else if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "weapon", playerIndex)) {
-				player.weaponType = (player.weaponType + horizDir) % WeaponType::Count;
+                UpdateVehicleStats(navData.playerIndex);
+            } else if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "weapon", navData.playerIndex)) {
+				player.weaponType = (player.weaponType + navData.horizDir) % WeaponType::Count;
 				if (player.weaponType < 0) player.weaponType += WeaponType::Count;
 				const string text = WeaponType::displayNames[player.weaponType];
-				GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", text, playerIndex);
+				GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", text, navData.playerIndex);
 
-                GuiComponent* arrow = horizDir < 0 ? GuiHelper::GetFirstGui("CharacterMenu_Arrows", playerIndex) : GuiHelper::GetSecondGui("CharacterMenu_Arrows", playerIndex);
+                GuiComponent* arrow = navData.horizDir < 0 ? GuiHelper::GetFirstGui("CharacterMenu_Arrows", navData.playerIndex) : GuiHelper::GetSecondGui("CharacterMenu_Arrows", navData.playerIndex);
                 GuiHelper::OpacityEffect(arrow, 0.2, 0.5f, 0.1, 0.1);
 
-                Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
+                Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[navData.playerIndex];
                 Entity* vehicle = EntityManager::FindFirstChild(vehicleBox, "Vehicle");
                 EntityManager::DestroyEntity(EntityManager::FindFirstChild(vehicle, "GunTurret"));
                 Entity* weapon = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType], vehicle);
                 weapon->transform.SetPosition(EntityManager::FindFirstChild(vehicle, "GunTurretBase")->transform.GetLocalPosition());
 				
-                UpdateWeaponStats(playerIndex);
+                UpdateWeaponStats(navData.playerIndex);
 			}
 		}
 	}
 
-	if (enter) {
+	if (navData.enter) {
 		if (gameState == GameState_Menu) {
 			GuiComponent *selected = GuiHelper::GetSelectedGui("MainMenu_Buttons");
 			if (selected->HasText("start")) {
@@ -326,40 +367,40 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 			}
 		}
 		else if (gameState == GameState_Menu_Start_CharacterSelect) {
-			GuiComponent *selected = GuiHelper::GetSelectedGui("CharacterMenu_Buttons", playerIndex);
+			GuiComponent *selected = GuiHelper::GetSelectedGui("CharacterMenu_Buttons", navData.playerIndex);
 			if (selected->ContainsText("join")) {
                 Game::gameData.playerCount++;
 
-				GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", true, playerIndex);
-				GuiHelper::SetGuisEnabled("CharacterMenu_Stats", true, playerIndex);
-				GuiHelper::SetFirstGuiText("CharacterMenu_Title", "vehicle selection", playerIndex);
-				GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", VehicleType::displayNames[player.vehicleType], playerIndex);
+				GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", true, navData.playerIndex);
+				GuiHelper::SetGuisEnabled("CharacterMenu_Stats", true, navData.playerIndex);
+				GuiHelper::SetFirstGuiText("CharacterMenu_Title", "vehicle selection", navData.playerIndex);
+				GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", VehicleType::displayNames[player.vehicleType], navData.playerIndex);
 
-                Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
+                Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[navData.playerIndex];
                 ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType], vehicleBox);
 
-                UpdateVehicleStats(playerIndex);
+                UpdateVehicleStats(navData.playerIndex);
 
 				selected->SetText("a to continue");
 			} else {
-                if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle", playerIndex)) {
-                    GuiHelper::SetFirstGuiText("CharacterMenu_Title", "weapon selection", playerIndex);
-                    GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", WeaponType::displayNames[player.weaponType], playerIndex);
+                if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle", navData.playerIndex)) {
+                    GuiHelper::SetFirstGuiText("CharacterMenu_Title", "weapon selection", navData.playerIndex);
+                    GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", WeaponType::displayNames[player.weaponType], navData.playerIndex);
 
-                    Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
+                    Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[navData.playerIndex];
                     Entity* vehicle = EntityManager::FindFirstChild(vehicleBox, "Vehicle");
                     Entity* weapon = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType], vehicle);
                     weapon->transform.SetPosition(EntityManager::FindFirstChild(vehicle, "GunTurretBase")->transform.GetLocalPosition());
 
-                    UpdateWeaponStats(playerIndex);
+                    UpdateWeaponStats(navData.playerIndex);
                 } else {
-                    GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", false, playerIndex);
-					GuiHelper::SetGuisEnabled("CharacterMenu_Stats", false, playerIndex);
-                    GuiHelper::SetFirstGuiText("CharacterMenu_Title", "", playerIndex);
-                    GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", "", playerIndex);
+                    GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", false, navData.playerIndex);
+					GuiHelper::SetGuisEnabled("CharacterMenu_Stats", false, navData.playerIndex);
+                    GuiHelper::SetFirstGuiText("CharacterMenu_Title", "", navData.playerIndex);
+                    GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", "", navData.playerIndex);
                     selected->SetText("Ready");
 
-                    Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[playerIndex];
+                    Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[navData.playerIndex];
                     EntityManager::DestroyChildren(stats);
 
                     player.ready = true;
@@ -373,7 +414,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
                 }
 			}
 		} else if (gameState == GameState_Paused) {
-            GuiComponent* selected = GuiHelper::GetSelectedGui("PauseMenuButtons", playerIndex);
+            GuiComponent* selected = GuiHelper::GetSelectedGui("PauseMenuButtons", navData.playerIndex);
             if (selected->ContainsText("resume")) {
                 StateManager::SetState(GameState_Playing);
             } else if (selected->ContainsText("exit")) {
@@ -382,7 +423,7 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 		}
 	}
 
-	if (back) {
+	if (navData.back) {
 		if (gameState == GameState_Menu_Settings) {
 			StateManager::SetState(GameState_Menu);
 		}
@@ -390,42 +431,42 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
 			StateManager::SetState(GameState_Menu);
 		}
 		else if (gameState == GameState_Menu_Start_CharacterSelect) {
-            GuiComponent *selected = GuiHelper::GetSelectedGui("CharacterMenu_Buttons", playerIndex);
+            GuiComponent *selected = GuiHelper::GetSelectedGui("CharacterMenu_Buttons", navData.playerIndex);
             if (selected->ContainsText("join")) {
                 StateManager::SetState(GameState_Menu_Start);
                 CreateStartMenu();
             } else {
-                if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle", playerIndex)) {
-                    GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", false, playerIndex);
-					GuiHelper::SetGuisEnabled("CharacterMenu_Stats", false, playerIndex);
-                    GuiHelper::SetFirstGuiText("CharacterMenu_Title", "", playerIndex);
-                    GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", "", playerIndex);
+                if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle", navData.playerIndex)) {
+                    GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", false, navData.playerIndex);
+					GuiHelper::SetGuisEnabled("CharacterMenu_Stats", false, navData.playerIndex);
+                    GuiHelper::SetFirstGuiText("CharacterMenu_Title", "", navData.playerIndex);
+                    GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", "", navData.playerIndex);
 
-                    Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
+                    Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[navData.playerIndex];
                     EntityManager::DestroyEntity(EntityManager::FindFirstChild(vehicleBox, "Vehicle"));
 
-                    Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[playerIndex];
+                    Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[navData.playerIndex];
                     EntityManager::DestroyChildren(stats);
 
                     Game::gameData.playerCount--;
                     selected->SetText("a to join");
-                } else if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "weapon", playerIndex)) {
-                    GuiHelper::SetFirstGuiText("CharacterMenu_Title", "vehicle selection", playerIndex);
-                    GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", VehicleType::displayNames[player.vehicleType], playerIndex);
+                } else if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "weapon", navData.playerIndex)) {
+                    GuiHelper::SetFirstGuiText("CharacterMenu_Title", "vehicle selection", navData.playerIndex);
+                    GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", VehicleType::displayNames[player.vehicleType], navData.playerIndex);
 
-                    Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[playerIndex];
+                    Entity* vehicleBox = EntityManager::FindEntities("VehicleBox")[navData.playerIndex];
                     Entity* vehicle = EntityManager::FindFirstChild(vehicleBox, "Vehicle");
                     EntityManager::DestroyEntity(EntityManager::FindFirstChild(vehicle, "GunTurret"));
 
-                    UpdateVehicleStats(playerIndex);
+                    UpdateVehicleStats(navData.playerIndex);
                 } else {
-                    GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", true, playerIndex);
-					GuiHelper::SetGuisEnabled("CharacterMenu_Stats", true, playerIndex);
-                    GuiHelper::SetFirstGuiText("CharacterMenu_Title", "weapon selection", playerIndex);
-                    GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", WeaponType::displayNames[player.weaponType], playerIndex);
+                    GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", true, navData.playerIndex);
+					GuiHelper::SetGuisEnabled("CharacterMenu_Stats", true, navData.playerIndex);
+                    GuiHelper::SetFirstGuiText("CharacterMenu_Title", "weapon selection", navData.playerIndex);
+                    GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", WeaponType::displayNames[player.weaponType], navData.playerIndex);
                     selected->SetText("a to continue");
 
-                    UpdateWeaponStats(playerIndex);
+                    UpdateWeaponStats(navData.playerIndex);
 
                     player.ready = false;
                 }
@@ -436,29 +477,53 @@ void InputManager::NavigateGuis(int vertDir, int horizDir, int enter, int back, 
         }
 	}
 
-    if (escape) {
+    if (navData.escape) {
         if (gameState == GameState_Playing) {
             StateManager::SetState(GameState_Paused);
-            ContentManager::LoadEntity("Menu/PauseMenu.json", Game::players[playerIndex].camera->GetGuiRoot());
+            ContentManager::LoadEntity("Menu/PauseMenu.json", Game::players[navData.playerIndex].camera->GetGuiRoot());
         } else if (gameState == GameState_Paused) {
             StateManager::SetState(GameState_Playing);
         }
     }
+
+	if (gameState == GameState_Playing) {
+		if (navData.tabPressed) {
+			Entity* guiRoot = Game::players[navData.playerIndex].camera->GetGuiRoot();
+			Entity* leaderboard = ContentManager::LoadEntity("Menu/LeaderboardMenu.json", guiRoot);
+			CreateLeaderboardMenu(leaderboard, navData.playerIndex);
+		} else if (navData.tabReleased) {
+			Entity* guiRoot = Game::players[navData.playerIndex].camera->GetGuiRoot();
+			EntityManager::DestroyEntity(EntityManager::FindFirstChild(guiRoot, "LeaderboardMenu"));
+		} else if (navData.tabHeld) {
+			Entity* guiRoot = Game::players[navData.playerIndex].camera->GetGuiRoot();
+			Entity* leaderboard = EntityManager::FindFirstChild(guiRoot, "LeaderboardMenu");
+			if (leaderboard) {
+				UpdateLeaderboardMenu(leaderboard, navData.playerIndex);
+			}
+		}
+	}
 }
 
 void InputManager::HandleKeyboard() {
 	//Keyboard Inputs
     const GameState gameState = StateManager::GetState();
 
-    const int vertDir = Keyboard::KeyPressed(GLFW_KEY_UP) || Keyboard::KeyPressed(GLFW_KEY_W) ? 1
-        : Keyboard::KeyPressed(GLFW_KEY_DOWN) || Keyboard::KeyPressed(GLFW_KEY_S) ? -1 : 0;
+	GuiNavData navData;
+	navData.playerIndex = 0;
 
-    const int horizDir = Keyboard::KeyPressed(GLFW_KEY_RIGHT) || Keyboard::KeyPressed(GLFW_KEY_D) ? 1
+	navData.enter = Keyboard::KeyPressed(GLFW_KEY_ENTER);
+	navData.back = Keyboard::KeyPressed(GLFW_KEY_ESCAPE);
+		navData.escape = navData.back;
+	navData.tabPressed = Keyboard::KeyPressed(GLFW_KEY_TAB);
+	navData.tabHeld = Keyboard::KeyDown(GLFW_KEY_TAB);
+	navData.tabReleased = Keyboard::KeyReleased(GLFW_KEY_TAB);
+	
+	navData.vertDir = Keyboard::KeyPressed(GLFW_KEY_UP) || Keyboard::KeyPressed(GLFW_KEY_W) ? 1
+        : Keyboard::KeyPressed(GLFW_KEY_DOWN) || Keyboard::KeyPressed(GLFW_KEY_S) ? -1 : 0;
+	navData.horizDir = Keyboard::KeyPressed(GLFW_KEY_RIGHT) || Keyboard::KeyPressed(GLFW_KEY_D) ? 1
         : Keyboard::KeyPressed(GLFW_KEY_LEFT) || Keyboard::KeyPressed(GLFW_KEY_A) ? -1 : 0;
 
-    const int escape = Keyboard::KeyPressed(GLFW_KEY_ESCAPE);
-
-    NavigateGuis(vertDir, horizDir, Keyboard::KeyPressed(GLFW_KEY_ENTER), escape, escape, 0);
+    NavigateGuis(navData);
 
 	if (gameState == GameState_Playing) {
         //Get Vehicle Component
@@ -615,21 +680,28 @@ void InputManager::HandleController() {
 		int heldButtons = controller->GetState().Gamepad.wButtons & controller->GetPreviousState().Gamepad.wButtons;
 		int pressedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetState().Gamepad.wButtons;
 		int releasedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetPreviousState().Gamepad.wButtons;
-		
-	    
-	    int vertDir = 0;
-		if (abs(controller->GetPreviousState().Gamepad.sThumbLY) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && abs(controller->GetState().Gamepad.sThumbLY) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-			vertDir = controller->GetState().Gamepad.sThumbLY / abs(controller->GetState().Gamepad.sThumbLY);
-		}
-		vertDir = pressedButtons & XINPUT_GAMEPAD_DPAD_DOWN ? -1 : pressedButtons & XINPUT_GAMEPAD_DPAD_UP ? 1 : vertDir;
+	
+		GuiNavData navData;
+		navData.playerIndex = controllerNum;
 
-		int horizDir = 0;
-		if (abs(controller->GetPreviousState().Gamepad.sThumbLX) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && abs(controller->GetState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
-			horizDir = controller->GetState().Gamepad.sThumbLX / abs(controller->GetState().Gamepad.sThumbLX);
+		navData.enter = pressedButtons & XINPUT_GAMEPAD_A;
+		navData.back = pressedButtons & XINPUT_GAMEPAD_B;
+		navData.escape = pressedButtons & XINPUT_GAMEPAD_START;
+		navData.tabPressed = pressedButtons & XINPUT_GAMEPAD_BACK;
+		navData.tabHeld = heldButtons & XINPUT_GAMEPAD_BACK;
+		navData.tabReleased = releasedButtons & XINPUT_GAMEPAD_BACK;
+	    
+		if (abs(controller->GetPreviousState().Gamepad.sThumbLY) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && abs(controller->GetState().Gamepad.sThumbLY) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+			navData.vertDir = controller->GetState().Gamepad.sThumbLY / abs(controller->GetState().Gamepad.sThumbLY);
 		}
-		horizDir = pressedButtons & XINPUT_GAMEPAD_DPAD_LEFT ? -1 : pressedButtons & XINPUT_GAMEPAD_DPAD_RIGHT ? 1 : horizDir;
+		navData.vertDir = pressedButtons & XINPUT_GAMEPAD_DPAD_DOWN ? -1 : pressedButtons & XINPUT_GAMEPAD_DPAD_UP ? 1 : navData.vertDir;
+
+		if (abs(controller->GetPreviousState().Gamepad.sThumbLX) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && abs(controller->GetState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+			navData.horizDir = controller->GetState().Gamepad.sThumbLX / abs(controller->GetState().Gamepad.sThumbLX);
+		}
+		navData.horizDir = pressedButtons & XINPUT_GAMEPAD_DPAD_LEFT ? -1 : pressedButtons & XINPUT_GAMEPAD_DPAD_RIGHT ? 1 : navData.horizDir;
 			
-		NavigateGuis(vertDir, horizDir, pressedButtons & XINPUT_GAMEPAD_A, pressedButtons & XINPUT_GAMEPAD_B, pressedButtons & XINPUT_GAMEPAD_START, controllerNum);
+		NavigateGuis(navData);
 
         
 	    if (StateManager::GetState() == GameState_Playing) {

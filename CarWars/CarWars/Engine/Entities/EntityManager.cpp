@@ -182,7 +182,9 @@ std::vector<Entity*> EntityManager::FindChildren(Entity* entity, std::string tag
 }
 
 Entity* EntityManager::FindFirstChild(Entity* entity, std::string tag) {
-    return FindChildren(entity, tag, 1)[0];
+	std::vector<Entity*> children = FindChildren(entity, tag, 1);
+	if (children.size() > 0) return children[0];
+	return nullptr;
 }
 
 std::vector<Entity*> EntityManager::GetChildren(Entity* entity) {
