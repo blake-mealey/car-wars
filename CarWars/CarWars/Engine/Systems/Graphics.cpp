@@ -21,7 +21,7 @@
 #include "Game.h"
 #include "../Components/AiComponent.h"
 
-//#define RENDER_DOC_DEBUG_MODE
+#define RENDER_DOC_DEBUG_MODE
 
 // Constants
 const size_t Graphics::MAX_CAMERAS = 4;
@@ -700,6 +700,10 @@ void Graphics::Update() {
     ShaderProgram *guiProgram = shaders[Shaders::GUI];
 
     if (renderGuis) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_DEPTH_TEST);
+
         for (Camera camera : cameras) {
             // Setup the viewport for each camera (split-screen)
             glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
@@ -712,40 +716,70 @@ void Graphics::Update() {
                 Entity *guiRoot = gui->GetGuiRoot();
                 if (!guiRoot || guiRoot != camera.guiRoot) continue;
 
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                glDisable(GL_DEPTH_TEST);
+                if (gui->IsMaskEnabled() || gui->IsClipEnabled()) {
+                    // Enable stencil test and clear buffer
+                    glEnable(GL_STENCIL_TEST);
+                    glClear(GL_STENCIL_BUFFER_BIT);
 
-                // Get the scale and position of the GUI
-                const glm::vec2 anchorPoint = gui->GetAnchorPoint();
-                const glm::vec3 scale = gui->transform.GetGlobalScale() +
-                    glm::vec3(camera.viewportSize * gui->GetScaledScale(), 0.f);
-                const glm::vec3 position = gui->transform.GetGlobalPosition() +
-                    glm::vec3(camera.viewportSize * gui->GetScaledPosition(), 0.f);
+                    // Write a 1 at every pixel we write to
+                    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+                    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+                    
+                    // Only write to stencil buffer
+                    glStencilMask(0xFF);
+                    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+                    glDepthMask(GL_FALSE);
+
+                    // Use the GUI program
+                    glUseProgram(guiProgram->GetId());
+                    
+                    // Send the UV scale and texture color to the GPU
+                    guiProgram->LoadUniform(UniformName::DiffuseColor, gui->GetTextureColor());
+                    guiProgram->LoadUniform(UniformName::DiffuseTextureEnabled, false);
+
+                    // Set the viewport
+                    glViewport(0, 0, windowWidth, windowHeight);
+
+                    if (gui->IsClipEnabled()) {
+                        // Send the transform to the GPU
+                        const glm::mat4 modelMatrix = gui->transform.GetGuiTransformationMatrix(
+                            gui->GetAnchorPoint(),
+                            gui->GetScaledPosition(),
+                            gui->GetScaledScale(),
+                            camera.viewportPosition,
+                            camera.viewportSize,
+                            glm::vec2(windowWidth, windowHeight));
+                        guiProgram->LoadUniform(UniformName::ModelMatrix, modelMatrix);
+                        
+                        // Render it
+                        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                    } else if (gui->IsMaskEnabled()) {
+                        // Send the transform to the GPU
+                        const glm::mat4 modelMatrix = gui->GetMask().GetGuiTransformationMatrix(
+                            gui->GetAnchorPoint(),
+                            gui->GetScaledPosition(),
+                            gui->GetScaledScale(),
+                            camera.viewportPosition,
+                            camera.viewportSize,
+                            glm::vec2(windowWidth, windowHeight));
+                        guiProgram->LoadUniform(UniformName::ModelMatrix, modelMatrix);
+
+                        // Render it
+                        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                    }
+
+                    // Only write with stencil equal to 1
+                    glStencilFunc(GL_EQUAL, 1, 0xFF);
+
+                    // Write to all buffers except stencil
+                    glStencilMask(0x00);
+                    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+                    glDepthMask(GL_TRUE);
+                }
 
                 // RENDER THE FRAME
                 Texture *frameTexture = gui->GetTexture();
                 if (frameTexture) {
-                    // Convert from pixel to screen space
-                    const glm::vec3 toScreenScale = glm::vec3(
-                        1.f / camera.viewportSize.x,
-                        1.f / camera.viewportSize.y,
-                        1.f
-                    );
-
-                    // Pixel size ratio
-                    const glm::vec2 viewportRatio = glm::vec2(
-                        camera.viewportSize.x / static_cast<float>(windowWidth),
-                        camera.viewportSize.y / static_cast<float>(windowHeight));
-
-                    // Get the screen-space scale and position of the GUI
-                    const glm::vec3 screenScale = toScreenScale * scale * glm::vec3(viewportRatio, 1.f);
-                    const glm::vec3 screenPosition = glm::vec3(-1.f, -1.f, 0.f) + toScreenScale *
-                        2.f * glm::vec3(
-                            viewportRatio.x * (camera.viewportPosition.x + position.x + scale.x*(0.5f - anchorPoint.x)),
-                            viewportRatio.y * (camera.viewportPosition.y + camera.viewportSize.y - position.y - scale.y*(0.5f - anchorPoint.y)),
-                            0.f);
-
                     // Use the GUI program
                     glUseProgram(guiProgram->GetId());
 
@@ -757,10 +791,17 @@ void Graphics::Update() {
                     // Send the UV scale and texture color to the GPU
                     guiProgram->LoadUniform(UniformName::UvScale, gui->GetUvScale());
                     guiProgram->LoadUniform(UniformName::DiffuseColor, gui->GetTextureColor());
+                    guiProgram->LoadUniform(UniformName::DiffuseTextureEnabled, true);
 
                     // Send the transform to the GPU
-                    Transform transform = Transform(screenPosition, screenScale, gui->transform.GetLocalRotation());
-                    guiProgram->LoadUniform(UniformName::ModelMatrix, transform.GetTransformationMatrix());
+                    const glm::mat4 modelMatrix = gui->transform.GetGuiTransformationMatrix(
+                        gui->GetAnchorPoint(),
+                        gui->GetScaledPosition(),
+                        gui->GetScaledScale(),
+                        camera.viewportPosition,
+                        camera.viewportSize,
+                        glm::vec2(windowWidth, windowHeight));
+                    guiProgram->LoadUniform(UniformName::ModelMatrix, modelMatrix);
 
                     // Render it
                     glViewport(0, 0, windowWidth, windowHeight);
@@ -789,6 +830,13 @@ void Graphics::Update() {
                 FTBBox bbox = font->BBox(gui->GetText().c_str());
                 const float fontWidth = bbox.Upper().X() - bbox.Lower().X();
                 const float fontHeight = font->Ascender() * 0.5f;
+
+                // Get the scale and position of the GUI
+                const glm::vec2 anchorPoint = gui->GetAnchorPoint();
+                const glm::vec3 scale = gui->transform.GetGlobalScale() +
+                    glm::vec3(camera.viewportSize * gui->GetScaledScale(), 0.f);
+                const glm::vec3 position = gui->transform.GetGlobalPosition() +
+                    glm::vec3(camera.viewportSize * gui->GetScaledPosition(), 0.f);
 
                 const glm::vec3 fontPosition = position;
                 glm::vec2 fontScreenPosition = camera.viewportPosition +
@@ -827,10 +875,16 @@ void Graphics::Update() {
                 // Reset stuff
                 glPopAttrib();
 
-                glEnable(GL_DEPTH_TEST);
-                glDisable(GL_BLEND);
+                if (gui->IsMaskEnabled() || gui->IsClipEnabled()) {
+                    glDisable(GL_STENCIL_TEST);
+                }
             }
         }
+
+        glDisable(GL_STENCIL_TEST);
+
+        glEnable(GL_DEPTH_TEST);
+        glDisable(GL_BLEND);
     }
 
     // -------------------------------------------------------------------------------------------------------------- //

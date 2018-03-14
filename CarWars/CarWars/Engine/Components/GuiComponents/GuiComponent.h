@@ -100,6 +100,10 @@ public:
         return nullptr;
     }
 
+    bool IsMaskEnabled() const;
+    bool IsClipEnabled() const;
+    Transform GetMask() const;
+
 private:
     bool selected;
 
@@ -121,6 +125,10 @@ private:
     glm::vec4 selectedTextureColor;
 	Texture *texture;
     glm::vec2 uvScale;
+
+    bool maskEnabled;
+    Transform mask;
+    bool clipEnabled;
 
     std::unordered_set<GuiEffect*> effects;
 };

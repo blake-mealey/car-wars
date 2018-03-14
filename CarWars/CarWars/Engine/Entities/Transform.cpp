@@ -9,6 +9,7 @@
 #include "imgui/imgui.h"
 #include <glm/gtc/type_ptr.hpp>
 #include "../Systems/Content/ContentManager.h"
+#include "../Components/GuiComponents/GuiComponent.h"
 
 const glm::vec3 Transform::FORWARD = glm::vec3(0, 0, -1);
 const glm::vec3 Transform::RIGHT = glm::vec3(1, 0, 0);
@@ -214,6 +215,36 @@ glm::mat4 Transform::GetTransformationMatrix() {
 		transform = transform->parent;
 	} while (transform != nullptr);
 	return matrix;
+}
+
+glm::mat4 Transform::GetGuiTransformationMatrix(glm::vec2 anchorPoint, glm::vec2 scaledPosition, glm::vec2 scaledScale, glm::vec2 viewportPosition, glm::vec2 viewportScale, glm::vec2 windowScale) {
+    // Get the scale and position of the GUI
+    const glm::vec3 scale = GetGlobalScale() +
+        glm::vec3(viewportScale * scaledScale, 0.f);
+    const glm::vec3 position = GetGlobalPosition() +
+        glm::vec3(viewportScale * scaledPosition, 0.f);
+
+    // Convert from pixel to screen space
+    const glm::vec3 toScreenScale = glm::vec3(
+        1.f / viewportScale .x,
+        1.f / viewportScale.y,
+        1.f
+    );
+
+    // Pixel size ratio
+    const glm::vec2 viewportRatio = viewportScale / windowScale;
+
+    // Get the screen-space scale and position of the GUI
+    const glm::vec3 screenScale = toScreenScale * scale * glm::vec3(viewportRatio, 1.f);
+    const glm::vec3 screenPosition = glm::vec3(-1.f, -1.f, 0.f) + toScreenScale *
+        2.f * glm::vec3(
+            viewportRatio.x * (viewportPosition.x + position.x + scale.x*(0.5f - anchorPoint.x)),
+            viewportRatio.y * (viewportPosition.y + viewportScale.y - position.y - scale.y*(0.5f - anchorPoint.y)),
+            0.f);
+
+    // Build the transform
+    const Transform transform = Transform(screenPosition, screenScale, GetLocalRotation());
+    return transform.translationMatrix * transform.rotationMatrix * transform.scalingMatrix;
 }
 
 // returns the world location of a point in the cylinder co-ordinates
