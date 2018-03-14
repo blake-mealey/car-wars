@@ -37,7 +37,6 @@
     <ClCompile Include="Engine\Systems\Content\ShaderProgram.cpp" />
     <ClCompile Include="Engine\Systems\Game.cpp" />
     <ClCompile Include="Engine\Systems\Graphics.cpp" />
-    <ClCompile Include="Engine\Systems\GuiHelper.cpp" />
     <ClCompile Include="Engine\Systems\InputManager.cpp" />
     <ClCompile Include="Engine\Systems\IO\Keyboard.cpp" />
     <ClCompile Include="Engine\Systems\IO\Mouse.cpp" />
@@ -53,6 +52,22 @@
     <ClCompile Include="Engine\Systems\Time.cpp" />
     <ClCompile Include="HelloWorld.cpp" />
     <ClCompile Include="Engine\Systems\Physics\RaycastGroups.cpp" />
+    <ClCompile Include="Engine\Components\GuiComponents\GuiHelper.cpp" />
+    <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
+    <ClCompile Include="Engine\Systems\GuiEffects.cpp" />
+    <ClCompile Include="Engine\Components\GuiEffects\OpacityEffect.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Back.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Bounce.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Circ.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Cubic.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Elastic.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Expo.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Linear.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Quad.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Quart.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Quint.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Sine.cpp" />
+    <ClCompile Include="Engine\Components\Colliders\SphereCollider.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -99,7 +114,6 @@
     <ClInclude Include="Engine\Systems\Content\Texture.h" />
     <ClInclude Include="Engine\Systems\Game.h" />
     <ClInclude Include="Engine\Systems\Graphics.h" />
-    <ClInclude Include="Engine\Systems\GuiHelper.h" />
     <ClInclude Include="Engine\Systems\InputManager.h" />
     <ClInclude Include="Engine\Systems\IO\Keyboard.h" />
     <ClInclude Include="Engine\Systems\IO\Mouse.h" />
@@ -117,6 +131,22 @@
     <ClInclude Include="Engine\Systems\System.h" />
     <ClInclude Include="Engine\Systems\Time.h" />
     <ClInclude Include="Engine\Systems\Physics\RaycastGroups.h" />
+    <ClInclude Include="Engine\Components\GuiComponents\GuiHelper.h" />
+    <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
+    <ClInclude Include="Engine\Systems\GuiEffects.h" />
+    <ClInclude Include="Engine\Components\GuiEffects\OpacityEffect.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Back.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Bounce.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Circ.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Cubic.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Elastic.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Expo.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Linear.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Quad.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Quart.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Quint.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Sine.h" />
+    <ClInclude Include="Engine\Components\Colliders\SphereCollider.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\CollisionGroups\Vehicles.json" />
@@ -130,11 +160,9 @@
     <None Include="Content\Prefabs\Components\Camera.json" />
     <None Include="Content\Prefabs\Components\GUIs\MainMenuButton.json" />
     <None Include="Content\Prefabs\Components\GUIs\MenuButton.json" />
-    <None Include="Content\Prefabs\Entities\AiSewage.json" />
     <None Include="Content\Prefabs\Entities\Boulder.json" />
     <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
     <None Include="Content\Prefabs\Components\Missile.json" />
-    <None Include="Content\Prefabs\Entities\AiSewage.json" />
     <None Include="Content\Prefabs\Entities\Boulder.json" />
     <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
     <None Include="Content\Prefabs\Entities\HeadLamp.json" />
@@ -179,5 +207,26 @@
     <None Include="Content\Prefabs\Entities\Game\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\Pillar.json" />
     <None Include="Content\Prefabs\Entities\Game\Camera.json" />
+    <None Include="Content\Prefabs\Entities\Menu\CharacterMenuStat.json" />
+    <None Include="Content\Prefabs\Entities\Menu\MenuOption.json" />
+    <None Include="Content\Shaders\blur.frag" />
+    <None Include="Content\Shaders\geometry.frag" />
+    <None Include="Content\Shaders\geometry.vert" />
+    <None Include="Content\Shaders\gui.frag" />
+    <None Include="Content\Shaders\navMesh.frag" />
+    <None Include="Content\Shaders\navMesh.geom" />
+    <None Include="Content\Shaders\navMesh.vert" />
+    <None Include="Content\Shaders\path.frag" />
+    <None Include="Content\Shaders\path.vert" />
+    <None Include="Content\Shaders\screen.frag" />
+    <None Include="Content\Shaders\screen.vert" />
+    <None Include="Content\Shaders\shadowMap.frag" />
+    <None Include="Content\Shaders\shadowMap.vert" />
+    <None Include="Content\Shaders\skybox.frag" />
+    <None Include="Content\Shaders\skybox.vert" />
+    <None Include="Content\Prefabs\Components\Ai.json" />
+    <None Include="Content\Scenes\Maps\CircleMap.json" />
+    <None Include="Content\Prefabs\Entities\Menu\PauseMenu.json" />
+    <None Include="Content\Prefabs\Entities\Explosion.json" />
   </ItemGroup>
 </Project>

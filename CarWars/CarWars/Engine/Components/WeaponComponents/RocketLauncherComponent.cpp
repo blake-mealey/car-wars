@@ -3,12 +3,12 @@
 RocketLauncherComponent::RocketLauncherComponent() : WeaponComponent(500.f) {}
 
 void RocketLauncherComponent::Shoot(glm::vec3 position) {
-	if (StateManager::gameTime.GetTimeSeconds() > nextShotTime.GetTimeSeconds()) {
+	if (StateManager::gameTime.GetSeconds() > nextShotTime.GetSeconds()) {
 		//Get Vehicle
 		Entity* vehicle = GetEntity();
 
 		//Calculate Next Shooting Time
-		nextShotTime = StateManager::gameTime.GetTimeSeconds() + timeBetweenShots.GetTimeSeconds();
+		nextShotTime = StateManager::gameTime.GetSeconds() + timeBetweenShots.GetSeconds();
 		std::cout << "Rocket Shot" << damage << std::endl;
 
 		//Play Shooting Sound

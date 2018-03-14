@@ -147,15 +147,29 @@
     <ClCompile Include="Dependencies\imgui\imgui_demo.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui_draw.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui_impl_glfw_gl3.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Back.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Bounce.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Circ.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Cubic.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Elastic.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Expo.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Linear.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Quad.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Quart.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Quint.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Sine.cpp" />
     <ClCompile Include="Engine\Components\AiComponent.cpp" />
     <ClCompile Include="Engine\Components\Colliders\MeshCollider.cpp" />
     <ClCompile Include="Engine\Components\CameraComponent.cpp" />
     <ClCompile Include="Engine\Components\Colliders\BoxCollider.cpp" />
     <ClCompile Include="Engine\Components\Colliders\Collider.cpp" />
+    <ClCompile Include="Engine\Components\Colliders\SphereCollider.cpp" />
     <ClCompile Include="Engine\Components\Component.cpp" />
     <ClCompile Include="Engine\Components\DirectionLightComponent.cpp" />
     <ClCompile Include="Engine\Components\Colliders\ConvexMeshCollider.cpp" />
     <ClCompile Include="Engine\Components\GuiComponents\GuiComponent.cpp" />
+    <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
+    <ClCompile Include="Engine\Systems\GuiEffects.cpp" />
     <ClCompile Include="Engine\Components\MeshComponent.cpp" />
     <ClCompile Include="Engine\Components\PointLightComponent.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.cpp" />
@@ -179,7 +193,7 @@
     <ClCompile Include="Engine\Systems\Content\ShaderProgram.cpp" />
     <ClCompile Include="Engine\Systems\Game.cpp" />
     <ClCompile Include="Engine\Systems\Graphics.cpp" />
-    <ClCompile Include="Engine\Systems\GuiHelper.cpp" />
+    <ClCompile Include="Engine\Components\GuiComponents\GuiHelper.cpp" />
     <ClCompile Include="Engine\Systems\InputManager.cpp" />
     <ClCompile Include="Engine\Systems\IO\Keyboard.cpp" />
     <ClCompile Include="Engine\Systems\IO\Mouse.cpp" />
@@ -195,6 +209,7 @@
     <ClCompile Include="Engine\Systems\StateManager.cpp" />
     <ClCompile Include="Engine\Systems\Time.cpp" />
     <ClCompile Include="HelloWorld.cpp" />
+    <ClCompile Include="Engine\Components\GuiEffects\OpacityEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -204,15 +219,29 @@
     <ClInclude Include="Dependencies\imgui\stb_rect_pack.h" />
     <ClInclude Include="Dependencies\imgui\stb_textedit.h" />
     <ClInclude Include="Dependencies\imgui\stb_truetype.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Back.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Bounce.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Circ.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Cubic.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Elastic.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Expo.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Linear.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Quad.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Quart.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Quint.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Sine.h" />
     <ClInclude Include="Engine\Components\AiComponent.h" />
     <ClInclude Include="Engine\Components\Colliders\MeshCollider.h" />
     <ClInclude Include="Engine\Components\CameraComponent.h" />
     <ClInclude Include="Engine\Components\Colliders\BoxCollider.h" />
     <ClInclude Include="Engine\Components\Colliders\Collider.h" />
+    <ClInclude Include="Engine\Components\Colliders\SphereCollider.h" />
     <ClInclude Include="Engine\Components\Component.h" />
     <ClInclude Include="Engine\Components\DirectionLightComponent.h" />
     <ClInclude Include="Engine\Components\Colliders\ConvexMeshCollider.h" />
     <ClInclude Include="Engine\Components\GuiComponents\GuiComponent.h" />
+    <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
+    <ClInclude Include="Engine\Systems\GuiEffects.h" />
     <ClInclude Include="Engine\Components\MeshComponent.h" />
     <ClInclude Include="Engine\Components\PointLightComponent.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.h" />
@@ -241,7 +270,7 @@
     <ClInclude Include="Engine\Systems\Content\Texture.h" />
     <ClInclude Include="Engine\Systems\Game.h" />
     <ClInclude Include="Engine\Systems\Graphics.h" />
-    <ClInclude Include="Engine\Systems\GuiHelper.h" />
+    <ClInclude Include="Engine\Components\GuiComponents\GuiHelper.h" />
     <ClInclude Include="Engine\Systems\InputManager.h" />
     <ClInclude Include="Engine\Systems\IO\Keyboard.h" />
     <ClInclude Include="Engine\Systems\IO\Mouse.h" />
@@ -259,6 +288,7 @@
     <ClInclude Include="Engine\Systems\StateManager.h" />
     <ClInclude Include="Engine\Systems\System.h" />
     <ClInclude Include="Engine\Systems\Time.h" />
+    <ClInclude Include="Engine\Components\GuiEffects\OpacityEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\CollisionGroups\Vehicles.json" />
@@ -269,6 +299,7 @@
     <None Include="Content\Materials\PhysicsCollider.json" />
     <None Include="Content\Materials\RedShiny.json" />
     <None Include="Content\PhysicsMaterials\Default.json" />
+    <None Include="Content\Prefabs\Components\Ai.json" />
     <None Include="Content\Prefabs\Components\Camera.json" />
     <None Include="Content\Prefabs\Components\GUIs\MainMenuButton.json" />
     <None Include="Content\Prefabs\Components\GUIs\MenuButton.json" />
@@ -276,12 +307,13 @@
     <None Include="Content\Prefabs\Components\Weapons\MachineGun.json" />
     <None Include="Content\Prefabs\Components\Weapons\RailGun.json" />
     <None Include="Content\Prefabs\Components\Weapons\RocketLauncher.json" />
-    <None Include="Content\Prefabs\Entities\AiSewage.json" />
     <None Include="Content\Prefabs\Entities\Boulder.json" />
+    <None Include="Content\Prefabs\Entities\Explosion.json" />
     <None Include="Content\Prefabs\Entities\Game\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\CharacterMenuStat.json" />
     <None Include="Content\Prefabs\Entities\Menu\MenuOption.json" />
+    <None Include="Content\Prefabs\Entities\Menu\PauseMenu.json" />
     <None Include="Content\Prefabs\Entities\Menu\Pillar.json" />
     <None Include="Content\Prefabs\Entities\Vehicles\Flatbed.json" />
     <None Include="Content\Prefabs\Entities\HeadLamp.json" />
@@ -298,6 +330,7 @@
     <None Include="Content\Prefabs\Entities\Weapons\RailGunTurret.json" />
     <None Include="Content\Prefabs\Entities\Weapons\RocketLauncherTurret.json" />
     <None Include="Content\Scenes\CharacterSelectMenu.json" />
+    <None Include="Content\Scenes\Maps\CircleMap.json" />
     <None Include="Content\Scenes\GameDemo.json" />
     <None Include="Content\Scenes\GUIs\HUD.json" />
     <None Include="Content\Scenes\GUIs\MainMenu_GUI.json" />

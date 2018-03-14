@@ -34,14 +34,12 @@ void Component::UpdateFromPhysics(physx::PxTransform t) {
     GetEntity()->transform.SetRotation(Transform::FromPx(t.q));
 }
 
+void Component::TakeDamage(WeaponComponent* damager) { }
+
 void Component::SetEntity(Entity* _entity) {
 	entity = _entity;
 }
 
 Entity* Component::GetEntity() const {
 	return entity;
-}
-
-void Component::TakeDamage(float amount) {
-	return;
 }

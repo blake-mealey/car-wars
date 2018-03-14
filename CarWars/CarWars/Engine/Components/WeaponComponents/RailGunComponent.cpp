@@ -5,11 +5,12 @@
 #include "../../Entities/EntityManager.h"
 #include "../../Components/CameraComponent.h"
 #include "../../Systems/Content/ContentManager.h"
+#include "../../Systems/Physics/RaycastGroups.h"
 
 RailGunComponent::RailGunComponent() : WeaponComponent(1150.0f) {}
 
 void RailGunComponent::Shoot(glm::vec3 position) {
-	if (StateManager::gameTime.GetTimeSeconds() >= nextShotTime.GetTimeSeconds()) {
+	if (StateManager::gameTime.GetSeconds() >= nextShotTime.GetSeconds()) {
 		//Get Vehicle
 		Entity* vehicle = GetEntity();
 		Entity* rgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
@@ -31,7 +32,9 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 		float rayLength = 100.0f;
 		//Cast Gun Ray
 		PxRaycastBuffer gunHit;
-		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit)) {
+		PxQueryFilterData filterData;
+		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
+		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
 			if (gunHit.hasAnyHits()) {
 				Entity* hitMarker = ContentManager::LoadEntity("Marker.json");
 				hitMarker->transform.SetPosition(Transform::FromPx(gunHit.block.position));
@@ -39,11 +42,11 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 				Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
 				if (thingHit)
 					if (thingHit->HasTag("Vehicle") || thingHit->HasTag("AiVehicle")) {
-						thingHit->TakeDamage(damage);
+						thingHit->TakeDamage(this);
 					}
 			}
 		}
-	} else if (StateManager::gameTime.GetTimeSeconds() < nextChargeTime.GetTimeSeconds()) {
+	} else if (StateManager::gameTime.GetSeconds() < nextChargeTime.GetSeconds()) {
 		std::cout << "Rail Gun on Cooldown" << std::endl;
 	} else {
 		std::cout << "Still Charging..." << std::endl;
@@ -51,7 +54,7 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 }
 
 void RailGunComponent::Charge() {
-	if (StateManager::gameTime.GetTimeSeconds() >= nextChargeTime.GetTimeSeconds()) {
+	if (StateManager::gameTime.GetSeconds() >= nextChargeTime.GetSeconds()) {
 		nextShotTime = StateManager::gameTime + chargeTime;
 		std::cout << "Charging" << std::endl;
 		//Play Charging Sound

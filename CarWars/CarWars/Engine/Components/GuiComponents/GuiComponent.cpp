@@ -39,11 +39,11 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
     }
     
     std::string textYAlignment = ContentManager::GetFromJson<std::string>(data["TextYAlignment"], "Centre");
-    if (textXAlignment == "Top") {
+    if (textYAlignment == "Top") {
         textAlignment[1] = TextYAlignment::Top;
-    } else if (textXAlignment == "Centre") {
+    } else if (textYAlignment == "Centre") {
         textAlignment[1] = TextYAlignment::Centre;
-    } else if (textXAlignment == "Bottom") {
+    } else if (textYAlignment == "Bottom") {
         textAlignment[1] = TextYAlignment::Bottom;
     }
 }
@@ -194,10 +194,61 @@ glm::vec4 GuiComponent::GetTextureColor() const {
     return selected ? selectedTextureColor : textureColor;
 }
 
+void GuiComponent::SetTextureColor(glm::vec4 color) {
+    textureColor = color;
+}
+
+void GuiComponent::SetOpacity(float opacity) {
+    SetTextureOpacity(opacity);
+    SetFontOpacity(opacity);
+}
+
+void GuiComponent::SetTextureOpacity(float opacity) {
+    textureColor.a = opacity;
+    selectedTextureColor.a = opacity;
+}
+
+void GuiComponent::SetFontOpacity(float opacity) {
+    fontColor.a = opacity;
+    selectedFontColor.a = opacity;
+}
+
+void GuiComponent::AddOpacity(float opacity) {
+    SetTextureOpacity(GetTextureOpacity() + opacity);
+    SetFontOpacity(GetFontOpacity() + opacity);
+}
+
+void GuiComponent::MultiplyOpacity(float opacity) {
+    SetTextureOpacity(GetTextureOpacity() * opacity);
+    SetFontOpacity(GetFontOpacity() * opacity);
+}
+
+float GuiComponent::GetTextureOpacity() const {
+    return textureColor.a;
+}
+
+float GuiComponent::GetFontOpacity() const {
+    return fontColor.a;
+}
+
+std::unordered_set<GuiEffect*> GuiComponent::GetEffects() const {
+    return effects;
+}
+
 bool GuiComponent::IsSelected() const {
     return selected;
 }
 
 void GuiComponent::SetSelected(bool _selected) {
     selected = _selected;
+}
+
+void GuiComponent::AddEffect(GuiEffect* effect) {
+    effects.insert(effect);
+    effect->Apply(this);
+}
+
+void GuiComponent::RemoveEffect(GuiEffect* effect) {
+    effects.erase(effect);
+    effect->Remove(this);
 }

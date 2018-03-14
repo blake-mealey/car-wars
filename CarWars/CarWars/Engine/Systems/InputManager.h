@@ -22,7 +22,7 @@ public:
 
     size_t GetControllerCount();
 private:
-	void NavigateGuis(int vertDir, int horizDir, int enter, int back, int playerIndex);
+	void NavigateGuis(int vertDir, int horizDir, int enter, int back, int escape, int playerIndex);
 
 	static vector<XboxController*> xboxControllers;
 

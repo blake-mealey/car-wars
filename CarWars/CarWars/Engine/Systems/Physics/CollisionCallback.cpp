@@ -2,22 +2,37 @@
 #include "../Physics.h"
 #include "../../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../Engine/Components/WeaponComponents/MissileComponent.h"
+#include "../../Components/WeaponComponents/RocketLauncherComponent.h"
+#include "../../Entities/Transform.h"
+#include "../../Systems/Physics.h"
+#include <vector>
 
 void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 	if (_actor0->HasTag("Missile")) {
-		if (_actor1->HasTag("Vehicle") || _actor1->HasTag("AiVehicle")) {
-			if (_actor1->GetId() == _actor0->GetComponent<MissileComponent>()->GetOwner()->GetId()) {
-				//Dont Explode
-				std::cout << "Missile Inside Owner" << std::endl;
-			} else {
-				//Explode
-				float damage = _actor0->GetComponent<MissileComponent>()->GetDamage();
-				_actor1->GetComponent<VehicleComponent>()->TakeDamage(damage);
-				Physics::Instance().AddToDelete(_actor0);
-			}
+		Physics& physicsInstance = Physics::Instance();
+		if (_actor1->GetId() == _actor0->GetComponent<MissileComponent>()->GetOwner()->GetId()) {
+			//Dont Explode
+			std::cout << "Missile Inside Owner - Do Not Explode" << std::endl;
 		} else {
-			Physics::Instance().AddToDelete(_actor0);
 			//Explode
+			float explosionRadius = _actor0->GetComponent<MissileComponent>()->GetExplosionRadius();
+
+			//bool isOverlapping = overlap();
+			Entity* explosionEntity;
+			//Entity* explosionEntity = ContentManager::LoadEntity("Explosion.json");
+
+			explosionEntity->GetComponent<RigidDynamicComponent>()->actor->setGlobalPose(_actor0->GetComponent<RigidDynamicComponent>()->actor->getGlobalPose());
+			explosionEntity->GetComponent<RigidDynamicComponent>()->actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+
+			std::vector<Component*> carComponents = EntityManager::GetComponents(ComponentType_Vehicle);
+			for (Component* component : carComponents) {
+				if (glm::length(component->GetEntity()->transform.GetGlobalPosition() - _actor0->transform.GetGlobalPosition()) < explosionRadius) {
+					RocketLauncherComponent* weapon = _actor0->GetComponent<MissileComponent>()->GetOwner()->GetComponent<RocketLauncherComponent>();
+					//Take Damage Equal to damage / 1 + distanceFromExplosion?
+					component->TakeDamage(weapon);
+				}
+			}
+			physicsInstance.AddToDelete(_actor0);
 		}
 	}
 }

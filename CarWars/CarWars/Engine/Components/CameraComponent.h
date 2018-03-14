@@ -30,6 +30,7 @@ public:
 	void SetFieldOfView(float _fieldOfView);
 	void SetAspectRatio(float _aspectRatio);
 	void SetUpVector(glm::vec3 _up);
+	void SetTargetOffset(glm::vec3 offset);
 
 	glm::mat4 GetViewMatrix();
 	glm::mat4 GetProjectionMatrix() const;
@@ -46,9 +47,10 @@ public:
 
     void RenderDebugGui() override;
 
-	glm::vec3 CastRay(float distanceToStart, float rayLength, PxQueryFilterData filterData);
+	glm::vec3 CastRay(float rayLength, PxQueryFilterData filterData);
 
 	Entity* GetGuiRoot();
+
 	//std::vector<Entity*>& GetGuiEntities();
 
 private:
@@ -60,6 +62,7 @@ private:
 	float fieldOfView;		// In degrees
 	glm::vec3 position;
 	glm::vec3 target;
+	glm::vec3 targetOffset;
 	glm::vec3 upVector;
 
 	float aspectRatio;

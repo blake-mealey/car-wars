@@ -6,9 +6,15 @@
 #include "../../Systems/Physics.h"
 #include "../Colliders/ConvexMeshCollider.h"
 #include "../Colliders/BoxCollider.h"
+#include "../WeaponComponents/WeaponComponent.h"
+#include "../CameraComponent.h"
 #include "../../Systems/Physics/VehicleTireFriction.h"
 
 #include "../../Systems/Physics/RaycastGroups.h"
+#include "../../Systems/Game.h"
+#include "../GuiEffects/OpacityEffect.h"
+#include "../GuiComponents/GuiComponent.h"
+#include "../GuiComponents/GuiHelper.h"
 
 using namespace physx;
 
@@ -441,11 +447,40 @@ void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
 }
 
 
-void VehicleComponent::TakeDamage(float _damageValue) {
-	health -= _damageValue * resistance;
-	if (health <= 0) {
-		Physics::Instance().AddToDelete(GetEntity());
-	}
+void VehicleComponent::TakeDamage(WeaponComponent* damager) {
+    VehicleData *attacker = Game::GetDataFromEntity(damager->GetEntity());
+    VehicleData* me = Game::GetDataFromEntity(GetEntity());
+
+    if (attacker->teamIndex == me->teamIndex) return;
+    health -= damager->GetDamage() * resistance;
+
+    PlayerData* attackerPlayer = Game::GetPlayerFromEntity(damager->GetEntity());
+    if (attackerPlayer) {
+        Entity* entity = EntityManager::FindFirstChild(attackerPlayer->camera->GetGuiRoot(), "HitIndicator");
+        GuiComponent* gui = entity->GetComponent<GuiComponent>();
+        GuiHelper::OpacityEffect(gui, 0.5, 0.8f, 0.1, 0.1);
+    }
+
+    PlayerData *myPlayer = Game::GetPlayerFromEntity(GetEntity());
+    if (myPlayer) {
+        Entity* entity = EntityManager::FindFirstChild(myPlayer->camera->GetGuiRoot(), "DamageIndicator");
+        GuiComponent* gui = entity->GetComponent<GuiComponent>();
+        const glm::vec3 direction = glm::normalize(GetEntity()->transform.GetGlobalPosition() - damager->GetEntity()->transform.GetGlobalPosition());
+        const float sign = glm::dot(GetEntity()->transform.GetForward(), direction);
+        const float theta = sign * acos(glm::dot(GetEntity()->transform.GetRight(), direction));
+        gui->transform.SetRotationAxisAngles(glm::vec3(0.0, 0.0, 1.0), theta);
+        GuiHelper::OpacityEffect(gui, 1.0, 1.0, 0.25, 0.25);
+    }
+
+    if (health <= 0) {
+        attacker->killCount++;
+        Game::gameData.teams[attacker->teamIndex].killCount++;
+
+        me->deathCount++;
+        me->alive = false;
+
+        Physics::Instance().AddToDelete(GetEntity());
+    }
 }
 
 float VehicleComponent::GetHealth() {

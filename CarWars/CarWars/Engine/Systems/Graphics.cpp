@@ -568,7 +568,7 @@ void Graphics::Update() {
         skyboxProgram->LoadUniform(UniformName::SunDirection, shadowCaster->GetDirection());
     }
 
-    skyboxProgram->LoadUniform(UniformName::Time, StateManager::gameTime.GetTimeSeconds());
+    skyboxProgram->LoadUniform(UniformName::Time, StateManager::gameTime.GetSeconds());
 
     for (Camera camera : cameras) {
         // Setup the viewport for each camera (split-screen)
@@ -759,7 +759,7 @@ void Graphics::Update() {
                     guiProgram->LoadUniform(UniformName::DiffuseColor, gui->GetTextureColor());
 
                     // Send the transform to the GPU
-                    Transform transform = Transform(screenPosition, screenScale);
+                    Transform transform = Transform(screenPosition, screenScale, gui->transform.GetLocalRotation());
                     guiProgram->LoadUniform(UniformName::ModelMatrix, transform.GetTransformationMatrix());
 
                     // Render it

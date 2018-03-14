@@ -1,5 +1,5 @@
 #include "StateManager.h"
-#include "GuiHelper.h"
+#include "../Components/GuiComponents/GuiHelper.h"
 #include "Content/ContentManager.h"
 #include "../Entities/EntityManager.h"
 #include "InputManager.h"
@@ -45,7 +45,12 @@ void StateManager::SetState(GameState state) {
     case GameState_Playing:
         if (previousState < __GameState_Menu_End) {
             Game::Instance().InitializeGame();
+        } else if (previousState == GameState_Paused) {
+            EntityManager::DestroyEntities(EntityManager::FindEntities("PauseMenu"));
         }
+        break;
+    case GameState_Paused:
+        break;
     }
 
     // TODO: Fire event

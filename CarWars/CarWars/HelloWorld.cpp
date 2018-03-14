@@ -11,6 +11,7 @@
 #include "Engine/Systems/Audio.h"
 #include "Engine/Systems/Physics/CollisionGroups.h"
 #include "Engine/Systems/Content/ContentManager.h"
+#include "Engine/Systems/GuiEffects.h"
 
 using namespace std;
 
@@ -22,6 +23,8 @@ int main() {
 	// Initialize graphics (MUST come before Game)
 	Graphics &graphicsManager = Graphics::Instance();
 	graphicsManager.Initialize("Car Wars");
+
+    GuiEffects &guiEffectsManager = GuiEffects::Instance();
 	
 	// Initialize input
 	InputManager &inputManager = InputManager::Instance();
@@ -47,8 +50,13 @@ int main() {
 	systems.push_back(&inputManager);
 	systems.push_back(&physicsManager);
 	systems.push_back(&gameManager);
+	systems.push_back(&guiEffectsManager);
 	systems.push_back(&graphicsManager);
     systems.push_back(&audioManager);
+
+    // Define the fixed physics time step
+    constexpr double physicsTimeStep = 1.0 / 60.0;
+    Time physicsTime;
 
 	//Game Loop
 	while (!glfwWindowShouldClose(graphicsManager.GetWindow())) {
@@ -63,8 +71,15 @@ int main() {
 		}
 
 		// Iterate through each system and call their update methods
-		for (System* system : systems) {
-			system->Update();
+        for (System* system : systems) {
+            if (system != &physicsManager) {
+                system->Update();
+            } else {
+                while (physicsTime < StateManager::globalTime) {
+                    physicsTime += physicsTimeStep;
+                    system->Update();
+                }
+            }
 		}
 	}
 }

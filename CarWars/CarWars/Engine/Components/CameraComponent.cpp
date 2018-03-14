@@ -5,6 +5,7 @@
 #include "../Systems/Content/ContentManager.h"
 #include "imgui/imgui.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 const float CameraComponent::NEAR_CLIPPING_PLANE = 0.1f;
 const float CameraComponent::FAR_CLIPPING_PLANE = 1000.f;
@@ -45,8 +46,8 @@ glm::vec3 CameraComponent::GetPosition() const {
 }
 
 glm::vec3 CameraComponent::GetTarget() const {
-    if (!entity || !targetInLocalSpace) return target;
-	return target + entity->transform.GetGlobalPosition();
+    if (!entity || !targetInLocalSpace) return target + targetOffset;
+	return target + targetOffset + entity->transform.GetGlobalPosition();
 }
 
 float CameraComponent::GetFieldOfView() const {
@@ -60,6 +61,11 @@ void CameraComponent::SetPosition(const glm::vec3 _position) {
 
 void CameraComponent::SetTarget(const glm::vec3 _target) {
 	target = _target;
+	UpdateViewMatrix();
+}
+
+void CameraComponent::SetTargetOffset(const glm::vec3 _target) {
+	targetOffset = _target;
 	UpdateViewMatrix();
 }
 
@@ -92,7 +98,6 @@ float CameraComponent::GetCameraHorizontalAngle() {
 
 void CameraComponent::SetCameraHorizontalAngle(float _cameraAngle) {
 	cameraAngle = _cameraAngle;
-    //UpdatePositionFromAngles();
 }
 
 float CameraComponent::GetCameraVerticalAngle() {
@@ -101,7 +106,6 @@ float CameraComponent::GetCameraVerticalAngle() {
 
 void CameraComponent::SetCameraVerticalAngle(float _cameraLift) {
 	cameraLift = _cameraLift;
-    //UpdatePositionFromAngles();
 }
 
 float CameraComponent::GetCameraSpeed() {
@@ -119,6 +123,7 @@ void CameraComponent::RenderDebugGui() {
 }
 
 void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, float _cameraVer) {
+	/*
 	SetCameraHorizontalAngle(_cameraHor);
 	SetCameraVerticalAngle(_cameraVer);
 
@@ -126,14 +131,41 @@ void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, f
 	glm::vec3 vehicleUp = _vehicle->transform.GetUp();
 	glm::vec3 vehicleRight = _vehicle->transform.GetRight();
 
-	float dotFR = glm::dot(vehicleForward, Transform::RIGHT);
-	float dotRU = glm::dot(vehicleRight, Transform::UP);
-	float dotUF = glm::dot(vehicleUp, Transform::FORWARD);
+	float dotFR = glm::dot(vehicleForward, Transform::RIGHT);		//Detect Direction im Facing
+	float dotFU = glm::dot(vehicleForward, Transform::UP);			//Tilted Up or Down
+	float dotUR = glm::dot(vehicleRight, Transform::UP);			//Rolled Right or Left - Angle of Roll
 
-	SetPosition(distanceFromCenter * (
-		(-_vehicle->transform.GetForward()) * cos(GetCameraHorizontalAngle()) * sin(GetCameraVerticalAngle()) +
-		(_vehicle->transform.GetUp()) * cos(GetCameraVerticalAngle()) +
-		(-_vehicle->transform.GetRight()) * (sin(GetCameraHorizontalAngle())) * (sin(GetCameraVerticalAngle()))));
+	float dotUU = glm::dot(vehicleUp, Transform::UP);				//Angle of Tilt
+	float dotFF = glm::dot(vehicleForward, Transform::FORWARD);		//Angle of Rotation
+
+	bool correctForward = dotFR > 0;
+	bool correctUp = dotFU < 0;
+	bool correctRight = dotUR > 0; 
+	*/
+
+	/*
+	x = r cos T sin O
+	y = r sin T sin O
+	z = r cos O
+	*/
+
+	cameraAngle = _cameraHor; 
+	cameraLift = _cameraVer;
+	float xPos = distanceFromCenter * cos(cameraAngle) * sin(-cameraLift);
+	float zPos = distanceFromCenter * sin(cameraAngle) * sin(-cameraLift);
+	float yPos = distanceFromCenter * cos(-cameraLift);
+
+	glm::vec3 position = glm::vec3(xPos, yPos, zPos);
+
+	SetPosition(position);
+
+
+	//TODO Figure out Vehicle Roll
+	/*SetPosition(distanceFromCenter * (
+		(-_vehicle->transform.GetForward() * cos(GetCameraHorizontalAngle() + (correctForward ? -acos(dotFF) : acos(dotFF))) * sin(GetCameraVerticalAngle() + (correctUp ? -acos(dotUU) : acos(dotUU)))) +
+		(_vehicle->transform.GetUp() * cos(GetCameraVerticalAngle() + (correctUp ? -acos(dotUU) : acos(dotUU)))) +
+		(-_vehicle->transform.GetRight() * sin(GetCameraHorizontalAngle() + (correctForward ? -acos(dotFF) : acos(dotFF))) * sin(GetCameraVerticalAngle() + (correctUp ? -acos(dotUU) : acos(dotUU)))))
+	);*/
 }
 
 void CameraComponent::UpdatePositionFromAngles() {
@@ -163,22 +195,19 @@ Entity* CameraComponent::GetGuiRoot() {
 	return guiEntities;
 }*/
 
-glm::vec3 CameraComponent::CastRay( float distanceToStart, float rayLength, PxQueryFilterData filterData) {
+glm::vec3 CameraComponent::CastRay(float rayLength, PxQueryFilterData filterData) {
 	PxScene* scene = &Physics::Instance().GetScene();
 	glm::vec3 cameraDirection = glm::normalize(GetTarget() - GetPosition());
 	//Cast Camera Ray
 	PxRaycastBuffer cameraHit;
 	glm::vec3 cameraHitPosition;
-	if (scene->raycast(Transform::ToPx(cameraDirection * distanceToStart + GetPosition()), Transform::ToPx(cameraDirection), rayLength, cameraHit, PxHitFlag::eDEFAULT, filterData)) {
+	if (scene->raycast(Transform::ToPx(GetTarget()), Transform::ToPx(cameraDirection), rayLength, cameraHit, PxHitFlag::eDEFAULT, filterData)) {
 		//cameraHit has hit something
-		if (cameraHit.hasAnyHits()) {
-			cameraHitPosition = Transform::FromPx(cameraHit.block.position);
-			EntityManager::FindEntity(cameraHit.block.actor);
-		}
-		else {
-			//cameraHit has not hit anything
-			cameraHitPosition = (cameraDirection * (rayLength + distanceToStart)) + GetPosition();
-		}
+		cameraHitPosition = Transform::FromPx(cameraHit.block.position);
+		EntityManager::FindEntity(cameraHit.block.actor);
+	} else {
+		//cameraHit has not hit anything
+		cameraHitPosition = GetPosition() + (cameraDirection * rayLength);
 	}
 	return cameraHitPosition;
 }

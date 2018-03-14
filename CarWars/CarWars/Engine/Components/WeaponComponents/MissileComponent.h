@@ -14,6 +14,7 @@ public:
 
 	float GetSpeed();
 	float GetDamage();
+	float GetExplosionRadius();
 	Entity* GetOwner();
 
 	ComponentType GetType() override;
@@ -21,7 +22,7 @@ public:
 
 private:
 	float missileSpeed = 200.0f;
-	float explosionRadius = 2.0f;
+	float explosionRadius = 50.0f;
 	float damage;
 	Entity* owner;
 };

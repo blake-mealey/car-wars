@@ -58,7 +58,7 @@ AiMode AiComponent::GetMode() const {
 }
 
 void AiComponent::UpdatePath() {
-    if (!FinishedPath() && StateManager::gameTime - lastPathUpdate < 0.01f) return;
+    if (!FinishedPath() && StateManager::gameTime - lastPathUpdate < 0.01) return;
     lastPathUpdate = StateManager::gameTime;
 
     const glm::vec3 currentPosition = GetEntity()->transform.GetGlobalPosition();

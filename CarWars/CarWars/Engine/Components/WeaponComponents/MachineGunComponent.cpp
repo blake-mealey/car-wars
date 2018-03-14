@@ -1,17 +1,19 @@
 #include "MachineGunComponent.h"
 
 #include "../Component.h"
-#include "../../Systems/Game.h"
 #include "../../Entities/EntityManager.h"
 #include "../../Components/CameraComponent.h"
 #include "../../Systems/Content/ContentManager.h"
-#include "../../Systems/Physics/CollisionGroups.h"
 #include "../../Systems/Physics/RaycastGroups.h"
+#include "../../Systems/Audio.h"
+#include "../../Systems/StateManager.h"
+#include "../../Systems/Physics.h"
+#include "../RigidbodyComponents/VehicleComponent.h"
 
 MachineGunComponent::MachineGunComponent() : WeaponComponent(20.0f) {}
 
 void MachineGunComponent::Shoot(glm::vec3 position) {
-	if (StateManager::gameTime.GetTimeSeconds() > nextShotTime.GetTimeSeconds()) {
+	if (StateManager::gameTime.GetSeconds() > nextShotTime.GetSeconds()) {
 		//Get Vehicle
 		Entity* vehicle = GetEntity();
 		Entity* mgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
@@ -29,7 +31,7 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		glm::vec3 gunDirection = position - gunPosition;
 
 		//Cast Gun Ray
-		PxScene* scene = &Physics::Instance().GetScene();
+	    PxScene* scene = &Physics::Instance().GetScene();
 		float rayLength = 100.0f;
 		PxRaycastBuffer cameraHit;
 		PxQueryFilterData filterData;
@@ -44,7 +46,7 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 				if (thingHit)
 				if (thingHit->HasTag("Vehicle") || thingHit->HasTag("AiVehicle")) {
 					std::cout << "Dealt : " << damage << std::endl;
-					thingHit->TakeDamage(damage);
+					thingHit->TakeDamage(this);
 				}
 			}
 		}

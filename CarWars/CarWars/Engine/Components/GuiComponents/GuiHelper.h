@@ -3,7 +3,9 @@
 #include <string>
 
 #include "glm/glm.hpp"
+#include "../GuiEffects/OpacityEffect.h"
 
+class Time;
 class CameraComponent;
 class Entity;
 class GuiComponent;
@@ -69,4 +71,15 @@ public:
     
     static void AddGuiPositions(Entity* entity, glm::vec3 offset);
     static void AddGuiPositions(std::string entityTag, glm::vec3 offset, int playerIndex = 0);
+    
+    static void OpacityEffect(GuiComponent* gui, Time duration, float opacityMod, Time tweenInTime = 0.0, Time tweenOutTime = 0.0);
+    
+    static GuiComponent* GetFirstGui(Entity* entity);
+    static GuiComponent* GetFirstGui(std::string entityTag, int playerIndex = 0);
+    static GuiComponent* GetSecondGui(Entity* entity);
+    static GuiComponent* GetSecondGui(std::string entityTag, int playerIndex = 0);
+    static GuiComponent* GetThirdGui(Entity* entity);
+    static GuiComponent* GetThirdGui(std::string entityTag, int playerIndex = 0);
+    static GuiComponent* GetFourthGui(Entity* entity);
+    static GuiComponent* GetFourthGui(std::string entityTag, int playerIndex = 0);
 };
