@@ -18,11 +18,11 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 			float explosionRadius = _actor0->GetComponent<MissileComponent>()->GetExplosionRadius();
 
 			//bool isOverlapping = overlap();
-			Entity* explosionEntity;
+			//Entity* explosionEntity;
 			//Entity* explosionEntity = ContentManager::LoadEntity("Explosion.json");
 
-			explosionEntity->GetComponent<RigidDynamicComponent>()->actor->setGlobalPose(_actor0->GetComponent<RigidDynamicComponent>()->actor->getGlobalPose());
-			explosionEntity->GetComponent<RigidDynamicComponent>()->actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+			//explosionEntity->GetComponent<RigidDynamicComponent>()->actor->setGlobalPose(_actor0->GetComponent<RigidDynamicComponent>()->actor->getGlobalPose());
+			//explosionEntity->GetComponent<RigidDynamicComponent>()->actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 
 			std::vector<Component*> carComponents = EntityManager::GetComponents(ComponentType_Vehicle);
 			for (Component* component : carComponents) {
