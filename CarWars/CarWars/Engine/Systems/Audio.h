@@ -20,6 +20,7 @@ public:
 private:
     FMOD::System *soundSystem;
     FMOD::Sound *sound, *soundToPlay;
+    FMOD::Sound *sound1, *sound2;
     FMOD::Channel *channel = 0;
     FMOD_RESULT result;
     unsigned int version;
