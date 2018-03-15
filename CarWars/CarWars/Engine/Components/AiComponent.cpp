@@ -344,7 +344,7 @@ void AiComponent::Update() {
 			}
 		}
 		if (mode == AiMode_Stuck) {
-			backwardPower = abs(std::sin(GetStuckDuration().GetSeconds() * myVehicleData->diffuculty / 3.f ));
+			backwardPower = abs(std::sin(GetStuckDuration().GetSeconds() * myVehicleData->diffuculty / 5.f ));
 			forwardPower = (1 - backwardPower);
 		}
 
