@@ -48,6 +48,7 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
     }
 
     maskEnabled = ContentManager::GetFromJson<bool>(data["MaskEnabled"], false);
+    maskInverted = ContentManager::GetFromJson<bool>(data["MaskInverted"], false);
     if (data["Mask"].is_object()) mask = Transform(data["Mask"]);
     clipEnabled = ContentManager::GetFromJson<bool>(data["ClipEnabled"], false);
 }
@@ -80,6 +81,7 @@ void GuiComponent::RenderDebugGui() {
 
     ImGui::Checkbox("Clip Enabled", &clipEnabled);
     ImGui::Checkbox("Mask Enabled", &maskEnabled);
+    ImGui::Checkbox("Mask Inverted", &maskInverted);
     if (ImGui::TreeNode("Mask")) {
         mask.RenderDebugGui(1.f, 1.f);
         ImGui::TreePop();
@@ -266,6 +268,10 @@ void GuiComponent::RemoveEffect(GuiEffect* effect) {
 
 bool GuiComponent::IsMaskEnabled() const {
     return maskEnabled;
+}
+
+bool GuiComponent::IsMaskInverted() const {
+    return maskInverted;
 }
 
 bool GuiComponent::IsClipEnabled() const {

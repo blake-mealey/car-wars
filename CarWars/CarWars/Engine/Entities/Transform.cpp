@@ -122,7 +122,7 @@ glm::vec3 Transform::GetUp() {
 }
 
 void Transform::UpdateTransformationMatrix() {
-	transformationMatrix = translationMatrix * scalingMatrix * rotationMatrix;
+	transformationMatrix = translationMatrix * rotationMatrix * scalingMatrix;
 }
 
 void Transform::SetPosition(glm::vec3 pPosition) {

@@ -21,7 +21,7 @@
 #include "Game.h"
 #include "../Components/AiComponent.h"
 
-#define RENDER_DOC_DEBUG_MODE
+//#define RENDER_DOC_DEBUG_MODE
 
 // Constants
 const size_t Graphics::MAX_CAMERAS = 4;
@@ -97,6 +97,7 @@ bool Graphics::Initialize(char* windowTitle) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
+    glfwWindowHint(GLFW_STENCIL_BITS, 8);
 	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, windowTitle, NULL, NULL);
 	if (window == NULL) {
 		std::cout << "Error Creating Window terminate" << std::endl;
@@ -717,8 +718,9 @@ void Graphics::Update() {
                 if (!guiRoot || guiRoot != camera.guiRoot) continue;
 
                 if (gui->IsMaskEnabled() || gui->IsClipEnabled()) {
-                    // Enable stencil test and clear buffer
+                    // Enable stencil test and writing to stencil buffer and clear the stencil buffer
                     glEnable(GL_STENCIL_TEST);
+                    glStencilMask(0xFF);
                     glClear(GL_STENCIL_BUFFER_BIT);
 
                     // Write a 1 at every pixel we write to
@@ -726,7 +728,6 @@ void Graphics::Update() {
                     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
                     
                     // Only write to stencil buffer
-                    glStencilMask(0xFF);
                     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
                     glDepthMask(GL_FALSE);
 
@@ -755,7 +756,11 @@ void Graphics::Update() {
                         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
                     } else if (gui->IsMaskEnabled()) {
                         // Send the transform to the GPU
-                        const glm::mat4 modelMatrix = gui->GetMask().GetGuiTransformationMatrix(
+                        Transform mask = Transform(
+                            gui->transform.GetLocalPosition() + gui->GetMask().GetLocalPosition(),
+                            gui->GetMask().GetLocalScale(),
+                            gui->GetMask().GetLocalRotation());
+                        const glm::mat4 modelMatrix = mask.GetGuiTransformationMatrix(
                             gui->GetAnchorPoint(),
                             gui->GetScaledPosition(),
                             gui->GetScaledScale(),
@@ -768,8 +773,12 @@ void Graphics::Update() {
                         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
                     }
 
-                    // Only write with stencil equal to 1
-                    glStencilFunc(GL_EQUAL, 1, 0xFF);
+                    // Only write with correct stencil value
+                    if (gui->IsMaskEnabled() && gui->IsMaskInverted()) {
+                        glStencilFunc(GL_EQUAL, 0, 0xFF);
+                    } else {
+                        glStencilFunc(GL_EQUAL, 1, 0xFF);
+                    }
 
                     // Write to all buffers except stencil
                     glStencilMask(0x00);

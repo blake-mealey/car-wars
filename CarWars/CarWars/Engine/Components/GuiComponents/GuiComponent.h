@@ -101,6 +101,7 @@ public:
     }
 
     bool IsMaskEnabled() const;
+    bool IsMaskInverted() const;
     bool IsClipEnabled() const;
     Transform GetMask() const;
 
@@ -127,6 +128,7 @@ private:
     glm::vec2 uvScale;
 
     bool maskEnabled;
+    bool maskInverted;
     Transform mask;
     bool clipEnabled;
 
