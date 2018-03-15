@@ -169,6 +169,7 @@
     <ClCompile Include="Engine\Components\Colliders\ConvexMeshCollider.cpp" />
     <ClCompile Include="Engine\Components\GuiComponents\GuiComponent.cpp" />
     <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
+    <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
     <ClCompile Include="Engine\Systems\GuiEffects.cpp" />
     <ClCompile Include="Engine\Components\MeshComponent.cpp" />
     <ClCompile Include="Engine\Components\PointLightComponent.cpp" />
@@ -241,6 +242,7 @@
     <ClInclude Include="Engine\Components\Colliders\ConvexMeshCollider.h" />
     <ClInclude Include="Engine\Components\GuiComponents\GuiComponent.h" />
     <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
+    <ClInclude Include="Engine\Components\ParticleComponent.h" />
     <ClInclude Include="Engine\Systems\GuiEffects.h" />
     <ClInclude Include="Engine\Components\MeshComponent.h" />
     <ClInclude Include="Engine\Components\PointLightComponent.h" />
@@ -303,6 +305,7 @@
     <None Include="Content\Prefabs\Components\Camera.json" />
     <None Include="Content\Prefabs\Components\GUIs\MainMenuButton.json" />
     <None Include="Content\Prefabs\Components\GUIs\MenuButton.json" />
+    <None Include="Content\Prefabs\Components\GUIs\StarjediFont.json" />
     <None Include="Content\Prefabs\Components\Missile.json" />
     <None Include="Content\Prefabs\Components\Weapons\MachineGun.json" />
     <None Include="Content\Prefabs\Components\Weapons\RailGun.json" />
@@ -312,6 +315,8 @@
     <None Include="Content\Prefabs\Entities\Game\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\CharacterMenuStat.json" />
+    <None Include="Content\Prefabs\Entities\Menu\LeaderboardMenu.json" />
+    <None Include="Content\Prefabs\Entities\Menu\LeaderboardRow.json" />
     <None Include="Content\Prefabs\Entities\Menu\MenuOption.json" />
     <None Include="Content\Prefabs\Entities\Menu\PauseMenu.json" />
     <None Include="Content\Prefabs\Entities\Menu\Pillar.json" />

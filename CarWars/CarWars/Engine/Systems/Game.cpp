@@ -89,6 +89,7 @@ void Game::InitializeGame() {
     // Initialize the players
 	for (int i = 0; i < gameData.playerCount; ++i) {
         PlayerData& player = players[i];
+		player.name = "Player " + to_string(i + 1);
         player.alive = true;
 		player.follow = false;
 
@@ -130,6 +131,7 @@ void Game::InitializeGame() {
         AiData& ai = ais[i];
 		ai.alive = true;
 		ai.diffuculty = 1.f;
+		ai.name = "Computer " + to_string(i + 1);
 
         // Set their team
         if (gameData.gameMode == GameModeType::FreeForAll) {
