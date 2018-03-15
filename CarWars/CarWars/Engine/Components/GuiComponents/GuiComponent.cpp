@@ -278,6 +278,6 @@ bool GuiComponent::IsClipEnabled() const {
     return clipEnabled;
 }
 
-Transform GuiComponent::GetMask() const {
+Transform& GuiComponent::GetMask() {
     return mask;
 }

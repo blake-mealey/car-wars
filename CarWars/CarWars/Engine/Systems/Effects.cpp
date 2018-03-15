@@ -1,4 +1,4 @@
-#include "GuiEffects.h"
+#include "Effects.h"
 
 #include "../Components/GuiEffects/GuiEffect.h"
 #include "../Components/Component.h"
@@ -6,13 +6,13 @@
 #include "../Entities/EntityManager.h"
 
 // Singleton
-GuiEffects::GuiEffects() {}
-GuiEffects &GuiEffects::Instance() {
-    static GuiEffects instance;
+Effects::Effects() {}
+Effects &Effects::Instance() {
+    static Effects instance;
     return instance;
 }
 
-GuiEffects::~GuiEffects() {
+Effects::~Effects() {
     std::vector<Component*> guis = EntityManager::GetComponents(ComponentType_GUI);
     for (Component* component : guis) {
         GuiComponent* gui = static_cast<GuiComponent*>(component);
@@ -23,7 +23,7 @@ GuiEffects::~GuiEffects() {
     }
 }
 
-void GuiEffects::Update() {
+void Effects::Update() {
     std::vector<Component*> guis = EntityManager::GetComponents(ComponentType_GUI);
     for (Component* component : guis) {
         GuiComponent* gui = static_cast<GuiComponent*>(component);
@@ -34,6 +34,17 @@ void GuiEffects::Update() {
             } else {
                 effect->Update(gui);
             }
+        }
+    }
+
+    for (auto it = tweens.begin(); it != tweens.end();) {
+        Tween* tween = *it;
+        tween->Update();
+        if (tween->Finished()) {
+            it = tweens.erase(it);
+            delete tween;
+        } else {
+            ++it;
         }
     }
 }

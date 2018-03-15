@@ -103,7 +103,7 @@ public:
     bool IsMaskEnabled() const;
     bool IsMaskInverted() const;
     bool IsClipEnabled() const;
-    Transform GetMask() const;
+    Transform& GetMask();
 
 private:
     bool selected;

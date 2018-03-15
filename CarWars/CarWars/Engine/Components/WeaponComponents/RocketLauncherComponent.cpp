@@ -1,4 +1,7 @@
 #include "RocketLauncherComponent.h"
+#include "../../Systems/Effects.h"
+#include "../CameraComponent.h"
+#include "../GuiComponents/GuiHelper.h"
 
 RocketLauncherComponent::RocketLauncherComponent() : WeaponComponent(500.f) {}
 
@@ -18,6 +21,8 @@ void RocketLauncherComponent::Shoot(glm::vec3 position) {
 		//Create Missile Entity
 		Entity* missile = ContentManager::LoadEntity("Missile.json");
 		missile->GetComponent<MissileComponent>()->Initialize(vehicle, position);
+
+        TweenChargeIndicator();
 	} else {
 		std::cout << "Between Shots" << std::endl;
 	}

@@ -13,6 +13,8 @@ class WeaponComponent : public Component {
 public:
 	WeaponComponent(float _damage);
 
+    void TweenChargeIndicator();
+
 	virtual void Shoot(glm::vec3 position) = 0;
 	virtual void Charge() = 0;
 

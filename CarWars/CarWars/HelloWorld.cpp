@@ -11,7 +11,7 @@
 #include "Engine/Systems/Audio.h"
 #include "Engine/Systems/Physics/CollisionGroups.h"
 #include "Engine/Systems/Content/ContentManager.h"
-#include "Engine/Systems/GuiEffects.h"
+#include "Engine/Systems/Effects.h"
 
 using namespace std;
 
@@ -24,7 +24,7 @@ int main() {
 	Graphics &graphicsManager = Graphics::Instance();
 	graphicsManager.Initialize("Car Wars");
 
-    GuiEffects &guiEffectsManager = GuiEffects::Instance();
+    Effects &guiEffectsManager = Effects::Instance();
 	
 	// Initialize input
 	InputManager &inputManager = InputManager::Instance();
