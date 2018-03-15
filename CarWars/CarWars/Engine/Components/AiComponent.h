@@ -50,6 +50,8 @@ public:
 
 	void UpdateMode(AiMode _mode);
 
+	void TakeDamage(WeaponComponent* damager) override;
+
 private:
 	void LostTargetTime();
 	Time LostTargetDuration();
