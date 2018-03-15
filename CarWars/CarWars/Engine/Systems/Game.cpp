@@ -127,6 +127,7 @@ void Game::InitializeGame() {
         // TODO: Choose vehicle and weapon type somehow
         ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun));
         AiData& ai = ais[i];
+		ai.alive = true;
 
         // Set their team
         if (gameData.gameMode == GameModeType::FreeForAll) {
@@ -235,7 +236,20 @@ void Game::Update() {
             if (!player.alive) continue;
             player.cameraEntity->transform.SetPosition(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
 			player.camera->SetTarget(player.vehicleEntity->transform.GetGlobalPosition());
-			player.camera->SetTargetOffset(glm::vec3(0,1,0) + EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition() - player.vehicleEntity->transform.GetGlobalPosition());
+			
+			PxScene* scene = &Physics::Instance().GetScene();
+			PxRaycastBuffer hit;
+			glm::vec3 direction = glm::normalize(player.camera->GetPosition() - player.camera->GetTarget());
+			player.camera->SetTargetOffset(glm::vec3(0, 2, 0) + EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition() - player.vehicleEntity->transform.GetGlobalPosition());
+
+			//Raycast
+			if (scene->raycast(Transform::ToPx(player.camera->GetTarget()), Transform::ToPx(direction), CameraComponent::MAX_DISTANCE + 1, hit)) {
+				player.camera->SetDistance(hit.block.distance - .5);
+				//player.camera->SetTargetOffset((hit.block.distance - .1f) * direction + glm::vec3(0, 2, 0) + EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition() - player.vehicleEntity->transform.GetGlobalPosition());
+			}
+			else {
+				player.camera->SetDistance(CameraComponent::MAX_DISTANCE);
+			}
         }
 
         // ---------------

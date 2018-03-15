@@ -12,6 +12,8 @@ public:
 	static const float NEAR_CLIPPING_PLANE;
 	static const float FAR_CLIPPING_PLANE;
 	static const float DEFAULT_FIELD_OF_VIEW;
+	static const float DEFAULT_DISTANCE;
+	static const float MAX_DISTANCE;
 
 	ComponentType GetType() override;
 	void HandleEvent(Event* event) override;
@@ -42,7 +44,9 @@ public:
 	void SetCameraVerticalAngle(float _cameraLift);
 
 	void UpdateCameraPosition(Entity* _vehicle, float _cameraHor, float _cameraVer);
-
+	
+	void SetDistance(float distance);
+	
 	float GetCameraSpeed();
 
     void RenderDebugGui() override;
@@ -74,8 +78,8 @@ private:
 	glm::mat4 viewMatrix;
 	glm::mat4 projectionMatrix;
 
-	float cameraAngle = -3.14 / 2;
-	float cameraLift = 3.14 / 4;
+	float cameraAngle = 0;
+	float cameraLift = -3.14 / 4;
     float distanceFromCenter;
 	float cameraSpeed = 5.f;
 };
