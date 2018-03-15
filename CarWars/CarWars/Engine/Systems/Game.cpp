@@ -241,11 +241,11 @@ void Game::Update() {
 			PxRaycastBuffer hit;
 			glm::vec3 direction = glm::normalize(player.camera->GetPosition() - player.camera->GetTarget());
 			player.camera->SetTargetOffset(glm::vec3(0, 2, 0) + EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition() - player.vehicleEntity->transform.GetGlobalPosition());
-
+			PxQueryFilterData filterData;
+			filterData.data.word0 = -1 ^ player.vehicleEntity->GetComponent<VehicleComponent>()->GetRaycastGroup();
 			//Raycast
-			if (scene->raycast(Transform::ToPx(player.camera->GetTarget()), Transform::ToPx(direction), CameraComponent::MAX_DISTANCE + 1, hit)) {
+			if (scene->raycast(Transform::ToPx(player.camera->GetTarget()), Transform::ToPx(direction), CameraComponent::MAX_DISTANCE + 1, hit, PxHitFlag::eDEFAULT, filterData)) {
 				player.camera->SetDistance(hit.block.distance - .5);
-				//player.camera->SetTargetOffset((hit.block.distance - .1f) * direction + glm::vec3(0, 2, 0) + EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition() - player.vehicleEntity->transform.GetGlobalPosition());
 			}
 			else {
 				player.camera->SetDistance(CameraComponent::MAX_DISTANCE);
