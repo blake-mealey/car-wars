@@ -25,10 +25,8 @@ AiComponent::AiComponent(nlohmann::json data) : targetEntity(nullptr), waypointI
     } else if (modeName == "Chase") {
         UpdateMode(AiMode_Chase);
     }
-
-	UpdateMode(AiMode_Attack);
-
 	startedStuck = Time(-1);
+	UpdateMode(AiMode_Attack);
 
     InitializeRenderBuffers();
 }
@@ -150,7 +148,7 @@ void AiComponent::SetMode() {
 	float speed = vehicle->pxVehicle->computeForwardSpeed();
 
 	//detect being stuck
-	if (abs(speed) <= 2.f) {
+	if (speed <= 2.f) {
 		StartStuckTime();
 	}
 	else startedStuck = Time(-1);
@@ -162,7 +160,7 @@ void AiComponent::SetMode() {
 	}
 
 	int choice = -1;
-	if (StateManager::gameTime.GetSeconds() > modeStart.GetSeconds() + 10) { // every ten seconds select a mode TUNEABLE
+	if (StateManager::gameTime.GetSeconds() > modeStart.GetSeconds() + 2) { // every 2 seconds select a mode TUNEABLE
 		choice = rand() % 2;
 
 		if (0 /*doesNot have powerup (random for testing)*/ ) {
@@ -339,18 +337,18 @@ void AiComponent::Update() {
 		float forwardPower = 0.8f;
 		float backwardPower = 0.0f;
 		if (mode == AiMode_Attack) {
-			float stoppingDistance = 10 /* /myvehicleData->diffuculty*/;
-			if (distanceToEnemy < stoppingDistance) {
+			float stoppingDistance = 5 /* /myvehicleData->diffuculty*/;
+			if( distanceToNode < stoppingDistance) {
 				backwardPower = distanceToEnemy / stoppingDistance;
 				forwardPower = backwardPower;
 			}
 		}
 		if (mode == AiMode_Stuck) {
-			backwardPower = abs(std::sin(GetStuckDuration().GetSeconds()/5));
+			backwardPower = abs(std::sin(GetStuckDuration().GetSeconds()/2));
 			forwardPower = (1 - backwardPower);
 		}
 
-		std::cout << "mode: " << mode << "forwardPower: " << forwardPower << std::endl;
+		//std::cout << "mode: " << mode << " forwardPower: " << forwardPower << " backwardPower: " << backwardPower << std::endl;
 
 		vehicle->Steer(reverse ? -steer : steer);
 		vehicle->HandleAcceleration(forwardPower, backwardPower);
