@@ -12,6 +12,7 @@ const float CameraComponent::FAR_CLIPPING_PLANE = 1000.f;
 const float CameraComponent::DEFAULT_FIELD_OF_VIEW = 60.f;		// In degrees
 const float CameraComponent::DEFAULT_DISTANCE = 15.f;
 const float CameraComponent::MAX_DISTANCE = 15.f;
+const float CameraComponent::MIN_DISTANCE = 0.01f;
 
 
 ComponentType CameraComponent::GetType() {
@@ -112,7 +113,7 @@ void CameraComponent::SetCameraVerticalAngle(float _cameraLift) {
 }
 
 void CameraComponent::SetDistance(float distance) {
-	distanceFromCenter = glm::clamp(distance, .1f, MAX_DISTANCE);
+	distanceFromCenter = glm::clamp(distance, MIN_DISTANCE, MAX_DISTANCE);
 }
 
 

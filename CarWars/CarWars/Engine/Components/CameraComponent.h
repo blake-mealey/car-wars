@@ -14,6 +14,7 @@ public:
 	static const float DEFAULT_FIELD_OF_VIEW;
 	static const float DEFAULT_DISTANCE;
 	static const float MAX_DISTANCE;
+	static const float MIN_DISTANCE;
 
 	ComponentType GetType() override;
 	void HandleEvent(Event* event) override;
