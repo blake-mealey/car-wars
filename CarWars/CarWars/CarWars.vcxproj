@@ -169,7 +169,10 @@
     <ClCompile Include="Engine\Components\Colliders\ConvexMeshCollider.cpp" />
     <ClCompile Include="Engine\Components\GuiComponents\GuiComponent.cpp" />
     <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
+    <ClCompile Include="Engine\Components\HeightComponent.cpp" />
     <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
+    <ClCompile Include="Engine\Systems\Content\HeightMap.cpp" />
+    <ClCompile Include="Engine\Systems\Content\Image.cpp" />
     <ClCompile Include="Engine\Systems\GuiEffects.cpp" />
     <ClCompile Include="Engine\Components\MeshComponent.cpp" />
     <ClCompile Include="Engine\Components\PointLightComponent.cpp" />
@@ -242,7 +245,10 @@
     <ClInclude Include="Engine\Components\Colliders\ConvexMeshCollider.h" />
     <ClInclude Include="Engine\Components\GuiComponents\GuiComponent.h" />
     <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
+    <ClInclude Include="Engine\Components\HeightMapComponent.h" />
     <ClInclude Include="Engine\Components\ParticleComponent.h" />
+    <ClInclude Include="Engine\Systems\Content\HeightMap.h" />
+    <ClInclude Include="Engine\Systems\Content\Image.h" />
     <ClInclude Include="Engine\Systems\GuiEffects.h" />
     <ClInclude Include="Engine\Components\MeshComponent.h" />
     <ClInclude Include="Engine\Components\PointLightComponent.h" />
@@ -340,6 +346,7 @@
     <None Include="Content\Scenes\GUIs\OptionsMenu_GUI.json" />
     <None Include="Content\Scenes\GUIs\StartMenu_GUI.json" />
     <None Include="Content\Scenes\MainMenu.json" />
+    <None Include="Content\Scenes\Maps\HeightMap.json" />
     <None Include="Content\Scenes\Menu.json" />
     <None Include="Content\Scenes\PhysicsDemo.json" />
     <None Include="Content\Shaders\blur.frag" />

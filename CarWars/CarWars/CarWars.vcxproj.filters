@@ -69,6 +69,9 @@
     <ClCompile Include="Dependencies\PennerEasing\Sine.cpp" />
     <ClCompile Include="Engine\Components\Colliders\SphereCollider.cpp" />
     <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
+    <ClCompile Include="Engine\Systems\Content\HeightMap.cpp" />
+    <ClCompile Include="Engine\Systems\Content\Image.cpp" />
+    <ClCompile Include="Engine\Components\HeightComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -149,6 +152,9 @@
     <ClInclude Include="Dependencies\PennerEasing\Sine.h" />
     <ClInclude Include="Engine\Components\Colliders\SphereCollider.h" />
     <ClInclude Include="Engine\Components\ParticleComponent.h" />
+    <ClInclude Include="Engine\Systems\Content\HeightMap.h" />
+    <ClInclude Include="Engine\Systems\Content\Image.h" />
+    <ClInclude Include="Engine\Components\HeightMapComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\CollisionGroups\Vehicles.json" />
@@ -217,5 +223,6 @@
     <None Include="Content\Scenes\Maps\CircleMap.json" />
     <None Include="Content\Prefabs\Entities\Menu\PauseMenu.json" />
     <None Include="Content\Prefabs\Entities\Explosion.json" />
+    <None Include="Content\Scenes\Maps\HeightMap.json" />
   </ItemGroup>
 </Project>

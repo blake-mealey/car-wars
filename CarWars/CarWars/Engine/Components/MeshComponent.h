@@ -33,9 +33,11 @@ public:
 	glm::vec2 GetUvScale() const;
 
     void RenderDebugGui() override;
-private:
+protected:
 	Mesh *mesh;
 	Material *material;
 	Texture *texture;
 	glm::vec2 uvScale;
+
+	MeshComponent() {}
 };

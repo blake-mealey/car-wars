@@ -28,6 +28,7 @@
 #include "../../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../../Components/AiComponent.h"
 #include "../../Components/GuiComponents/GuiComponent.h"
+#include "../../Components/HeightMapComponent.h"
 
 using namespace nlohmann;
 using namespace physx;
@@ -262,6 +263,7 @@ Component* ContentManager::LoadComponent(json data) {
     bool supportedType = true;
     string type = data["Type"];
     if (type == "Mesh") component = new MeshComponent(data);
+	else if (type == "HeightMap") component = new HeightMapComponent(data);
     else if (type == "Camera") component = new CameraComponent(data);
     else if (type == "PointLight") component = new PointLightComponent(data);
     else if (type == "DirectionLight") component = new DirectionLightComponent(data);

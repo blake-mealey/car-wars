@@ -1,7 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <Xinput.h>
-#pragma comment (lib, "XInput.lib")
+#pragma comment (lib, "XInput9_1_0.lib")
 
 class XboxController {
 public:
