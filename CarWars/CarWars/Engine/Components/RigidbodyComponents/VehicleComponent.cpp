@@ -515,7 +515,7 @@ void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPowe
 		pxVehicleInputData.setAnalogBrake(0.0f);
 	}
 
-	if (forwardPower) {
+	if (amountPressed > 0.1 && forwardPower > backwardPower) {
 		if (pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eFIRST) {
 			pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 		}
