@@ -20,7 +20,6 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 
 		//Calculate Next Shooting Time
 		nextShotTime = StateManager::gameTime + timeBetweenShots;
-		std::cout << "Bullet Shot" << damage << std::endl;
 
 		//Play Shooting Sound
 		Audio& audioManager = Audio::Instance();
@@ -45,13 +44,11 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 				Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
 				if (thingHit)
 				if (thingHit->HasTag("Vehicle") || thingHit->HasTag("AiVehicle")) {
-					std::cout << "Dealt : " << damage << std::endl;
 					thingHit->TakeDamage(this);
 				}
 			}
 		}
-	} else {
-		std::cout << "Between Shots" << std::endl;
+	} else { // betweeen shots
 	}
 }
 
