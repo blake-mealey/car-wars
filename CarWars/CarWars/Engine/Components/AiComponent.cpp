@@ -150,13 +150,13 @@ void AiComponent::SetMode() {
 	float speed = vehicle->pxVehicle->computeForwardSpeed();
 
 	//detect being stuck
-	if (abs(speed) <= 0.5f) {
+	if (abs(speed) <= 2.f) {
 		StartStuckTime();
 	}
 	else startedStuck = Time(-1);
 
 	// check if stuck
-	if (GetStuckDuration().GetSeconds() > 1.0f) {
+	if (GetStuckDuration().GetSeconds() > 2.0f) {
 		UpdateMode(AiMode_Stuck);
 		return;
 	}
@@ -174,6 +174,7 @@ void AiComponent::SetMode() {
 
 		if (1 ) {
 			UpdateMode(AiMode_Attack);
+			return;
 		} else {
 			UpdateMode(mode);
 		}
@@ -217,7 +218,7 @@ void AiComponent::Update() {
 						glm::vec3 direction = enemyPosition - localPosition;
 						float distanceToEnemy = glm::length(direction);
 						
-						if (distanceToEnemy < /*myVehicleData.diffuculty * */ 50) { //see if they are close TODO: add diffuculty to AiData
+						if (distanceToEnemy < /*myVehicleData.diffuculty * */ 100) { //see if they are close TODO: add diffuculty to AiData
 							direction = glm::normalize(direction);
 							PxQueryFilterData filterData;
 							filterData.data.word0 = -1 ^ (enemyPlayer->vehicleEntity->GetComponent<VehicleComponent>()->GetRaycastGroup() | RaycastGroups::GetDefaultGroup()); // only collide with enemy and terrain
@@ -244,10 +245,6 @@ void AiComponent::Update() {
 					return;
 				}
 			}
-			else {
-				UpdateMode(AiMode_GetPowerup);
-				return;
-			}
 
 			//Setup raycasting for the vehicle
 			glm::vec3 enemyPosition = targetEntity->transform.GetGlobalPosition();
@@ -273,7 +270,7 @@ void AiComponent::Update() {
 
 			WeaponComponent* weapon = GetEntity()->GetComponent<WeaponComponent>();
 			if (weapon) {
-				if (distanceToEnemy < 50 /* myvehicleData->diffuculty*/) { // if close enough to enemy shoot TUNEABLE
+				if (distanceToEnemy < 100 /* myvehicleData->diffuculty*/) { // if close enough to enemy shoot TUNEABLE
 					// aim weapon TUNEABLE
 					if (!charged) {
 						weapon->Charge();
@@ -284,7 +281,7 @@ void AiComponent::Update() {
 						(int)rand() % 1000,
 						(int)rand() % 1000,
 						(int)rand() % 1000
-					) / (300.f *1/*myvehicleData->diffuculty*/);
+					) / (300.f *3/*myvehicleData->diffuculty*/);
 					glm::vec3 hitLocation = enemyPosition + randomOffset;
 					weapon->Shoot(hitLocation);
 				}
@@ -349,8 +346,8 @@ void AiComponent::Update() {
 			}
 		}
 		if (mode == AiMode_Stuck) {
-			backwardPower = std::sin(GetStuckDuration().GetSeconds()/3);
-			forwardPower = abs(1 - backwardPower);
+			backwardPower = abs(std::sin(GetStuckDuration().GetSeconds()/5));
+			forwardPower = (1 - backwardPower);
 		}
 
 		std::cout << "mode: " << mode << "forwardPower: " << forwardPower << std::endl;
@@ -366,6 +363,8 @@ void AiComponent::Update() {
 }
 
 void AiComponent::TakeDamage(WeaponComponent* damager) {
-	previousMode = mode = AiMode_Attack;
+	mode = AiMode_Attack;
+	UpdateMode(AiMode_Attack);
+	startedStuck = Time(-1);
 	SetTargetEntity(damager->GetEntity());
 }
