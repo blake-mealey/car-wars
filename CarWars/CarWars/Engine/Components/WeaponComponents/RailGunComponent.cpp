@@ -46,6 +46,8 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 					}
 			}
 		}
+
+        TweenChargeIndicator();
 	} else if (StateManager::gameTime.GetSeconds() < nextChargeTime.GetSeconds()) {
 		std::cout << "Rail Gun on Cooldown" << std::endl;
 	} else {

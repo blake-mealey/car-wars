@@ -257,7 +257,7 @@ void GuiHelper::OpacityEffect(GuiComponent* gui, Time duration, float opacityMod
 }
 
 GuiComponent* GuiHelper::GetFirstGui(Entity* entity) {
-    return entity->GetComponents<GuiComponent>()[0];
+    return entity->GetComponent<GuiComponent>();
 }
 
 GuiComponent* GuiHelper::GetFirstGui(std::string entityTag, int playerIndex) {

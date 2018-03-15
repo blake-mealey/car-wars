@@ -103,17 +103,36 @@
 	        }
         ]
 	},
-  {
-    "Tag": "DamageIndicator",
-    "Components": [
-      {
-        "Type": "GUI",
-        "AnchorPoint": [ 0.5, 0.5 ],
-        "ScaledPosition": [ 0.5, 0.5 ],
-        "Scale": [ 500, 500, 1 ],
-        "TextureColor": [ 1, 1, 1, 0 ],
-        "Texture": "HUD/damage-indicator.png"
-      }
-    ]
-  }
+	{
+		"Tag": "DamageIndicator",
+		"Components": [
+			{
+				"Type": "GUI",
+				"AnchorPoint": [0.5, 0.5],
+				"ScaledPosition": [0.5, 0.5],
+				"Scale": [500, 500, 1],
+                "TextureColor": [1, 1, 1, 0],
+				"Texture": "HUD/damage-indicator.png"
+			}
+		]
+	},
+	{
+		"Tag": "ChargeIndicator",
+		"Components": [
+			{
+				"Type": "GUI",
+				"AnchorPoint": [0.5, 0.5],
+				"ScaledPosition": [0.5, 0.5],
+                "Rotate": [0, 0, 180],
+				"Scale": [134, 134, 1],
+				"TextureColor": [1, 1, 1, 1],
+				"Texture": "HUD/recharge.png",
+                "MaskEnabled": true,
+                "MaskInverted": true,
+                "Mask": {
+	                "Scale": [134, 134, 0]
+                }
+			}
+		]
+	}
 ]

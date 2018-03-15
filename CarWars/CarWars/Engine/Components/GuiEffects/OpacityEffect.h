@@ -16,6 +16,9 @@ private:
     float previousTextureOpacity;
     float previousFontOpacity;
 
+    bool startedTweenIn;
+    bool startedTweenOut;
+
     Time tweenInTime;
     Time tweenOutTime;
 };

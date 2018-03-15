@@ -46,6 +46,11 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
     } else if (textYAlignment == "Bottom") {
         textAlignment[1] = TextYAlignment::Bottom;
     }
+
+    maskEnabled = ContentManager::GetFromJson<bool>(data["MaskEnabled"], false);
+    maskInverted = ContentManager::GetFromJson<bool>(data["MaskInverted"], false);
+    if (data["Mask"].is_object()) mask = Transform(data["Mask"]);
+    clipEnabled = ContentManager::GetFromJson<bool>(data["ClipEnabled"], false);
 }
 
 ComponentType GuiComponent::GetType() {
@@ -73,6 +78,14 @@ void GuiComponent::RenderDebugGui() {
     ImGui::ColorEdit4("Texture Color", glm::value_ptr(textureColor));
     ImGui::ColorEdit4("Selected Texture Color", glm::value_ptr(selectedTextureColor));
     ImGui::DragFloat2("UV Scale", glm::value_ptr(uvScale), 0.01f);
+
+    ImGui::Checkbox("Clip Enabled", &clipEnabled);
+    ImGui::Checkbox("Mask Enabled", &maskEnabled);
+    ImGui::Checkbox("Mask Inverted", &maskInverted);
+    if (ImGui::TreeNode("Mask")) {
+        mask.RenderDebugGui(1.f, 1.f);
+        ImGui::TreePop();
+    }
 }
 
 void GuiComponent::SetText(std::string _text) {
@@ -251,4 +264,20 @@ void GuiComponent::AddEffect(GuiEffect* effect) {
 void GuiComponent::RemoveEffect(GuiEffect* effect) {
     effects.erase(effect);
     effect->Remove(this);
+}
+
+bool GuiComponent::IsMaskEnabled() const {
+    return maskEnabled;
+}
+
+bool GuiComponent::IsMaskInverted() const {
+    return maskInverted;
+}
+
+bool GuiComponent::IsClipEnabled() const {
+    return clipEnabled;
+}
+
+Transform& GuiComponent::GetMask() {
+    return mask;
 }

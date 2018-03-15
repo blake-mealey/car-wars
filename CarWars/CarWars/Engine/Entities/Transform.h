@@ -6,6 +6,8 @@
 #include "PxPhysicsAPI.h"
 #include <json/json.hpp>
 
+class GuiComponent;
+
 class Transform {
 public:
 	Transform();
@@ -64,6 +66,7 @@ public:
 	glm::mat4 GetRotationMatrix();
 	glm::mat4 GetLocalTransformationMatrix();
 	glm::mat4 GetTransformationMatrix();
+    glm::mat4 GetGuiTransformationMatrix(glm::vec2 anchorPoint, glm::vec2 scaledPosition, glm::vec2 scaledScale, glm::vec2 viewportPosition, glm::vec2 viewportScale, glm::vec2 windowScale);
 
 	static glm::vec3 ToCylinder(glm::vec3 point);
 	static glm::vec3 FromCylinder(glm::vec3 point);

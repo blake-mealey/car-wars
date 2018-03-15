@@ -29,6 +29,7 @@ public:
     bool operator>=(const Time other) const;
 	Time operator-(const Time other) const;
 	Time operator+(const Time other) const;
+    Time operator*(const Time other) const;
 	void operator+=(const Time other);
 private:
 	double timeSeconds;
