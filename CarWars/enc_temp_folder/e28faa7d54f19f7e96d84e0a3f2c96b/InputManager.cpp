@@ -58,7 +58,7 @@ void InputManager::HandleMouse() {
 	Graphics& graphicsInstance = Graphics::Instance();
 
 	if (StateManager::GetState() == GameState_Playing) {
-		PlayerData& player = Game::players[0];
+		PlayerData player = Game::players[0];
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
 		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
 		CameraComponent* cameraC = player.camera;
@@ -426,7 +426,7 @@ void InputManager::HandleKeyboard() {
 
 	if (gameState == GameState_Playing) {
         //Get Vehicle Component
-		PlayerData& player = Game::players[0];
+		PlayerData player = Game::players[0];
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
 		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
 		CameraComponent* cameraC = player.camera;
@@ -472,7 +472,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Get Components
 		// -------------------------------------------------------------------------------------------------------------- //
-		PlayerData& player = Game::players[controllerNum];
+		PlayerData player = Game::players[controllerNum];
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
 		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
 		CameraComponent* cameraC = player.camera;

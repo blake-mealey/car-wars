@@ -60,6 +60,8 @@ struct VehicleData {
     Entity* vehicleEntity;
     Entity* cameraEntity;
     CameraComponent* camera;
+	
+	bool follow;
 
     // Gamemode state
     size_t teamIndex;
@@ -79,6 +81,7 @@ struct AiData : VehicleData {
 
     // Game state
     AiComponent* brain;
+	float diffuculty;
 };
 
 struct GameData {

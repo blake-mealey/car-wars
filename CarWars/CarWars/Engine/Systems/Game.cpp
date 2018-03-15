@@ -90,6 +90,7 @@ void Game::InitializeGame() {
 	for (int i = 0; i < gameData.playerCount; ++i) {
         PlayerData& player = players[i];
         player.alive = true;
+		player.follow = false;
 
         // Set their team
         if (gameData.gameMode == GameModeType::FreeForAll) {
@@ -128,6 +129,7 @@ void Game::InitializeGame() {
         ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun));
         AiData& ai = ais[i];
 		ai.alive = true;
+		ai.diffuculty = 1.f;
 
         // Set their team
         if (gameData.gameMode == GameModeType::FreeForAll) {
