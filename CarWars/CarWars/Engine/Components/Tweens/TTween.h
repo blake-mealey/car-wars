@@ -31,7 +31,7 @@ public:
     }
 
     void Stop(const bool naturalStop=false) override {
-        Tween::Stop();
+        Tween::Stop(naturalStop);
         if (naturalStop) {
             if (updateCallback) updateCallback(value);
             if (finishedCallback) finishedCallback(value);
