@@ -61,7 +61,7 @@ void AiComponent::UpdatePath() {
     if (!FinishedPath() && StateManager::gameTime - lastPathUpdate < 0.01) return;
     lastPathUpdate = StateManager::gameTime;
 
-	if (GetTargetEntity()) {
+	if (GetTargetEntity() &&  Game::GetDataFromEntity(GetTargetEntity())->alive) {
 		const glm::vec3 currentPosition = GetEntity()->transform.GetGlobalPosition();
 		const glm::vec3 targetPosition = GetTargetEntity()->transform.GetGlobalPosition();
 		const glm::vec3 offsetDirection = normalize(-GetEntity()->transform.GetForward() * 1.f + normalize(targetPosition - currentPosition));
