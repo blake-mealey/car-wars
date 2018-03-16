@@ -168,15 +168,7 @@ void Game::InitializeGame() {
 
 	std::vector<AiComponent*> ais = EntityManager::GetComponents<AiComponent>(ComponentType_AI);
     for (AiComponent* ai : ais) {
-        switch (ai->GetMode()) {
-        case AiMode_Waypoints:
-            ai->SetTargetEntity(waypoints[0]);
-            break;
-        case AiMode_Chase:
-            ai->SetTargetEntity(EntityManager::FindEntities("Vehicle")[0]);
-            break;
-        }
-        ai->UpdatePath();
+		ai->SetMode();
     }
 }
 
