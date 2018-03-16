@@ -3,14 +3,13 @@
 		"Tag": "GameClock",
         "Components": [
 	        {
-            "Type": "GUI",
-            "Prefab": "GUIs/StarjediFont.json",
-            "AnchorPoint": [0.5, 0],
-            "ScaledPosition": [0.5, 0],
-            "Position": [0, 20, 0],
-            "Scale": [150, 75, 1],
-            "FontSize": 48,
-            "Text": "0:00"
+                "Prefab": "GUIs/StarjediFont.json",
+                "AnchorPoint": [0.5, 0],
+                "ScaledPosition": [0.5, 0],
+                "Position": [0, 20, 0],
+                "Scale": [150, 75, 1],
+                "FontSize": 48,
+                "Text": "0:00"
 	        }
         ]
 	},
@@ -18,19 +17,17 @@
 		"Tag": "GameScores",
         "Components": [
 	        {
-		        "Type": "GUI",
-            "Prefab": "GUIs/StarjediFont.json",
+                "Prefab": "GUIs/StarjediFont.json",
 		        "AnchorPoint": [1, 0],
 		        "ScaledPosition": [0.5, 0],
 		        "Position": [-95, 20, 0],
 		        "Scale": [150, 75, 1],
 		        "FontSize": 36,
-            "TextXAlignment": "Right",
+                "TextXAlignment": "Right",
 		        "Text": "0"
 	        },
 		    {
-		        "Type": "GUI",
-            "Prefab": "GUIs/StarjediFont.json",
+                "Prefab": "GUIs/StarjediFont.json",
 		        "AnchorPoint": [0, 0],
 		        "ScaledPosition": [0.5, 0],
 		        "Position": [95, 20, 0],
@@ -134,5 +131,8 @@
                 }
 			}
 		]
+	},
+	{
+		"Tag": "KillFeed"
 	}
 ]

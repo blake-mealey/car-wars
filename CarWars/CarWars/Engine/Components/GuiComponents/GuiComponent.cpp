@@ -7,6 +7,9 @@
 
 GuiComponent::~GuiComponent() {
     delete font;
+    for (GuiEffect* effect : effects) {
+        delete effect;
+    }
 }
 
 GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr), texture(nullptr) {
@@ -124,6 +127,11 @@ void GuiComponent::SetFontSize(int fontSize) {
 
 void GuiComponent::SetFontColor(glm::vec4 _fontColor) {
 	fontColor = _fontColor;
+}
+
+glm::vec2 GuiComponent::GetFontDimensions() {
+    FTBBox bbox = font->BBox(GetText().c_str());
+    return glm::vec2(bbox.Upper().X() - bbox.Lower().X(), font->Ascender() * 0.5f);
 }
 
 FTFont *GuiComponent::GetFont() const {

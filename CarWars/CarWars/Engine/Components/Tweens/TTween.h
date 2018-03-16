@@ -13,29 +13,41 @@ public:
     void Update() override {
         if (!started || finished) return;
         const Time current = StateManager::globalTime - startTime;
-        finished = current >= duration;
-        if (finished) {
+        if (current >= duration) {
             value = end;
-            if (nextTween) {
-                nextTween->Start();
-            }
+            Stop(true);
         } else {
             value = glm::mix(start, end, Ease(current.GetSeconds(), 0.f, 1.f, duration.GetSeconds()));
+            if (updateCallback) updateCallback(value);
         }
+    }
 
-        if (callback) {
-            callback(value);
+    void SetUpdateCallback(std::function<void(V&)> a_callback) {
+        updateCallback = a_callback;
+    }
+
+    void SetFinishedCallback(std::function<void(V&)> a_callback) {
+        finishedCallback = a_callback;
+    }
+
+    void Stop(const bool naturalStop=false) {
+        finished = true;
+        if (naturalStop) {
+            if (nextTween) nextTween->Start();
+            if (updateCallback) updateCallback(value);
+            if (finishedCallback) finishedCallback(value);
         }
     }
 
 protected:
-    TTween(V a_start, V a_end, const Time a_duration, std::function<void(V&)> a_callback = nullptr) : Tween(a_duration),
-        callback(a_callback), initialValue(a_start), value(initialValue), start(a_start), end(a_end) {}
+    TTween(V a_start, V a_end, const Time a_duration) : Tween(a_duration),
+        updateCallback(nullptr), finishedCallback(nullptr), initialValue(a_start), value(initialValue), start(a_start), end(a_end) {}
 
-    TTween(V& a_value, V a_start, V a_end, const Time a_duration, std::function<void(V&)> a_callback = nullptr) : Tween(a_duration),
-        callback(a_callback), value(a_value), start(a_start), end(a_end) {}
+    TTween(V& a_value, V a_start, V a_end, const Time a_duration) : Tween(a_duration),
+        updateCallback(nullptr), finishedCallback(nullptr), value(a_value), start(a_start), end(a_end) {}
 
-    std::function<void(V&)> callback;
+    std::function<void(V&)> updateCallback;
+    std::function<void(V&)> finishedCallback;
 
     V initialValue;
     V& value;

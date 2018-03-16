@@ -43,6 +43,8 @@ public:
 	void SetFontSize(int fontSize);
 	void SetFontColor(glm::vec4 _fontColor);
 
+    glm::vec2 GetFontDimensions();
+
 	FTFont* GetFont() const;
 	glm::vec4 GetFontColor() const;
 

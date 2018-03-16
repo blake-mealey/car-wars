@@ -236,6 +236,13 @@ void GuiHelper::SetGuiPositions(std::string entityTag, glm::vec3 position, int p
     SetGuiPositions(EntityManager::FindEntities(entityTag)[playerIndex], position);
 }
 
+void GuiHelper::SetGuiYPositions(Entity* entity, float yPosition) {
+    for (GuiComponent* gui : entity->GetComponents<GuiComponent>()) {
+        glm::vec3 position = gui->transform.GetLocalPosition();
+        gui->transform.SetPosition(glm::vec3(position.x, yPosition, position.z));
+    }
+}
+
 void GuiHelper::AddGuiPositions(Entity* entity, glm::vec3 offset) {
     for (GuiComponent* gui : entity->GetComponents<GuiComponent>()) {
         gui->transform.Translate(offset);

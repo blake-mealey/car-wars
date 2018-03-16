@@ -222,5 +222,6 @@
     <None Include="Content\Prefabs\Components\GUIs\StarjediFont.json" />
     <None Include="Content\Prefabs\Entities\Menu\LeaderboardMenu.json" />
     <None Include="Content\Prefabs\Entities\Menu\LeaderboardRow.json" />
+    <None Include="Content\Prefabs\Entities\Menu\KillFeedRow.json" />
   </ItemGroup>
 </Project>

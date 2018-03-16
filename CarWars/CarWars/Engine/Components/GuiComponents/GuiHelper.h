@@ -69,6 +69,8 @@ public:
     static void SetGuiPositions(Entity* entity, glm::vec3 position);
     static void SetGuiPositions(std::string entityTag, glm::vec3 position, int playerIndex = 0);
     
+    static void SetGuiYPositions(Entity* entity, float yPosition);
+
     static void AddGuiPositions(Entity* entity, glm::vec3 offset);
     static void AddGuiPositions(std::string entityTag, glm::vec3 offset, int playerIndex = 0);
     

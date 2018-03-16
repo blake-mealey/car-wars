@@ -12,9 +12,11 @@
 
 #include "../../Systems/Physics/RaycastGroups.h"
 #include "../../Systems/Game.h"
-#include "../GuiEffects/OpacityEffect.h"
 #include "../GuiComponents/GuiComponent.h"
 #include "../GuiComponents/GuiHelper.h"
+#include "../Tweens/Tween.h"
+#include "PennerEasing/Quint.h"
+#include "../../Systems/Effects.h"
 
 using namespace physx;
 
@@ -448,7 +450,7 @@ void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
 
 
 void VehicleComponent::TakeDamage(WeaponComponent* damager) {
-    VehicleData *attacker = Game::GetDataFromEntity(damager->GetEntity());
+    VehicleData* attacker = Game::GetDataFromEntity(damager->GetEntity());
     VehicleData* me = Game::GetDataFromEntity(GetEntity());
 
     if (attacker->teamIndex == me->teamIndex) return;
@@ -475,6 +477,78 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
     if (health <= 0) {
         attacker->killCount++;
         Game::gameData.teams[attacker->teamIndex].killCount++;
+
+        for (size_t i = 0; i < Game::gameData.playerCount; ++i) {
+            PlayerData& player = Game::players[i];
+            Entity* killFeed = EntityManager::FindFirstChild(player.camera->GetGuiRoot(), "KillFeed");
+            std::vector<Entity*> rows = EntityManager::GetChildren(killFeed);
+
+            Entity* row = ContentManager::LoadEntity("Menu/KillFeedRow.json", killFeed);
+            std::vector<GuiComponent*> guis = row->GetComponents<GuiComponent>();
+            GuiComponent* player0Gui = guis[0];
+            GuiComponent* player1Gui = guis[1];
+            GuiComponent* weaponGui = guis[2];
+            rows.push_back(row);
+
+            player1Gui->SetText(me->name);
+            const glm::vec2 fontDims = player1Gui->GetFontDimensions();
+            
+            Texture* weaponTexture = nullptr;
+            switch (damager->GetType()) {
+            case ComponentType_MachineGun:
+                weaponTexture = ContentManager::GetTexture("HUD/bullets.png");
+                break;
+            case ComponentType_RocketLauncher:
+                weaponTexture = ContentManager::GetTexture("HUD/explosion.png");
+                break;
+            case ComponentType_RailGun:
+                weaponTexture = ContentManager::GetTexture("HUD/target.png");
+                break;
+            default:;
+            }
+            
+            weaponGui->SetTexture(weaponTexture);
+            weaponGui->transform.Translate(-glm::vec3(fontDims.x + 10.f, 0.f, 0.f));
+            
+            player0Gui->SetText(attacker->name);
+            player0Gui->transform.Translate(-glm::vec3(fontDims.x + 50.f, 0.f, 0.f));
+
+            constexpr size_t maxCount = 5;
+
+            static TTween<float, easing::Quint::easeOut>* tween = nullptr;
+            if (tween) tween->Stop();
+
+            tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.5);
+            tween->TakeOwnership();
+            tween->SetUpdateCallback([rows, maxCount](float& value) mutable {
+                // Tween in positions
+                for (int j = 0; j < rows.size(); ++j) {
+                    Entity* row = rows[j];
+
+                    float start = 30.f * (static_cast<int>(rows.size()) - 2 - j);
+                    float end = 30.f * (static_cast<int>(rows.size()) - 1 - j);
+                    GuiHelper::SetGuiYPositions(row, 20.f + glm::mix(start, end, value));
+
+                    for (GuiComponent* gui : row->GetComponents<GuiComponent>()) {
+                        if (rows.size() >= maxCount && j < rows.size() - maxCount) {
+                            gui->SetOpacity(1.f - value);
+                        } else if (gui->GetTextureOpacity() < 1.f || gui->GetFontOpacity() < 1.f) {
+                            gui->SetOpacity(value);
+                        }
+                    }
+                }
+            });
+
+            if (rows.size() >= maxCount) {
+                tween->SetFinishedCallback([rows, maxCount](float& value) mutable {
+                    for (size_t i = 0; i < rows.size() - maxCount; ++i) {
+                        EntityManager::DestroyEntity(rows[i]);
+                    }
+                });
+            }
+
+            tween->Start();
+        }
 
         me->deathCount++;
         me->alive = false;

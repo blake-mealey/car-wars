@@ -1,6 +1,6 @@
 {
   "Tag": "DebugMarker",
-  "Scale": [0.5, 0.5, 0.5],
+  "Scale": [0.25, 0.25, 0.25],
   "Components": [
     {
       "Type": "Mesh",

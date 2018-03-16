@@ -165,6 +165,7 @@ private:
     bool renderPhysicsBoundingBoxes;
     bool renderNavigationMesh;
     bool renderNavigationPaths;
+    bool bloomEnabled;
     float bloomScale;
 
 	void LoadLights(std::vector<Component*> _pointLights, std::vector<Component*> _directionLights, std::vector<Component*> _spotLights);

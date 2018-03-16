@@ -40,7 +40,7 @@ void Effects::Update() {
     for (auto it = tweens.begin(); it != tweens.end();) {
         Tween* tween = *it;
         tween->Update();
-        if (tween->Finished()) {
+        if (tween->IsOwnedByEffectsSystem() && tween->Finished()) {
             it = tweens.erase(it);
             delete tween;
         } else {

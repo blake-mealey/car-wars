@@ -16,15 +16,15 @@ public:
     void Update() override;
 
     template <typename V, float Ease(float t, float b, float c, float d)>
-    Tween* CreateTween(V& a_value, V a_start, V a_end, const Time a_duration, std::function<void(V&)> a_callback = nullptr) {
-        Tween* tween = new TTween<V, Ease>(a_value, a_start, a_end, a_duration, a_callback);
+    TTween<V, Ease>* CreateTween(V& a_value, V a_start, V a_end, const Time a_duration) {
+        auto tween = new TTween<V, Ease>(a_value, a_start, a_end, a_duration);
         tweens.push_back(tween);
         return tween;
     }
 
     template <typename V, float Ease(float t, float b, float c, float d)>
-    Tween* CreateTween(V a_start, V a_end, const Time a_duration, std::function<void(V&)> a_callback = nullptr) {
-        Tween* tween = new TTween<V, Ease>(a_start, a_end, a_duration, a_callback);
+    TTween<V, Ease>* CreateTween(V a_start, V a_end, const Time a_duration) {
+        auto tween = new TTween<V, Ease>(a_start, a_end, a_duration);
         tweens.push_back(tween);
         return tween;
     }

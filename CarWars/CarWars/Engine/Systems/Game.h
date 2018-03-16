@@ -95,7 +95,7 @@ struct AiData : VehicleData {
 };
 
 struct GameData {
-    GameData() : map(0), gameMode(0), playerCount(0), aiCount(5),
+    GameData() : map(MapType::Cylinder), gameMode(GameModeType::FreeForAll), playerCount(0), aiCount(10),
         numberOfLives(3), killLimit(10), timeLimitMinutes(10) {}
 
     size_t map;

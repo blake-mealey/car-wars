@@ -20,8 +20,16 @@ public:
     void SetNext(Tween* tween) {
         nextTween = tween;
     }
+
+    void TakeOwnership() {
+        ownedByEffectsSystem = false;
+    }
+
+    bool IsOwnedByEffectsSystem() const {
+        return ownedByEffectsSystem;
+    }
 protected:
-    Tween(const Time a_duration) : started(false), finished(false), duration(a_duration), nextTween(nullptr) {}
+    Tween(const Time a_duration) : started(false), finished(false), duration(a_duration), nextTween(nullptr), ownedByEffectsSystem(true) {}
 
     bool started;
     bool finished;
@@ -30,4 +38,6 @@ protected:
     Time duration;
 
     Tween* nextTween;
+
+    bool ownedByEffectsSystem;
 };

@@ -16,14 +16,15 @@ void WeaponComponent::TweenChargeIndicator() {
         GuiComponent* gui = GuiHelper::GetFirstGui(EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "ChargeIndicator"));
         Transform& mask = gui->GetMask();
         const Time duration = (nextShotTime - StateManager::gameTime) * 0.5;
-        Tween* tweenIn = Effects::Instance().CreateTween<glm::vec3, easing::Sine::easeOut>(
-            glm::vec3(134.f, 134.f, 0.f), glm::vec3(134.f, 0.f, 0.f), duration,
-            [&mask](glm::vec3& value) { mask.SetScale(value); }
-        );
-        Tween* tweenOut = Effects::Instance().CreateTween<glm::vec3, easing::Sine::easeIn>(
-            glm::vec3(134.f, 0.f, 0.f), glm::vec3(134.f, 134.f, 0.f), duration,
-            [&mask](glm::vec3& value) { mask.SetScale(value); }
-        );
+        
+        auto tweenIn = Effects::Instance().CreateTween<glm::vec3, easing::Sine::easeOut>(
+            glm::vec3(134.f, 134.f, 0.f), glm::vec3(134.f, 0.f, 0.f), duration);
+        tweenIn->SetUpdateCallback([&mask](glm::vec3& value) { mask.SetScale(value); });
+
+        auto tweenOut = Effects::Instance().CreateTween<glm::vec3, easing::Sine::easeIn>(
+            glm::vec3(134.f, 0.f, 0.f), glm::vec3(134.f, 134.f, 0.f), duration);
+        tweenOut->SetUpdateCallback([&mask](glm::vec3& value) { mask.SetScale(value); });
+        
         tweenIn->SetNext(tweenOut);
         tweenIn->Start();
     }

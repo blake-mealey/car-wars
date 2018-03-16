@@ -64,8 +64,10 @@ const glm::mat4 Graphics::BIAS_MATRIX = glm::mat4(
 
 // Singleton
 Graphics::Graphics() : framesPerSecond(0.0), lastTime(0.0), frameCount(0), renderMeshes(true),
-    renderGuis(true), renderPhysicsColliders(false), renderPhysicsBoundingBoxes(false),
-    renderNavigationMesh(false), renderNavigationPaths(false), bloomScale(0.1f) { }
+                       renderGuis(true), renderPhysicsColliders(false), renderPhysicsBoundingBoxes(false),
+                       renderNavigationMesh(false), renderNavigationPaths(false), bloomEnabled(true),
+                       bloomScale(0.1f) { }
+
 Graphics &Graphics::Instance() {
 	static Graphics instance;
 	return instance;
@@ -587,68 +589,69 @@ void Graphics::Update() {
     // RENDER POST-PROCESSING EFFECTS (BLOOM)
     // -------------------------------------------------------------------------------------------------------------- //
 
-    // Render to the glow framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, fboIds[FBOs::GlowEffect]);
-
     // Load the screen geometry (this will be used by all subsequent draw calls)
     glBindVertexArray(screenVao);
 
-    // Use the copy shader program
-    ShaderProgram *copyProgram = shaders[Shaders::Copy];
-    glUseProgram(copyProgram->GetId());
+    if (bloomEnabled) {
+        // Render to the glow framebuffer
+        glBindFramebuffer(GL_FRAMEBUFFER, fboIds[FBOs::GlowEffect]);
 
-	// Load the identity matrix as the model matrix to the GPU
-	copyProgram->LoadUniform(UniformName::ModelMatrix, glm::mat4(1.f));
+        // Use the copy shader program
+        ShaderProgram *copyProgram = shaders[Shaders::Copy];
+        glUseProgram(copyProgram->GetId());
 
-    // Load the glow buffer into the GPU
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureIds[Textures::ScreenGlow]);
-    copyProgram->LoadUniform(UniformName::ScreenTexture, 0);
+        // Load the identity matrix as the model matrix to the GPU
+        copyProgram->LoadUniform(UniformName::ModelMatrix, glm::mat4(1.f));
 
-    // Copy the glow buffer to each of the level buffers
-    for (size_t i = 0; i < BLUR_LEVEL_COUNT; ++i) {
-        const float factor = 1.f / pow(2, i);
-        glViewport(0, 0, windowWidth * factor, windowHeight * factor);
-        
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, blurLevelIds[i], 0);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        // Load the glow buffer into the GPU
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, textureIds[Textures::ScreenGlow]);
+        copyProgram->LoadUniform(UniformName::ScreenTexture, 0);
+
+        // Copy the glow buffer to each of the level buffers
+        for (size_t i = 0; i < BLUR_LEVEL_COUNT; ++i) {
+            const float factor = 1.f / pow(2, i);
+            glViewport(0, 0, windowWidth * factor, windowHeight * factor);
+
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, blurLevelIds[i], 0);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        }
+
+        // Use the blur shader program
+        ShaderProgram *blurProgram = shaders[Shaders::Blur];
+        glUseProgram(blurProgram->GetId());
+
+        // Use the first texture location
+        glActiveTexture(GL_TEXTURE0);
+        blurProgram->LoadUniform(UniformName::ImageTexture, 0);
+
+        // Blur each of the level buffers
+        for (size_t i = 0; i < BLUR_LEVEL_COUNT; ++i) {
+            // Get the relevant buffers
+            const GLuint buffer = blurLevelIds[i];
+            const GLuint blurBuffer = blurTempLevelIds[i];
+
+            // Set the right viewport
+            const float factor = 1.f / pow(2, i);
+            glViewport(0, 0, windowWidth * factor, windowHeight * factor);
+
+            // Calculate the blur offsets
+            const float xOffset = 1.2f / (windowWidth * factor);
+            const float yOffset = 1.2f / (windowHeight * factor);
+
+            // Blur on the x-axis
+            glBindTexture(GL_TEXTURE_2D, buffer);
+            blurProgram->LoadUniform(UniformName::BlurOffset, glm::vec2(xOffset, 0.f));
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, blurBuffer, 0);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+            // Blur on the y-axis
+            glBindTexture(GL_TEXTURE_2D, blurBuffer);
+            blurProgram->LoadUniform(UniformName::BlurOffset, glm::vec2(0.f, yOffset));
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, buffer, 0);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        }
     }
-
-    // Use the blur shader program
-    ShaderProgram *blurProgram = shaders[Shaders::Blur];
-    glUseProgram(blurProgram->GetId());
-    
-    // Use the first texture location
-    glActiveTexture(GL_TEXTURE0);
-    blurProgram->LoadUniform(UniformName::ImageTexture, 0);
-
-    // Blur each of the level buffers
-    for (size_t i = 0; i < BLUR_LEVEL_COUNT; ++i) {
-        // Get the relevant buffers
-        const GLuint buffer = blurLevelIds[i];
-        const GLuint blurBuffer = blurTempLevelIds[i];
-        
-        // Set the right viewport
-        const float factor = 1.f / pow(2, i);
-        glViewport(0, 0, windowWidth * factor, windowHeight * factor);
-
-        // Calculate the blur offsets
-        const float xOffset = 1.2f / (windowWidth * factor);
-        const float yOffset = 1.2f / (windowHeight * factor);
-        
-        // Blur on the x-axis
-        glBindTexture(GL_TEXTURE_2D, buffer);
-        blurProgram->LoadUniform(UniformName::BlurOffset, glm::vec2(xOffset, 0.f));
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, blurBuffer, 0);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-        // Blur on the y-axis
-        glBindTexture(GL_TEXTURE_2D, blurBuffer);
-        blurProgram->LoadUniform(UniformName::BlurOffset, glm::vec2(0.f, yOffset));
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, buffer, 0);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    }
-
 
     // -------------------------------------------------------------------------------------------------------------- //
     // COMPOSITE EFFECTS AND RENDER TO SCREEN
@@ -676,21 +679,23 @@ void Graphics::Update() {
     glViewport(0, 0, windowWidth, windowHeight);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-    // Disable the depth mask and enable additive blending
-    glDepthMask(GL_FALSE);
-    glEnable(GL_BLEND);
-    glBlendEquation(GL_FUNC_ADD);
-    glBlendFunc(GL_ONE, GL_ONE);
+    if (bloomEnabled) {
+        // Disable the depth mask and enable additive blending
+        glDepthMask(GL_FALSE);
+        glEnable(GL_BLEND);
+        glBlendEquation(GL_FUNC_ADD);
+        glBlendFunc(GL_ONE, GL_ONE);
 
-    // Render each blur level
-    for (size_t i = 0; i < BLUR_LEVEL_COUNT; ++i) {
-        glBindTexture(GL_TEXTURE_2D, blurLevelIds[i]);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        // Render each blur level
+        for (size_t i = 0; i < BLUR_LEVEL_COUNT; ++i) {
+            glBindTexture(GL_TEXTURE_2D, blurLevelIds[i]);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        }
+
+        // Disable blending and re-enable the depth mask
+        glDisable(GL_BLEND);
+        glDepthMask(GL_TRUE);
     }
-
-    // Disable blending and re-enable the depth mask
-    glDisable(GL_BLEND);
-    glDepthMask(GL_TRUE);
 
 
     // -------------------------------------------------------------------------------------------------------------- //
@@ -836,9 +841,7 @@ void Graphics::Update() {
                 FTFont *font = gui->GetFont();
 
                 // Font dimensions
-                FTBBox bbox = font->BBox(gui->GetText().c_str());
-                const float fontWidth = bbox.Upper().X() - bbox.Lower().X();
-                const float fontHeight = font->Ascender() * 0.5f;
+                const glm::vec2 fontDims = gui->GetFontDimensions();
 
                 // Get the scale and position of the GUI
                 const glm::vec2 anchorPoint = gui->GetAnchorPoint();
@@ -849,9 +852,9 @@ void Graphics::Update() {
 
                 const glm::vec3 fontPosition = position;
                 glm::vec2 fontScreenPosition = camera.viewportPosition +
-                    glm::vec2(fontPosition.x, camera.viewportSize.y - fontPosition.y - fontHeight);
+                    glm::vec2(fontPosition.x, camera.viewportSize.y - fontPosition.y - fontDims.y);
 
-                glm::vec2 alignmentXOffset = glm::vec2(scale.x - fontWidth, 0.f);
+                glm::vec2 alignmentXOffset = glm::vec2(scale.x - fontDims.x, 0.f);
                 switch (gui->GetTextXAlignment()) {
                 case TextXAlignment::Left:
                     alignmentXOffset *= 0.f;
@@ -864,7 +867,7 @@ void Graphics::Update() {
                     break;
                 }
 
-                glm::vec2 alignmentYOffset = -glm::vec2(0.f, scale.y - fontHeight);
+                glm::vec2 alignmentYOffset = -glm::vec2(0.f, scale.y - fontDims.y);
                 switch (gui->GetTextYAlignment()) {
                 case TextYAlignment::Top:
                     alignmentYOffset *= 0.f;
@@ -950,6 +953,7 @@ void Graphics::RenderDebugGui() {
         ImGui::Checkbox("Render Bounding Boxes", &renderPhysicsBoundingBoxes);
         ImGui::Checkbox("Render Nav Mesh", &renderNavigationMesh);
         ImGui::Checkbox("Render Nav Paths", &renderNavigationPaths);
+        ImGui::Checkbox("Bloom Enabled", &bloomEnabled);
         ImGui::DragFloat("Bloom Scale", &bloomScale, 0.01f);
 
         ImGui::End();
