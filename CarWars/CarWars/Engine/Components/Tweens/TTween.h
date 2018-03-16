@@ -30,10 +30,9 @@ public:
         finishedCallback = a_callback;
     }
 
-    void Stop(const bool naturalStop=false) {
-        finished = true;
+    void Stop(const bool naturalStop=false) override {
+        Tween::Stop();
         if (naturalStop) {
-            if (nextTween) nextTween->Start();
             if (updateCallback) updateCallback(value);
             if (finishedCallback) finishedCallback(value);
         }

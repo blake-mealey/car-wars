@@ -10,7 +10,7 @@
 #include "../../Systems/Physics.h"
 #include "../RigidbodyComponents/VehicleComponent.h"
 
-MachineGunComponent::MachineGunComponent() : WeaponComponent(20.0f) {}
+MachineGunComponent::MachineGunComponent() : WeaponComponent(100.0f) {}
 
 void MachineGunComponent::Shoot(glm::vec3 position) {
 	if (StateManager::gameTime.GetSeconds() > nextShotTime.GetSeconds()) {

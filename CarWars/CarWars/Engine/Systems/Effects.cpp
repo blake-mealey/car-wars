@@ -23,6 +23,13 @@ Effects::~Effects() {
     }
 }
 
+void Effects::DestroyTween(Tween* tween) {
+    const auto it = std::find(tweens.begin(), tweens.end(), tween);
+    if (it != tweens.end()) tweens.erase(it);
+    tween->Stop(false);
+    delete tween;
+}
+
 void Effects::Update() {
     std::vector<Component*> guis = EntityManager::GetComponents(ComponentType_GUI);
     for (Component* component : guis) {

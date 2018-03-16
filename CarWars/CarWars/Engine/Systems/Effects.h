@@ -29,6 +29,8 @@ public:
         return tween;
     }
 
+    void DestroyTween(Tween* tween);
+
 private:
     // No instantiation or copying
     Effects();

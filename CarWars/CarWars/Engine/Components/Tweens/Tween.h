@@ -28,6 +28,13 @@ public:
     bool IsOwnedByEffectsSystem() const {
         return ownedByEffectsSystem;
     }
+
+    virtual void Stop(const bool naturalStop = false) {
+        finished = true;
+        if (naturalStop) {
+            if (nextTween) nextTween->Start();
+        }
+    }
 protected:
     Tween(const Time a_duration) : started(false), finished(false), duration(a_duration), nextTween(nullptr), ownedByEffectsSystem(true) {}
 
