@@ -569,6 +569,10 @@ size_t VehicleComponent::GetRaycastGroup() const {
 }
 
 
+void VehicleComponent::Boost(glm::vec3 boostDir, float amount) {
+	pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(boostDir * amount * GetChassisMass()), PxForceMode::eIMPULSE, true);
+}
+
 void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPower) {
 	const float amountPressed = abs(forwardPower - backwardPower);
 	bool brake = false;
@@ -592,7 +596,7 @@ void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPowe
 		pxVehicleInputData.setAnalogBrake(0.0f);
 	}
 
-	if (forwardPower) {
+	if (amountPressed > 0.1 && forwardPower > backwardPower) {
 		if (pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eFIRST) {
 			pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 		}

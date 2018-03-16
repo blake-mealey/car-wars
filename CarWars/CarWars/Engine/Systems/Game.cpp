@@ -91,6 +91,7 @@ void Game::InitializeGame() {
         PlayerData& player = players[i];
 		player.name = "Player " + to_string(i + 1);
         player.alive = true;
+		player.follow = false;
 
         // Set their team
         if (gameData.gameMode == GameModeType::FreeForAll) {
@@ -128,6 +129,8 @@ void Game::InitializeGame() {
         // TODO: Choose vehicle and weapon type somehow
         ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun));
         AiData& ai = ais[i];
+		ai.alive = true;
+		ai.diffuculty = 1.f;
 		ai.name = "Computer " + to_string(i + 1);
 
         // Set their team
@@ -155,29 +158,6 @@ void Game::InitializeGame() {
         EntityManager::AddComponent(ai.vehicleEntity, ai.brain);
     }
 
-    /*Physics &physics = Physics::Instance();
-
-    Entity *cylinder = EntityManager::FindEntities("Cylinder")[0];
-    RigidDynamicComponent *cylinderRigid = cylinder->GetComponent<RigidDynamicComponent>();
-    RigidStaticComponent *cylinderStatic = cylinder->GetComponent<RigidStaticComponent>();
-    this->cylinderRigid = cylinderRigid->actor;
-
-    // Don't let forces rotate the cylinder
-    cylinderRigid->actor->setAngularDamping(0.f);
-    cylinderRigid->actor->setMassSpaceInertiaTensor(PxVec3(0.f, 0.f, 0.f));
-
-    // Lock the static rigidbody to the dynamic rigidbody so that the cylinder isn't affected
-    // by forces in the scene
-    PxFixedJoint *lock = PxFixedJointCreate(physics.GetApi(),
-        cylinderStatic->pxRigid, PxTransform(PxIdentity),
-        cylinderRigid->actor, PxTransform(PxIdentity));
-
-    // Enable visual debugging for constraints
-    physics.GetScene().setVisualizationParameter(PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f);
-    physics.GetScene().setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
-    lock->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);*/
-
-
     waypoints = EntityManager::FindEntities("Waypoint");
 
     navigationMesh = new NavigationMesh({
@@ -188,15 +168,7 @@ void Game::InitializeGame() {
 
 	std::vector<AiComponent*> ais = EntityManager::GetComponents<AiComponent>(ComponentType_AI);
     for (AiComponent* ai : ais) {
-        switch (ai->GetMode()) {
-        case AiMode_Waypoints:
-            ai->SetTargetEntity(waypoints[0]);
-            break;
-        case AiMode_Chase:
-            ai->SetTargetEntity(EntityManager::FindEntities("Vehicle")[0]);
-            break;
-        }
-        ai->UpdatePath();
+		ai->SetMode();
     }
 }
 
@@ -241,74 +213,13 @@ void Game::Update() {
             camera->SetPosition(100.f * glm::vec3(cos(tick), 0.f, sin(tick)));
         }
     } else if (StateManager::GetState() == GameState_Playing) {
-        // Set the cylinder's rotation
-//        cylinderRigid->setAngularVelocity(PxVec3(0.f, 0.f, 0.06f));
 
         // Update AIs
-        for (AiData &ai : ais) {
-            if (!ai.alive || !ai.brain->enabled) continue;
-            VehicleComponent* vehicle = ai.brain->GetEntity()->GetComponent<VehicleComponent>();
-
-            Transform &myTransform = ai.brain->GetEntity()->transform;
-            const glm::vec3 position = myTransform.GetGlobalPosition();
-            const glm::vec3 forward = myTransform.GetForward();
-            const glm::vec3 right = myTransform.GetRight();
-
-            ai.brain->UpdatePath();       // Will only update every x seconds
-            const glm::vec3 targetPosition = ai.brain->GetTargetEntity()->transform.GetGlobalPosition();
-            const glm::vec3 nodePosition = ai.brain->NodeInPath();
-
-            glm::vec3 direction = nodePosition - position;
-            const float distance = glm::length(direction);
-            direction = glm::normalize(direction);
-
-            if (distance <= navigationMesh->GetSpacing() * 2.f) {
-                ai.brain->NextNodeInPath();
-            }
-
-            switch(ai.brain->GetMode()) {
-            case AiMode_Waypoints:
-                if (glm::length(targetPosition - position) <= navigationMesh->GetSpacing()) {
-                    ai.brain->SetTargetEntity(waypoints[ai.brain->NextWaypoint(4)]);
-                }
-            case AiMode_Chase:
-                const float steer = glm::dot(direction, right);
-                const PxReal speed = vehicle->pxVehicle->computeForwardSpeed();
-
-                if (!ai.brain->IsStuck() && abs(speed) <= 0.5f) {
-                    ai.brain->SetStuck(true);
-                } else if (ai.brain->IsStuck() && abs(speed) >= 1.f) {
-                    ai.brain->SetStuck(false);
-                }
-
-                if (!ai.brain->IsReversing() && ai.brain->IsStuck() && ai.brain->GetStuckDuration().GetSeconds() >= 1.f) {
-                    ai.brain->StartReversing();
-                }
-
-                if (ai.brain->IsReversing() && ai.brain->GetReversingDuration().GetSeconds() >= 2.f) {
-                    ai.brain->StopReversing();
-                }
-
-                const bool reverse = ai.brain->IsReversing();// speed < 1.f; // glm::dot(direction, forward) > -0.1;
-
-				const float accel = glm::clamp(distance / 20.f, 0.1f, 0.8f) * reverse ? 0.8f : 0.8f;
-
-                if (!reverse && vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
-                    vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
-                } else if (reverse && vehicle->pxVehicle->mDriveDynData.getCurrentGear() != PxVehicleGearsData::eREVERSE) {
-                    vehicle->pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
-                }
-
-                vehicle->pxVehicleInputData.setAnalogSteer(reverse ? -steer : steer);
-                vehicle->pxVehicleInputData.setAnalogAccel(accel);
-
-                break;
-            }
-
-            if (ai.brain->FinishedPath()) {
-                ai.brain->UpdatePath();
-            }
-        }
+		std::vector<Component*> aiComponents = EntityManager::GetComponents(ComponentType_AI);
+		for (Component *component : aiComponents) {
+			AiComponent *ai = static_cast<AiComponent*>(component);
+			ai->Update();
+		}
 
         // Update sun direction
 		const float t = glm::radians(45.5) + StateManager::gameTime.GetSeconds() / 10;
@@ -321,7 +232,20 @@ void Game::Update() {
             if (!player.alive) continue;
             player.cameraEntity->transform.SetPosition(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
 			player.camera->SetTarget(player.vehicleEntity->transform.GetGlobalPosition());
-			player.camera->SetTargetOffset(glm::vec3(0,1,0) + EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition() - player.vehicleEntity->transform.GetGlobalPosition());
+			
+			PxScene* scene = &Physics::Instance().GetScene();
+			PxRaycastBuffer hit;
+			glm::vec3 direction = glm::normalize(player.camera->GetPosition() - player.camera->GetTarget());
+			player.camera->SetTargetOffset(glm::vec3(0, 2, 0) + EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition() - player.vehicleEntity->transform.GetGlobalPosition());
+			PxQueryFilterData filterData;
+			filterData.data.word0 = -1 ^ player.vehicleEntity->GetComponent<VehicleComponent>()->GetRaycastGroup();
+			//Raycast
+			if (scene->raycast(Transform::ToPx(player.camera->GetTarget()), Transform::ToPx(direction), CameraComponent::MAX_DISTANCE + 1, hit, PxHitFlag::eDEFAULT, filterData)) {
+				player.camera->SetDistance(hit.block.distance - .5);
+			}
+			else {
+				player.camera->SetDistance(CameraComponent::MAX_DISTANCE);
+			}
         }
 
         // ---------------

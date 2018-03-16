@@ -39,78 +39,43 @@ void InputManager::Update() {
 }
 
 void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs) {
-	//Clamping
-	/*float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
-	float minAngle = M_PI_2 - acos(dotFU);
-	float maxAngle = M_PI_2 + acos(dotFU);
-	cameraNewVer = glm::clamp(cameraNewVer, minAngle, maxAngle);
-	*/
-
 	float cameraHor = camera->GetCameraHorizontalAngle();
 	float cameraVer = camera->GetCameraVerticalAngle();
 	float cameraSpd = camera->GetCameraSpeed();
 	float cameraNewHor = (cameraHor + (angleDiffs.x * cameraSpd * StateManager::deltaTime.GetSeconds()));
 	float cameraNewVer = (cameraVer + (angleDiffs.y * cameraSpd * StateManager::deltaTime.GetSeconds()));
 
-	cameraNewVer = glm::clamp(cameraNewVer, 0.01f, (float) M_PI - 0.01f);
+	cameraNewVer = glm::clamp(cameraNewVer, 0.1f, (float) M_PI - 0.1f);
 	if (cameraNewHor > M_PI) cameraNewHor -= M_PI * 2;
 	if (cameraNewHor < -M_PI) cameraNewHor += M_PI * 2;
 
-	//cout << cameraNewHor << endl;
-
 	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
-
-	//Set the camera up to be the same as the vehicle?
-	//camera->SetUpVector(vehicle->transform.GetUp());
-
-	//Get Weapon Child - Weapon Rotation
-	/*Entity* vehicleGunTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
-	glm::vec3 gunPosition = vehicleGunTurret->transform.GetGlobalPosition();
-	glm::vec3 cameraDirection = glm::normalize(camera->GetTarget() - camera->GetPosition());
-	glm::vec3 gunDirection = glm::normalize((camera->GetTarget() + (5.0f * cameraDirection))  - gunPosition);
-	*/
-	/*
-	glm::vec3 a = glm::cross(-vehicle->transform.GetForward(), gunDirection);
-	glm::quat q(0.f, a);
-	q.w = 1 + glm::dot(-vehicle->transform.GetForward(), gunDirection);
-
-	vehicleGunTurret->transform.SetRotation(glm::normalize(q));
-	*/
-	/*glm::vec3 vehicleForward = vehicle->transform.GetForward();
-	glm::vec3 vehicleUp = vehicle->transform.GetUp();
-	glm::vec3 vehicleRight = vehicle->transform.GetRight();
-
-	float dotFR = glm::dot(vehicleForward, Transform::RIGHT);		//Detect Direction im Facing
-
-	float dotFF = glm::dot(vehicleForward, Transform::FORWARD);		//Angle of Rotation
-	bool correctForward = dotFR > 0;;
-
-	float gunHor = -camera->GetCameraHorizontalAngle() + M_PI - (correctForward ? -acos(dotFF) : acos(dotFF));
-	vehicleGunTurret->transform.SetRotationAxisAngles(vehicle->transform.GetUp(), gunHor);
-	/*
-	float gunVer = -cameraNewVer + (M_PI_2 - (M_PI_4 / 4.0f));
-	vehicleGunTurret->transform.Rotate(vehicleRight, gunVer);
-	*/
 }
 
 void InputManager::HandleMouse() {
 	//Mouse Inputs
 	//Get Graphics Instance
 	Graphics& graphicsInstance = Graphics::Instance();
-	if (StateManager::GetState() == GameState_Playing) {
-		//Get Vehicle Entity
-		Entity* vehicle = EntityManager::FindEntities("Vehicle")[0];
-		CameraComponent* cameraComponent = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[0]);
 
+	if (StateManager::GetState() == GameState_Playing) {
+		PlayerData& player = Game::players[0];
+		if (!player.alive) return;
+		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
+		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
+		CameraComponent* cameraC = player.camera;
 		//Shoot Weapon
 		float rayLength = 100.0f;
 		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-			vehicle->GetComponent<WeaponComponent>()->Charge();
+			weapon->Charge();
 		} else if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
 			PxQueryFilterData filterData;
-			filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
-			glm::vec3 cameraHit = cameraComponent->CastRay(rayLength, filterData);
-			vehicle->GetComponent<WeaponComponent>()->Shoot(cameraHit);
+			filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
+			glm::vec3 cameraHit = cameraC->CastRay(rayLength, filterData);
+			weapon->Shoot(cameraHit);
+		}
+
+		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_MIDDLE)) {
+			player.follow = !player.follow;
 		}
 
 		//Cursor Inputs
@@ -120,10 +85,9 @@ void InputManager::HandleMouse() {
 		Mouse::GetCursorPosition(graphicsInstance.GetWindow(), &xPos, &yPos);
 
 		//Get Camera Component
-
 		glm::vec2 angleDiffs = 10.f * (windowSize*0.5f - glm::vec2(xPos, yPos)) / windowSize;
 		angleDiffs.x = -angleDiffs.x;
-		UpdateCamera(vehicle, cameraComponent, angleDiffs);
+		UpdateCamera(player.vehicleEntity, cameraC, angleDiffs);
 
 		//Set Cursor to Middle
 		glfwSetCursorPos(graphicsInstance.GetWindow(), windowSize.x / 2, windowSize.y / 2);
@@ -254,7 +218,6 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 
     // Get the player for the current controller
     PlayerData& player = Game::players[navData.playerIndex];
-
 	const GameState gameState = StateManager::GetState();
 	// Navigate buttons up/down
 	if (navData.vertDir) {
@@ -526,32 +489,60 @@ void InputManager::HandleKeyboard() {
     NavigateGuis(navData);
 
 	if (gameState == GameState_Playing) {
-        //Get Vehicle Component
-        VehicleComponent* vehicle = static_cast<VehicleComponent*>(EntityManager::GetComponents(ComponentType_Vehicle)[0]);
+		//Get Vehicle Component
+		PlayerData& player = Game::players[0];
+		if (!player.alive) return;
 
-		const float forwardPower = Keyboard::KeyDown(GLFW_KEY_W) ? 1 : 0;
-		const float backwardPower = Keyboard::KeyDown(GLFW_KEY_S) ? 1 : 0;
+		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
+		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
+		CameraComponent* cameraC = player.camera;
+
+
+
+		float forwardPower = 0;
+		float backwardPower = 0;
+		glm::vec3 boostDir = glm::vec3();
+
+		if (Keyboard::KeyDown(GLFW_KEY_W)) {
+			forwardPower = 1;
+			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+				boostDir = boostDir - player.vehicleEntity->transform.GetUp();
+			}
+		}
+		if (Keyboard::KeyDown(GLFW_KEY_S)) {
+			backwardPower = 1;
+			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+				boostDir = boostDir + player.vehicleEntity->transform.GetUp();
+			}
+		}
+
 
 		float steer = 0;
-        if (Keyboard::KeyDown(GLFW_KEY_A)) { //Steer Left
+		if (Keyboard::KeyDown(GLFW_KEY_A)) { //Steer Left
 			steer += 1;
-        }
-        if (Keyboard::KeyDown(GLFW_KEY_D)) { //Steer Right
+			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+				boostDir = boostDir - player.vehicleEntity->transform.GetRight();
+			}
+		}
+		if (Keyboard::KeyDown(GLFW_KEY_D)) { //Steer Right
 			steer += -1;
-        }
+			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+				boostDir = boostDir + player.vehicleEntity->transform.GetRight();
+			}
+		}
 
 		float handbrake = 0;
 		if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
 			handbrake = 1;
 		}
 
-		vehicle->HandleAcceleration( forwardPower, backwardPower);
+
+		vehicle->Boost(boostDir, 10.f);
+		vehicle->HandleAcceleration(forwardPower, backwardPower);
 		vehicle->Handbrake(handbrake);
 		vehicle->Steer(steer);
-    }
+	}
 }
-
-static bool follow = false;
 
 void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftVibrate, int &rightVibrate) {
 
@@ -566,16 +557,24 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		abs(controller->GetPreviousState().Gamepad.sThumbLY) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE ||
 		abs(controller->GetPreviousState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE ||
 		abs(controller->GetPreviousState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE ||
+		controller->GetState().Gamepad.wButtons ||
+		controller->GetState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||
+		controller->GetState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||
+		abs(controller->GetState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE ||
+		abs(controller->GetState().Gamepad.sThumbLY) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE ||
+		abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE ||
+		abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE ||
 		controller->GetPreviousState().Gamepad.wButtons;
 
 	if (active) {
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Get Components
 		// -------------------------------------------------------------------------------------------------------------- //
-		VehicleComponent* vehicle = static_cast<VehicleComponent*>(EntityManager::GetComponents(ComponentType_Vehicle)[controllerNum]); // maybe a better way to access entity
-		WeaponComponent* weapon = vehicle->GetEntity()->GetComponent<WeaponComponent>();
-		Entity *camera = EntityManager::FindEntities("Camera")[controllerNum];
-		CameraComponent* cameraC = camera->GetComponent<CameraComponent>();
+		PlayerData& player = Game::players[controllerNum];
+		if (!player.alive) return;
+		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
+		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
+		CameraComponent* cameraC = player.camera;
 
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Get Button States
@@ -612,9 +611,9 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 	
 		// an attempt to reset camera behind the vehicle
 		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
-			follow = !follow;
+			player.follow = !player.follow;
 		}
-		if (follow) {
+		if (player.follow) {
 			glm::vec3 vehicleDirection = vehicle->GetEntity()->transform.GetForward();
 			vehicleDirection.y = 0;
 			vehicleDirection = glm::normalize(vehicleDirection);
@@ -622,42 +621,74 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 			cameraY = -cameraC->GetCameraVerticalAngle() + M_PI * .45f;
 		}
 
+		if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE && abs(controller->GetPreviousState().Gamepad.sThumbRX) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+			//TODO: add timer for player
+		}
+
+		//TODO: use timer and clamps to control speed
 		if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			cameraX += static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f;
+			cameraX += static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f * .6; 
 		}
 		if (abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			cameraY += static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f;
+			cameraY += static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f * .6f;
 		}
 
 		if (cameraX > M_PI) cameraX -= M_PI * 2;
 		if (cameraX < -M_PI) cameraX += M_PI * 2;
+
+
+		// -------------------------------------------------------------------------------------------------------------- //
+		// Manage Boost
+		// -------------------------------------------------------------------------------------------------------------- //
+		glm::vec3 boostDir = glm::vec3();
+
+		if (pressedButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
+			boostDir = boostDir - player.vehicleEntity->transform.GetRight();
+		}
+
+		if (pressedButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
+			boostDir = boostDir + player.vehicleEntity->transform.GetRight();
+		}
+
+		if (pressedButtons & XINPUT_GAMEPAD_DPAD_UP) {
+			boostDir = boostDir - player.vehicleEntity->transform.GetUp();
+		}
+
+		if (pressedButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
+			boostDir = boostDir + player.vehicleEntity->transform.GetUp();
+		}
 
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Manage Handbrake
 		// -------------------------------------------------------------------------------------------------------------- //
 		//LEFT-SHOULDER
 		float handbrake = 0;
-		if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+		if (heldButtons & XINPUT_GAMEPAD_A) {
 			handbrake = 1;
 		}
 
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Manage Shooting
 		// -------------------------------------------------------------------------------------------------------------- //
-		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+		if (pressedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
 			weapon->Charge();
 		}
-		else if (heldButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+		if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
 			PxQueryFilterData filterData;
 			float rayLength = 200.0f;
 			filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
 			glm::vec3 cameraHit = cameraC->CastRay(rayLength, filterData);
 			vehicle->GetEntity()->GetComponent<WeaponComponent>()->Shoot(cameraHit);
-		}
+	 	}
 		
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Update
 		// -------------------------------------------------------------------------------------------------------------- //
+
+		std::cout << static_cast<float>(controller->GetState().Gamepad.sThumbRX) << std::endl;
+
+
+		vehicle->Boost(boostDir, 10.f);
 		vehicle->HandleAcceleration(forwardPower, backwardPower);
 		vehicle->Handbrake(handbrake);
 		vehicle->Steer(steer);

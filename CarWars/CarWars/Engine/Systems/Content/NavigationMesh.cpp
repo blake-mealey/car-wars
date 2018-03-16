@@ -26,26 +26,17 @@ void NavigationMesh::Initialize() {
     vertices = new NavigationVertex[GetVertexCount()];
     coveringBodies = new std::unordered_set<RigidbodyComponent*>[GetVertexCount()];
 
-    const float radius = 40.f - 1.f;
+    const float radius = 0;
 
 	for (size_t row = 0; row < rowCount; ++row) {
         for (size_t col = 0; col < columnCount; ++col) {
             const size_t index = row*columnCount + col;
-            
-            const float r = static_cast<float>(row) / static_cast<float>(rowCount);
-            const float theta = -(1.f - r) * physx::PxPi;
 
-            vertices[index].position = glm::vec3(
-                radius * cos(theta),
-                radius * sin(theta),
-                (spacing + columnCount) * -0.5f*spacing + col*spacing
-            );
-            
-            /*vertices[index].position = glm::vec3(
+			vertices[index].position = glm::vec3(
                 (spacing + rowCount) * -0.5f*spacing + row*spacing,
                 1.f,
                 (spacing + columnCount) * -0.5f*spacing + col*spacing
-            );*/
+            );
 		}
 	}
 

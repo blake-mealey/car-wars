@@ -57,6 +57,7 @@ public:
 
 	size_t GetRaycastGroup() const;
 
+	void Boost(glm::vec3 boostDir, float amount);
 	void HandleAcceleration( float forwardPower, float backwardPower);
 	void Steer( float amount);
 	void Handbrake( float amount);

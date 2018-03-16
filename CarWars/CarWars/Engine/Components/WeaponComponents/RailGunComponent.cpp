@@ -17,7 +17,6 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 
 		//Calculate Next Shooting Time
 		nextShotTime = StateManager::gameTime + (timeBetweenShots + chargeTime);
-		std::cout << "Rail Gun Shot" << std::endl;
 		//Reset Next Charing Time
 		nextChargeTime = StateManager::gameTime + timeBetweenShots;
 
@@ -49,19 +48,15 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 
         TweenChargeIndicator();
 	} else if (StateManager::gameTime.GetSeconds() < nextChargeTime.GetSeconds()) {
-		std::cout << "Rail Gun on Cooldown" << std::endl;
 	} else {
-		std::cout << "Still Charging..." << std::endl;
 	}
 }
 
 void RailGunComponent::Charge() {
-	if (StateManager::gameTime.GetSeconds() >= nextChargeTime.GetSeconds()) {
+	if (StateManager::gameTime.GetSeconds() >= nextChargeTime.GetSeconds()) { // charging
 		nextShotTime = StateManager::gameTime + chargeTime;
-		std::cout << "Charging" << std::endl;
 		//Play Charging Sound
-	} else {
-		std::cout << "Rail Gun on Cooldown" << std::endl;
+	} else { // on cooldown
 	}
 }
 

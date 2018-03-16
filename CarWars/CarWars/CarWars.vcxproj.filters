@@ -190,12 +190,10 @@
     <None Include="Content\Prefabs\Components\Weapons\RocketLauncher.json" />
     <None Include="Content\Prefabs\Components\Weapons\RailGun.json" />
     <None Include="Content\Prefabs\Entities\Vehicles\Sewage.json" />
-    <None Include="Content\Prefabs\Entities\Vehicles\Hearse.json" />
-    <None Include="Content\Prefabs\Entities\Vehicles\Flatbed.json" />
     <None Include="Content\Prefabs\Entities\Weapons\GunTurret.json" />
     <None Include="Content\Prefabs\Entities\Weapons\RailGunTurret.json" />
-    <None Include="Content\Prefabs\Entities\Weapons\MachineGunTurret.json" />
     <None Include="Content\Prefabs\Entities\Weapons\RocketLauncherTurret.json" />
+    <None Include="Content\Prefabs\Entities\Game\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\Pillar.json" />
     <None Include="Content\Prefabs\Entities\Game\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\CharacterMenuStat.json" />
@@ -219,6 +217,9 @@
     <None Include="Content\Scenes\Maps\CircleMap.json" />
     <None Include="Content\Prefabs\Entities\Menu\PauseMenu.json" />
     <None Include="Content\Prefabs\Entities\Explosion.json" />
+    <None Include="Content\Prefabs\Entities\Vehicles\Flatbed.json" />
+    <None Include="Content\Prefabs\Entities\Vehicles\Hearse.json" />
+    <None Include="Content\Prefabs\Entities\Weapons\MachineGunTurret.json" />
     <None Include="Content\Prefabs\Components\GUIs\StarjediFont.json" />
     <None Include="Content\Prefabs\Entities\Menu\LeaderboardMenu.json" />
     <None Include="Content\Prefabs\Entities\Menu\LeaderboardRow.json" />

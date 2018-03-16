@@ -66,6 +66,8 @@ struct VehicleData {
     Entity* vehicleEntity;
     Entity* cameraEntity;
     CameraComponent* camera;
+	
+	bool follow;
 
     // Gamemode state
 	std::string name;
@@ -92,11 +94,12 @@ struct AiData : VehicleData {
 
     // Game state
     AiComponent* brain;
+	float diffuculty;
 };
 
 struct GameData {
-    GameData() : map(MapType::Cylinder), gameMode(GameModeType::FreeForAll), playerCount(0), aiCount(10),
-        numberOfLives(3), killLimit(11), timeLimitMinutes(10) {}
+    GameData() : map(0), gameMode(0), playerCount(0), aiCount(1),
+        numberOfLives(3), killLimit(10), timeLimitMinutes(10) {}
 
     size_t map;
     size_t gameMode;
