@@ -492,6 +492,10 @@ size_t VehicleComponent::GetRaycastGroup() const {
 }
 
 
+void VehicleComponent::Boost(glm::vec3 boostDir, float amount) {
+	pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(boostDir * amount * GetChassisMass()), PxForceMode::eIMPULSE, true);
+}
+
 void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPower) {
 	const float amountPressed = abs(forwardPower - backwardPower);
 	bool brake = false;

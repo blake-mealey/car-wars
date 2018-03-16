@@ -59,6 +59,7 @@ void InputManager::HandleMouse() {
 
 	if (StateManager::GetState() == GameState_Playing) {
 		PlayerData& player = Game::players[0];
+		if (!player.alive) return;
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
 		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
 		CameraComponent* cameraC = player.camera;
@@ -84,7 +85,6 @@ void InputManager::HandleMouse() {
 		Mouse::GetCursorPosition(graphicsInstance.GetWindow(), &xPos, &yPos);
 
 		//Get Camera Component
-
 		glm::vec2 angleDiffs = 10.f * (windowSize*0.5f - glm::vec2(xPos, yPos)) / windowSize;
 		angleDiffs.x = -angleDiffs.x;
 		UpdateCamera(player.vehicleEntity, cameraC, angleDiffs);
@@ -218,7 +218,6 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 
     // Get the player for the current controller
     PlayerData& player = Game::players[navData.playerIndex];
-
 	const GameState gameState = StateManager::GetState();
 	// Navigate buttons up/down
 	if (navData.vertDir) {
@@ -490,32 +489,59 @@ void InputManager::HandleKeyboard() {
     NavigateGuis(navData);
 
 	if (gameState == GameState_Playing) {
-        //Get Vehicle Component
+		//Get Vehicle Component
 		PlayerData& player = Game::players[0];
+		if (!player.alive) return;
+
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
 		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
 		CameraComponent* cameraC = player.camera;
 
-		const float forwardPower = Keyboard::KeyDown(GLFW_KEY_W) ? 1 : 0;
-		const float backwardPower = Keyboard::KeyDown(GLFW_KEY_S) ? 1 : 0;
+
+
+		float forwardPower = 0;
+		float backwardPower = 0;
+		glm::vec3 boostDir = glm::vec3();
+
+		if (Keyboard::KeyDown(GLFW_KEY_W)) {
+			forwardPower = 1;
+			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+				boostDir = boostDir - player.vehicleEntity->transform.GetUp();
+			}
+		}
+		if (Keyboard::KeyDown(GLFW_KEY_S)) {
+			backwardPower = 1;
+			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+				boostDir = boostDir + player.vehicleEntity->transform.GetUp();
+			}
+		}
+
 
 		float steer = 0;
-        if (Keyboard::KeyDown(GLFW_KEY_A)) { //Steer Left
+		if (Keyboard::KeyDown(GLFW_KEY_A)) { //Steer Left
 			steer += 1;
-        }
-        if (Keyboard::KeyDown(GLFW_KEY_D)) { //Steer Right
+			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+				boostDir = boostDir - player.vehicleEntity->transform.GetRight();
+			}
+		}
+		if (Keyboard::KeyDown(GLFW_KEY_D)) { //Steer Right
 			steer += -1;
-        }
+			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+				boostDir = boostDir + player.vehicleEntity->transform.GetRight();
+			}
+		}
 
 		float handbrake = 0;
 		if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
 			handbrake = 1;
 		}
 
-		vehicle->HandleAcceleration( forwardPower, backwardPower);
+
+		vehicle->Boost(boostDir, 10.f);
+		vehicle->HandleAcceleration(forwardPower, backwardPower);
 		vehicle->Handbrake(handbrake);
 		vehicle->Steer(steer);
-    }
+	}
 }
 
 void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftVibrate, int &rightVibrate) {
@@ -545,6 +571,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		// Get Components
 		// -------------------------------------------------------------------------------------------------------------- //
 		PlayerData& player = Game::players[controllerNum];
+		if (!player.alive) return;
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
 		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
 		CameraComponent* cameraC = player.camera;
