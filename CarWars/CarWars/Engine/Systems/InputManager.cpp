@@ -536,8 +536,6 @@ void InputManager::HandleKeyboard() {
 			handbrake = 1;
 		}
 
-		std::cout << vehicle->GetTimeSinceBoost().GetSeconds() << std::endl;
-
 		if (vehicle->GetTimeSinceBoost().GetSeconds() > 5.f && boostDir != glm::vec3()) {
 			vehicle->Boost(boostDir, 10.f);
 		}
@@ -687,9 +685,6 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Update
 		// -------------------------------------------------------------------------------------------------------------- //
-
-		std::cout << static_cast<float>(controller->GetState().Gamepad.sThumbRX) << std::endl;
-
 		if (vehicle->GetTimeSinceBoost().GetSeconds() > 5.f && boostDir != glm::vec3()) {
 			vehicle->Boost(boostDir, 10.f);
 		}
