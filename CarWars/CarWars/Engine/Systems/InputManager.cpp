@@ -505,13 +505,13 @@ void InputManager::HandleKeyboard() {
 
 		if (Keyboard::KeyDown(GLFW_KEY_W)) {
 			forwardPower = 1;
-			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+			if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
 				boostDir = boostDir - player.vehicleEntity->transform.GetUp();
 			}
 		}
 		if (Keyboard::KeyDown(GLFW_KEY_S)) {
 			backwardPower = 1;
-			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+			if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
 				boostDir = boostDir + player.vehicleEntity->transform.GetUp();
 			}
 		}
@@ -520,13 +520,13 @@ void InputManager::HandleKeyboard() {
 		float steer = 0;
 		if (Keyboard::KeyDown(GLFW_KEY_A)) { //Steer Left
 			steer += 1;
-			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+			if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
 				boostDir = boostDir - player.vehicleEntity->transform.GetRight();
 			}
 		}
 		if (Keyboard::KeyDown(GLFW_KEY_D)) { //Steer Right
 			steer += -1;
-			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+			if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
 				boostDir = boostDir + player.vehicleEntity->transform.GetRight();
 			}
 		}
@@ -536,8 +536,11 @@ void InputManager::HandleKeyboard() {
 			handbrake = 1;
 		}
 
+		std::cout << vehicle->GetTimeSinceBoost().GetSeconds() << std::endl;
 
-		vehicle->Boost(boostDir, 10.f);
+		if (vehicle->GetTimeSinceBoost().GetSeconds() > 5.f && boostDir != glm::vec3()) {
+			vehicle->Boost(boostDir, 10.f);
+		}
 		vehicle->HandleAcceleration(forwardPower, backwardPower);
 		vehicle->Handbrake(handbrake);
 		vehicle->Steer(steer);
@@ -642,19 +645,19 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		// -------------------------------------------------------------------------------------------------------------- //
 		glm::vec3 boostDir = glm::vec3();
 
-		if (pressedButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
+		if (heldButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
 			boostDir = boostDir - player.vehicleEntity->transform.GetRight();
 		}
 
-		if (pressedButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
+		if (heldButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
 			boostDir = boostDir + player.vehicleEntity->transform.GetRight();
 		}
 
-		if (pressedButtons & XINPUT_GAMEPAD_DPAD_UP) {
+		if (heldButtons & XINPUT_GAMEPAD_DPAD_UP) {
 			boostDir = boostDir - player.vehicleEntity->transform.GetUp();
 		}
 
-		if (pressedButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
+		if (heldButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
 			boostDir = boostDir + player.vehicleEntity->transform.GetUp();
 		}
 
@@ -687,8 +690,9 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 
 		std::cout << static_cast<float>(controller->GetState().Gamepad.sThumbRX) << std::endl;
 
-
-		vehicle->Boost(boostDir, 10.f);
+		if (vehicle->GetTimeSinceBoost().GetSeconds() > 5.f && boostDir != glm::vec3()) {
+			vehicle->Boost(boostDir, 10.f);
+		}
 		vehicle->HandleAcceleration(forwardPower, backwardPower);
 		vehicle->Handbrake(handbrake);
 		vehicle->Steer(steer);

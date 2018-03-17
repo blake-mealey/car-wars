@@ -571,6 +571,7 @@ size_t VehicleComponent::GetRaycastGroup() const {
 
 void VehicleComponent::Boost(glm::vec3 boostDir, float amount) {
 	pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(boostDir * amount * GetChassisMass()), PxForceMode::eIMPULSE, true);
+	lastBoost = StateManager::gameTime;
 }
 
 void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPower) {
@@ -615,4 +616,8 @@ void VehicleComponent::Steer( float amount) {
 
 void VehicleComponent::Handbrake( float amount) {
 	pxVehicleInputData.setAnalogHandbrake(amount);
+}
+
+Time VehicleComponent::GetTimeSinceBoost() {
+	return StateManager::gameTime - lastBoost;
 }
