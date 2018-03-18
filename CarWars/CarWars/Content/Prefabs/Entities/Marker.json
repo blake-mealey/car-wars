@@ -1,6 +1,6 @@
 {
   "Tag": "DebugMarker",
-  "Scale": [0.5, 0.5, 0.5],
+  "Scale": [0.25, 0.25, 0.25],
   "Components": [
     {
       "Type": "Mesh",
@@ -11,11 +11,6 @@
         "Specularity": 1,
         "Emissiveness": 1
       }
-    },
-    {
-      "Type": "PointLight",
-      "Color": [ 0, 1, 0 ],
-      "Power": 10
     }
   ]
 }

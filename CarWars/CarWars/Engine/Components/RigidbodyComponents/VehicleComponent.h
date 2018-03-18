@@ -8,6 +8,8 @@
 #include "RigidDynamicComponent.h"
 #include "../MeshComponent.h"
 
+class WeaponComponent;
+
 struct AxleData {
     AxleData(const float _centerOffset = 0.f, const float _wheelInset = 0.f)
         : centerOffset(_centerOffset), wheelInset(_wheelInset) {};
@@ -52,8 +54,15 @@ public:
 
     float speedMutliplier = 1.f;
     float defenceMultiplier = 1.f;
-	void TakeDamage(float _damageValue);
+	void TakeDamage(WeaponComponent* damager) override;
 	float GetHealth();
+
+	size_t GetRaycastGroup() const;
+
+	void Boost(glm::vec3 boostDir, float amount);
+	void HandleAcceleration( float forwardPower, float backwardPower);
+	void Steer( float amount);
+	void Handbrake( float amount);
 
 private:
     MeshComponent* wheelMeshPrefab;
@@ -74,6 +83,8 @@ private:
 
 	float health = 1000.f;
 	float resistance = 0.5f;
+
+	size_t raycastGroup;
 
     void Initialize();
     void CreateVehicle();

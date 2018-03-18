@@ -2,6 +2,7 @@
 #include <string>
 #include <foundation/PxTransform.h>
 
+class WeaponComponent;
 class Event;
 class Entity;
 
@@ -25,7 +26,8 @@ enum ComponentType {
     ComponentType_DefencePowerUp,
     ComponentType_DamagePowerUp,
 	ComponentType_GUI,
-	ComponentType_Missile
+	ComponentType_Missile,
+	ComponentType_Particle
 };
 
 class Component {
@@ -43,6 +45,8 @@ public:
     virtual void RenderDebugGui();
 
     virtual void UpdateFromPhysics(physx::PxTransform t);
+
+	virtual void TakeDamage(WeaponComponent* damager);
 
 	virtual void SetEntity(Entity *_entity);
 	Entity* GetEntity() const;

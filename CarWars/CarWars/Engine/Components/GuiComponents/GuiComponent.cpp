@@ -7,6 +7,9 @@
 
 GuiComponent::~GuiComponent() {
     delete font;
+    for (GuiEffect* effect : effects) {
+        delete effect;
+    }
 }
 
 GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr), texture(nullptr) {
@@ -26,6 +29,9 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
     
     selected = ContentManager::GetFromJson<bool>(data["Selected"], false);
 
+    textureColor = ContentManager::JsonToVec4(data["TextureColor"], glm::vec4(1.f));
+    selectedTextureColor = ContentManager::JsonToVec4(data["SelectedTextureColor"], glm::vec4(1.f));
+
     std::string textXAlignment = ContentManager::GetFromJson<std::string>(data["TextXAlignment"], "Centre");
     if (textXAlignment == "Left") {
         textAlignment[0] = TextXAlignment::Left;
@@ -36,13 +42,18 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
     }
     
     std::string textYAlignment = ContentManager::GetFromJson<std::string>(data["TextYAlignment"], "Centre");
-    if (textXAlignment == "Top") {
+    if (textYAlignment == "Top") {
         textAlignment[1] = TextYAlignment::Top;
-    } else if (textXAlignment == "Centre") {
+    } else if (textYAlignment == "Centre") {
         textAlignment[1] = TextYAlignment::Centre;
-    } else if (textXAlignment == "Bottom") {
+    } else if (textYAlignment == "Bottom") {
         textAlignment[1] = TextYAlignment::Bottom;
     }
+
+    maskEnabled = ContentManager::GetFromJson<bool>(data["MaskEnabled"], false);
+    maskInverted = ContentManager::GetFromJson<bool>(data["MaskInverted"], false);
+    if (data["Mask"].is_object()) mask = Transform(data["Mask"]);
+    clipEnabled = ContentManager::GetFromJson<bool>(data["ClipEnabled"], false);
 }
 
 ComponentType GuiComponent::GetType() {
@@ -65,8 +76,19 @@ void GuiComponent::RenderDebugGui() {
     ImGui::DragInt2("Text Alignment", textAlignment, 1, TextXAlignment::Left, TextXAlignment::Right);
     //ImGui::InputText("Font", );
     ImGui::ColorEdit4("Font Color", glm::value_ptr(fontColor));
+    ImGui::ColorEdit4("Selected Font Color", glm::value_ptr(selectedFontColor));
     //ImGui::InputText("Text", );
+    ImGui::ColorEdit4("Texture Color", glm::value_ptr(textureColor));
+    ImGui::ColorEdit4("Selected Texture Color", glm::value_ptr(selectedTextureColor));
     ImGui::DragFloat2("UV Scale", glm::value_ptr(uvScale), 0.01f);
+
+    ImGui::Checkbox("Clip Enabled", &clipEnabled);
+    ImGui::Checkbox("Mask Enabled", &maskEnabled);
+    ImGui::Checkbox("Mask Inverted", &maskInverted);
+    if (ImGui::TreeNode("Mask")) {
+        mask.RenderDebugGui(1.f, 1.f);
+        ImGui::TreePop();
+    }
 }
 
 void GuiComponent::SetText(std::string _text) {
@@ -79,6 +101,10 @@ std::string GuiComponent::GetText() const {
 
 bool GuiComponent::HasText(std::string _text) const {
     return text.compare(_text) == 0;
+}
+
+bool GuiComponent::ContainsText(std::string _text) const {
+    return text.find(_text) != std::string::npos;
 }
 
 void GuiComponent::SetTexture(Texture *_texture) {
@@ -103,15 +129,20 @@ void GuiComponent::SetFontColor(glm::vec4 _fontColor) {
 	fontColor = _fontColor;
 }
 
+glm::vec2 GuiComponent::GetFontDimensions() {
+    FTBBox bbox = font->BBox(GetText().c_str());
+    return glm::vec2(bbox.Upper().X() - bbox.Lower().X(), font->Ascender() * 0.5f);
+}
+
 FTFont *GuiComponent::GetFont() const {
 	return font;
 }
 
 glm::vec4 GuiComponent::GetFontColor() const {
-	return fontColor;
+	return selected ? selectedFontColor : fontColor;
 }
 
-Entity* GuiComponent::GetGuiRoot() {
+Entity* GuiComponent::GetGuiRoot() const {
 	return guiRoot;
 }
 
@@ -180,10 +211,81 @@ void GuiComponent::SetSelectedFontColor(glm::vec4 color) {
     selectedFontColor = color;
 }
 
+glm::vec4 GuiComponent::GetTextureColor() const {
+    return selected ? selectedTextureColor : textureColor;
+}
+
+void GuiComponent::SetTextureColor(glm::vec4 color) {
+    textureColor = color;
+}
+
+void GuiComponent::SetOpacity(float opacity) {
+    SetTextureOpacity(opacity);
+    SetFontOpacity(opacity);
+}
+
+void GuiComponent::SetTextureOpacity(float opacity) {
+    textureColor.a = opacity;
+    selectedTextureColor.a = opacity;
+}
+
+void GuiComponent::SetFontOpacity(float opacity) {
+    fontColor.a = opacity;
+    selectedFontColor.a = opacity;
+}
+
+void GuiComponent::AddOpacity(float opacity) {
+    SetTextureOpacity(GetTextureOpacity() + opacity);
+    SetFontOpacity(GetFontOpacity() + opacity);
+}
+
+void GuiComponent::MultiplyOpacity(float opacity) {
+    SetTextureOpacity(GetTextureOpacity() * opacity);
+    SetFontOpacity(GetFontOpacity() * opacity);
+}
+
+float GuiComponent::GetTextureOpacity() const {
+    return textureColor.a;
+}
+
+float GuiComponent::GetFontOpacity() const {
+    return fontColor.a;
+}
+
+std::unordered_set<GuiEffect*> GuiComponent::GetEffects() const {
+    return effects;
+}
+
 bool GuiComponent::IsSelected() const {
     return selected;
 }
 
 void GuiComponent::SetSelected(bool _selected) {
     selected = _selected;
+}
+
+void GuiComponent::AddEffect(GuiEffect* effect) {
+    effects.insert(effect);
+    effect->Apply(this);
+}
+
+void GuiComponent::RemoveEffect(GuiEffect* effect) {
+    effects.erase(effect);
+    effect->Remove(this);
+}
+
+bool GuiComponent::IsMaskEnabled() const {
+    return maskEnabled;
+}
+
+bool GuiComponent::IsMaskInverted() const {
+    return maskInverted;
+}
+
+bool GuiComponent::IsClipEnabled() const {
+    return clipEnabled;
+}
+
+Transform& GuiComponent::GetMask() {
+    return mask;
 }

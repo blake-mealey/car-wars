@@ -8,6 +8,12 @@
 #include <GL/glew.h>
 
 enum AiMode {
+	AiMode_Stuck,
+	AiMode_GetPowerup,
+	AiMode_Attack,
+	AiMode_Damaged,
+	AiMode_Hide,
+
     AiMode_Waypoints,
     AiMode_Chase
 };
@@ -29,39 +35,44 @@ public:
     void SetTargetEntity(Entity* target);
     Entity* GetTargetEntity() const;
     AiMode GetMode() const;
-
-    size_t NextWaypoint(size_t waypointCount);
-    size_t GetWaypoint() const;
+	void SetMode();
 
     void UpdatePath();
     void NextNodeInPath();
     glm::vec3 NodeInPath() const;
     bool FinishedPath() const;
 
-    void StartReversing();
-    void StopReversing();
-    Time GetReversingDuration() const;
-    bool IsReversing() const;
+	Time GetModeDuration();
+	void StartStuckTime();
+	Time GetStuckDuration();
 
-    void SetStuck(bool _stuck);
-    Time GetStuckDuration() const;
-    bool IsStuck() const;
+	void Update();
+
+	void UpdateMode(AiMode _mode);
+
+	void TakeDamage(WeaponComponent* damager) override;
+
 private:
+	void LostTargetTime();
+	Time LostTargetDuration();
+
     Time lastPathUpdate;
 
     Time startedStuck;
-    bool stuck;
-
-    Time startedReversing;
-    bool reversing;
 
     std::vector<glm::vec3> path;
 
     AiMode mode;
+	AiMode previousMode;
+	Time modeStart;
+	Time lostTarget;
+
     Entity *targetEntity;
     size_t waypointIndex;
+
+
+	bool charged = false;
 
     void InitializeRenderBuffers();
     void UpdateRenderBuffers();
 };
-

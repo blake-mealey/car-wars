@@ -10,7 +10,7 @@ void DamagePowerUp::SetEntity(Entity* _entity) {
     RigidDynamicComponent* powerUpRigid = new RigidDynamicComponent();
     EntityManager::AddComponent(GetEntity(), powerUpRigid);
     PxMaterial* material = ContentManager::GetPxMaterial("Default.json");
-    BoxCollider* powerUpCollider = new BoxCollider("PowerUps", material, PxFilterData(), glm::vec3(2.f, 2.f, 2.f));
+    BoxCollider* powerUpCollider = new BoxCollider("PowerUps", material, PxFilterData(), true, glm::vec3(2.f, 2.f, 2.f));
     
 
     powerUpRigid->AddCollider(powerUpCollider);

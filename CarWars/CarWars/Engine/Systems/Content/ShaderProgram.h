@@ -17,6 +17,7 @@ const struct UniformName {
 	static const char* MaterialSpecularity;
 	static const char* MaterialEmissiveness;
 
+	static const char* DiffuseColor;
 	static const char* DiffuseTexture;
 	static const char* DiffuseTextureEnabled;
 	static const char* UvScale;

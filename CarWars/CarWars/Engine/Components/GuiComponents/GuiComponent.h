@@ -7,6 +7,8 @@
 #include "json/json.hpp"
 
 #include "FTGL/ftgl.h"
+#include "../GuiEffects/GuiEffect.h"
+#include <unordered_set>
 
 struct TextXAlignment {
 	enum { Left=0, Centre, Right };
@@ -21,7 +23,7 @@ public:
     ~GuiComponent() override;
 	GuiComponent(nlohmann::json data);
 
-	Transform transform;		// TODO: GuiTransform
+    Transform transform;		// TODO: GuiTransform
 
 	ComponentType GetType() override;
 	void HandleEvent(Event *event) override;
@@ -30,7 +32,9 @@ public:
 
 	void SetText(std::string _text);
 	std::string GetText() const;
+    
     bool HasText(std::string _text) const;
+    bool ContainsText(std::string _text) const;
 
 	void SetTexture(Texture *_texture);
 	Texture* GetTexture() const;
@@ -39,10 +43,12 @@ public:
 	void SetFontSize(int fontSize);
 	void SetFontColor(glm::vec4 _fontColor);
 
+    glm::vec2 GetFontDimensions();
+
 	FTFont* GetFont() const;
 	glm::vec4 GetFontColor() const;
 
-	Entity* GetGuiRoot();
+	Entity* GetGuiRoot() const;
 
 	void SetTextXAlignment(size_t alignment);
 	void SetTextYAlignment(size_t alignment);
@@ -69,6 +75,37 @@ public:
 
     glm::vec4 GetSelectedFontColor() const;
     void SetSelectedFontColor(glm::vec4 color);
+    
+    glm::vec4 GetTextureColor() const;
+    void SetTextureColor(glm::vec4 color);
+
+    void SetOpacity(float opacity);
+    void SetTextureOpacity(float opacity);
+    void SetFontOpacity(float opacity);
+    void AddOpacity(float opacity);
+    void MultiplyOpacity(float opacity);
+    float GetTextureOpacity() const;
+    float GetFontOpacity() const;
+
+    std::unordered_set<GuiEffect*> GetEffects() const;
+    void AddEffect(GuiEffect* effect);
+    void RemoveEffect(GuiEffect* effect);
+
+    template<class T>
+    T* GetEffect() {
+        for (GuiEffect* effect : effects) {
+            T* typedEffect = dynamic_cast<T*>(effect);
+            if (typedEffect) {
+                return typedEffect;
+            }
+        }
+        return nullptr;
+    }
+
+    bool IsMaskEnabled() const;
+    bool IsMaskInverted() const;
+    bool IsClipEnabled() const;
+    Transform& GetMask();
 
 private:
     bool selected;
@@ -87,6 +124,15 @@ private:
     glm::vec4 selectedFontColor;
 	std::string text;
 
+    glm::vec4 textureColor;
+    glm::vec4 selectedTextureColor;
 	Texture *texture;
     glm::vec2 uvScale;
+
+    bool maskEnabled;
+    bool maskInverted;
+    Transform mask;
+    bool clipEnabled;
+
+    std::unordered_set<GuiEffect*> effects;
 };

@@ -1,0 +1,33 @@
+{
+	"Tag": "KillFeedRow",
+	"Components": [
+		{
+			"Prefab": "GUIs/StarjediFont.json",
+			"AnchorPoint": [1, 0],
+			"ScaledPosition": [1, 0],
+			"Position": [-20, -10, 0],
+			"Scale":  [0, 30, 0],
+			"FontColor": [1, 1, 0, 0],
+			"TextXAlignment": "Right",
+			"FontSize": 20
+		},
+		{
+			"Prefab": "GUIs/StarjediFont.json",
+			"AnchorPoint": [1, 0],
+			"ScaledPosition": [1, 0],
+			"Position": [-20, -10, 0],
+			"Scale":  [0, 30, 0],
+			"FontColor": [1, 1, 0, 0],
+			"TextXAlignment": "Right",
+			"FontSize": 20
+		},
+		{
+			"Type": "GUI",
+            "AnchorPoint": [1, 0],
+			"ScaledPosition": [1, 0],
+			"Position": [-20, -10, 0],
+			"Scale":  [30, 30, 0],
+            "TextureColor": [1, 0, 0, 0]
+		}
+	]
+}

@@ -1,9 +1,48 @@
 [
 	{
+		"Tag": "GameClock",
+        "Components": [
+	        {
+                "Prefab": "GUIs/StarjediFont.json",
+                "AnchorPoint": [0.5, 0],
+                "ScaledPosition": [0.5, 0],
+                "Position": [0, 20, 0],
+                "Scale": [150, 75, 1],
+                "FontSize": 48,
+                "Text": "0:00"
+	        }
+        ]
+	},
+	{
+		"Tag": "GameScores",
+        "Components": [
+	        {
+                "Prefab": "GUIs/StarjediFont.json",
+		        "AnchorPoint": [1, 0],
+		        "ScaledPosition": [0.5, 0],
+		        "Position": [-95, 20, 0],
+		        "Scale": [150, 75, 1],
+		        "FontSize": 36,
+                "TextXAlignment": "Right",
+		        "Text": "0"
+	        },
+		    {
+                "Prefab": "GUIs/StarjediFont.json",
+		        "AnchorPoint": [0, 0],
+		        "ScaledPosition": [0.5, 0],
+		        "Position": [95, 20, 0],
+		        "Scale": [150, 75, 1],
+		        "FontSize": 36,
+		        "TextXAlignment": "Left",
+		        "Text": "0"
+	        }
+        ]
+	},
+	{
 		"Tag": "Crosshair",
         "Components": [
 	        {
-		        "Type": "GUI",
+            "Type": "GUI",
                 "AnchorPoint": [0.5, 0.5],
                 "ScaledPosition": [0.5, 0.5],
                 "Scale": [4, 4, 1],
@@ -28,7 +67,7 @@
         ]
 	},
 	{
-		"Tag": "DamageIndicator",
+		"Tag": "Vignettes",
 		"Components": [
 			{
 				"Type": "GUI",
@@ -55,10 +94,45 @@
 		        "Type": "GUI",
 		        "AnchorPoint": [0.5, 0.5],
 		        "ScaledPosition": [0.5, 0.5],
-		        "Scale": [500, 500, 1],
+		        "Scale": [30, 30, 1],
 		        "Texture": "HUD/hit-indicator.png",
-                "Enabled": false
+                "TextureColor": [1, 1, 1, 0]
 	        }
         ]
+	},
+	{
+		"Tag": "DamageIndicator",
+		"Components": [
+			{
+				"Type": "GUI",
+				"AnchorPoint": [0.5, 0.5],
+				"ScaledPosition": [0.5, 0.5],
+				"Scale": [500, 500, 1],
+                "TextureColor": [1, 1, 1, 0],
+				"Texture": "HUD/damage-indicator.png"
+			}
+		]
+	},
+	{
+		"Tag": "ChargeIndicator",
+		"Components": [
+			{
+				"Type": "GUI",
+				"AnchorPoint": [0.5, 0.5],
+				"ScaledPosition": [0.5, 0.5],
+                "Rotate": [0, 0, 180],
+				"Scale": [134, 134, 1],
+				"TextureColor": [1, 1, 1, 1],
+				"Texture": "HUD/recharge.png",
+                "MaskEnabled": true,
+                "MaskInverted": true,
+                "Mask": {
+	                "Scale": [134, 134, 0]
+                }
+			}
+		]
+	},
+	{
+		"Tag": "KillFeed"
 	}
 ]

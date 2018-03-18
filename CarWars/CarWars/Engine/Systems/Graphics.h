@@ -18,7 +18,7 @@
 #include "../Components/DirectionLightComponent.h"
 #include "Content/SpotLight.h"
 
-#define BLUR_LEVEL_COUNT 6
+#define BLUR_LEVEL_COUNT 4
 
 struct Triangle;
 class Material;
@@ -154,11 +154,18 @@ private:
     GLuint blurLevelIds[BLUR_LEVEL_COUNT];
     GLuint blurTempLevelIds[BLUR_LEVEL_COUNT];
 
+    // FPS counter
+    double framesPerSecond;
+    Time lastTime;
+    int frameCount;
+
     bool renderMeshes;
+    bool renderGuis;
     bool renderPhysicsColliders;
     bool renderPhysicsBoundingBoxes;
     bool renderNavigationMesh;
     bool renderNavigationPaths;
+    bool bloomEnabled;
     float bloomScale;
 
 	void LoadLights(std::vector<Component*> _pointLights, std::vector<Component*> _directionLights, std::vector<Component*> _spotLights);

@@ -1,73 +1,99 @@
 [
-  {
-    "Tag": "CharacterMenu_Title",
-    "Components": [
-      {
-        "Type": "GUI",
-        "Position": [ 0, 40, 0 ],
-        "ScaledPosition": [ 0.5, 0 ],
-        "Scale": [ 0, 0, 1 ],
-        "ScaledScale": [ 0.5, 0 ],
-        "AnchorPoint": [ 0.5, 0 ],
-        "Text": "",
-        "Font": "Starjedi.ttf",
-        "FontColor": [ 1, 1, 0, 1 ],
-        "FontSize": 30
-      }
-    ]
-  },
-  {
-    "Tag": "CharacterMenu_SubTitle",
-    "Components": [
-      {
+	{
+		"Tag": "CharacterMenu_Title",
+		"Components": [
+			{
 				"Type": "GUI",
-				"Position": [0, 80, 0],
-        "ScaledPosition": [0.5, 0],
-				"Scale": [0, 0, 1],
-        "ScaledScale": [0.5, 0],
-        "AnchorPoint": [0.5, 0],
+				"Position": [0, 40, 0],
+				"ScaledPosition": [0.5, 0],
+				"AnchorPoint": [0.5, 0],
 				"Text": "",
 				"Font": "Starjedi.ttf",
 				"FontColor": [1, 1, 0, 1],
-        "FontSize": 24
+				"FontSize": 30
 			}
-    ]
-  },
-  {
-    "Tag": "CharacterMenu_Buttons",
-    "Components": [
-      {
-        "Prefab": "GUIs/MenuButton.json",
-        "Text": "a to join",
-        "ScaledPosition": [ 0.5, 1 ],
-        "AnchorPoint": [ 0.5, 1 ],
-        "Position": [ 0, -20, 0 ],
-        "SelectedFontColor": [ 1, 1, 0, 1 ],
-        "Selected": true
-      }
-    ]
-  },
+		]
+	},
+	{
+		"Tag": "CharacterMenu_SubTitle",
+		"Components": [
+			{
+				"Type": "GUI",
+				"Position": [0, 80, 0],
+				"ScaledPosition": [0.5, 0],
+				"AnchorPoint": [0.5, 0],
+				"Text": "",
+				"Font": "Starjedi.ttf",
+				"FontColor": [1, 1, 0, 1],
+				"FontSize": 24
+			}
+		]
+	},
+	{
+		"Tag": "CharacterMenu_Buttons",
+		"Components": [
+			{
+				"Prefab": "GUIs/MenuButton.json",
+				"Text": "a to join",
+				"ScaledPosition": [0.5, 1],
+				"AnchorPoint": [0.5, 1],
+				"Position": [0, -20, 0],
+				"SelectedFontColor": [1, 1, 0, 1],
+				"Selected": true
+			}
+		]
+	},
   {
     "Tag": "CharacterMenu_Arrows",
     "Components": [
       {
         "Type": "GUI",
-        "ScaledPosition": [ 0, 0.5 ],
-        "AnchorPoint": [ 0, 0.5 ],
-        "Position": [ 20, 0, 0 ],
-        "Scale": [ 60, 100, 1 ],
-        "Texture": "Menu/Arrow-Right.png",
-        "Enabled":  false
+        "ScaledPosition": [ 0.5, 0 ],
+        "AnchorPoint": [ 1, 0.5 ],
+        "Position": [ -150, 80, 0 ],
+        "Scale": [ 15, 25, 1 ],
+        "TextureColor": [1, 1, 0, 1],
+        "Texture": "Menu/Arrow-Left.png",
+        "Enabled": false
       },
       {
         "Type": "GUI",
-        "ScaledPosition": [ 1, 0.5 ],
-        "AnchorPoint": [ 1, 0.5 ],
-        "Position": [ -20, 0, 0 ],
-        "Scale": [ 60, 100, 1 ],
-        "Texture": "Menu/Arrow-Left.png",
-        "Enabled":  false
+        "ScaledPosition": [ 0.5, 0 ],
+        "AnchorPoint": [ 0, 0.5 ],
+        "Position": [ 150, 80, 0 ],
+        "Scale": [ 15, 25, 1 ],
+        "TextureColor": [1, 1, 0, 1],
+        "Texture": "Menu/Arrow-Right.png",
+        "Enabled": false
       }
     ]
-  }
+  },
+  {
+	"Tag": "CharacterMenu_Stats",
+    "Components": [
+          {
+            "Type": "GUI",
+            "Position": [ -20, 0, 0 ],
+            "ScaledPosition": [ 1, 0.5 ],
+            "AnchorPoint": [ 1, 0.5 ],
+            "ScaledScale": [ 0.2, 0.4 ],
+            "Texture": "DiamondPlate.jpg",
+            "UvScale": [ 1.0, 1.33 ],
+            "Enabled": false
+          },
+          {
+            "Type": "GUI",
+            "Position": [ -20, 10, 0 ],
+            "ScaledPosition": [ 1, 0.3 ],
+            "AnchorPoint": [ 1, 0.5 ],
+            "ScaledScale": [ 0.2, 0 ],
+            "Scale": [ 0, 20, 1 ],
+            "Text": "stats",
+            "Font": "Starjedi.ttf",
+            "FontColor": [ 1, 1, 0, 1 ],
+            "FontSize": 20,
+            "Enabled": false
+          }
+        ]
+	}
 ]

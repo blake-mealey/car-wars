@@ -6,7 +6,17 @@
 #include "../../Systems/Physics.h"
 #include "../Colliders/ConvexMeshCollider.h"
 #include "../Colliders/BoxCollider.h"
+#include "../WeaponComponents/WeaponComponent.h"
+#include "../CameraComponent.h"
 #include "../../Systems/Physics/VehicleTireFriction.h"
+
+#include "../../Systems/Physics/RaycastGroups.h"
+#include "../../Systems/Game.h"
+#include "../GuiComponents/GuiComponent.h"
+#include "../GuiComponents/GuiHelper.h"
+#include "../Tweens/Tween.h"
+#include "PennerEasing/Quint.h"
+#include "../../Systems/Effects.h"
 
 using namespace physx;
 
@@ -184,18 +194,20 @@ void VehicleComponent::CreateVehicle() {
         //Optional: cars don't drive on other cars.
         PxFilterData wheelQryFilterData;
         setupNonDrivableSurface(wheelQryFilterData);
+		wheelQryFilterData.word0 = GetRaycastGroup();
         PxFilterData chassisQryFilterData;
         setupNonDrivableSurface(chassisQryFilterData);
+		chassisQryFilterData.word0 = GetRaycastGroup();
 
         //Construct a convex mesh for a cylindrical wheel.
         PxConvexMesh* wheelMesh = createWheelMesh(wheelWidth, wheelRadius, physics.GetApi(), physics.GetCooking());
         for (PxU32 i = 0; i < wheelCount; ++i) {
-            ConvexMeshCollider *collider = new ConvexMeshCollider("Wheels", material, wheelQryFilterData, wheelMesh);
+            ConvexMeshCollider *collider = new ConvexMeshCollider("Wheels", material, wheelQryFilterData, false, wheelMesh);
             AddCollider(collider);
             wheelColliders.push_back(collider);
         }
 
-        AddCollider(new BoxCollider("Chassis", material, chassisQryFilterData, chassisSize));
+        AddCollider(new BoxCollider("Chassis", material, chassisQryFilterData, false, chassisSize));
     }
 
     //Set up the sim data for the wheels.
@@ -262,6 +274,8 @@ void VehicleComponent::CreateVehicle() {
 
 void VehicleComponent::Initialize() {
     Physics &physics = Physics::Instance();
+
+	raycastGroup = RaycastGroups::AddVehicleGroup();
 
     SetMomentOfInertia(GetChassisMomentOfInertia());
     SetCenterOfMassOffset(GetChassisCenterOfMassOffset());
@@ -435,13 +449,170 @@ void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
 }
 
 
-void VehicleComponent::TakeDamage(float _damageValue) {
-	health -= _damageValue * resistance;
-	if (health <= 0) {
-		Physics::Instance().AddToDelete(GetEntity());
-	}
+void VehicleComponent::TakeDamage(WeaponComponent* damager) {
+    VehicleData* attacker = Game::GetDataFromEntity(damager->GetEntity());
+    VehicleData* me = Game::GetDataFromEntity(GetEntity());
+
+    if (attacker->teamIndex == me->teamIndex) return;
+    health -= damager->GetDamage() * resistance;
+
+    PlayerData* attackerPlayer = Game::GetPlayerFromEntity(damager->GetEntity());
+    if (attackerPlayer) {
+        Entity* entity = EntityManager::FindFirstChild(attackerPlayer->camera->GetGuiRoot(), "HitIndicator");
+        GuiComponent* gui = entity->GetComponent<GuiComponent>();
+        GuiHelper::OpacityEffect(gui, 0.5, 0.8f, 0.1, 0.1);
+    }
+
+    PlayerData *myPlayer = Game::GetPlayerFromEntity(GetEntity());
+    if (myPlayer) {
+        Entity* entity = EntityManager::FindFirstChild(myPlayer->camera->GetGuiRoot(), "DamageIndicator");
+        GuiComponent* gui = entity->GetComponent<GuiComponent>();
+        const glm::vec3 direction = glm::normalize(GetEntity()->transform.GetGlobalPosition() - damager->GetEntity()->transform.GetGlobalPosition());
+        const float sign = glm::dot(GetEntity()->transform.GetForward(), direction);
+        const float theta = sign * acos(glm::dot(GetEntity()->transform.GetRight(), direction));
+        gui->transform.SetRotationAxisAngles(glm::vec3(0.0, 0.0, 1.0), theta);
+        GuiHelper::OpacityEffect(gui, 1.0, 1.0, 0.25, 0.25);
+    }
+
+    if (health <= 0) {
+        attacker->killCount++;
+        Game::gameData.teams[attacker->teamIndex].killCount++;
+
+        for (size_t i = 0; i < Game::gameData.playerCount; ++i) {
+            PlayerData& player = Game::players[i];
+            Entity* killFeed = EntityManager::FindFirstChild(player.camera->GetGuiRoot(), "KillFeed");
+
+            Entity* row = ContentManager::LoadEntity("Menu/KillFeedRow.json", killFeed);
+            std::vector<GuiComponent*> guis = row->GetComponents<GuiComponent>();
+            GuiComponent* player0Gui = guis[0];
+            GuiComponent* player1Gui = guis[1];
+            GuiComponent* weaponGui = guis[2];
+            
+            std::vector<Entity*> rows = EntityManager::GetChildren(killFeed);
+
+            player1Gui->SetText(me->name);
+            const glm::vec2 fontDims = player1Gui->GetFontDimensions();
+            
+            Texture* weaponTexture = nullptr;
+            switch (damager->GetType()) {
+            case ComponentType_MachineGun:
+                weaponTexture = ContentManager::GetTexture("HUD/bullets.png");
+                break;
+            case ComponentType_RocketLauncher:
+                weaponTexture = ContentManager::GetTexture("HUD/explosion.png");
+                break;
+            case ComponentType_RailGun:
+                weaponTexture = ContentManager::GetTexture("HUD/target.png");
+                break;
+            default:;
+            }
+            
+            weaponGui->SetTexture(weaponTexture);
+            weaponGui->transform.Translate(-glm::vec3(fontDims.x + 10.f, 0.f, 0.f));
+            
+            player0Gui->SetText(attacker->name);
+            player0Gui->transform.Translate(-glm::vec3(fontDims.x + 50.f, 0.f, 0.f));
+
+            constexpr size_t maxCount = 5;
+
+            static TTween<float, easing::Quint::easeOut>* tween = nullptr;
+            if (tween) Effects::Instance().DestroyTween(tween);
+
+            tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.5);
+            tween->TakeOwnership();
+            tween->SetUpdateCallback([rows, maxCount](float& value) mutable {
+                if (StateManager::GetState() != GameState_Playing) return;
+                for (int j = 0; j < rows.size(); ++j) {
+                    Entity* row = rows[j];
+
+                    // Tween in position
+                    float start = 30.f * (static_cast<int>(rows.size()) - 2 - j);
+                    float end = 30.f * (static_cast<int>(rows.size()) - 1 - j);
+                    GuiHelper::SetGuiYPositions(row, 20.f + glm::mix(start, end, value));
+
+                    // Tween in/out opacity
+                    for (GuiComponent* gui : row->GetComponents<GuiComponent>()) {
+                        if (rows.size() >= maxCount && j < rows.size() - maxCount) {
+                            gui->SetOpacity(1.f - value);
+                        } else if (gui->GetTextureOpacity() < 1.f || gui->GetFontOpacity() < 1.f) {
+                            gui->SetOpacity(value);
+                        }
+                    }
+                }
+            });
+
+            if (rows.size() >= maxCount) {
+                tween->SetFinishedCallback([rows, maxCount](float& value) mutable {
+                    if (StateManager::GetState() != GameState_Playing) return;
+                    for (size_t i = 0; i < rows.size() - maxCount; ++i) {
+                        EntityManager::DestroyEntity(rows[i]);
+                    }
+                });
+            }
+
+            tween->Start();
+        }
+
+        me->deathCount++;
+        me->alive = false;
+
+        Physics::Instance().AddToDelete(GetEntity());
+    }
 }
 
 float VehicleComponent::GetHealth() {
 	return health;
+}
+
+size_t VehicleComponent::GetRaycastGroup() const {
+	return raycastGroup;
+}
+
+
+void VehicleComponent::Boost(glm::vec3 boostDir, float amount) {
+	pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(boostDir * amount * GetChassisMass()), PxForceMode::eIMPULSE, true);
+}
+
+void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPower) {
+	const float amountPressed = abs(forwardPower - backwardPower);
+	bool brake = false;
+	if (backwardPower) {
+		if (amountPressed < 0.01) { // if both are pressed 
+			brake = true;
+			pxVehicleInputData.setAnalogBrake(1.f);
+		}
+		else { // just backward power
+			if (pxVehicle->computeForwardSpeed() > 5.f) { // going fast brake 
+				brake = true;
+				pxVehicleInputData.setAnalogBrake(backwardPower);
+			}
+			else { // go to reverse
+				pxVehicleInputData.setAnalogBrake(0.0f);
+				pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+			}
+		}
+	}
+	else {// if not trying to reverse release brake
+		pxVehicleInputData.setAnalogBrake(0.0f);
+	}
+
+	if (amountPressed > 0.1 && forwardPower > backwardPower) {
+		if (pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eFIRST) {
+			pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+		}
+	}
+
+	if (!brake && amountPressed > 0.01) pxVehicleInputData.setAnalogAccel(amountPressed);
+	else {
+		pxVehicleInputData.setAnalogAccel(0);
+		pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eNEUTRAL);
+	}
+}
+
+void VehicleComponent::Steer( float amount) {
+	pxVehicleInputData.setAnalogSteer(amount);
+}
+
+void VehicleComponent::Handbrake( float amount) {
+	pxVehicleInputData.setAnalogHandbrake(amount);
 }

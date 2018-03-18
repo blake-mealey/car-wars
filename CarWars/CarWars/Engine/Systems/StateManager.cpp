@@ -1,13 +1,14 @@
 #include "StateManager.h"
-#include "GuiHelper.h"
+#include "../Components/GuiComponents/GuiHelper.h"
 #include "Content/ContentManager.h"
 #include "../Entities/EntityManager.h"
 #include "InputManager.h"
 #include "Game.h"
 
 
-Time StateManager::deltaTime = 0;
-Time StateManager::gameTime = 0;
+Time StateManager::deltaTime = 0.0;
+Time StateManager::gameTime = 0.0;
+Time StateManager::globalTime = 0.0;
 
 GameState StateManager::currentState = GameState_Menu;
 
@@ -44,7 +45,12 @@ void StateManager::SetState(GameState state) {
     case GameState_Playing:
         if (previousState < __GameState_Menu_End) {
             Game::Instance().InitializeGame();
+        } else if (previousState == GameState_Paused) {
+            EntityManager::DestroyEntities(EntityManager::FindEntities("PauseMenu"));
         }
+        break;
+    case GameState_Paused:
+        break;
     }
 
     // TODO: Fire event
@@ -60,22 +66,16 @@ std::string StateManager::GameStateToString() {
 	switch (currentState) {
 	case 0:
 		return "GameState_Menu";
-		break;
 	case 1:
 		return "GameState_Menu_Start";
-		break;
 	case 2:
 		return "GameState_Menu_Settings";
-		break;
 	case 3:
 		return "GameState_Menu_Start_CharacterSelect";
-		break;
 	case 4:
 		return "GameState_Playing";
-		break;
 	case 5:
 		return "GameState_Paused";
-		break;
     default:
         return "";
 	}

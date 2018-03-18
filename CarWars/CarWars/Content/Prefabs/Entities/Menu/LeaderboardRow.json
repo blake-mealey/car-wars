@@ -1,0 +1,27 @@
+{
+  "Tag": "LeaderboardRow",
+  "Components": [
+    {
+      "Type": "GUI",
+      "Prefab": "GUIs/StarjediFont.json",
+      "AnchorPoint": [ 0.5, 0.5 ],
+      "ScaledPosition": [ 0.5, 0.5 ],
+      "Scale": [560, 0, 0],
+      "Position": [ 0, -85, 0 ],
+      "TextXAlignment": "Left",
+      "TextYAlignment": "Top",
+      "Text": "player 1"
+    },
+    {
+      "Type": "GUI",
+      "Prefab": "GUIs/StarjediFont.json",
+      "AnchorPoint": [ 0.5, 0.5 ],
+      "ScaledPosition": [ 0.5, 0.5 ],
+      "Scale": [560, 0, 0],
+      "Position": [ 0, -85, 0 ],
+      "TextXAlignment": "Right",
+      "TextYAlignment": "Top",
+      "Text": "0"
+    }
+  ]
+}

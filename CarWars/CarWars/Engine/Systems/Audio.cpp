@@ -21,11 +21,10 @@ void Audio::Initialize() {
     FMOD::System_Create(&soundSystem);
     soundSystem->init(MAX_CHANNELS, FMOD_INIT_NORMAL, 0);
     soundSystem->set3DSettings(1.0f, 1.0f, 1.0f); 
-    soundSystem->set3DNumListeners(Game::numberOfPlayers);
-
+    soundSystem->set3DNumListeners(Game::gameData.playerCount);
     // channels and sounds for cars
-    carSounds.resize(Game::numberOfAi+Game::numberOfPlayers);
-    carChannels.resize(Game::numberOfAi + Game::numberOfPlayers);
+    //carSounds.resize(Game::gameData.aiCount + Game::gameData.playerCount);
+    //carChannels.resize(Game::gameData.aiCount + Game::gameData.playerCount);
 
     prevGameState = StateManager::GetState();
     // main screen intro music

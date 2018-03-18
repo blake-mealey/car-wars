@@ -12,12 +12,13 @@
 enum ColliderType {
     Collider_Box,
     Collider_ConvexMesh,
-    Collider_TriangleMesh
+    Collider_TriangleMesh,
+	Collider_Sphere
 };
 
 class Collider {
 public:
-    Collider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData);
+    Collider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, bool _isTrigger);
     Collider(nlohmann::json data);
     virtual ~Collider();
 
@@ -45,4 +46,6 @@ protected:
     physx::PxGeometry *geometry;
     physx::PxMaterial *material;
     physx::PxFilterData queryFilterData;
+
+	bool isTrigger;
 };

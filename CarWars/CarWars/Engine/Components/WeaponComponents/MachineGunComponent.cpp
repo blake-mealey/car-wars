@@ -1,43 +1,59 @@
 #include "MachineGunComponent.h"
 
-MachineGunComponent::MachineGunComponent() {}
+#include "../Component.h"
+#include "../../Entities/EntityManager.h"
+#include "../../Components/CameraComponent.h"
+#include "../../Systems/Content/ContentManager.h"
+#include "../../Systems/Physics/RaycastGroups.h"
+#include "../../Systems/Audio.h"
+#include "../../Systems/StateManager.h"
+#include "../../Systems/Physics.h"
+#include "../RigidbodyComponents/VehicleComponent.h"
 
-void MachineGunComponent::Shoot() {
-	if (StateManager::gameTime.GetTimeSeconds() > nextShotTime.GetTimeSeconds()) {
-		std::cout << "Bullet Shot, Dealt : " << damage << std::endl;
-		nextShotTime = StateManager::gameTime.GetTimeSeconds() + timeBetweenShots.GetTimeSeconds();
+MachineGunComponent::MachineGunComponent() : WeaponComponent(100.0f) {}
+
+void MachineGunComponent::Shoot(glm::vec3 position) {
+	if (StateManager::gameTime.GetSeconds() > nextShotTime.GetSeconds()) {
+		//Get Vehicle
+		Entity* vehicle = GetEntity();
+		Entity* mgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
+
+		//Calculate Next Shooting Time
+		nextShotTime = StateManager::gameTime + timeBetweenShots;
+
+		//Play Shooting Sound
 		Audio& audioManager = Audio::Instance();
 		audioManager.PlayAudio("Content/Sounds/machine_gun_shot.mp3");
 
-		Entity* vehicle = this->GetEntity();
-		PxScene* scene = &Physics::Instance().GetScene();
-		Entity* mgTurret = EntityManager::FindChildren(this->GetEntity(), "GunTurret")[0];
-		PxRaycastBuffer hit;
-		if (scene->raycast(Transform::ToPx(mgTurret->transform.GetGlobalPosition() - mgTurret->transform.GetForward() * 5.0f), -Transform::ToPx(mgTurret->transform.GetForward()), 400.0f, hit)) {
-			if (hit.hasAnyHits()) {
-				//Cube at Hit Location
-				Entity* cube = EntityManager::CreateStaticEntity();
-				EntityManager::AddComponent(cube, new MeshComponent("Cube.obj", "Basic.json"));
-				cube->transform.SetPosition(Transform::FromPx(hit.block.position));
-				cube->transform.SetScale(glm::vec3(0.1f, 0.1f, 0.1f));
+		//Variables Needed
+		glm::vec3 gunPosition = mgTurret->transform.GetGlobalPosition();
+		glm::vec3 gunDirection = position - gunPosition;
 
-				Entity* thingHit = EntityManager::FindEntity(hit.block.actor);
-				std::vector<Component*> comps = EntityManager::GetComponents(ComponentType_Vehicle);
-				for (size_t i = 0; i < comps.size(); i++) {
-					if (thingHit != NULL && (comps[i]->GetEntity()->GetId() == thingHit->GetId())) {
-						std::cout << "Entered Here" << std::endl;
-						static_cast<VehicleComponent*>(comps[i])->TakeDamage(damage);
-					}
+		//Cast Gun Ray
+	    PxScene* scene = &Physics::Instance().GetScene();
+		float rayLength = 100.0f;
+		PxRaycastBuffer cameraHit;
+		PxQueryFilterData filterData;
+		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
+		PxRaycastBuffer gunHit;
+		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
+			if (gunHit.hasAnyHits()) {
+				Entity* hitMarker = ContentManager::LoadEntity("Marker.json");
+				hitMarker->transform.SetPosition(Transform::FromPx(gunHit.block.position));
+
+				Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
+				if (thingHit)
+				if (thingHit->HasTag("Vehicle") || thingHit->HasTag("AiVehicle")) {
+					thingHit->TakeDamage(this);
 				}
 			}
 		}
-	} else {
-		std::cout << "Between Shots" << std::endl;
+	} else { // betweeen shots
 	}
 }
 
 void MachineGunComponent::Charge() {
-	Shoot();
+	return;
 }
 
 ComponentType MachineGunComponent::GetType() {

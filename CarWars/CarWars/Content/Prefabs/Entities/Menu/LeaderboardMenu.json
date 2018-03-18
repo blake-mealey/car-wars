@@ -1,0 +1,48 @@
+{
+    "Tag": "LeaderboardMenu",
+    "Components": [
+      {
+        "Type": "GUI",
+        "AnchorPoint": [ 0.5, 0.5 ],
+        "ScaledPosition": [ 0.5, 0.5 ],
+        "Position": [0, 22, 0],
+        "Scale": [ 600, 433, 1 ],
+        "Texture": "DiamondPlate.jpg",
+        "UvScale": [ 1, 1 ]
+      },
+      {
+        "Prefab": "GUIs/StarjediFont.json",
+        "AnchorPoint": [ 0.5, 0.5 ],
+        "ScaledPosition": [ 0.5, 0.5 ],
+        "Position": [ 0, -180, 0 ],
+        "TextYAlignment": "Top",
+        "FontSize": 48,
+        "Text": "Leaderboard"
+      },
+      {
+        "Prefab": "GUIs/StarjediFont.json",
+        "AnchorPoint": [ 0.5, 0.5 ],
+        "ScaledPosition": [ 0.5, 0.5 ],
+        "Position": [ -280, -130, 0 ],
+        "TextXAlignment": "Left",
+        "TextYAlignment": "Top",
+        "FontSize": 36,
+        "Text": "Player"
+      },
+      {
+        "Prefab": "GUIs/StarjediFont.json",
+        "AnchorPoint": [ 0.5, 0.5 ],
+        "ScaledPosition": [ 0.5, 0.5 ],
+        "Position": [ 280, -130, 0 ],
+        "TextXAlignment": "Right",
+        "TextYAlignment": "Top",
+        "FontSize": 36,
+        "Text": "Kills"
+      }
+    ],
+    "Children": [
+      {
+        "Tag": "LeaderboardRows"
+      }
+    ]
+  }

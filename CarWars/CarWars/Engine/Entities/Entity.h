@@ -5,6 +5,7 @@
 #include "../Components/Component.h"
 #include <vector>
 
+class WeaponComponent;
 class EntityManager;
 class Event;
 
@@ -48,6 +49,9 @@ public:
 
 	bool IsMarkedForDeletion() const;
 	void MarkForDeletion();
+
+	void TakeDamage(WeaponComponent* damager);
+
 private:
 	bool markedForDeletion;
 

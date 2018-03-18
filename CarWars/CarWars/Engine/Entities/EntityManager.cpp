@@ -25,16 +25,8 @@ Entity* EntityManager::FindEntity(size_t id) {
 }
 
 Entity* EntityManager::FindEntity(physx::PxRigidActor* _actor) {
-	for (size_t i = 0; i < dynamicEntities.size(); i++) {
-		for (size_t j = 0; j < dynamicEntities[i]->components.size(); j++) {
-			if (dynamicEntities[i]->components[j]->GetType() == ComponentType_Vehicle) {
-				if (static_cast<VehicleComponent*>(dynamicEntities[i]->components[j])->pxRigid == _actor) {
-					return dynamicEntities[i];
-				}
-			}
-		}
-	}
-	return nullptr;
+	Component* component = static_cast<Component*>(_actor->userData);
+	return component->GetEntity();
 }
 
 std::vector<Entity*> EntityManager::FindEntities(std::string tag) {
@@ -73,6 +65,12 @@ void EntityManager::DestroyEntity(Entity* entity) {
     if (it2 != staticEntities.end()) DestroyStaticEntity(entity);
 }
 
+void EntityManager::DestroyEntities(std::vector<Entity*> entities) {
+    for (Entity* entity : entities) {
+        DestroyEntity(entity);
+    }
+}
+
 void EntityManager::DestroyStaticEntity(Entity *entity) {
     DestroyEntity(entity, staticEntities);
 }
@@ -85,6 +83,16 @@ void EntityManager::DestroyEntity(Entity *entity, std::vector<Entity*> &entities
     const auto it = std::find(entities.begin(), entities.end(), entity);
     entities.erase(it);
     delete entity;
+}
+
+void EntityManager::DestroyChildren(Entity *entity) {
+	for (Entity* child : GetChildren(entity)) {
+		DestroyEntity(child);
+	}
+}
+
+size_t EntityManager::GetEntityCount() {
+    return dynamicEntities.size() + staticEntities.size();
 }
 
 void EntityManager::DestroyScene() {
@@ -174,7 +182,9 @@ std::vector<Entity*> EntityManager::FindChildren(Entity* entity, std::string tag
 }
 
 Entity* EntityManager::FindFirstChild(Entity* entity, std::string tag) {
-    return FindChildren(entity, tag, 1)[0];
+	std::vector<Entity*> children = FindChildren(entity, tag, 1);
+	if (children.size() > 0) return children[0];
+	return nullptr;
 }
 
 std::vector<Entity*> EntityManager::GetChildren(Entity* entity) {
@@ -212,6 +222,16 @@ std::vector<Component*> EntityManager::GetComponents(std::vector<ComponentType> 
         all.insert(all.end(), components.begin(), components.end());
     }
     return all;
+}
+
+size_t EntityManager::GetComponentCount(ComponentType type) {
+    return components[type].size();
+}
+
+size_t EntityManager::GetComponentCount() {
+    size_t count = 0;
+    for (auto it : components) count += it.second.size();
+    return count;
 }
 
 void EntityManager::BroadcastEvent(Event* event) {

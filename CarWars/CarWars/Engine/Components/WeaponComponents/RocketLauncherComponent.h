@@ -19,7 +19,7 @@
 class RocketLauncherComponent : public WeaponComponent {
 public:
 	RocketLauncherComponent();
-	void Shoot() override;
+	void Shoot(glm::vec3 position) override;
 	void Charge() override;
 
 	ComponentType GetType() override;
@@ -28,6 +28,4 @@ public:
 	void RenderDebugGui() override;
 private:
 	Time timeBetweenShots = 1.0f / 0.75f;
-
-	float damage = 500.0f;
 };

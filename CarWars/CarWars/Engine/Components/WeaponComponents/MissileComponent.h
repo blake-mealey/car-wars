@@ -2,33 +2,27 @@
 
 #include "../Component.h"
 
+
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 class MissileComponent : public Component {
 public:
-	inline MissileComponent(Entity* _owner, float _damage) : owner(_owner), damage(_damage) {};
+	MissileComponent();
 
-	ComponentType GetType() override {
-		return ComponentType_Missile;
-	}
+	void Initialize(Entity* _entity, glm::vec3 positon);
 
-	void HandleEvent(Event *event) override {
-		return;
-	}
+	float GetSpeed();
+	float GetDamage();
+	float GetExplosionRadius();
+	Entity* GetOwner();
 
-	float GetSpeed() {
-		return missileSpeed;
-	}
-
-	Entity* GetOwner() {
-		return owner;
-	}
-
-	float GetDamage() {
-		return damage;
-	}
+	ComponentType GetType() override;
+	void HandleEvent(Event *event) override;
 
 private:
-	float missileSpeed = 2000.0f;
-	float explosionRadius = 2.0f;
+	float missileSpeed = 200.0f;
+	float explosionRadius = 50.0f;
 	float damage;
 	Entity* owner;
 };

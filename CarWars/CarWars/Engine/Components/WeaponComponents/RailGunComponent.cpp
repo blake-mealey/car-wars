@@ -1,49 +1,62 @@
 #include "RailGunComponent.h"
 
-RailGunComponent::RailGunComponent() {}
+#include "../Component.h"
+#include "../../Systems/Game.h"
+#include "../../Entities/EntityManager.h"
+#include "../../Components/CameraComponent.h"
+#include "../../Systems/Content/ContentManager.h"
+#include "../../Systems/Physics/RaycastGroups.h"
 
-void RailGunComponent::Shoot() {
-	if (StateManager::gameTime.GetTimeSeconds() >= nextShotTime.GetTimeSeconds()) {
-		nextChargeTime = StateManager::gameTime + timeBetweenShots;
-		std::cout << "Shoot Rail Gun" << std::endl;
+RailGunComponent::RailGunComponent() : WeaponComponent(1150.0f) {}
+
+void RailGunComponent::Shoot(glm::vec3 position) {
+	if (StateManager::gameTime.GetSeconds() >= nextShotTime.GetSeconds()) {
+		//Get Vehicle
+		Entity* vehicle = GetEntity();
+		Entity* rgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
+
+		//Calculate Next Shooting Time
 		nextShotTime = StateManager::gameTime + (timeBetweenShots + chargeTime);
+		//Reset Next Charing Time
+		nextChargeTime = StateManager::gameTime + timeBetweenShots;
 
-		Entity* vehicle = this->GetEntity();
+		//Play Shot Sound
+
+		//Variables Needed
+		glm::vec3 gunPosition = rgTurret->transform.GetGlobalPosition();
+		glm::vec3 gunDirection = position - gunPosition;
+
+		//Load Scene
 		PxScene* scene = &Physics::Instance().GetScene();
-		Entity* rgTurret = EntityManager::FindChildren(vehicle, "GunTurret")[0];
-		PxRaycastBuffer hit;
-		if (scene->raycast(Transform::ToPx(rgTurret->transform.GetGlobalPosition() - rgTurret->transform.GetForward() * 5.0f), -Transform::ToPx(rgTurret->transform.GetForward()), 400.0f, hit)) {
-			if (hit.hasAnyHits()) {
-				//Cube at Hit Location
-				Entity* cube = EntityManager::CreateStaticEntity();
-				EntityManager::AddComponent(cube, new MeshComponent("Cube.obj", "Basic.json"));
-				cube->transform.SetPosition(Transform::FromPx(hit.block.position));
-				cube->transform.SetScale(glm::vec3(0.1f, 0.1f, 0.1f));
+		float rayLength = 100.0f;
+		//Cast Gun Ray
+		PxRaycastBuffer gunHit;
+		PxQueryFilterData filterData;
+		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
+		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
+			if (gunHit.hasAnyHits()) {
+				Entity* hitMarker = ContentManager::LoadEntity("Marker.json");
+				hitMarker->transform.SetPosition(Transform::FromPx(gunHit.block.position));
 
-				Entity* thingHit = EntityManager::FindEntity(hit.block.actor);
-				std::vector<Component*> comps = EntityManager::GetComponents(ComponentType_Vehicle);
-				for (size_t i = 0; i < comps.size(); i++) {
-					if (thingHit != NULL && (comps[i]->GetEntity()->GetId() == thingHit->GetId())) {
-						std::cout << "Entered Here" << std::endl;
-						static_cast<VehicleComponent*>(comps[i])->TakeDamage(damage);
+				Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
+				if (thingHit)
+					if (thingHit->HasTag("Vehicle") || thingHit->HasTag("AiVehicle")) {
+						thingHit->TakeDamage(this);
 					}
-				}
 			}
 		}
 
-	} else if (StateManager::gameTime.GetTimeSeconds() < nextChargeTime.GetTimeSeconds()) {
-		std::cout << "Rail Gun on Cooldown" << std::endl;
+        TweenChargeIndicator();
+	} else if (StateManager::gameTime.GetSeconds() < nextChargeTime.GetSeconds()) {
 	} else {
-		std::cout << "Still Charging..." << std::endl;
 	}
 }
 
 void RailGunComponent::Charge() {
-	if (StateManager::gameTime.GetTimeSeconds() >= nextChargeTime.GetTimeSeconds()) {
+	if (StateManager::gameTime.GetSeconds() >= nextChargeTime.GetSeconds()) { // charging
 		nextShotTime = StateManager::gameTime + chargeTime;
-		std::cout << "Charging" << std::endl;
-	} else {
-		std::cout << "Rail Gun on Cooldown" << std::endl;
+		//Play Charging Sound
+	} else { // on cooldown
 	}
 }
 

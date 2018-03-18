@@ -2,6 +2,7 @@
 #include "../Events/Event.h"
 #include "imgui/imgui.h"
 #include "EntityManager.h"
+#include "../Components/WeaponComponents/WeaponComponent.h"
 
 Entity::Entity(size_t _id) : id(_id), components(std::vector<Component*>()), children(std::vector<Entity*>()),
         parent(nullptr), transform(Transform()), tag(std::string()), markedForDeletion(false) { }
@@ -87,4 +88,10 @@ bool Entity::IsMarkedForDeletion() const {
 
 void Entity::MarkForDeletion() {
 	markedForDeletion = true;
+}
+
+void Entity::TakeDamage(WeaponComponent* damager) {
+	for (Component* component : components) {
+		component->TakeDamage(damager);
+	}
 }

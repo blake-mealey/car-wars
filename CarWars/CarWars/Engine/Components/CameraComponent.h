@@ -3,6 +3,7 @@
 #include "Component.h"
 #include <glm/glm.hpp>
 #include <json/json.hpp>
+#include "../Systems/Physics.h"
 
 class Graphics;
 
@@ -11,6 +12,9 @@ public:
 	static const float NEAR_CLIPPING_PLANE;
 	static const float FAR_CLIPPING_PLANE;
 	static const float DEFAULT_FIELD_OF_VIEW;
+	static const float DEFAULT_DISTANCE;
+	static const float MAX_DISTANCE;
+	static const float MIN_DISTANCE;
 
 	ComponentType GetType() override;
 	void HandleEvent(Event* event) override;
@@ -29,6 +33,7 @@ public:
 	void SetFieldOfView(float _fieldOfView);
 	void SetAspectRatio(float _aspectRatio);
 	void SetUpVector(glm::vec3 _up);
+	void SetTargetOffset(glm::vec3 offset);
 
 	glm::mat4 GetViewMatrix();
 	glm::mat4 GetProjectionMatrix() const;
@@ -40,12 +45,17 @@ public:
 	void SetCameraVerticalAngle(float _cameraLift);
 
 	void UpdateCameraPosition(Entity* _vehicle, float _cameraHor, float _cameraVer);
-
+	
+	void SetDistance(float distance);
+	
 	float GetCameraSpeed();
 
     void RenderDebugGui() override;
 
+	glm::vec3 CastRay(float rayLength, PxQueryFilterData filterData);
+
 	Entity* GetGuiRoot();
+
 	//std::vector<Entity*>& GetGuiEntities();
 
 private:
@@ -57,6 +67,7 @@ private:
 	float fieldOfView;		// In degrees
 	glm::vec3 position;
 	glm::vec3 target;
+	glm::vec3 targetOffset;
 	glm::vec3 upVector;
 
 	float aspectRatio;
@@ -68,8 +79,8 @@ private:
 	glm::mat4 viewMatrix;
 	glm::mat4 projectionMatrix;
 
-	float cameraAngle = -3.14 / 2;
-	float cameraLift = 3.14 / 4;
+	float cameraAngle = 0;
+	float cameraLift = -3.14 / 4;
     float distanceFromCenter;
 	float cameraSpeed = 5.f;
 };

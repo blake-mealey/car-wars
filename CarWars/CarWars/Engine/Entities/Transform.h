@@ -6,12 +6,14 @@
 #include "PxPhysicsAPI.h"
 #include <json/json.hpp>
 
+class GuiComponent;
+
 class Transform {
 public:
 	Transform();
 	Transform(nlohmann::json data);
 	Transform(physx::PxTransform transform);
-	Transform(glm::vec3 _position, glm::vec3 _scale);
+	Transform(glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.f), glm::quat _rotation=glm::quat());
 	Transform(Transform *parent, glm::vec3 pPosition, glm::vec3 pScale, glm::vec3 pEulerRotation, bool connectedToCylinder);
 	Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::quat pRotation, bool connectedToCylinder);
 
@@ -64,6 +66,7 @@ public:
 	glm::mat4 GetRotationMatrix();
 	glm::mat4 GetLocalTransformationMatrix();
 	glm::mat4 GetTransformationMatrix();
+    glm::mat4 GetGuiTransformationMatrix(glm::vec2 anchorPoint, glm::vec2 scaledPosition, glm::vec2 scaledScale, glm::vec2 viewportPosition, glm::vec2 viewportScale, glm::vec2 windowScale);
 
 	static glm::vec3 ToCylinder(glm::vec3 point);
 	static glm::vec3 FromCylinder(glm::vec3 point);

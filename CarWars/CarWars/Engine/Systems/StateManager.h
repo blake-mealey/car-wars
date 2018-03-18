@@ -114,6 +114,7 @@ public:
 	//Get/Set deltaTime and gameTime
 	static Time deltaTime;
 	static Time gameTime;
+	static Time globalTime;
 private:
 	static GameState currentState;		//Current State in Game
 };

@@ -5,10 +5,15 @@
 #include "../Systems/Content/ContentManager.h"
 #include "imgui/imgui.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 const float CameraComponent::NEAR_CLIPPING_PLANE = 0.1f;
 const float CameraComponent::FAR_CLIPPING_PLANE = 1000.f;
 const float CameraComponent::DEFAULT_FIELD_OF_VIEW = 60.f;		// In degrees
+const float CameraComponent::DEFAULT_DISTANCE = 15.f;
+const float CameraComponent::MAX_DISTANCE = 15.f;
+const float CameraComponent::MIN_DISTANCE = 0.1f;
+
 
 ComponentType CameraComponent::GetType() {
 	return ComponentType_Camera;
@@ -27,14 +32,14 @@ CameraComponent::CameraComponent(nlohmann::json data) : guiRoot(nullptr) {
 	position = ContentManager::JsonToVec3(data["Position"], glm::vec3(0.f, 0.f, 1.f));
 	target = ContentManager::JsonToVec3(data["Target"], glm::vec3(0.f, 0.f, 0.f));
 	upVector = ContentManager::JsonToVec3(data["UpVector"], glm::vec3(0.f, 1.f, 0.f));
-    distanceFromCenter = ContentManager::GetFromJson<float>(data["CenterDistance"], 20.f);
+    distanceFromCenter = ContentManager::GetFromJson<float>(data["CenterDistance"], DEFAULT_DISTANCE);
     targetInLocalSpace = ContentManager::GetFromJson<bool>(data["TargetInLocalSpace"], false);
 
 	UpdateViewMatrix();
 }
 
 CameraComponent::CameraComponent(glm::vec3 _position, glm::vec3 _target, glm::vec3 _upVector) : targetInLocalSpace(false),
-	position(_position), target(_target), upVector(_upVector), fieldOfView(DEFAULT_FIELD_OF_VIEW), distanceFromCenter(15.f), guiRoot(nullptr) {
+	position(_position), target(_target), upVector(_upVector), fieldOfView(DEFAULT_FIELD_OF_VIEW), distanceFromCenter(DEFAULT_DISTANCE), guiRoot(nullptr) {
 	
 	UpdateViewMatrix();
 }
@@ -45,8 +50,8 @@ glm::vec3 CameraComponent::GetPosition() const {
 }
 
 glm::vec3 CameraComponent::GetTarget() const {
-    if (!entity || !targetInLocalSpace) return target;
-	return target + entity->transform.GetGlobalPosition();
+    if (!entity || !targetInLocalSpace) return target + targetOffset;
+	return target + targetOffset + entity->transform.GetGlobalPosition();
 }
 
 float CameraComponent::GetFieldOfView() const {
@@ -60,6 +65,11 @@ void CameraComponent::SetPosition(const glm::vec3 _position) {
 
 void CameraComponent::SetTarget(const glm::vec3 _target) {
 	target = _target;
+	UpdateViewMatrix();
+}
+
+void CameraComponent::SetTargetOffset(const glm::vec3 _target) {
+	targetOffset = _target;
 	UpdateViewMatrix();
 }
 
@@ -92,7 +102,6 @@ float CameraComponent::GetCameraHorizontalAngle() {
 
 void CameraComponent::SetCameraHorizontalAngle(float _cameraAngle) {
 	cameraAngle = _cameraAngle;
-    //UpdatePositionFromAngles();
 }
 
 float CameraComponent::GetCameraVerticalAngle() {
@@ -101,8 +110,12 @@ float CameraComponent::GetCameraVerticalAngle() {
 
 void CameraComponent::SetCameraVerticalAngle(float _cameraLift) {
 	cameraLift = _cameraLift;
-    //UpdatePositionFromAngles();
 }
+
+void CameraComponent::SetDistance(float distance) {
+	distanceFromCenter = glm::clamp(distance, MIN_DISTANCE, MAX_DISTANCE);
+}
+
 
 float CameraComponent::GetCameraSpeed() {
 	return cameraSpeed;
@@ -119,20 +132,21 @@ void CameraComponent::RenderDebugGui() {
 }
 
 void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, float _cameraVer) {
+	/*
+	x = r cos T sin O
+	y = r sin T sin O
+	z = r cos O
+	*/
 	SetCameraHorizontalAngle(_cameraHor);
 	SetCameraVerticalAngle(_cameraVer);
-
-	SetPosition(distanceFromCenter * (
-		-_vehicle->transform.GetForward() * cos(GetCameraHorizontalAngle()) * sin(GetCameraVerticalAngle()) +
-		_vehicle->transform.GetUp() * cos(GetCameraVerticalAngle()) +
-		-_vehicle->transform.GetRight() * (sin(GetCameraHorizontalAngle())) * (sin(GetCameraVerticalAngle()))));
+	UpdatePositionFromAngles();
 }
 
 void CameraComponent::UpdatePositionFromAngles() {
-    SetPosition(distanceFromCenter * glm::vec3(
-        cos(GetCameraHorizontalAngle()) * sin(GetCameraVerticalAngle()),
-        cos(GetCameraVerticalAngle()),
-        sin(GetCameraHorizontalAngle()) * sin(GetCameraVerticalAngle())));
+	SetPosition(distanceFromCenter * glm::vec3(
+        cos(GetCameraHorizontalAngle()) * sin(-GetCameraVerticalAngle()),
+        cos(-GetCameraVerticalAngle()),
+        sin(GetCameraHorizontalAngle()) * sin(-GetCameraVerticalAngle())) + targetOffset);
 }
 
 void CameraComponent::UpdateViewMatrix() {
@@ -154,3 +168,20 @@ Entity* CameraComponent::GetGuiRoot() {
 /*std::vector<Entity*>& CameraComponent::GetGuiEntities() {
 	return guiEntities;
 }*/
+
+glm::vec3 CameraComponent::CastRay(float rayLength, PxQueryFilterData filterData) {
+	PxScene* scene = &Physics::Instance().GetScene();
+	glm::vec3 cameraDirection = glm::normalize(GetTarget() - GetPosition());
+	//Cast Camera Ray
+	PxRaycastBuffer cameraHit;
+	glm::vec3 cameraHitPosition;
+	if (scene->raycast(Transform::ToPx(GetTarget()), Transform::ToPx(cameraDirection), rayLength, cameraHit, PxHitFlag::eDEFAULT, filterData)) {
+		//cameraHit has hit something
+		cameraHitPosition = Transform::FromPx(cameraHit.block.position);
+		EntityManager::FindEntity(cameraHit.block.actor);
+	} else {
+		//cameraHit has not hit anything
+		cameraHitPosition = GetPosition() + (cameraDirection * rayLength);
+	}
+	return cameraHitPosition;
+}

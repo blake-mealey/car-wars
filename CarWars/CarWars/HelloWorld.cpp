@@ -11,14 +11,11 @@
 #include "Engine/Systems/Audio.h"
 #include "Engine/Systems/Physics/CollisionGroups.h"
 #include "Engine/Systems/Content/ContentManager.h"
+#include "Engine/Systems/Effects.h"
 
 using namespace std;
 
 int main() {
-	//Initialize Time Variables
-	Time currentTime = 0;
-	Time lastTime = 0;
-
 	//Declare System Vector
 	vector<System*> systems;
 
@@ -26,6 +23,8 @@ int main() {
 	// Initialize graphics (MUST come before Game)
 	Graphics &graphicsManager = Graphics::Instance();
 	graphicsManager.Initialize("Car Wars");
+
+    Effects &guiEffectsManager = Effects::Instance();
 	
 	// Initialize input
 	InputManager &inputManager = InputManager::Instance();
@@ -52,23 +51,36 @@ int main() {
 	systems.push_back(&inputManager);
 	systems.push_back(&physicsManager);
 	systems.push_back(&gameManager);
+	systems.push_back(&guiEffectsManager);
 	systems.push_back(&graphicsManager);
     systems.push_back(&audioManager);
 
+    // Define the fixed physics time step
+    constexpr double physicsTimeStep = 1.0 / 60.0;
+    Time physicsTime;
+
 	//Game Loop
-	Time lastFrame(0);
 	while (!glfwWindowShouldClose(graphicsManager.GetWindow())) {
 		//Calculate Delta Time
-		currentTime = glfwGetTime();
-		StateManager::deltaTime = currentTime - lastTime;
-		lastTime = currentTime;
+        const Time lastTime = StateManager::globalTime;
+        StateManager::globalTime = glfwGetTime();
+		StateManager::deltaTime = StateManager::globalTime - lastTime;
+
 		//Calculate Game Time
 		if (StateManager::IsState(GameState_Playing)) {
 			StateManager::gameTime += StateManager::deltaTime;
 		}
+
 		// Iterate through each system and call their update methods
-		for (System* system : systems) {
-			system->Update();
+        for (System* system : systems) {
+            if (system != &physicsManager) {
+                system->Update();
+            } else {
+                while (physicsTime < StateManager::globalTime) {
+                    physicsTime += physicsTimeStep;
+                    system->Update();
+                }
+            }
 		}
 	}
 }
