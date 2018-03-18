@@ -59,7 +59,7 @@ void Game::Initialize() {
 }
 
 void Game::InitializeGame() {
-    ContentManager::DestroySceneAndLoadScene("GameDemo.json");
+    ContentManager::DestroySceneAndLoadScene("PhysicsDemo.json");
 
 	for (int i = 0; i < numberOfPlayers; ++i) {
 		Entity *vehicle = ContentManager::LoadEntity("Sewage.json");
