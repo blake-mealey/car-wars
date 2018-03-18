@@ -12,6 +12,7 @@ std::map<size_t, Entity*> EntityManager::idToEntity;
 std::map<std::string, std::vector<Entity*>> EntityManager::tagToEntities;
 
 std::map<ComponentType, std::vector<Component*>> EntityManager::components;
+std::unordered_map<std::type_index, std::vector<Component*>> EntityManager::_components;
 
 size_t EntityManager::nextEntityId = 1;
 

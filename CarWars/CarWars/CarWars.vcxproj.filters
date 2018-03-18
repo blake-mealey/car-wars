@@ -150,6 +150,18 @@
     <ClCompile Include="Engine\Components\AiComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Components\PowerUpComponents\DamagePowerUp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\PowerUpComponents\DefencePowerUp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\PowerUpComponents\SpeedPowerUp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\PowerUpComponents\PowerUp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Systems\Content\NavigationMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -335,6 +347,18 @@
     <ClInclude Include="Engine\Components\AiComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Components\PowerUpComponents\DamagePowerUp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\PowerUpComponents\DefencePowerUp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\PowerUpComponents\SpeedPowerUp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\PowerUpComponents\PowerUp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Systems\Content\NavigationMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -346,7 +370,7 @@
     </ClInclude>
     <ClInclude Include="Engine\Systems\GuiHelper.h">
       <Filter>Header Files</Filter>
-    </ClCompile>
+    </ClInclude>
     <ClInclude Include="Engine\Components\WeaponComponents\MissileComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -356,6 +380,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\PhysicsMaterials\Default.json" />
+    <None Include="Content\Materials\YellowShiny.json" />
+    <None Include="Content\Prefabs\Entities\SpeedPowerUp.json" />
+    <None Include="Content\Prefabs\Entities\DamagePowerUp.json" />
+    <None Include="Content\Prefabs\Entities\DefencePowerUp.json" />
     <None Include="Content\Scenes\GameDemo.json" />
     <None Include="Content\Scenes\GraphicsDemo.json" />
     <None Include="Content\Scenes\PhysicsDemo.json" />
@@ -408,5 +436,13 @@
     <None Include="Content\Prefabs\Entities\Menu\CharacterSelect.json" />
     <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
     <None Include="Content\Scenes\GUIs\OptionsMenu_GUI.json" />
+    <None Include="Content\Prefabs\Components\SpeedPowerUp.json" />
+    <None Include="Content\Prefabs\Components\DamagePowerUp.json" />
+    <None Include="Content\Prefabs\Components\DefencePowerUp.json" />
+    <None Include="Content\Materials\PinkShiny.json" />
+    <None Include="Content\Materials\CyanShiny.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Content\Sounds\powerup.mp3" />
   </ItemGroup>
 </Project>

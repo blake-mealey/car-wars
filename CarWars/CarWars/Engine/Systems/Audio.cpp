@@ -1,6 +1,5 @@
 #include "Audio.h"
 
-
 // Singleton
 Audio::Audio() { }
 
@@ -11,17 +10,22 @@ Audio &Audio::Instance() {
 
 Audio::~Audio() { 
     sound->release();
-    for (auto s : sounds2D) { s->release(); }
-    for (auto s : sounds3D) { s->release(); }
+    //for (auto s : sounds2D) { s->release(); }
+    //for (auto s : sounds3D) { s->release(); }
+    for (auto s : carSounds) { s->release(); }
     soundSystem->close();
     soundSystem->release();
 }
 
 void Audio::Initialize() { 
     FMOD::System_Create(&soundSystem);
-    soundSystem->init(32, FMOD_INIT_NORMAL, 0);
+    soundSystem->init(MAX_CHANNELS, FMOD_INIT_NORMAL, 0);
     soundSystem->set3DSettings(1.0f, 1.0f, 1.0f); 
     soundSystem->set3DNumListeners(Game::numberOfPlayers);
+
+    // channels and sounds for cars
+    carSounds.resize(Game::numberOfAi+Game::numberOfPlayers);
+    carChannels.resize(Game::numberOfAi + Game::numberOfPlayers);
 
     prevGameState = StateManager::GetState();
     // main screen intro music
@@ -72,7 +76,7 @@ void Audio::PlayMusic(const char *filename) {
     result = soundSystem->playSound(music, 0, false, &musicChannel);
 }
 
-void Audio::MusicMenuControl() {
+void Audio::MenuMusicControl() {
     auto currGameState = StateManager::GetState();
     if (currGameState != prevGameState && currGameState == GameState_Playing) {
         music->release();
@@ -87,34 +91,45 @@ void Audio::MusicMenuControl() {
     }
 }
 
-void Audio::Update() { 
-    MusicMenuControl();
-
-    auto cameras = EntityManager::GetComponents(ComponentType_Camera);
-    auto cars = EntityManager::FindEntities("Vehicle");
-
+void Audio::UpdateListeners() {
     // update listener position for every camera/player vehicle
-    for (int i=0; i<cameras.size(); i++) {
+
+    auto cars = EntityManager::FindEntities("Vehicle");
+    auto cameras = EntityManager::GetComponents(ComponentType_Camera);
+
+    for (int i = 0; i<cameras.size(); i++) {
         FMOD_VECTOR velocity, forward, up;
         if (cars.size() < 1 || StateManager::GetState() != GameState_Playing) {
             velocity = { 0.0, 0.0, 0.0 };
             forward = { 0.0, 0.0, 1.0 };
             up = { 0.0, 1.0, 0.0 };
         } else { // transform causing a crash
-            //glm::vec3 carUp = cars[i]->transform.GetUp();
-            //glm::vec3 carForward = cars[i]->transform.GetForward();
+                 //glm::vec3 carUp = cars[i]->transform.GetUp();
+                 //glm::vec3 carForward = cars[i]->transform.GetForward();
             velocity = { 0.0, 0.0, 0.0 };
             //forward = { carForward.x, carForward.y, carForward.z };
             //up = { carUp.x, carUp.y, carUp.z };
             forward = { 0.0, 0.0, 1.0 };
             up = { 0.0, 1.0, 0.0 };
         }
-        
+
         glm::vec3 cameraPos = static_cast<CameraComponent*>(cameras[i])->GetPosition();
         FMOD_VECTOR position = { cameraPos.x, cameraPos.y, cameraPos.z };
 
         soundSystem->set3DListenerAttributes(i, &position, &velocity, &forward, &up);
     }
-    
+}
+
+void Audio::UpdateRunningCars() {
+
+}
+
+void Audio::Update() { 
+    MenuMusicControl();
+    UpdateListeners();
+    // update car sounds
+    auto cars = EntityManager::FindEntities("Vehicle");
+
+
     soundSystem->update();
 }

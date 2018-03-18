@@ -13,6 +13,7 @@
 
 #define MAX_DISTANCE 5000.0
 #define MIN_DISTANCE 0.5
+#define MAX_CHANNELS 100
 
 typedef FMOD::Sound* SoundClass;
 
@@ -35,10 +36,11 @@ private:
     FMOD::System *soundSystem;
     GameState prevGameState;
 
-    std::vector<FMOD::Sound*> sounds2D;
-    std::vector<FMOD::Sound*> sounds3D;
-    std::vector<FMOD::Channel*> channels2D;
-    std::vector<FMOD::Channel*> channels3D;
+    //std::vector<FMOD::Sound*> sounds2D;
+    //std::vector<FMOD::Sound*> sounds3D;
+    //std::vector<FMOD::Channel> channels3D;
+    std::vector<FMOD::Sound*> carSounds;
+    std::vector<FMOD::Channel> carChannels;
 
     unsigned int gameMusicPosition;
     FMOD::Sound *music;
@@ -51,7 +53,9 @@ private:
     unsigned int version;
     int numsubsounds;
 
-    void MusicMenuControl();
+    void MenuMusicControl();
+    void UpdateListeners();
+    void UpdateRunningCars();
 
     // No instantiation or copying
     Audio();

@@ -42,15 +42,7 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	glm::vec3 vehicleForward = vehicle->transform.GetForward();
 	glm::vec3 vehicleUp = vehicle->transform.GetUp();
 	glm::vec3 vehicleRight = vehicle->transform.GetRight();
-	float dotFR = glm::dot(vehicleForward, Transform::RIGHT);
-	float dotUR = glm::dot(vehicleUp, Transform::RIGHT);
 	float dotFU = glm::dot(vehicleForward, Transform::UP);
-	float dotFF = glm::dot(vehicleForward, Transform::FORWARD);
-	float dotUU = glm::dot(vehicleUp, Transform::UP);
-	float dotRR = glm::dot(vehicleRight, Transform::RIGHT);
-	bool correctForward = dotFR > 0;
-	bool correctUp = dotUR < 0;
-	bool correctRight = dotFU < 0;
 
 	cout << angleDiffs.x << endl;
 
@@ -62,19 +54,19 @@ void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs
 	float cameraNewVer = (cameraVer + (angleDiffs.y * cameraSpd * StateManager::deltaTime.GetTimeSeconds()));
 	
 	float carAngleOffset = acos(glm::dot(vehicle->transform.GetUp(), Transform::UP));
-	float minAngle = (M_PI_4) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
-	float maxAngle = (M_PI_2 + (M_PI_4 / 4.0f)) + carAngleOffset * (correctUp ? 1.0f : -1.0f) * (correctForward ? -1.0f : 1.0f);
+	float minAngle = (M_PI_4)					+ dotFU;
+	float maxAngle = (M_PI_2 + (M_PI_4 / 4.0f)) + dotFU;	
 	cameraNewVer = glm::clamp(cameraNewVer, minAngle, maxAngle);
 
 	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
 	camera->SetUpVector(vehicle->transform.GetUp());
 
 	//Get Weapon Child
-	Entity* vehicleGunTurret = EntityManager::FindChildren(vehicle, "GunTurret")[0];
-	float gunHor = -cameraNewHor + M_PI + (acos(dotFF) * (correctForward ? 1.0f : -1.0f));
-	vehicleGunTurret->transform.SetRotationAxisAngles(vehicle->transform.GetUp(), gunHor);
-	float gunVer = -cameraNewVer + (M_PI_2 - (M_PI_4 / 4.0f)) + (acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f));
-	vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
+//	Entity* vehicleGunTurret = EntityManager::FindChildren(vehicle, "GunTurret")[0];
+//	float gunHor = -cameraNewHor + M_PI + (acos(dotFF) * (correctForward ? 1.0f : -1.0f));
+//	vehicleGunTurret->transform.SetRotationAxisAngles(vehicle->transform.GetUp(), gunHor);
+//	float gunVer = -cameraNewVer + (M_PI_2 - (M_PI_4 / 4.0f)) + (acos(dotUU) * (correctForward ? -1.0f : 1.0f) * (correctUp ? 1.0f : -1.0f));
+//	vehicleGunTurret->transform.Rotate(Transform::RIGHT, gunVer);
 }
 
 void InputManager::HandleMouse() {
@@ -87,9 +79,9 @@ void InputManager::HandleMouse() {
 
 		//Shoot Weapon
 		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-			static_cast<WeaponComponent*>(vehicle->components[8])->Charge();
+			vehicle->GetComponent<WeaponComponent>()->Charge();
 		} else if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
-			static_cast<WeaponComponent*>(vehicle->components[8])->Shoot();
+			vehicle->GetComponent<WeaponComponent>()->Shoot();
 		}
 
 		//Cursor Inputs
@@ -355,7 +347,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, VehicleCom
 
 		// ---- RIGHT STICK ---- //
 		Entity *camera = EntityManager::FindEntities("Camera")[controllerNum];
-		CameraComponent* cameraC = static_cast<CameraComponent*>(camera->components[0]);
+		CameraComponent* cameraC = camera->GetComponent<CameraComponent>();
 
 		//Right Joystick X-Axis
 		if (controller->GetState().Gamepad.sThumbRX >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || controller->GetState().Gamepad.sThumbRX <= -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
@@ -412,8 +404,8 @@ void InputManager::HandleController() {
 
         if (StateManager::GetState() == GameState_Playing) {
             vector<Component*> vehicleComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-            VehicleComponent * vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
-			WeaponComponent *weapon = static_cast<WeaponComponent*>(vehicle->GetEntity()->components[8]);
+            VehicleComponent* vehicle = static_cast<VehicleComponent*>(vehicleComponents[controllerNum]);
+			WeaponComponent *weapon = vehicle->GetEntity()->GetComponent<WeaponComponent>();
             //        cout << "Current speed: " << vehicle->pxVehicle->computeForwardSpeed() << endl;
             HandleVehicleControllerInput(controllerNum, vehicle, leftVibrate, rightVibrate);
 

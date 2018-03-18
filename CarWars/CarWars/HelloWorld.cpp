@@ -45,8 +45,8 @@ int main() {
     // Initialize audio
     Audio &audioManager = Audio::Instance();
     audioManager.Initialize();
-
     //audioManager.PlayAudio2D("Content/Music/unity.mp3");
+
 
 	// Add systems in desired order
 	systems.push_back(&inputManager);

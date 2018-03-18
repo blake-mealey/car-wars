@@ -20,6 +20,10 @@ enum ComponentType {
 	ComponentType_RailGun,
 	ComponentType_RocketLauncher,
 	ComponentType_AI,
+    ComponentType_PowerUp,
+    ComponentType_SpeedPowerUp,
+    ComponentType_DefencePowerUp,
+    ComponentType_DamagePowerUp,
 	ComponentType_GUI,
 	ComponentType_Missile
 };

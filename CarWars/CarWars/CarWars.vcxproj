@@ -158,6 +158,10 @@
     <ClCompile Include="Engine\Components\GuiComponents\GuiComponent.cpp" />
     <ClCompile Include="Engine\Components\MeshComponent.cpp" />
     <ClCompile Include="Engine\Components\PointLightComponent.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\DamagePowerUp.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\DefencePowerUp.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\PowerUp.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\SpeedPowerUp.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\RigidDynamicComponent.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\RigidStaticComponent.cpp" />
@@ -214,6 +218,10 @@
     <ClInclude Include="Engine\Components\GuiComponents\GuiComponent.h" />
     <ClInclude Include="Engine\Components\MeshComponent.h" />
     <ClInclude Include="Engine\Components\PointLightComponent.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\DamagePowerUp.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\DefencePowerUp.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\PowerUp.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\SpeedPowerUp.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\RigidDynamicComponent.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\RigidStaticComponent.h" />
@@ -259,6 +267,15 @@
     <ClInclude Include="Engine\Systems\Time.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Content\Materials\CyanShiny.json" />
+    <None Include="Content\Materials\PinkShiny.json" />
+    <None Include="Content\Materials\YellowShiny.json" />
+    <None Include="Content\Prefabs\Components\DamagePowerUp.json" />
+    <None Include="Content\Prefabs\Components\DefencePowerUp.json" />
+    <None Include="Content\Prefabs\Components\SpeedPowerUp.json" />
+    <None Include="Content\Prefabs\Entities\DamagePowerUp.json" />
+    <None Include="Content\Prefabs\Entities\DefencePowerUp.json" />
+    <None Include="Content\Prefabs\Entities\SpeedPowerUp.json" />
     <None Include="Content\CollisionGroups\Vehicles.json" />
     <None Include="Content\Materials\Basic.json" />
     <None Include="Content\Materials\BlueShiny.json" />
@@ -312,6 +329,9 @@
     <None Include="Engine\Shaders\shadowMap.vert" />
     <None Include="Engine\Shaders\skybox.frag" />
     <None Include="Engine\Shaders\skybox.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Content\Sounds\powerup.mp3" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

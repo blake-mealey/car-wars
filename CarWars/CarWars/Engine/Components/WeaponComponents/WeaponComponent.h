@@ -24,6 +24,7 @@ public:
 	float horizontalAngle;
 	float verticalAngle;
 
+    float damageMutliplier = 1.f;
 	Time timeBetweenShots;
 private:
 

@@ -50,6 +50,8 @@ public:
 
     void RenderDebugGui() override;
 
+    float speedMutliplier = 1.f;
+    float defenceMultiplier = 1.f;
 	void TakeDamage(float _damageValue);
 	float GetHealth();
 
