@@ -72,6 +72,7 @@ private:
 
 
 	bool charged = false;
+	bool stuck;
 
     void InitializeRenderBuffers();
     void UpdateRenderBuffers();
