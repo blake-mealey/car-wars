@@ -134,5 +134,28 @@
 	},
 	{
 		"Tag": "KillFeed"
+	},
+	{
+		"Tag": "HealthBar",
+        "Components": [
+	        {
+		        "Type": "GUI",
+                "AnchorPoint": [0.5, 1],
+                "ScaledPosition": [0.5, 1],
+                "Position": [0, -20, 0],
+                "Scale": [250, 30, 0],
+                "Texture": "White.png",
+                "TextureColor": [0, 0, 0, 0.5]
+	        },
+	        {
+		        "Type": "GUI",
+		        "AnchorPoint": [0.5, 1],
+		        "ScaledPosition": [0.5, 1],
+		        "Position": [0, -25, 0],
+		        "Scale": [240, 20, 0],
+		        "Texture": "White.png",
+		        "TextureColor": [1, 0, 0, 0.5]
+	        }
+        ]
 	}
 ]

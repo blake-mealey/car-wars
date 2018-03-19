@@ -273,6 +273,14 @@ void Game::Update() {
                 GuiHelper::SetFirstGuiText("GameScores", to_string(gameData.teams[player.teamIndex].killCount), i);
                 GuiHelper::SetSecondGuiText("GameScores", to_string(highestTeamKillCount), i);
             }
+
+            float healthPercent = 0.f;
+            if (player.alive) {
+                VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
+                healthPercent = vehicle->GetHealth() / 1000.f;
+            }
+            GuiComponent* healthBar = GuiHelper::GetSecondGui("HealthBar", i);
+            healthBar->transform.SetScale(glm::vec3(240.f * healthPercent, 20.f, 0.f));
         }
 
         // TODO: AI for kill limit and lives
