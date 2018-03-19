@@ -17,10 +17,7 @@
 #include "../Systems/Physics/CollisionGroups.h"
 #include "../Systems/Physics/RaycastGroups.h"
 
-
 vector<XboxController*> InputManager::xboxControllers;
-
-Time dt;
 
 InputManager &InputManager::Instance() {
 	for (int i = 0; i < XUSER_MAX_COUNT; i++) {
@@ -32,7 +29,6 @@ InputManager &InputManager::Instance() {
 }
 
 void InputManager::Update() {
-	dt = StateManager::deltaTime;
 	HandleMouse();
 	HandleKeyboard();
 	HandleController();
@@ -63,6 +59,7 @@ void InputManager::HandleMouse() {
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
 		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
 		CameraComponent* cameraC = player.camera;
+
 		//Shoot Weapon
 		float rayLength = 100.0f;
 		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
@@ -496,8 +493,6 @@ void InputManager::HandleKeyboard() {
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
 		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
 		CameraComponent* cameraC = player.camera;
-
-
 
 		float forwardPower = 0;
 		float backwardPower = 0;
