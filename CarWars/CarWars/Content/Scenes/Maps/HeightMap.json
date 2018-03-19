@@ -6,17 +6,21 @@
     "Components": [
       {
         "Type": "HeightMap",
-        "MaxHeight": 30,
-		"MaxWidth": 540,
-		"MaxLength": 540,
-		"Map": "flat.png",
+        "MaxHeight": -5,
+		"MaxWidth": 20,
+		"MaxLength": 20,
+		"Map": "arena.png",
 		"UVStep": 0.5,
         "Texture": "CircleMapTexture1.png",
         "Material": "Basic.json",
         "UvScale": [1, 1]
       },
       {
-        "Type": "RigidStatic",
+        "Type": "RigidHeight",
+		"MaxHeight": -5,
+		"MaxWidth": 20,
+		"MaxLength": 20,
+		"Map": "arena.png",
         "Colliders": [
           {
             "Type": "Mesh",

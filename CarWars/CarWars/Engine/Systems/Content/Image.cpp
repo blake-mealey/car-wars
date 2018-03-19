@@ -10,8 +10,9 @@ Image::~Image() {
 Image::Image(const char* file) {
 	stbi_set_flip_vertically_on_load(false);
 	pixels = stbi_loadf(file, &width, &height, &channels, 0);
-	if (pixels == nullptr)
+	if (pixels == nullptr) {
 		cout << "Failed to Load Height Map\n";
+	}
 }
 
 Image::Image(float* _pixels, int& _width, int& _height, int& _channels) : pixels(_pixels), width(_width), height(_height), channels(_channels) {}

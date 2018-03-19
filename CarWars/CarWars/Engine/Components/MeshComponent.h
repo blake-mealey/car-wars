@@ -22,6 +22,7 @@ public:
 	MeshComponent(std::string meshPath, Material *_material);
 	MeshComponent(std::string meshPath, std::string materialPath, std::string texturePath);
 	MeshComponent(MeshComponent* component);
+	MeshComponent(Mesh* mesh, nlohmann::json data);
 
 	void MakeCylinder(Mesh* mesh);
 
@@ -38,6 +39,4 @@ protected:
 	Material *material;
 	Texture *texture;
 	glm::vec2 uvScale;
-
-	MeshComponent() {}
 };

@@ -21,6 +21,10 @@ MeshCollider::MeshCollider(nlohmann::json data) : Collider(data) {
     InitializeGeometry(ContentManager::GetMesh(data["Mesh"]));
 }
 
+MeshCollider::MeshCollider(Mesh* _mesh, nlohmann::json data) : Collider(data) {
+	InitializeGeometry(_mesh);
+}
+
 ColliderType MeshCollider::GetType() const {
     return Collider_TriangleMesh;
 }

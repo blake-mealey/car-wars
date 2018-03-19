@@ -5,6 +5,10 @@ RigidStaticComponent::RigidStaticComponent(nlohmann::json data) : RigidbodyCompo
     RigidStaticComponent::InitializeRigidbody();
 }
 
+RigidStaticComponent::RigidStaticComponent(Mesh* mesh, nlohmann::json data) : RigidbodyComponent(mesh, data) {
+	RigidStaticComponent::InitializeRigidbody();
+}
+
 void RigidStaticComponent::InitializeRigidbody() {
     // Create the rigidbody
     Physics &physics = Physics::Instance();

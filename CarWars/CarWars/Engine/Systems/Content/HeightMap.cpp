@@ -1,6 +1,7 @@
 #include "HeightMap.h"
 #include "Image.h"
 #include "Mesh.h"
+#include "../Engine/Systems/Content/ContentManager.h"
 
 using glm::vec3;
 
@@ -13,11 +14,11 @@ HeightMap::HeightMap(Image& image, const int& height, const int& width, const in
 	for (unsigned int i = 0; i < image.Height(); i++) {
 		x = 0;
 		for (unsigned int j = 0; j < image.Width(); j++) {
-			vertices.push_back(x);
-			vertices.push_back((1 - (pixels[0] + pixels[1] + pixels[2]) / 3)*height);
-			vertices.push_back(z);
-			cout << (int)pixels << std::endl;
-			pixels += image.Channels();//sizeof(float) * image.Channels();
+			vertices.push_back(glm::vec3(x, (1 - (pixels[0] + pixels[1] + pixels[2]) / 3)*height, z));
+			//vertices.push_back(x);
+			//vertices.push_back((1 - (pixels[0] + pixels[1] + pixels[2]) / 3)*height);
+			//vertices.push_back(z);
+			pixels += image.Channels();
 			x += width;
 		}
 		z += length;
@@ -26,12 +27,14 @@ HeightMap::HeightMap(Image& image, const int& height, const int& width, const in
 	unsigned int w = image.Width();
 	for (unsigned int i = 0; i < image.Height() - 1; i++) {
 		for (unsigned int j = 0; j < image.Width() - 1; j++) {
-			elements.push_back(r + j);
-			elements.push_back(r + j + 1);
-			elements.push_back(r + j + w);
-			elements.push_back(r + j + 1);
-			elements.push_back(r + j + w);
-			elements.push_back(r + j + w + 1);
+			elements.push_back(Triangle((r + j), (r + j + 1), (r + j + w)));
+			elements.push_back(Triangle((r + j + 1), (r + j + w), (r + j + w + 1)));
+			//elements.push_back(r + j);
+			//elements.push_back(r + j + 1);
+			//elements.push_back(r + j + w);
+			//elements.push_back(r + j + 1);
+			//elements.push_back(r + j + w);
+			//elements.push_back(r + j + w + 1);
 		}
 		r += w;
 	}
@@ -69,11 +72,11 @@ HeightMap::HeightMap(char* file, const int& maxHeight, const int& maxWidth, cons
 	for (unsigned int i = 0; i < image.Height(); i++) {
 		x = 0;
 		for (unsigned int j = 0; j < image.Width(); j++) {
-			vertices.push_back(x);
-			vertices.push_back((1 - (pixels[0] + pixels[1] + pixels[2]) / 3)*maxHeight);
-			vertices.push_back(z);
-			//cout << (int)pixels << std::endl;
-			pixels += image.Channels();//sizeof(float) * image.Channels();
+			vertices.push_back(glm::vec3(x, (1 - (pixels[0] + pixels[1] + pixels[2]) / 3)*maxHeight, z));
+			//vertices.push_back(x);
+			//vertices.push_back((1 - (pixels[0] + pixels[1] + pixels[2]) / 3)*maxHeight);
+			//vertices.push_back(z);
+			pixels += image.Channels();
 			x += width;
 		}
 		z += length;
@@ -82,12 +85,14 @@ HeightMap::HeightMap(char* file, const int& maxHeight, const int& maxWidth, cons
 	unsigned int w = image.Width();
 	for (unsigned int i = 0; i < image.Height() - 1; i++) {
 		for (unsigned int j = 0; j < image.Width() - 1; j++) {
-			elements.push_back(r + j);
-			elements.push_back(r + j + 1);
-			elements.push_back(r + j + w);
-			elements.push_back(r + j + 1);
-			elements.push_back(r + j + w);
-			elements.push_back(r + j + w + 1);
+			elements.push_back(Triangle((r + j), (r + j + 1), (r + j + w)));
+			elements.push_back(Triangle((r + j + 1), (r + j + w), (r + j + w + 1)));
+			//elements.push_back(r + j);
+			//elements.push_back(r + j + 1);
+			//elements.push_back(r + j + w);
+			//elements.push_back(r + j + 1);
+			//elements.push_back(r + j + w);
+			//elements.push_back(r + j + w + 1);
 		}
 		r += w;
 	}
@@ -96,8 +101,7 @@ HeightMap::HeightMap(char* file, const int& maxHeight, const int& maxWidth, cons
 	for (unsigned int i = 0; i < image.Height(); i++) {
 		x = 0.0f;
 		for (unsigned int j = 0; j < image.Width(); j++) {
-			uvs.push_back(x);
-			uvs.push_back(y);
+			uvs.push_back(glm::vec2(x, y));
 			x += uvstepx;
 		}
 		y += uvstepy;
@@ -105,33 +109,54 @@ HeightMap::HeightMap(char* file, const int& maxHeight, const int& maxWidth, cons
 	
 }
 
-const vector<float>& HeightMap::Vertices() {
+vector<glm::vec3>& HeightMap::Vertices() {
 	return vertices;
 }
 
-const vector<unsigned int>& HeightMap::Elements() {
+vector<Triangle>& HeightMap::Triangles() {
 	return elements;
 }
 
-const vector<float>& HeightMap::UVS() {
+vector<glm::vec2>& HeightMap::UVS() {
 	return uvs;
 }
 
 void HeightMap::PrintVertices() {
-	for (int i = 0; i < vertices.size(); i += 3) {
-		cout << vertices[i] << ", " << vertices[i + 1] << ", " << vertices[i + 2] << std::endl;
+	for (int i = 0; i < vertices.size(); i ++) {
+		cout << vertices[i].x << ", " << vertices[i].y << ", " << vertices[i].z << std::endl;
 	}
 	cout << std::endl << std::endl;
 }
 
 void HeightMap::PrintElements() {
-	for (int i = 0; i < elements.size(); i += 3) {
-		cout << elements[i] << ", " << elements[i + 1] << ", " << elements[i + 2] << std::endl;
+	for (int i = 0; i < elements.size(); i ++) {
+		cout << elements[i].vertexIndex0 << ", " << elements[i].vertexIndex1 << ", " << elements[i].vertexIndex2 << std::endl;
 	}
 	cout << std::endl << std::endl;
 }
 
-vector<Triangle>& HeightMap::Triangles() {
+void HeightMap::CreateMesh(Mesh*& m, nlohmann::json data) {
+	std::string fileString = data["Map"];
+	//std::string fileString = "spike.png";
+	fileString = ContentManager::SCENE_DIR_PATH + "Maps/" + fileString;
+	m = ContentManager::HaveMesh(fileString);
+	if (m != nullptr) {
+		return;
+	}
+
+	const unsigned int maxHeight = ContentManager::GetFromJson<unsigned int>(data["MaxHeight"], 20);
+	const unsigned int maxWidth = ContentManager::GetFromJson<unsigned int>(data["MaxWidth"], 20);
+	const unsigned int maxLength = ContentManager::GetFromJson<unsigned int>(data["MaxLength"], 20);
+	const float uvstep = ContentManager::GetFromJson<float>(data["UVStep"], 0.5f);
+	HeightMap hm = HeightMap(&fileString[0], maxHeight, maxWidth, maxLength, uvstep);
+	vector<Triangle> triangles = hm.Triangles();
+	vector<glm::vec3> vertices = hm.Vertices();
+	vector<glm::vec2> uvs = hm.UVS();
+	m = new Mesh(triangles.size(), vertices.size(), &triangles[0], &vertices[0], &uvs[0]);
+	ContentManager::StoreMesh(fileString, m);
+}
+
+/*vector<Triangle>& HeightMap::Triangles() {
 	vector<Triangle> triangles;
 	for (unsigned int i = 0; i < elements.size(); i += 3) {
 		triangles.push_back(Triangle(elements[i], elements[i+1], elements[i+2]));
@@ -153,4 +178,4 @@ vector<glm::vec2>& HeightMap::Vec2UVS() {
 		UVs.push_back(glm::vec2(uvs[i], uvs[i + 1]));
 	}
 	return UVs;
-}
+}*/

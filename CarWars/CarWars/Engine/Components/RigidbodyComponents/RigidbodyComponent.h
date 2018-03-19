@@ -11,6 +11,7 @@ public:
     ~RigidbodyComponent() override;
     RigidbodyComponent();
     RigidbodyComponent(nlohmann::json data);
+	RigidbodyComponent(Mesh* mesh, nlohmann::json data);
 
     void AddCollider(Collider *collider);
 

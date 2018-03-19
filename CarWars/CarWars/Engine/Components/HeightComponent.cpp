@@ -1,13 +1,13 @@
-#include "HeightMapComponent.h"
+/*#include "HeightMapComponent.h"
 #include "../Systems/Content/HeightMap.h"
 
 #include "../Systems/Content/ContentManager.h"
 #include "../Entities/Entity.h"
 
 #include "imgui/imgui.h"
-#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/type_ptr.hpp>*/
 
-HeightMapComponent::HeightMapComponent(nlohmann::json data) {
+/*HeightMapComponent::HeightMapComponent(nlohmann::json data) {
 	mesh = CreateMesh(data);
 	material = ContentManager::GetMaterial(data["Material"]);
 	if (!data["Texture"].is_null()) texture = ContentManager::GetTexture(data["Texture"]);
@@ -28,8 +28,8 @@ Mesh* HeightMapComponent::CreateMesh(nlohmann::json data) {
 	//strcpy(file, fileString.c_str());
 	HeightMap hm = HeightMap(&fileString[0], maxHeight, maxWidth, maxLength, uvstep);
 	vector<Triangle>& triangles = hm.Triangles();
-	vector<glm::vec3>& vertices = hm.Vec3Vertices();
-	vector<glm::vec2>& uvs = hm.Vec2UVS();
-	Mesh m = Mesh(triangles.size(), vertices.size(), &triangles[0], &vertices[0], &uvs[0]);
-	return &m;
-}
+	vector<glm::vec3>& vertices = hm.Vertices();
+	vector<glm::vec2>& uvs = hm.UVS();
+	Mesh* m = new Mesh(triangles.size(), vertices.size(), &triangles[0], &vertices[0], &uvs[0]);
+	return m;
+}*/

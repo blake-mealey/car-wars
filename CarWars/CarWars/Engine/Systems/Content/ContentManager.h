@@ -31,6 +31,8 @@ public:
 
 	static const std::string SHADERS_DIR_PATH;
 
+	static Mesh* HaveMesh(std::string filePath);
+	static void StoreMesh(std::string filePath, Mesh*& mesh);
 	static Mesh* GetMesh(std::string filePath, unsigned pFlags=0);
 	static Texture* GetTexture(std::string filePath);
 	static Material* GetMaterial(nlohmann::json data);
