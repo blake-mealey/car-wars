@@ -149,6 +149,11 @@ void GuiHelper::LoadGuiSceneToCamera(size_t cameraIndex, std::string guiScene) {
     ContentManager::LoadScene(guiScene, camera->GetGuiRoot());
 }
 
+Entity* GuiHelper::LoadGuiPrefabToCamera(size_t cameraIndex, std::string guiPrefab) {
+    CameraComponent *camera = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[cameraIndex]);
+    return ContentManager::LoadEntity(guiPrefab, camera->GetGuiRoot());
+}
+
 void GuiHelper::SetGuisEnabled(Entity *entity, bool enabled) {
 	for (GuiComponent *gui : entity->GetComponents<GuiComponent>()) {
 		gui->enabled = enabled;

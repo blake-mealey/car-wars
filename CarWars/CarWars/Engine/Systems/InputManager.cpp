@@ -16,6 +16,8 @@
 
 #include "../Systems/Physics/CollisionGroups.h"
 #include "../Systems/Physics/RaycastGroups.h"
+#include "Effects.h"
+#include "PennerEasing/Quint.h"
 
 
 vector<XboxController*> InputManager::xboxControllers;
@@ -382,6 +384,28 @@ void InputManager::NavigateGuis(GuiNavData navData) {
                 StateManager::SetState(GameState_Playing);
             } else if (selected->ContainsText("exit")) {
                 Game::Instance().FinishGame();
+            }
+		} else if (gameState == GameState_Menu_GameEnd) {
+            GuiComponent* selected = GuiHelper::GetSelectedGui("Buttons");
+            if (selected) {
+                std::vector<Entity*> entities = EntityManager::FindEntities("LeaderboardMenu");
+                if (entities.size() > 0) {
+                    StateManager::SetState(GameState_Menu);
+                } else {
+                    selected->SetSelected(false);
+                    GuiComponent* winnerTitle = GuiHelper::GetFirstGui("WinnerTitle");
+                    auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 1.0);
+                    tween->SetUpdateCallback([winnerTitle](float& value) mutable {
+                        winnerTitle->SetFontSize(glm::mix(128.f, 64.f, value));
+                        winnerTitle->SetScaledPosition(glm::mix(glm::vec2(0.5f, 0.5f), glm::vec2(0.5f, 0.f), value));
+                        winnerTitle->transform.SetPosition(glm::mix(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 100.f, 0.f), value));
+                    });
+                    tween->SetFinishedCallback([selected](float &value) mutable {
+                        GuiHelper::LoadGuiPrefabToCamera(0, "Menu/LeaderboardMenu.json");
+                        selected->SetSelected(true);
+                    });
+                    tween->Start();
+                }
             }
 		}
 	}

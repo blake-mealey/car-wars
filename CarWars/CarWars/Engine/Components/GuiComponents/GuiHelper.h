@@ -41,6 +41,7 @@ public:
     static void SelectPreviousEntity(std::string parentTag, int playerIndex = 0);
 
     static void LoadGuiSceneToCamera(size_t cameraIndex, std::string guiScene);
+    static Entity* LoadGuiPrefabToCamera(size_t cameraIndex, std::string guiPrefab);
 
 	static void SetGuisEnabled(Entity *entity, bool enabled);
 	static void SetGuisEnabled(std::string entityTag, bool enabled, int playerIndex = 0);
@@ -84,4 +85,6 @@ public:
     static GuiComponent* GetThirdGui(std::string entityTag, int playerIndex = 0);
     static GuiComponent* GetFourthGui(Entity* entity);
     static GuiComponent* GetFourthGui(std::string entityTag, int playerIndex = 0);
+
+    static void TweenOpacityRecursive(Entity* parent);
 };

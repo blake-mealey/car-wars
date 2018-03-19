@@ -1,13 +1,12 @@
 [
   {
-    "Tag": "Winner",
+    "Tag": "WinnerTitle",
     "Components": [
       {
         "Prefab": "GUIs/StarjediFont.json",
-        "AnchorPoint": [ 0.5, 0 ],
+        "AnchorPoint": [ 0.5, 0.5 ],
         "ScaledPosition": [ 0.5, 0.5 ],
-        "Position": [ 0, 100, 0],
-        "FontSize": 64,
+        "FontSize": 128,
         "Text": "Team 1 Wins!"
       }
     ]
@@ -24,6 +23,5 @@
         "Selected": true
       }
     ]
-  },
-  "Menu/LeaderboardMenu.json"
+  }
 ]
