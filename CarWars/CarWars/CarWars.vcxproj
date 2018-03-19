@@ -169,6 +169,7 @@
     <ClCompile Include="Engine\Components\Colliders\ConvexMeshCollider.cpp" />
     <ClCompile Include="Engine\Components\GuiComponents\GuiComponent.cpp" />
     <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
+    <ClCompile Include="Engine\Components\LineComponent.cpp" />
     <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
     <ClCompile Include="Engine\Systems\Effects.cpp" />
     <ClCompile Include="Engine\Components\MeshComponent.cpp" />
@@ -242,6 +243,7 @@
     <ClInclude Include="Engine\Components\Colliders\ConvexMeshCollider.h" />
     <ClInclude Include="Engine\Components\GuiComponents\GuiComponent.h" />
     <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
+    <ClInclude Include="Engine\Components\LineComponent.h" />
     <ClInclude Include="Engine\Components\ParticleComponent.h" />
     <ClInclude Include="Engine\Components\Tweens\TTween.h" />
     <ClInclude Include="Engine\Components\Tweens\Tween.h" />
@@ -338,6 +340,7 @@
     <None Include="Content\Prefabs\Entities\Weapons\RailGunTurret.json" />
     <None Include="Content\Prefabs\Entities\Weapons\RocketLauncherTurret.json" />
     <None Include="Content\Scenes\CharacterSelectMenu.json" />
+    <None Include="Content\Scenes\GUIs\GameEnd_GUI.json" />
     <None Include="Content\Scenes\Maps\CircleMap.json" />
     <None Include="Content\Scenes\GameDemo.json" />
     <None Include="Content\Scenes\GUIs\HUD.json" />

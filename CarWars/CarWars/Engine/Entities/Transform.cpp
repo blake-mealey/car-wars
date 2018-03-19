@@ -11,9 +11,9 @@
 #include "../Systems/Content/ContentManager.h"
 #include "../Components/GuiComponents/GuiComponent.h"
 
-const glm::vec3 Transform::FORWARD = glm::vec3(0, 0, -1);
-const glm::vec3 Transform::RIGHT = glm::vec3(1, 0, 0);
-const glm::vec3 Transform::UP = glm::vec3(0, 1, 0);
+const glm::vec3 Transform::FORWARD = glm::vec3(0.f, 0.f, -1.f);
+const glm::vec3 Transform::RIGHT = glm::vec3(1.f, 0.f, 0.f);
+const glm::vec3 Transform::UP = glm::vec3(0.f, 1.f, 0.f);
 
 float Transform::radius = 0;
 
@@ -119,6 +119,10 @@ glm::vec3 Transform::GetRight() {
 
 glm::vec3 Transform::GetUp() {
 	return GetGlobalDirection(UP);
+}
+
+glm::vec3 Transform::GetEulerAngles() const {
+    return glm::eulerAngles(rotation);
 }
 
 void Transform::UpdateTransformationMatrix() {
@@ -244,7 +248,7 @@ glm::mat4 Transform::GetGuiTransformationMatrix(glm::vec2 anchorPoint, glm::vec2
 
     // Build the transform
     const Transform transform = Transform(screenPosition, screenScale, GetLocalRotation());
-    return transform.translationMatrix * transform.rotationMatrix * transform.scalingMatrix;
+    return transform.translationMatrix * transform.scalingMatrix * transform.rotationMatrix;
 }
 
 // returns the world location of a point in the cylinder co-ordinates
@@ -311,4 +315,12 @@ physx::PxQuat Transform::ToPx(glm::quat q) {
 
 physx::PxTransform Transform::ToPx(Transform t) {
     return physx::PxTransform(ToPx(t.GetGlobalPosition()), ToPx(t.GetLocalRotation()));
+}
+
+glm::vec3 Transform::Project(glm::vec3 v, glm::vec3 n) {
+    return glm::dot(glm::normalize(v), glm::normalize(n)) * n;
+}
+
+glm::vec3 Transform::ProjectVectorOnPlane(glm::vec3 v, glm::vec3 n) {
+    return v - Project(v, n);
 }

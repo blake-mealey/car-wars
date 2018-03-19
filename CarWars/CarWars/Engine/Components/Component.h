@@ -23,7 +23,8 @@ enum ComponentType {
 	ComponentType_AI,
 	ComponentType_GUI,
 	ComponentType_Missile,
-	ComponentType_Particle
+	ComponentType_Particle,
+	ComponentType_Line
 };
 
 class Component {

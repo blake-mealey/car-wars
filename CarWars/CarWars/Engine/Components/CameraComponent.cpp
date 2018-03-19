@@ -58,6 +58,18 @@ float CameraComponent::GetFieldOfView() const {
 	return fieldOfView;
 }
 
+glm::vec3 CameraComponent::GetForward() const {
+    return glm::normalize(GetTarget() - GetPosition());
+}
+
+glm::vec3 CameraComponent::GetRight() const {
+    return glm::cross(GetForward(), GetUp());
+}
+
+glm::vec3 CameraComponent::GetUp() const {
+    return upVector;
+}
+
 void CameraComponent::SetPosition(const glm::vec3 _position) {
 	position = _position;
 	UpdateViewMatrix();

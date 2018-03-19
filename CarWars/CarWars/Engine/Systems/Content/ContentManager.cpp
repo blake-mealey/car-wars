@@ -28,6 +28,7 @@
 #include "../../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../../Components/AiComponent.h"
 #include "../../Components/GuiComponents/GuiComponent.h"
+#include "../../Components/LineComponent.h"
 
 using namespace nlohmann;
 using namespace physx;
@@ -275,6 +276,7 @@ Component* ContentManager::LoadComponent(json data) {
 	else if (type == "Missile") component = new MissileComponent();
 	else if (type == "AI") component = new AiComponent(data);
 	else if (type == "GUI") component = new GuiComponent(data);
+	else if (type == "Line") component = new LineComponent(data);
     else {
         cout << "Unsupported component type: " << type << endl;
         supportedType = false;

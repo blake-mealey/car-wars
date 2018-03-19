@@ -28,6 +28,10 @@ void StateManager::SetState(GameState state) {
         ContentManager::DestroySceneAndLoadScene("MainMenu.json");
         GuiHelper::LoadGuiSceneToCamera(0, "GUIs/MainMenu_GUI.json");
         break;
+	case GameState_Menu_GameEnd:
+		ContentManager::DestroySceneAndLoadScene("Menu.json");
+		GuiHelper::LoadGuiSceneToCamera(0, "GUIs/GameEnd_GUI.json");
+		break;
     case GameState_Menu_Start:
         ContentManager::DestroySceneAndLoadScene("Menu.json");
         GuiHelper::LoadGuiSceneToCamera(0, "GUIs/StartMenu_GUI.json");
