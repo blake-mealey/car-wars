@@ -85,13 +85,10 @@ struct VehicleData {
 };
 
 struct PlayerData : VehicleData {
-    PlayerData() : VehicleData(), ready(false), damageIndicatorTween(nullptr) {}
+    PlayerData() : VehicleData(), ready(false) {}
 
 	// Menu state
     bool ready;
-
-    // Tweens
-    Tween* damageIndicatorTween;
 };
 
 struct AiData : VehicleData {

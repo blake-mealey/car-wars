@@ -31,6 +31,8 @@ public:
 
     void DestroyTween(Tween* tween);
 
+    Tween* FindTween(std::string tag);
+
 private:
     // No instantiation or copying
     Effects();

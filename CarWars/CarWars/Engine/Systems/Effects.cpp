@@ -30,6 +30,13 @@ void Effects::DestroyTween(Tween* tween) {
     delete tween;
 }
 
+Tween* Effects::FindTween(std::string tag) {
+    for (Tween* tween : tweens) {
+        if (tween->HasTag(tag)) return tween;
+    }
+    return nullptr;
+}
+
 void Effects::Update() {
     inUpdate = true;
 

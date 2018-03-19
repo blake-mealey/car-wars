@@ -35,6 +35,14 @@ public:
             if (nextTween) nextTween->Start();
         }
     }
+
+    void SetTag(std::string _tag) {
+        tag = _tag;
+    }
+
+    bool HasTag(std::string a_tag) const {
+        return tag.compare(a_tag) == 0;
+    }
 protected:
     Tween(const Time a_duration) : started(false), finished(false), duration(a_duration), nextTween(nullptr), ownedByEffectsSystem(true) {}
 
@@ -47,4 +55,6 @@ protected:
     Tween* nextTween;
 
     bool ownedByEffectsSystem;
+
+    std::string tag;
 };
