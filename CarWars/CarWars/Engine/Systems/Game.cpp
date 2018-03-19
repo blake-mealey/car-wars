@@ -72,26 +72,6 @@ void Game::Initialize() {
 }
 
 void Game::InitializeGame() {
-//<<<<<<< HEAD
-//    ContentManager::DestroySceneAndLoadScene("PhysicsDemo.json");
-//
-//	for (int i = 0; i < numberOfPlayers; ++i) {
-//		Entity *vehicle = ContentManager::LoadEntity("Sewage.json");
-//		vehicle->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(0.f, 10.f, i*15.f)));
-//
-//		switch (playerWeapons[i]) {
-//		case MachineGun:
-//			EntityManager::AddComponent(vehicle, new MachineGunComponent());
-//			break;
-//		case RocketLauncher:
-//			EntityManager::AddComponent(vehicle, new RocketLauncherComponent());
-//			break;
-//		case RailGun:
-//			EntityManager::AddComponent(vehicle, new RailGunComponent());
-//			break;
-//		}
-//	}
-//=======
     // Initialize the map
     ContentManager::DestroySceneAndLoadScene(MapType::scenePaths[gameData.map]);
 

@@ -16,6 +16,7 @@
 
 #include "../Systems/Physics/CollisionGroups.h"
 #include "../Systems/Physics/RaycastGroups.h"
+#include "../Systems/Audio.h"
 
 
 vector<XboxController*> InputManager::xboxControllers;
@@ -534,6 +535,8 @@ void InputManager::HandleKeyboard() {
 		float handbrake = 0;
 		if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
 			handbrake = 1;
+            Audio::Instance().PlayAudio("Content/Sounds/jump.mp3");
+            // TODO: this sounds needs to be improved
 		}
 
 
@@ -652,6 +655,8 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 
 		if (pressedButtons & XINPUT_GAMEPAD_DPAD_UP) {
 			boostDir = boostDir - player.vehicleEntity->transform.GetUp();
+            //Audio::Instance().PlayAudio("Content/Sounds/jump.mp3");
+            // TODO: This may not be in the right place...
 		}
 
 		if (pressedButtons & XINPUT_GAMEPAD_DPAD_DOWN) {

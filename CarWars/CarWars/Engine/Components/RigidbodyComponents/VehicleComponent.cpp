@@ -17,6 +17,7 @@
 #include "../Tweens/Tween.h"
 #include "PennerEasing/Quint.h"
 #include "../../Systems/Effects.h"
+#include "../Engine/Systems/Audio.h"
 
 using namespace physx;
 
@@ -571,6 +572,7 @@ size_t VehicleComponent::GetRaycastGroup() const {
 
 void VehicleComponent::Boost(glm::vec3 boostDir, float amount) {
 	pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(boostDir * amount * GetChassisMass()), PxForceMode::eIMPULSE, true);
+    
 }
 
 void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPower) {

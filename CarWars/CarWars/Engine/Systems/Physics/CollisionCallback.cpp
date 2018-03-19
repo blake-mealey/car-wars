@@ -7,6 +7,7 @@
 #include "../../Components/WeaponComponents/RocketLauncherComponent.h"
 #include "../../Entities/Transform.h"
 #include "../../Systems/Physics.h"
+#include "../../Systems/Audio.h"
 #include <vector>
 
 //<<<<<<< HEAD
@@ -40,7 +41,7 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 		} else {
 			//Explode
 			float explosionRadius = _actor0->GetComponent<MissileComponent>()->GetExplosionRadius();
-
+            Audio::Instance().PlayAudio2D("Content/Sounds/explosion.mp3"); // TODO: is this the best place for this?
 			//bool isOverlapping = overlap();
 			//Entity* explosionEntity;
 			Entity* explosionEntity = ContentManager::LoadEntity("Explosion.json");
