@@ -93,6 +93,11 @@ void Game::InitializeGame() {
         player.alive = true;
 		player.follow = false;
 
+		// Initialize their vehicle
+		player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
+
+		//TODO: remove duplicate code from player and ai initialze
+
         // Set their team
         if (gameData.gameMode == GameModeType::FreeForAll) {
             player.teamIndex = i;
@@ -100,10 +105,10 @@ void Game::InitializeGame() {
             player.teamIndex = i % 2;
         }
 
-        // Initialize their vehicle
-        // TODO: Proper spawn location
-        player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
-        player.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(0.f, 10.f, i*15.f)));
+		// TODO: Proper spawn location
+		//glm::vec3 spawn = Game::GetSpawn();
+		//player.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(spawn));
+        player.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(0.f, 30.f, i*15.f)));
 
         // Initialize their turret mesh
         Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType], player.vehicleEntity);
@@ -130,7 +135,7 @@ void Game::InitializeGame() {
         ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun));
         AiData& ai = ais[i];
 		ai.alive = true;
-		ai.diffuculty = 1.f;
+		ai.diffuculty = AiComponent::MAX_DIFFUCULTY;
 		ai.name = "Computer " + to_string(i + 1);
 
         // Set their team
@@ -142,6 +147,8 @@ void Game::InitializeGame() {
 
         // Initialize their vehicle
         // TODO: Proper spawn location
+		//glm::vec3 spawn = Game::GetSpawn();
+		//ai.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(spawn));
         ai.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[ai.vehicleType]);
         ai.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
 
@@ -231,17 +238,17 @@ void Game::Update() {
             PlayerData& player = players[i];
             if (!player.alive) continue;
             player.cameraEntity->transform.SetPosition(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
-			player.camera->SetTarget(player.vehicleEntity->transform.GetGlobalPosition());
-			
+			player.camera->SetTarget(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
+			player.camera->SetTargetOffset(glm::vec3(0, 2, 0));
+
 			PxScene* scene = &Physics::Instance().GetScene();
 			PxRaycastBuffer hit;
 			glm::vec3 direction = glm::normalize(player.camera->GetPosition() - player.camera->GetTarget());
-			player.camera->SetTargetOffset(glm::vec3(0, 2, 0) + EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition() - player.vehicleEntity->transform.GetGlobalPosition());
 			PxQueryFilterData filterData;
 			filterData.data.word0 = -1 ^ player.vehicleEntity->GetComponent<VehicleComponent>()->GetRaycastGroup();
 			//Raycast
-			if (scene->raycast(Transform::ToPx(player.camera->GetTarget()), Transform::ToPx(direction), CameraComponent::MAX_DISTANCE + 1, hit, PxHitFlag::eDEFAULT, filterData)) {
-				player.camera->SetDistance(hit.block.distance - .5);
+			if (scene->raycast(Transform::ToPx(player.camera->GetTarget()), Transform::ToPx(direction), CameraComponent::MAX_DISTANCE + 3, hit, PxHitFlag::eDEFAULT, filterData)) {
+				player.camera->SetDistance(hit.block.distance - 3);
 			}
 			else {
 				player.camera->SetDistance(CameraComponent::MAX_DISTANCE);
@@ -284,9 +291,7 @@ void Game::Update() {
         }
         if (allDeadForever) FinishGame();
 	} else if (StateManager::GetState() == GameState_Paused) {
-
         // PAUSED
-
 	}
 }
 

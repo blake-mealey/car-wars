@@ -43,6 +43,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -96,6 +97,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <PreprocessorDefinitions>_MBCS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.2.1\include;$(ProjectDir)Dependencies\glew-2.1.0\include;$(ProjectDir)Dependencies\Assimp\include;$(ProjectDir)Dependencies\PxShared\include;$(ProjectDir)Dependencies\PhysX\Include;$(ProjectDir)Dependencies\fmod\include;$(ProjectDir)Dependencies\freetype-2.9\include;$(ProjectDir)Dependencies\ftgl\include\ftgl\;$(ProjectDir)Dependencies\ftgl\include;$(ProjectDir)Dependencies</AdditionalIncludeDirectories>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\ftgl\lib\x64;$(ProjectDir)Dependencies\fmod\lib\x64;$(ProjectDir)Dependencies\glfw-3.2.1\lib-vc2015\x64;$(ProjectDir)Dependencies\glew-2.1.0\lib\Release\x64;$(ProjectDir)Dependencies\Assimp\libs\x64;$(ProjectDir)Dependencies\PxShared\lib\vc14win64;$(ProjectDir)Dependencies\PhysX\Lib\vc14win64;$(ProjectDir)Dependencies\freetype-2.9\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
