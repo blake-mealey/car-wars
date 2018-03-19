@@ -199,7 +199,7 @@ void Game::FinishGame() {
     StateManager::gameTime = 0.0;
 
     // Load the main menu
-    StateManager::SetState(GameState_Menu);
+    StateManager::SetState(GameState_Menu_GameEnd);
 }
 
 void Game::Update() {
