@@ -15,15 +15,15 @@
 
 
 const float AiComponent::MAX_DIFFUCULTY = 10.f;	// this is the max AI diffuculty
-const float AiComponent::ACCELERATION = .4f;	// bottom end of vehicle acceleration
+const float AiComponent::ACCELERATION = .5f;	// bottom end of vehicle acceleration
 const float AiComponent::STUCK_TIME = 2.f;		// how long until the AI realizes they are stuck
 const float AiComponent::UPDATE_TIME = 1.f;		// how frequently the AI updates its mode in seconds
 const float AiComponent::STUCK_CONTROL = 1.5f;	// controls the cycles of reverse and accelerate for the AI (better AI has smaller cycles)
 
 // all these values are modified by the max because they are changed based on their diffuculty later (easier to tune the hard AI this way)
-const float AiComponent::TARGETING_RANGE = 400.f	/ MAX_DIFFUCULTY;	// the range that AI searches for targeting
-const float AiComponent::LOCKON_RANGE = 300.f		/ MAX_DIFFUCULTY;	// the range that the target will shoot
-const float AiComponent::LOST_TIME = .5f			/ MAX_DIFFUCULTY;	// how long until the AI no longer looks for the target, in seconds
+const float AiComponent::TARGETING_RANGE = 500.f	/ MAX_DIFFUCULTY;	// the range that AI searches for targeting
+const float AiComponent::LOCKON_RANGE = 400.f		/ MAX_DIFFUCULTY;	// the range that the target will shoot
+const float AiComponent::LOST_TIME = 1.f			/ MAX_DIFFUCULTY;	// how long until the AI no longer looks for the target, in seconds
 const float AiComponent::SPRAY = 2.5f				* MAX_DIFFUCULTY;	// how accurate the AI is (lower means more accurate)
 const float AiComponent::STOPING_DISTANCE = 100.f	/ MAX_DIFFUCULTY;	// how close to the target the AI will get (better AI is more accurate doesn't need to be as close)
 
@@ -187,14 +187,14 @@ void AiComponent::SetMode() {
 	if (StateManager::gameTime.GetSeconds() > modeStart.GetSeconds() + UPDATE_TIME) { // every 2 seconds select a mode TUNEABLE
 		choice = rand() % 2;
 
-		if (1) {
+		if (0) {
 			if (choice == 0) {
 				UpdateMode(AiMode_GetPowerup);
 				return;
 			}
 		} else choice++;
 
-		if (0) {
+		if (1) {
 			UpdateMode(AiMode_Attack);
 			return;
 		} else {
@@ -227,7 +227,6 @@ void AiComponent::Update() {
 	}
 
 	if (vehicle) {
-		float distanceToEnemy = INFINITY;
 		if (mode == AiMode_Attack) {
 			if (previousMode != mode || (GetTargetEntity() && !Game::GetDataFromEntity(targetEntity)->alive)) {
 				float bestRating = INFINITY;
@@ -287,31 +286,13 @@ void AiComponent::Update() {
 			}
 		}
 
-		Transform &myTransform = GetEntity()->transform;
-		const glm::vec3 position = myTransform.GetGlobalPosition();
-		const glm::vec3 forward = myTransform.GetForward();
-		const glm::vec3 right = myTransform.GetRight();
-
-		UpdatePath(); // Will only update every x seconds
-
-		const glm::vec3 nodePosition = NodeInPath();
-
-		glm::vec3 directionToNode = nodePosition - position;
-		const float distanceToNode = glm::length(directionToNode);
-		directionToNode = glm::normalize(directionToNode);
-
-		NavigationMesh* navigationMesh = Game::Instance().GetNavigationMesh();
-
-		if (distanceToNode <= navigationMesh->GetSpacing() * 2.f) {
-			NextNodeInPath();
-		}
-
 		bool lineOfSight = false;
+		float distanceToEnemy = INFINITY;
 		if (mode == AiMode_Attack) {
 			//Setup raycasting for the vehicle
 			glm::vec3 enemyPosition = targetEntity->transform.GetGlobalPosition();
 			glm::vec3 direction = enemyPosition - localPosition;
-			float distanceToEnemy = glm::length(direction);
+			distanceToEnemy = glm::length(direction);
 			direction = glm::normalize(direction);
 			PxQueryFilterData filterData;
 			filterData.data.word0 =	 (targetEntity->GetComponent<VehicleComponent>()->GetRaycastGroup() | RaycastGroups::GetDefaultGroup()); // only collide with enemy and terrain
@@ -354,16 +335,34 @@ void AiComponent::Update() {
 			}
 		}
 
-		/*Do Driving Stuff here*/
+		// Driving Stuff
+		Transform &myTransform = GetEntity()->transform;
+		const glm::vec3 position = myTransform.GetGlobalPosition();
+		const glm::vec3 forward = myTransform.GetForward();
+		const glm::vec3 right = myTransform.GetRight();
+
+		UpdatePath(); // Will only update every x seconds
+
+		glm::vec3 nodePosition = NodeInPath();
+		glm::vec3 directionToNode = nodePosition - position;
+		float distanceToNode = glm::length(directionToNode);
+		directionToNode = glm::normalize(directionToNode);
+
+		NavigationMesh* navigationMesh = Game::Instance().GetNavigationMesh();
+
+		if (distanceToNode <= navigationMesh->GetSpacing() * 2.f) {
+			nodePosition = NodeInPath();
+		}
+
 		const float steer = glm::dot(directionToNode, right);
-		const PxReal speed = vehicle->pxVehicle->computeForwardSpeed();
 
 		const float maxAcceleration = ACCELERATION + myVehicleData->diffuculty / MAX_DIFFUCULTY * (1 - ACCELERATION);
-		float forwardPower = maxAcceleration;
+
+		float forwardPower = glm::clamp(distanceToNode / 20.f, 0.01f , maxAcceleration);
 		float backwardPower = 0.0f;
 		if (mode == AiMode_Attack) {
 			float stoppingDistance = STOPING_DISTANCE * myVehicleData->diffuculty;
-			if( distanceToNode < stoppingDistance && lineOfSight) {
+			if( (distanceToEnemy < stoppingDistance) && lineOfSight) {
 				backwardPower = distanceToEnemy / stoppingDistance * maxAcceleration;
 				forwardPower = backwardPower;
 				startedStuck = Time(-1); // dont become stuck
