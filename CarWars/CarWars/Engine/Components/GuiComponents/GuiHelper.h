@@ -86,5 +86,6 @@ public:
     static GuiComponent* GetFourthGui(Entity* entity);
     static GuiComponent* GetFourthGui(std::string entityTag, int playerIndex = 0);
 
-    static void TweenOpacityRecursive(Entity* parent);
+    static void TweenOpacityRecursive(Entity* parent, float goalOpacity, Time duration);
+    static void SetOpacityRecursive(Entity* parent, float goalOpacity);
 };

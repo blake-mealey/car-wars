@@ -3,6 +3,8 @@
 #include "../../Entities/EntityManager.h"
 #include "../../Systems/Content/ContentManager.h"
 #include "GuiComponent.h"
+#include "../../Systems/Effects.h"
+#include "PennerEasing/Quad.h"
 
 GuiComponent* GuiHelper::GetSelectedGui(Entity* entity) {
     for (GuiComponent* gui : entity->GetComponents<GuiComponent>()) {
@@ -298,4 +300,30 @@ GuiComponent* GuiHelper::GetFourthGui(Entity* entity) {
 
 GuiComponent* GuiHelper::GetFourthGui(std::string entityTag, int playerIndex) {
     return GetFourthGui(EntityManager::FindEntities(entityTag)[playerIndex]);
+}
+
+void GuiHelper::TweenOpacityRecursive(Entity* parent, const float goalOpacity, const Time duration) {
+    for (GuiComponent* gui : parent->GetComponents<GuiComponent>()) {
+        const float startFontOpacity = gui->GetFontOpacity();
+        const float startTextureOpacity = gui->GetTextureOpacity();
+        auto tween = Effects::Instance().CreateTween<float, easing::Quad::easeOut>(0.f, 1.f, duration);
+        tween->SetUpdateCallback([gui, startFontOpacity, startTextureOpacity, goalOpacity](float& value) mutable {
+            gui->SetFontOpacity(glm::mix(startFontOpacity, goalOpacity, value));
+            gui->SetTextureOpacity(glm::mix(startTextureOpacity, goalOpacity, value));
+        });
+        tween->Start();
+    }
+    for (Entity* child : EntityManager::GetChildren(parent)) {
+        TweenOpacityRecursive(child, goalOpacity, duration);
+    }
+}
+
+void GuiHelper::SetOpacityRecursive(Entity* parent, const float goalOpacity) {
+    for (GuiComponent* gui : parent->GetComponents<GuiComponent>()) {
+        gui->SetFontOpacity(goalOpacity);
+        gui->SetTextureOpacity(goalOpacity);
+    }
+    for (Entity* child : EntityManager::GetChildren(parent)) {
+        SetOpacityRecursive(child, goalOpacity);
+    }
 }

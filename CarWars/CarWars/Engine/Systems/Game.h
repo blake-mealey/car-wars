@@ -44,6 +44,7 @@ struct TeamData {
     TeamData() : killCount(0) {}
 
     size_t killCount;
+    std::string name;
 };
 
 struct VehicleData {
@@ -144,6 +145,7 @@ public:
 	void Update() override;
 
     void InitializeGame();
+    void ResetGame();
     void FinishGame();
 
 	//Game Creation Variables

@@ -83,7 +83,11 @@ void Game::InitializeGame() {
     if (gameData.gameMode == GameModeType::Team) teamCount = 2;
     else if (gameData.gameMode == GameModeType::FreeForAll) teamCount = gameData.playerCount + gameData.aiCount;
     for (size_t i = 0; i < teamCount; ++i) {
-        gameData.teams.push_back(TeamData());
+        TeamData team;
+        if (gameData.gameMode == GameModeType::Team) {
+            team.name = "Team " + to_string(i + 1);
+        }
+        gameData.teams.push_back(team);
     }
 
     // Initialize the players
@@ -96,6 +100,7 @@ void Game::InitializeGame() {
         // Set their team
         if (gameData.gameMode == GameModeType::FreeForAll) {
             player.teamIndex = i;
+            gameData.teams[player.teamIndex].name = player.name;
         } else if (gameData.gameMode == GameModeType::Team) {
             player.teamIndex = i % 2;
         }
@@ -136,6 +141,7 @@ void Game::InitializeGame() {
         // Set their team
         if (gameData.gameMode == GameModeType::FreeForAll) {
             ai.teamIndex = gameData.playerCount + i;
+            gameData.teams[ai.teamIndex].name = ai.name;
         } else if (gameData.gameMode == GameModeType::Team) {
             ai.teamIndex = (gameData.playerCount + i) % 2;
         }
@@ -178,9 +184,7 @@ void ResetVehicleData(VehicleData& vehicle) {
     vehicle.deathCount = 0;
 }
 
-void Game::FinishGame() {
-    // TODO: Show leaderboard GUI
-
+void Game::ResetGame() {
     // Reset players
     for (size_t i = 0; i < gameData.playerCount; ++i) {
         PlayerData& player = players[i];
@@ -197,8 +201,9 @@ void Game::FinishGame() {
     gameData.playerCount = 0;
     gameData.teams.clear();
     StateManager::gameTime = 0.0;
+}
 
-    // Load the main menu
+void Game::FinishGame() {
     StateManager::SetState(GameState_Menu_GameEnd);
 }
 

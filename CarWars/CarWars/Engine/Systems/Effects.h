@@ -18,14 +18,14 @@ public:
     template <typename V, float Ease(float t, float b, float c, float d)>
     TTween<V, Ease>* CreateTween(V& a_value, V a_start, V a_end, const Time a_duration) {
         auto tween = new TTween<V, Ease>(a_value, a_start, a_end, a_duration);
-        tweens.push_back(tween);
+        AddTween(tween);
         return tween;
     }
 
     template <typename V, float Ease(float t, float b, float c, float d)>
     TTween<V, Ease>* CreateTween(V a_start, V a_end, const Time a_duration) {
         auto tween = new TTween<V, Ease>(a_start, a_end, a_duration);
-        tweens.push_back(tween);
+        AddTween(tween);
         return tween;
     }
 
@@ -37,5 +37,15 @@ private:
     Effects(const Effects&) = delete;
     Effects& operator= (const Effects&) = delete;
 
+    void AddTween(Tween* tween) {
+        if (inUpdate) {
+            tweensCreatedInUpdate.push_back(tween);
+        } else {
+            tweens.push_back(tween);
+        }
+    }
+
+    bool inUpdate;
+    std::vector<Tween*> tweensCreatedInUpdate;
     std::vector<Tween*> tweens;
 };

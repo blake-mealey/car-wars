@@ -18,6 +18,8 @@
 #include "../Systems/Physics/RaycastGroups.h"
 #include "Effects.h"
 #include "PennerEasing/Quint.h"
+#include "PennerEasing/Circ.h"
+#include "PennerEasing/Expo.h"
 
 
 vector<XboxController*> InputManager::xboxControllers;
@@ -180,14 +182,16 @@ void UpdateLeaderboardMenu(Entity* leaderboard, int playerIndex) {
 
 	std::sort(allVehicles.begin(), allVehicles.end());
 
-	PlayerData& thisPlayer = Game::players[playerIndex];
-	for (size_t i = 0; i < allVehicles.size(); ++i) {
-		VehicleData& vehicle = allVehicles[i];
-		if (vehicle.id != thisPlayer.id) continue;
+    if (playerIndex > -1) {
+        PlayerData& thisPlayer = Game::players[playerIndex];
+        for (size_t i = 0; i < allVehicles.size(); ++i) {
+            VehicleData& vehicle = allVehicles[i];
+            if (vehicle.id != thisPlayer.id) continue;
 
-		if (i > 9) allVehicles[9] = vehicle;
-		break;
-	}
+            if (i > 9) allVehicles[9] = vehicle;
+            break;
+        }
+    }
 
 	std::vector<Entity*> rows = EntityManager::GetChildren(container);
 	for (size_t i = 0; i < rows.size(); ++i) {
@@ -390,21 +394,28 @@ void InputManager::NavigateGuis(GuiNavData navData) {
             if (selected) {
                 std::vector<Entity*> entities = EntityManager::FindEntities("LeaderboardMenu");
                 if (entities.size() > 0) {
+                    Game::Instance().ResetGame();
                     StateManager::SetState(GameState_Menu);
                 } else {
                     selected->SetSelected(false);
                     GuiComponent* winnerTitle = GuiHelper::GetFirstGui("WinnerTitle");
-                    auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 1.0);
+                    
+                    auto tween = Effects::Instance().CreateTween<float, easing::Expo::easeOut>(0.f, 1.f, 1.0);
                     tween->SetUpdateCallback([winnerTitle](float& value) mutable {
                         winnerTitle->SetFontSize(glm::mix(128.f, 64.f, value));
                         winnerTitle->SetScaledPosition(glm::mix(glm::vec2(0.5f, 0.5f), glm::vec2(0.5f, 0.f), value));
                         winnerTitle->transform.SetPosition(glm::mix(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 100.f, 0.f), value));
                     });
                     tween->SetFinishedCallback([selected](float &value) mutable {
-                        GuiHelper::LoadGuiPrefabToCamera(0, "Menu/LeaderboardMenu.json");
                         selected->SetSelected(true);
                     });
                     tween->Start();
+
+                    Entity* menu = GuiHelper::LoadGuiPrefabToCamera(0, "Menu/LeaderboardMenu.json");
+                    GuiHelper::SetOpacityRecursive(menu, 0.f);
+                    GuiHelper::TweenOpacityRecursive(menu, 1.f, 1.0);
+
+                    CreateLeaderboardMenu(menu, -1);
                 }
             }
 		}

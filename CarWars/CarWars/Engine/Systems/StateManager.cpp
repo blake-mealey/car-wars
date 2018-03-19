@@ -20,6 +20,7 @@ void StateManager::SetState(GameState state) {
     GameState previousState = currentState;
 	currentState = state;
 
+    TeamData winner;
     switch (currentState) {
     case GameState_Exit:
         glfwSetWindowShouldClose(Graphics::Instance().GetWindow(), true);
@@ -31,6 +32,12 @@ void StateManager::SetState(GameState state) {
 	case GameState_Menu_GameEnd:
 		ContentManager::DestroySceneAndLoadScene("Menu.json");
 		GuiHelper::LoadGuiSceneToCamera(0, "GUIs/GameEnd_GUI.json");
+
+        for (TeamData& team : Game::gameData.teams) {
+            if (team.killCount > winner.killCount) winner = team;
+        }
+        GuiHelper::SetFirstGuiText("WinnerTitle", winner.name + " Won!");
+
 		break;
     case GameState_Menu_Start:
         ContentManager::DestroySceneAndLoadScene("Menu.json");
