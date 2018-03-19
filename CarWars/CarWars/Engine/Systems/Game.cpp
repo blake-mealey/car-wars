@@ -135,7 +135,7 @@ void Game::InitializeGame() {
         ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun));
         AiData& ai = ais[i];
 		ai.alive = true;
-		ai.diffuculty = 1.f;
+		ai.diffuculty = (i+1)/gameData.aiCount * AiComponent::MAX_DIFFUCULTY;
 		ai.name = "Computer " + to_string(i + 1);
 
         // Set their team
@@ -238,17 +238,17 @@ void Game::Update() {
             PlayerData& player = players[i];
             if (!player.alive) continue;
             player.cameraEntity->transform.SetPosition(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
-			player.camera->SetTarget(player.vehicleEntity->transform.GetGlobalPosition());
-			
+			player.camera->SetTarget(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
+			player.camera->SetTargetOffset(glm::vec3(0, 2, 0));
+
 			PxScene* scene = &Physics::Instance().GetScene();
 			PxRaycastBuffer hit;
 			glm::vec3 direction = glm::normalize(player.camera->GetPosition() - player.camera->GetTarget());
-			player.camera->SetTargetOffset(glm::vec3(0, 2, 0) + EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition() - player.vehicleEntity->transform.GetGlobalPosition());
 			PxQueryFilterData filterData;
 			filterData.data.word0 = -1 ^ player.vehicleEntity->GetComponent<VehicleComponent>()->GetRaycastGroup();
 			//Raycast
-			if (scene->raycast(Transform::ToPx(player.camera->GetTarget()), Transform::ToPx(direction), CameraComponent::MAX_DISTANCE + 1, hit, PxHitFlag::eDEFAULT, filterData)) {
-				player.camera->SetDistance(hit.block.distance - .5);
+			if (scene->raycast(Transform::ToPx(player.camera->GetTarget()), Transform::ToPx(direction), CameraComponent::MAX_DISTANCE + 3, hit, PxHitFlag::eDEFAULT, filterData)) {
+				player.camera->SetDistance(hit.block.distance - 3);
 			}
 			else {
 				player.camera->SetDistance(CameraComponent::MAX_DISTANCE);
