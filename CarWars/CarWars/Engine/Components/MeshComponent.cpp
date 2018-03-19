@@ -1,4 +1,5 @@
 #include "MeshComponent.h"
+#include "../Systems/Content/HeightMap.h"
 #include "../Systems/Content/ContentManager.h"
 #include "../Entities/Entity.h"
 
@@ -12,13 +13,28 @@ ComponentType MeshComponent::GetType() {
 void MeshComponent::HandleEvent(Event* event) {}
 
 MeshComponent::MeshComponent(nlohmann::json data) {
-	mesh = ContentManager::GetMesh(data["Mesh"]);
+	if (!ContentManager::GetFromJson<bool>(data["HeightMap"], false)) {
+		mesh = ContentManager::GetMesh(data["Mesh"]);
+	}
+	else {
+		mesh = HeightMap::CreateMesh(data);
+	}
 	material = ContentManager::GetMaterial(data["Material"]);
 	if (!data["Texture"].is_null()) texture = ContentManager::GetTexture(data["Texture"]);
 	else texture = nullptr;
 	uvScale = ContentManager::JsonToVec2(data["UvScale"], glm::vec2(1.f));
     if (ContentManager::GetFromJson<bool>(data["CylinderMesh"], false)) MakeCylinder(mesh);
     transform = Transform(data);
+}
+
+MeshComponent::MeshComponent(Mesh* _mesh, nlohmann::json data) {
+	mesh = _mesh;
+	material = ContentManager::GetMaterial(data["Material"]);
+	if (!data["Texture"].is_null()) texture = ContentManager::GetTexture(data["Texture"]);
+	else texture = nullptr;
+	uvScale = ContentManager::JsonToVec2(data["UvScale"], glm::vec2(1.f));
+	if (ContentManager::GetFromJson<bool>(data["CylinderMesh"], false)) MakeCylinder(mesh);
+	transform = Transform(data);
 }
 
 MeshComponent::MeshComponent(MeshComponent* component) {

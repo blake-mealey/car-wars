@@ -37,6 +37,17 @@ RigidbodyComponent::RigidbodyComponent(nlohmann::json data) : RigidbodyComponent
     }
 }
 
+RigidbodyComponent::RigidbodyComponent(Mesh* mesh, nlohmann::json data) : RigidbodyComponent() {
+	blocksNavigationMesh = ContentManager::GetFromJson<bool>(data["BlocksNavMesh"], true);
+
+	for (nlohmann::json colliderData : data["Colliders"]) {
+		Collider *collider = nullptr;
+		collider = new MeshCollider(mesh, colliderData);
+
+		if (collider) AddCollider(collider);
+	}
+}
+
 void RigidbodyComponent::AddCollider(Collider* collider) {
     colliders.push_back(collider);
 	if (pxRigid) collider->CreateShape(pxRigid);

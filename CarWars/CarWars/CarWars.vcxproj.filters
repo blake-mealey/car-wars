@@ -71,7 +71,6 @@
     <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
     <ClCompile Include="Engine\Systems\Content\HeightMap.cpp" />
     <ClCompile Include="Engine\Systems\Content\Image.cpp" />
-    <ClCompile Include="Engine\Components\HeightComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -154,7 +153,6 @@
     <ClInclude Include="Engine\Components\ParticleComponent.h" />
     <ClInclude Include="Engine\Systems\Content\HeightMap.h" />
     <ClInclude Include="Engine\Systems\Content\Image.h" />
-    <ClInclude Include="Engine\Components\HeightMapComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\CollisionGroups\Vehicles.json" />

@@ -28,7 +28,7 @@
 #include "../../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../../Components/AiComponent.h"
 #include "../../Components/GuiComponents/GuiComponent.h"
-#include "../../Components/HeightMapComponent.h"
+#include "../Content/HeightMap.h"
 
 using namespace nlohmann;
 using namespace physx;
@@ -69,6 +69,10 @@ glm::vec3 AssimpVectorToGlm(aiVector3D v) {
 
 glm::vec2 AssimpVectorToGlm(aiVector2D v) {
 	return glm::vec2(v.x, v.y);
+}
+
+void ContentManager::StoreMesh(const string filePath, Mesh* mesh) {
+	meshes[filePath] = mesh;
 }
 
 Mesh* ContentManager::GetMesh(const string filePath, unsigned pFlags) {
@@ -263,13 +267,13 @@ Component* ContentManager::LoadComponent(json data) {
     bool supportedType = true;
     string type = data["Type"];
     if (type == "Mesh") component = new MeshComponent(data);
-	else if (type == "HeightMap") component = new HeightMapComponent(data);
     else if (type == "Camera") component = new CameraComponent(data);
     else if (type == "PointLight") component = new PointLightComponent(data);
     else if (type == "DirectionLight") component = new DirectionLightComponent(data);
     else if (type == "SpotLight") component = new SpotLightComponent(data);
     else if (type == "RigidStatic") component = new RigidStaticComponent(data);
     else if (type == "RigidDynamic") component = new RigidDynamicComponent(data);
+	else if (type == "RigidHeight") component = new RigidStaticComponent(data);
     else if (type == "Vehicle") component = new VehicleComponent(data);
 	else if (type == "MachineGun") component = new MachineGunComponent();
 	else if (type == "RailGun") component = new RailGunComponent();

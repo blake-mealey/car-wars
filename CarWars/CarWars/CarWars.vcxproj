@@ -169,7 +169,6 @@
     <ClCompile Include="Engine\Components\Colliders\ConvexMeshCollider.cpp" />
     <ClCompile Include="Engine\Components\GuiComponents\GuiComponent.cpp" />
     <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
-    <ClCompile Include="Engine\Components\HeightComponent.cpp" />
     <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
     <ClCompile Include="Engine\Systems\Content\HeightMap.cpp" />
     <ClCompile Include="Engine\Systems\Content\Image.cpp" />
@@ -245,7 +244,6 @@
     <ClInclude Include="Engine\Components\Colliders\ConvexMeshCollider.h" />
     <ClInclude Include="Engine\Components\GuiComponents\GuiComponent.h" />
     <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
-    <ClInclude Include="Engine\Components\HeightMapComponent.h" />
     <ClInclude Include="Engine\Components\ParticleComponent.h" />
     <ClInclude Include="Engine\Systems\Content\HeightMap.h" />
     <ClInclude Include="Engine\Systems\Content\Image.h" />
