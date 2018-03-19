@@ -69,6 +69,7 @@
     <ClCompile Include="Engine\Components\Colliders\SphereCollider.cpp" />
     <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
     <ClCompile Include="Engine\Systems\Effects.cpp" />
+    <ClCompile Include="Engine\Components\LineComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
 <<<<<<< HEAD
@@ -515,6 +516,10 @@
     <ClInclude Include="Engine\Systems\Effects.h" />
     <ClInclude Include="Engine\Components\Tweens\TTween.h" />
     <ClInclude Include="Engine\Components\Tweens\Tween.h" />
+<<<<<<< HEAD
+>>>>>>> master
+=======
+    <ClInclude Include="Engine\Components\LineComponent.h" />
 >>>>>>> master
   </ItemGroup>
   <ItemGroup>

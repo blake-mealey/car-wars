@@ -28,6 +28,10 @@ public:
 	glm::vec3 GetTarget() const;
 	float GetFieldOfView() const;
 
+    glm::vec3 GetForward() const;
+    glm::vec3 GetRight() const;
+    glm::vec3 GetUp() const;
+
 	void SetPosition(glm::vec3 _position);
 	void SetTarget(glm::vec3 _target);
 	void SetFieldOfView(float _fieldOfView);

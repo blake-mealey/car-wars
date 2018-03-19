@@ -3,6 +3,7 @@
 #include <vector>
 #include <PxRigidDynamic.h>
 #include "Content/NavigationMesh.h"
+#include "../Components/Tweens/Tween.h"
 
 class CameraComponent;
 class AiComponent;
@@ -83,10 +84,13 @@ struct VehicleData {
 };
 
 struct PlayerData : VehicleData {
-    PlayerData() : VehicleData(), ready(false) {}
+    PlayerData() : VehicleData(), ready(false), damageIndicatorTween(nullptr) {}
 
 	// Menu state
     bool ready;
+
+    // Tweens
+    Tween* damageIndicatorTween;
 };
 
 struct AiData : VehicleData {

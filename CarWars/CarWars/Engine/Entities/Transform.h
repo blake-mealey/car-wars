@@ -45,6 +45,8 @@ public:
 	glm::vec3 GetRight();
 	glm::vec3 GetUp();
 
+    glm::vec3 GetEulerAngles() const;
+
 	// Setters for basic data
 	void SetPosition(glm::vec3 pPosition);
 	void SetScale(glm::vec3 pScale);
@@ -85,6 +87,9 @@ public:
     static physx::PxVec2 ToPx(glm::vec2 v);
     static physx::PxQuat ToPx(glm::quat q);
     static physx::PxTransform ToPx(Transform t);
+
+    static glm::vec3 Project(glm::vec3 v, glm::vec3 n);
+    static glm::vec3 ProjectVectorOnPlane(glm::vec3 v, glm::vec3 n);
 
 private:
 	// Basic data
