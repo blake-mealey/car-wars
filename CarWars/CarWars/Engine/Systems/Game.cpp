@@ -135,7 +135,7 @@ void Game::InitializeGame() {
         ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun));
         AiData& ai = ais[i];
 		ai.alive = true;
-		ai.diffuculty = (i+1)/gameData.aiCount * AiComponent::MAX_DIFFUCULTY;
+		ai.diffuculty = AiComponent::MAX_DIFFUCULTY;
 		ai.name = "Computer " + to_string(i + 1);
 
         // Set their team
