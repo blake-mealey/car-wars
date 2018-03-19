@@ -17,6 +17,8 @@
 #include "../Tweens/Tween.h"
 #include "PennerEasing/Quint.h"
 #include "../../Systems/Effects.h"
+#include <glm/gtx/string_cast.hpp>
+#include "PennerEasing/Linear.h"
 
 using namespace physx;
 
@@ -467,11 +469,26 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
     if (myPlayer) {
         Entity* entity = EntityManager::FindFirstChild(myPlayer->camera->GetGuiRoot(), "DamageIndicator");
         GuiComponent* gui = entity->GetComponent<GuiComponent>();
-        const glm::vec3 direction = glm::normalize(GetEntity()->transform.GetGlobalPosition() - damager->GetEntity()->transform.GetGlobalPosition());
-        const float sign = glm::dot(GetEntity()->transform.GetForward(), direction);
-        const float theta = sign * acos(glm::dot(GetEntity()->transform.GetRight(), direction));
-        gui->transform.SetRotationAxisAngles(glm::vec3(0.0, 0.0, 1.0), theta);
-        GuiHelper::OpacityEffect(gui, 1.0, 1.0, 0.25, 0.25);
+
+        GuiHelper::OpacityEffect(gui, 1.0, 0.5f, 0.25, 0.25);
+
+        // NOTE: This isn't really a tween... but it's a nice hacky use for the tween system
+        // We should probably make a special version of the tween for exactly this case
+        if (myPlayer->damageIndicatorTween) Effects::Instance().DestroyTween(myPlayer->damageIndicatorTween);
+        auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeIn>(0.f, 1.f, 1.0);
+        tween->TakeOwnership();
+        tween->SetUpdateCallback([gui, myPlayer, attacker](float& value) mutable {
+            if (StateManager::GetState() != GameState_Playing || !myPlayer->alive || !attacker->alive) return;
+            const glm::vec3 cameraPos = myPlayer->camera->GetPosition();
+            const glm::vec3 cameraForward = normalize(Transform::ProjectVectorOnPlane(myPlayer->camera->GetForward(), Transform::UP));
+            const glm::vec3 cameraRight = normalize(Transform::ProjectVectorOnPlane(myPlayer->camera->GetRight(), Transform::UP));
+            const glm::vec3 direction = normalize(Transform::ProjectVectorOnPlane(cameraPos - attacker->vehicleEntity->transform.GetGlobalPosition(), Transform::UP));
+            const float sign = dot(cameraRight, direction) < 0.f ? 1.f : -1.f;
+            const float theta = sign * acos(dot(cameraForward, direction));
+            gui->transform.SetRotationAxisAngles(-Transform::FORWARD, theta);
+        });
+        tween->Start();
+        myPlayer->damageIndicatorTween = tween;
     }
 
     if (health <= 0) {

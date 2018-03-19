@@ -39,7 +39,22 @@
               "WheelInset": -0.2
           }
       ]
-    }
+    },
+	  {
+		  "Type": "Line",
+          "Color": [1, 0, 0],
+          "Points": [[],[]]
+	  },
+	  {
+		  "Type": "Line",
+		  "Color": [0, 1, 0],
+		  "Points": [[],[]]
+	  },
+	  {
+		  "Type": "Line",
+		  "Color": [0, 0, 1],
+		  "Points": [[],[]]
+	  }
   ],
   "Children": [
 	  {
