@@ -302,28 +302,24 @@ GuiComponent* GuiHelper::GetFourthGui(std::string entityTag, int playerIndex) {
     return GetFourthGui(EntityManager::FindEntities(entityTag)[playerIndex]);
 }
 
-void GuiHelper::TweenOpacityRecursive(Entity* parent, const float goalOpacity, const Time duration) {
-    for (GuiComponent* gui : parent->GetComponents<GuiComponent>()) {
-        const float startFontOpacity = gui->GetFontOpacity();
-        const float startTextureOpacity = gui->GetTextureOpacity();
-        auto tween = Effects::Instance().CreateTween<float, easing::Quad::easeOut>(0.f, 1.f, duration);
-        tween->SetUpdateCallback([gui, startFontOpacity, startTextureOpacity, goalOpacity](float& value) mutable {
-            gui->SetFontOpacity(glm::mix(startFontOpacity, goalOpacity, value));
-            gui->SetTextureOpacity(glm::mix(startTextureOpacity, goalOpacity, value));
-        });
-        tween->Start();
-    }
-    for (Entity* child : EntityManager::GetChildren(parent)) {
-        TweenOpacityRecursive(child, goalOpacity, duration);
-    }
+std::vector<GuiComponent*> GuiHelper::GetGuisRecursive(Entity* parent) {
+	std::vector<GuiComponent*> guis;
+	GetGuisRecursive(parent, guis);
+	return guis;
+}
+
+void GuiHelper::GetGuisRecursive(Entity* parent, std::vector<GuiComponent*>& guis) {
+	std::vector<GuiComponent*> components = parent->GetComponents<GuiComponent>();
+	guis.insert(guis.end(), components.begin(), components.end());
+	for (Entity* child : EntityManager::GetChildren(parent)) {
+		GetGuisRecursive(child, guis);
+	}
 }
 
 void GuiHelper::SetOpacityRecursive(Entity* parent, const float goalOpacity) {
-    for (GuiComponent* gui : parent->GetComponents<GuiComponent>()) {
+	std::vector<GuiComponent*> guis = GetGuisRecursive(parent);
+    for (GuiComponent* gui : guis) {
         gui->SetFontOpacity(goalOpacity);
         gui->SetTextureOpacity(goalOpacity);
-    }
-    for (Entity* child : EntityManager::GetChildren(parent)) {
-        SetOpacityRecursive(child, goalOpacity);
     }
 }

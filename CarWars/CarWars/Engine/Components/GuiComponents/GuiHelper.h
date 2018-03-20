@@ -1,9 +1,12 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "glm/glm.hpp"
 #include "../GuiEffects/OpacityEffect.h"
+
+#include "../Tweens/TTween.h"
 
 class Time;
 class CameraComponent;
@@ -86,6 +89,30 @@ public:
     static GuiComponent* GetFourthGui(Entity* entity);
     static GuiComponent* GetFourthGui(std::string entityTag, int playerIndex = 0);
 
-    static void TweenOpacityRecursive(Entity* parent, float goalOpacity, Time duration);
-    static void SetOpacityRecursive(Entity* parent, float goalOpacity);
+	template <float Ease(float t, float b, float c, float d)>
+	static TTween<float, Ease>* TweenOpacityRecursive(Entity* parent, const float goalOpacity, const Time duration) {
+		std::vector<GuiComponent*> guis = GetGuisRecursive(parent);
+
+		std::vector<glm::vec2> starts;
+		for (GuiComponent* gui : guis) {
+			starts.push_back(glm::vec2(gui->GetFontOpacity(), gui->GetTextureOpacity()));
+		}
+
+		auto tween = Effects::Instance().CreateTween<float, Ease>(0.f, 1.f, duration);
+		tween->SetUpdateCallback([guis, starts, goalOpacity](float& value) mutable {
+			for (size_t i = 0; i < guis.size(); ++i) {
+				GuiComponent* gui = guis[i];
+				glm::vec2 start = starts[i];
+				gui->SetFontOpacity(glm::mix(start.x, goalOpacity, value));
+				gui->SetTextureOpacity(glm::mix(start.y, goalOpacity, value));
+			}
+		});
+		return tween;
+	}
+    
+	static void SetOpacityRecursive(Entity* parent, float goalOpacity);
+
+	static std::vector<GuiComponent*> GetGuisRecursive(Entity* parent);
+private:
+	static void GetGuisRecursive(Entity* parent, std::vector<GuiComponent*>& guis);
 };

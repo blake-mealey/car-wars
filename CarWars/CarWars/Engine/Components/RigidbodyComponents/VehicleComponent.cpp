@@ -508,6 +508,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
             auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Quint::easeOut>(start, end, 0.1, StateManager::gameTime);
             tween->SetTag(tweenTag);
             tween->SetUpdateCallback([gui](glm::vec3& value) mutable {
+				if (StateManager::GetState() != GameState_Playing) return;
                 gui->transform.SetScale(value);
             });
             tween->Start();
