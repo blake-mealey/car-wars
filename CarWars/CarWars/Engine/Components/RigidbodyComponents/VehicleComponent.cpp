@@ -456,7 +456,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
     VehicleData* me = Game::GetDataFromEntity(GetEntity());
 
     if (attacker->teamIndex == me->teamIndex) return;
-    health -= damager->GetDamage() * resistance;
+    health -= damager->GetDamage() * (1.f-resistance);
 
     PlayerData* attackerPlayer = Game::GetPlayerFromEntity(damager->GetEntity());
     if (attackerPlayer) {

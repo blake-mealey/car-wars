@@ -56,13 +56,10 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 
 				Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
                 if (thingHit) {
-                    if (thingHit->HasTag("Vehicle") || thingHit->HasTag("AiVehicle")) {
-                        thingHit->TakeDamage(this);
-                    }
+					thingHit->TakeDamage(this);
                 }
 			}
 		}
-
         TweenChargeIndicator();
 	} else if (StateManager::gameTime.GetSeconds() < nextChargeTime.GetSeconds()) {
 	} else {
