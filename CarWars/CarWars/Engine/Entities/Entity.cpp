@@ -94,4 +94,7 @@ void Entity::TakeDamage(WeaponComponent* damager) {
 	for (Component* component : components) {
 		component->TakeDamage(damager);
 	}
+	for (Entity* entity : children) {
+		entity->TakeDamage(damager);
+	}
 }
