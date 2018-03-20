@@ -8,7 +8,7 @@
 		},
 		{
 			"Type": "PointLight",
-			"Color": [1, 0, 0],
+			"Color": [255, 0, 0],
 			"Power": 10
 		}
 	]

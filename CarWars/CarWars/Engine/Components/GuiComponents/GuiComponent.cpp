@@ -17,8 +17,8 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
 	text = ContentManager::GetFromJson<std::string>(data["Text"], "");
 	SetFont(ContentManager::GetFromJson<std::string>(data["Font"], "arial.ttf"));
 	SetFontSize(ContentManager::GetFromJson<int>(data["FontSize"], 36));
-	fontColor = ContentManager::JsonToVec4(data["FontColor"], glm::vec4(0.f, 0.f, 0.f, 1.f));
-	selectedFontColor = ContentManager::JsonToVec4(data["SelectedFontColor"], glm::vec4(1.f, 1.f, 1.f, 1.f));
+	fontColor = ContentManager::GetColorFromJson(data["FontColor"], glm::vec4(0.f, 0.f, 0.f, 1.f));
+	selectedFontColor = ContentManager::GetColorFromJson(data["SelectedFontColor"], glm::vec4(1.f));
 	if (data["Texture"].is_string()) texture = ContentManager::GetTexture(data["Texture"].get<std::string>());
     uvScale = ContentManager::JsonToVec2(data["UvScale"], glm::vec2(1.f));
 
@@ -29,8 +29,8 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
     
     selected = ContentManager::GetFromJson<bool>(data["Selected"], false);
 
-    textureColor = ContentManager::JsonToVec4(data["TextureColor"], glm::vec4(1.f));
-    selectedTextureColor = ContentManager::JsonToVec4(data["SelectedTextureColor"], glm::vec4(1.f));
+    textureColor = ContentManager::GetColorFromJson(data["TextureColor"], glm::vec4(1.f));
+    selectedTextureColor = ContentManager::GetColorFromJson(data["SelectedTextureColor"], glm::vec4(1.f));
 
     std::string textXAlignment = ContentManager::GetFromJson<std::string>(data["TextXAlignment"], "Centre");
     if (textXAlignment == "Left") {

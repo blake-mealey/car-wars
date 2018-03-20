@@ -55,7 +55,7 @@ const size_t Graphics::SHADOW_MAP_SIZE = 1024;
 
 // Lighting
 const glm::vec3 Graphics::SKY_COLOR = glm::vec3(144.f, 195.f, 212.f) / 255.f;
-const glm::vec3 Graphics::AMBIENT_COLOR = glm::vec3(0.4f);
+const glm::vec4 Graphics::AMBIENT_COLOR = glm::vec4(0.4f, 0.4f, 0.4f, 1.f);
 const glm::mat4 Graphics::BIAS_MATRIX = glm::mat4(
 	0.5, 0.0, 0.0, 0.0,
 	0.0, 0.5, 0.0, 0.0,
@@ -146,89 +146,29 @@ bool Graphics::Initialize(char* windowTitle) {
 	windowWidth = width;
 	windowHeight = height;
 
-	//Alpha Blending
-	/*glEnable(GL_ALPHA_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
-
-	// Z-Buffer
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-
 	// Sets the sky color
 	glClearColor(SKY_COLOR.r, SKY_COLOR.g, SKY_COLOR.b, 1.0f);
+
+    glLineWidth(2.f);
 
 	glewExperimental = GL_TRUE;		// TODO: Determine whether this is necessary or not
 	glewInit();
 	GenerateIds();
+
+    // Z-Buffer
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+
+    //Alpha Blending
+    glEnable(GL_BLEND);
+    glEnable(GL_ALPHA_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendEquation(GL_FUNC_ADD);
+
+    glDisable(GL_CULL_FACE);
 
     skyboxCube = ContentManager::GetMesh("Cube.obj");
     sunTexture = ContentManager::GetTexture("SunStrip.png");
-
-	return true;
-}
-
-//don't use in when debugging
-bool Graphics::InitializeFullScreen(char* windowTitle) {
-	if (!glfwInit()) {
-		std::cout << "Error Initializing GLFW" << std::endl;
-		return false;
-	}
-
-	//Create Window
-	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-	glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-	glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-	glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-	window = glfwCreateWindow(mode->width, mode->height, windowTitle, monitor, NULL);
-	if (window == NULL) {
-		std::cout << "Error Creating Window terminate" << std::endl;
-		return false;
-	}
-
-	//GLFW Setup
-	glfwMakeContextCurrent(window);
-	int width, height;
-	glfwGetFramebufferSize(window, &width, &height);
-	glfwSwapInterval(1);	//Swap Buffer Every Frame (Double Buffering)
-
-							// Input callbacks
-	glfwSetMouseButtonCallback(window, Mouse::MouseButtonCallback);
-	glfwSetKeyCallback(window, Keyboard::KeyboardCallback);
-	//glfwSetJoystickCallback(Controller::ControllerCallback);
-
-	// Window callbacks
-	glfwSetWindowSizeCallback(window, Graphics::WindowSizeCallback);
-
-	int xPos = (mode->width - SCREEN_WIDTH) / 2;
-	int yPos = (mode->height - SCREEN_HEIGHT) / 2;
-	glfwSetWindowPos(window, xPos, yPos);
-
-	//GL Setup
-	//Viewport
-	glfwGetWindowSize(window, &width, &height); //check resize
-	windowWidth = width;
-	windowHeight = height;
-
-	//Alpha Blending
-	/*glEnable(GL_ALPHA_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
-
-	// Z-Buffer
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-
-	// Sets the sky color
-	glClearColor(SKY_COLOR.r, SKY_COLOR.g, SKY_COLOR.b, 1.0f);
-
-	glewExperimental = GL_TRUE;		// TODO: Determine whether this is necessary or not
-	glewInit();
-	GenerateIds();
-
-	skyboxCube = ContentManager::GetMesh("Cube.obj");
 
 	return true;
 }
@@ -715,8 +655,6 @@ void Graphics::Update() {
     if (bloomEnabled) {
         // Disable the depth mask and enable additive blending
         glDepthMask(GL_FALSE);
-        glEnable(GL_BLEND);
-        glBlendEquation(GL_FUNC_ADD);
         glBlendFunc(GL_ONE, GL_ONE);
 
         // Render each blur level
@@ -726,7 +664,7 @@ void Graphics::Update() {
         }
 
         // Disable blending and re-enable the depth mask
-        glDisable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDepthMask(GL_TRUE);
     }
 
@@ -739,8 +677,6 @@ void Graphics::Update() {
     ShaderProgram *guiProgram = shaders[Shaders::GUI];
 
     if (renderGuis) {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_DEPTH_TEST);
 
         for (Camera camera : cameras) {
@@ -927,9 +863,7 @@ void Graphics::Update() {
         }
 
         glDisable(GL_STENCIL_TEST);
-
         glEnable(GL_DEPTH_TEST);
-        glDisable(GL_BLEND);
     }
 
     // -------------------------------------------------------------------------------------------------------------- //

@@ -14,7 +14,7 @@
 					"UvScale": [10, 10],
 					"Material": {
 						"DiffuseColor": [0, 0, 0],
-						"SpecularColor": [0, 0 ,0],
+						"SpecularColor": [0, 0, 0],
 						"Specularity":  1
 					}
 				}

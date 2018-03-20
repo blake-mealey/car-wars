@@ -6,6 +6,9 @@
 #include "../../Components/CameraComponent.h"
 #include "../../Systems/Content/ContentManager.h"
 #include "../../Systems/Physics/RaycastGroups.h"
+#include "../LineComponent.h"
+#include "PennerEasing/Linear.h"
+#include "../../Systems/Effects.h"
 
 RailGunComponent::RailGunComponent() : WeaponComponent(1150.0f) {}
 
@@ -35,14 +38,26 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
 		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
 			if (gunHit.hasAnyHits()) {
-				Entity* hitMarker = ContentManager::LoadEntity("Marker.json");
-				hitMarker->transform.SetPosition(Transform::FromPx(gunHit.block.position));
+                Entity* bullet = ContentManager::LoadEntity("Bullet.json");
+                LineComponent* line = bullet->GetComponent<LineComponent>();
+                line->SetPoint0(gunPosition);
+                line->SetPoint1(Transform::FromPx(gunHit.block.position));
+                auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(1.f, 0.f, 0.1);
+                tween->SetUpdateCallback([line, rgTurret](float& value) mutable {
+                    line->SetColor(glm::vec4(1.f, 0.f, 0.f, value));
+                    line->SetPoint0(rgTurret->transform.GetGlobalPosition());
+                });
+                tween->SetFinishedCallback([bullet](float& value) mutable {
+                    EntityManager::DestroyEntity(bullet);
+                });
+                tween->Start();
 
 				Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
-				if (thingHit)
-					if (thingHit->HasTag("Vehicle") || thingHit->HasTag("AiVehicle")) {
-						thingHit->TakeDamage(this);
-					}
+                if (thingHit) {
+                    if (thingHit->HasTag("Vehicle") || thingHit->HasTag("AiVehicle")) {
+                        thingHit->TakeDamage(this);
+                    }
+                }
 			}
 		}
 

@@ -100,13 +100,12 @@ public:
 	static const size_t SHADOW_MAP_SIZE;
 
 	static const glm::vec3 SKY_COLOR;
-	static const glm::vec3 AMBIENT_COLOR;
+	static const glm::vec4 AMBIENT_COLOR;
 
 	static const glm::mat4 BIAS_MATRIX;
 
 	// System calls
 	bool Initialize(char* windowTitle);
-	bool InitializeFullScreen(char* windowTitle); // don't use when debugging
 	void Update() override;
 
     void SceneChanged();

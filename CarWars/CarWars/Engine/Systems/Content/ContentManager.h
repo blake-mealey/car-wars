@@ -49,6 +49,7 @@ public:
 	static glm::vec3 JsonToVec3(nlohmann::json data);
 	static glm::vec2 JsonToVec2(nlohmann::json data, glm::vec2 defaultValue);
 	static glm::vec2 JsonToVec2(nlohmann::json data);
+    static glm::vec4 GetColorFromJson(nlohmann::json data, glm::vec4 defaultValue);
 
     static void LoadCollisionGroups(std::string filePath);
 

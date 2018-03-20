@@ -8,8 +8,8 @@
 		    "Scale": [400, 50, 1],
 		    "AnchorPoint": [0.5, 0.5],
 		    "Font": "Starjedi.ttf",
-		    "FontColor": [1, 1, 0, 1],
-		    "SelectedFontColor": [1, 1, 0, 1],
+		    "FontColor": [255, 255, 0],
+		    "SelectedFontColor": [255, 255, 0],
 		    "FontSize": 36,
             "Text": "option name"
 	    },
@@ -20,8 +20,8 @@
 		    "Scale": [400, 50, 1],
 		    "AnchorPoint": [0.5, 0.5],
 		    "Font": "Starjedi.ttf",
-		    "FontColor": [1, 1, 0, 1],
-		    "SelectedFontColor": [1, 0, 0, 1],
+		    "FontColor": [255, 255, 0],
+		    "SelectedFontColor": [255, 0, 0],
 		    "FontSize": 36,
 		    "Text": "option value"
 	    },
@@ -31,8 +31,8 @@
 			"AnchorPoint": [ 1, 0.5 ],
 			"Position": [ 50, 0, 0 ],
 			"Scale": [ 15, 25, 1 ],
-			"TextureColor": [1, 1, 0, 1],
-			"SelectedTextureColor": [1, 0, 0, 1],
+			"TextureColor": [255, 255, 0],
+			"SelectedTextureColor": [255, 0, 0],
 			"Texture": "Menu/Arrow-Left.png"
 		},
 		{
@@ -41,8 +41,8 @@
 			"AnchorPoint": [ 0, 0.5 ],
 			"Position": [ 450, 0, 0 ],
 			"Scale": [ 15, 25, 1 ],
-			"TextureColor": [1, 1, 0, 1],
-			"SelectedTextureColor": [1, 0, 0, 1],
+			"TextureColor": [255, 255, 0],
+			"SelectedTextureColor": [255, 0, 0],
 			"Texture": "Menu/Arrow-Right.png"
 		}
     ]

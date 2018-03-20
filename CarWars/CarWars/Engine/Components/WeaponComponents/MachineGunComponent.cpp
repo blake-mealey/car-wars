@@ -9,8 +9,11 @@
 #include "../../Systems/StateManager.h"
 #include "../../Systems/Physics.h"
 #include "../RigidbodyComponents/VehicleComponent.h"
+#include "../LineComponent.h"
+#include "../../Systems/Effects.h"
+#include "PennerEasing/Linear.h"
 
-MachineGunComponent::MachineGunComponent() : WeaponComponent(100.0f) {}
+MachineGunComponent::MachineGunComponent() : WeaponComponent(20.0f) {}
 
 void MachineGunComponent::Shoot(glm::vec3 position) {
 	if (StateManager::gameTime.GetSeconds() > nextShotTime.GetSeconds()) {
@@ -26,26 +29,38 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		audioManager.PlayAudio("Content/Sounds/machine_gun_shot.mp3");
 
 		//Variables Needed
-		glm::vec3 gunPosition = mgTurret->transform.GetGlobalPosition();
-		glm::vec3 gunDirection = position - gunPosition;
+		const glm::vec3 gunPosition = mgTurret->transform.GetGlobalPosition();
+		const glm::vec3 gunDirection = glm::normalize(position - gunPosition);
 
 		//Cast Gun Ray
 	    PxScene* scene = &Physics::Instance().GetScene();
-		float rayLength = 100.0f;
+		const float rayLength = 1000.0f;
 		PxRaycastBuffer cameraHit;
 		PxQueryFilterData filterData;
 		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
 		PxRaycastBuffer gunHit;
 		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
 			if (gunHit.hasAnyHits()) {
-				Entity* hitMarker = ContentManager::LoadEntity("Marker.json");
-				hitMarker->transform.SetPosition(Transform::FromPx(gunHit.block.position));
+                Entity* bullet = ContentManager::LoadEntity("Bullet.json");
+                LineComponent* line = bullet->GetComponent<LineComponent>();
+                const glm::vec3 start = gunPosition;
+                const glm::vec3 end = Transform::FromPx(gunHit.block.position);
+                auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Linear::easeNone>(start, end, 0.1);
+                tween->SetUpdateCallback([line, gunDirection](glm::vec3& value) mutable {
+                    line->SetPoint0(value);
+                    line->SetPoint1(value + gunDirection * 5.f);
+                });
+                tween->SetFinishedCallback([bullet](glm::vec3& value) mutable {
+                    EntityManager::DestroyEntity(bullet);
+                });
+                tween->Start();
 
 				Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
-				if (thingHit)
-				if (thingHit->HasTag("Vehicle") || thingHit->HasTag("AiVehicle")) {
-					thingHit->TakeDamage(this);
-				}
+                if (thingHit) {
+                    if (thingHit->HasTag("Vehicle") || thingHit->HasTag("AiVehicle")) {
+                        thingHit->TakeDamage(this);
+                    }
+                }
 			}
 		}
 	} else { // betweeen shots

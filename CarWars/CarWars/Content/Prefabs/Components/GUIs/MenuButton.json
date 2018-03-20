@@ -4,8 +4,8 @@
 	"Scale": [400, 50, 1],
 	"AnchorPoint": [0.5, 0.5],
 	"Font": "Starjedi.ttf",
-	"FontColor": [1, 1, 0, 1],
-    "SelectedFontColor": [1, 0, 0, 1],
+	"FontColor": [255, 255, 0],
+    "SelectedFontColor": [255, 0, 0],
 	"FontSize": 36,
 	"Texture": "DiamondPlate.jpg",
 	"UvScale": [1.125, 0.3]

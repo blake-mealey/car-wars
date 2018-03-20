@@ -9,7 +9,7 @@ LineComponent::~LineComponent() {
 }
 
 LineComponent::LineComponent(json data) {
-    color = ContentManager::JsonToVec3(data["Color"], glm::vec3(1.f, 0.f, 0.f));
+    color = ContentManager::GetColorFromJson(data["Color"], glm::vec4(1.f, 0.f, 0.f, 1.f));
     if (data["Points"].is_array()) {
         for (const json point : data["Points"]) {
             points.push_back(ContentManager::JsonToVec3(point));
@@ -19,7 +19,7 @@ LineComponent::LineComponent(json data) {
     InitializeRenderBuffers();
 }
 
-LineComponent::LineComponent(std::vector<glm::vec3> _points, glm::vec3 _color) : points(_points), color(_color) {
+LineComponent::LineComponent(std::vector<glm::vec3> _points, glm::vec4 _color) : points(_points), color(_color) {
     InitializeRenderBuffers();
 }
 
@@ -75,11 +75,11 @@ glm::vec3 LineComponent::GetPoint2() const {
     return GetPoint(2);
 }
 
-void LineComponent::SetColor(glm::vec3 _color) {
+void LineComponent::SetColor(glm::vec4 _color) {
     color = _color;
 }
 
-glm::vec3 LineComponent::GetColor() const {
+glm::vec4 LineComponent::GetColor() const {
     return color;
 }
 

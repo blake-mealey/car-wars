@@ -315,6 +315,7 @@
     <None Include="Content\Prefabs\Components\Weapons\RailGun.json" />
     <None Include="Content\Prefabs\Components\Weapons\RocketLauncher.json" />
     <None Include="Content\Prefabs\Entities\Boulder.json" />
+    <None Include="Content\Prefabs\Entities\Bullet.json" />
     <None Include="Content\Prefabs\Entities\Explosion.json" />
     <None Include="Content\Prefabs\Entities\Game\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
