@@ -90,7 +90,7 @@ struct PlayerData : VehicleData {
 };
 
 struct AiData : VehicleData {
-    AiData(int _vehicleType, int _weaponType) : VehicleData(_vehicleType, _weaponType), brain(nullptr) {}
+    AiData(int _vehicleType, int _weaponType, float _diffuculty) : VehicleData(_vehicleType, _weaponType), brain(nullptr), diffuculty(_diffuculty){}
 
     // Game state
     AiComponent* brain;
@@ -153,23 +153,12 @@ public:
     static VehicleData* GetDataFromEntity(Entity* vehicle);
     static PlayerData* GetPlayerFromEntity(Entity* vehicle);
 
+	static glm::vec3 FindSpawn(VehicleData player);
 private:
 	// No instantiation or copying
 	Game();
 	Game(const Game&) = delete;
 	Game& operator= (const Game&) = delete;
-
-//    physx::PxRigidDynamic *cylinderRigid;
-
-    std::vector<Entity*> waypoints;
-
-	Entity *boulder;
-	Entity *camera;
-	Entity *sun;
-	Entity *floor;
-	Entity *baby;
-
-	Entity *car;
 
     NavigationMesh *navigationMesh;
 };

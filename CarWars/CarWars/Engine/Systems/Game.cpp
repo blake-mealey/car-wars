@@ -97,7 +97,6 @@ void Game::InitializeGame() {
         PlayerData& player = players[i];
 		player.name = "Player " + to_string(i + 1);
         player.alive = true;
-		player.follow = false;
 
 		// Initialize their vehicle
 		player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
@@ -148,10 +147,9 @@ void Game::InitializeGame() {
     for (size_t i = 0; i < gameData.aiCount; ++i) {
         // Create the AI
         // TODO: Choose vehicle and weapon type somehow
-        ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun));
+        ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun, AiComponent::MAX_DIFFUCULTY));
         AiData& ai = ais[i];
 		ai.alive = true;
-		ai.diffuculty = AiComponent::MAX_DIFFUCULTY;
 		ai.name = "Computer " + to_string(i + 1);
 
         // Set their team
@@ -182,9 +180,7 @@ void Game::InitializeGame() {
         EntityManager::AddComponent(ai.vehicleEntity, ai.brain);
     }
 
-    waypoints = EntityManager::FindEntities("Waypoint");
-
-    navigationMesh = new NavigationMesh({
+	navigationMesh = new NavigationMesh({
         { "ColumnCount", 100 },
         { "RowCount", 100 },
         { "Spacing", 2.5f }
