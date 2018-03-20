@@ -1,6 +1,6 @@
 {
-	"DiffuseColor": [0, 255, 255],
-	"SpecularColor": [0, 255, 255],
+	"DiffuseColor": "Cyan",
+	"SpecularColor": "Cyan",
 	"Specularity":  1,
 	"Emissiveness": 0.25
 }

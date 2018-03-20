@@ -1,6 +1,6 @@
 {
-    "DiffuseColor": [255, 255, 255],
-    "SpecularColor": [255, 255, 255],
+    "DiffuseColor": "White",
+    "SpecularColor": "White",
     "Specularity": 1,
 	"Emissiveness": 1
 }

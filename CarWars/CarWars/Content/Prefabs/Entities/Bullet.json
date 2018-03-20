@@ -3,7 +3,7 @@
     "Components": [
 	    {
 		    "Type": "Line",
-		    "Color": [255, 0, 0],
+		    "Color": "Red",
 		    "Points": [[],[]]
 	    }
     ]

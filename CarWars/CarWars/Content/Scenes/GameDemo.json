@@ -79,7 +79,7 @@
 			},
 			{
 				"Type": "PointLight",
-				"Color": [0, 0, 255],
+				"Color": "Blue",
 				"Power": 50
 			},
             {

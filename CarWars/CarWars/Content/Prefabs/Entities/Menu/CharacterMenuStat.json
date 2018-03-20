@@ -11,7 +11,7 @@
       "TextXAlignment": "Left",
       "Text": "armour",
       "Font": "Starjedi.ttf",
-      "FontColor": [ 255, 255, 0 ],
+      "FontColor": "Yellow",
       "FontSize": 15
     },
     {
@@ -25,7 +25,7 @@
       "TextXAlignment": "Right",
       "Text": "10",
       "Font": "Starjedi.ttf",
-      "FontColor": [ 255, 0, 0 ],
+      "FontColor": "Red",
       "FontSize": 15
     }
   ]

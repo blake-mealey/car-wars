@@ -14,7 +14,7 @@
 			"Position": [0, -120, 0],
 			"Font": "Starjedi.ttf",
 			"FontSize": 64,
-			"FontColor": [255, 255, 0],
+			"FontColor": "Yellow",
 			"Text": "paused"
 		}
 	],

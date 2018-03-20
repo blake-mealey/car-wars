@@ -11,7 +11,7 @@
 		},
 		{
 			"Type": "PointLight",
-			"Color": [255, 0, 0],
+			"Color": "Red",
 			"Power": 50
 		},
 		{
