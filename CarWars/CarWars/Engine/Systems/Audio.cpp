@@ -170,6 +170,7 @@ void Audio::UpdateCars() {
     //players
     for (int i = 0; i < Game::gameData.playerCount; i++) {
         auto playerPos = Game::players[i].vehicleEntity->transform.GetGlobalPosition();
+        //auto vehicle = Game::players[i].vehicleEntity->
         //soundSystem->createSound(engineSound, FMOD_3D | FMOD_LOOP_NORMAL, 0, &carSounds[i].sound);
         //carSounds[i].sound->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
         //soundSystem->playSound(carSounds[i].sound, 0, true, &carSounds[i].channel);

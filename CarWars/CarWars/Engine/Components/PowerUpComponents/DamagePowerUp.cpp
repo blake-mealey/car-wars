@@ -1,5 +1,9 @@
 #pragma once
 #include "DamagePowerUp.h"
+#include "../../Systems/Effects.h"
+#include "../Dependencies/PennerEasing/Quint.h"
+#include "../../Components/GuiComponents/GuiComponent.h"
+#include "../../Components/WeaponComponents/WeaponComponent.h"
 
 DamagePowerUp::DamagePowerUp() {
 
@@ -24,6 +28,24 @@ void DamagePowerUp::SetEntity(Entity* _entity) {
 void DamagePowerUp::Collect() {
     PowerUp::Collect();
     std::cout << "Damage Collected" << std::endl;
+}
+
+void DamagePowerUp::Collect(Entity* car) {
+    PowerUp::Collect();
+    PlayerData* player = Game::Instance().GetPlayerFromEntity(car);
+    WeaponComponent* weapon = car->GetComponent<WeaponComponent>();
+    weapon->damageMultiplier = 1.25f;
+    if (player) {
+        Entity* guiRoot = player->camera->GetGuiRoot();
+        Entity* guiEntity = EntityManager::FindFirstChild(guiRoot, "PowerUp");
+        GuiComponent* gui = guiEntity->GetComponent<GuiComponent>();
+        auto tween = Effects::Instance().CreateTween<float,easing::Quint::easeOut>(0.f, 1.f,0.25);
+        tween->SetUpdateCallback([gui](float &value) mutable {
+            gui->SetTextureOpacity(value);
+            gui->transform.SetScale(glm::mix(glm::vec3(100.f, 100.f, 0.f), glm::vec3(0.f, 0.f, 0.f), value));
+        });
+        tween->Start();
+    }
 }
 
 ComponentType DamagePowerUp::GetType() {

@@ -24,6 +24,8 @@ struct CarSound {
     glm::vec3 velocity;
     FMOD::Sound *sound=0;
     FMOD::Channel *channel=0;
+    bool changedDirection = false;
+    bool reversing = false;
 };
 
 

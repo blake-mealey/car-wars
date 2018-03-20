@@ -39,7 +39,7 @@ void WeaponComponent::SetTargetRotation(float _horizontalAngle, float _verticalA
 }
 
 float WeaponComponent::GetDamage() {
-	return damage;
+	return damageMultiplier * damage;
 }
 
 ComponentType WeaponComponent::GetType() {

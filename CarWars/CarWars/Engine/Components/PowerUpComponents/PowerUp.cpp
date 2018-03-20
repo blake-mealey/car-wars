@@ -7,6 +7,10 @@ void PowerUp::Collect() {
     audioManager.PlayAudio("Content/Sounds/powerup.mp3");
 }
 
+void PowerUp::Collect(Entity* car) {
+    PowerUp::Collect();
+}
+
 ComponentType PowerUp::GetType() {
     return ComponentType_PowerUp;
 }

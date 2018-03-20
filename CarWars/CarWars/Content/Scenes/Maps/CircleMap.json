@@ -23,8 +23,8 @@
       }
     ]
   },
-  {
-        "Prefab": "Waypoint.json",
+ {
+        "Prefab": "DamagePowerUp.json",
 	    "Position": [ -50, 2, -20 ]
     },
     {

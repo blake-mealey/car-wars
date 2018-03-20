@@ -32,6 +32,27 @@
 //
 //=======
 
+void HandlePowerUpCollision(Entity* _actor0, Entity* _actor1) {
+    Entity* actor0;
+    Entity* actor1;
+    if (_actor0->HasTag("PowerUp")) {
+        actor0 = _actor0;
+        actor1 = _actor1;
+    } else {
+        actor0 = _actor1;
+        actor1 = _actor0;
+    }
+
+    if (actor1) {
+        VehicleComponent* vehicle = actor1->GetComponent<VehicleComponent>();
+        if (vehicle) {
+            Physics& physicsInstance = Physics::Instance();
+            actor0->GetComponent<DamagePowerUp>()->Collect(actor1);
+            physicsInstance.AddToDelete(actor0);
+        }
+    }
+}
+
 void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 	if (_actor0->HasTag("Missile")) {
 		Physics& physicsInstance = Physics::Instance();
@@ -68,10 +89,12 @@ void CollisionCallback::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 coun
 	Entity* actor0 = actor0RB->GetEntity();
 	RigidbodyComponent* actor1RB = static_cast<RigidbodyComponent*>(pairs->otherActor->userData);
 	Entity* actor1 = actor1RB->GetEntity();
-
-	if (actor0 && actor1) {
+    if (actor0 && actor1) {
 		HandleMissileCollision(actor0, actor1);
 		HandleMissileCollision(actor1, actor0);
+        if (actor0->HasTag("PowerUp") || actor1->HasTag("PowerUp")) {
+            HandlePowerUpCollision(actor0, actor1);
+        }
 	}
 }
 

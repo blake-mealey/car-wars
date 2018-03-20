@@ -8,6 +8,7 @@
 class SpeedPowerUp : public PowerUp {
 public:
     SpeedPowerUp();
+    void Collect(Entity* car) override;
     void Collect() override;
 
     ComponentType GetType() override;
