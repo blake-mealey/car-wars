@@ -479,7 +479,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
             const std::string tweenTag = "DamageIndicator" + std::to_string(myPlayer->id);
             Tween* oldTween = Effects::Instance().FindTween(tweenTag);
             if (oldTween) Effects::Instance().DestroyTween(oldTween);
-            auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeIn>(0.f, 1.f, 1.0);
+            auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeIn>(0.f, 1.f, 1.0, StateManager::gameTime);
             tween->SetTag(tweenTag);
             tween->SetUpdateCallback([gui, myPlayer, attacker](float& value) mutable {
                 if (StateManager::GetState() != GameState_Playing || !myPlayer->alive || !attacker->alive) return;
@@ -504,7 +504,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
             if (oldTween) Effects::Instance().DestroyTween(oldTween);
             const glm::vec3 start = gui->transform.GetLocalScale();
             const glm::vec3 end = glm::vec3(240.f * healthPercent, 20.f, 0.f);
-            auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Quint::easeOut>(start, end, 0.1);
+            auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Quint::easeOut>(start, end, 0.1, StateManager::gameTime);
             tween->SetTag(tweenTag);
             tween->SetUpdateCallback([gui](glm::vec3& value) mutable {
                 gui->transform.SetScale(value);
@@ -558,7 +558,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
             Tween* oldTween = Effects::Instance().FindTween(tweenTag);
             if (oldTween) Effects::Instance().DestroyTween(oldTween);
 
-            auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.5);
+            auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.5, StateManager::gameTime);
             tween->SetTag(tweenTag);
             tween->SetUpdateCallback([rows, maxCount](float& value) mutable {
                 if (StateManager::GetState() != GameState_Playing) return;

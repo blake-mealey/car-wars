@@ -30,6 +30,23 @@
       "Rotate": [ 0, 0, -20 ],
       "scale": [10,10,10]
     },
+	{
+		"Tag": "Dome",
+		"Position": [ 0, 0, -30 ],
+		"Scale": [ 15, 15, 15 ],
+		"Components": [
+			{
+				"Type": "Mesh",
+				"Mesh": "Sphere.obj",
+				"Material": {
+					"DiffuseColor": "RedAlpha",
+					"SpecularColor": "RedAlpha",
+					"Specularity": 1,
+					"Emissiveness": 1
+				}
+			}
+		]
+	},
   {
     "Tag": "Wall",
     "Position": [ -20, 5, -15 ],

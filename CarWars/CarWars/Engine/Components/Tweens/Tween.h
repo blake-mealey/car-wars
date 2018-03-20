@@ -7,7 +7,7 @@ friend class Effects;
 public:
     virtual ~Tween() = default;
     void Start() {
-        startTime = StateManager::globalTime;
+        startTime = clock;
         started = true;
     }
 
@@ -44,11 +44,13 @@ public:
         return tag.compare(a_tag) == 0;
     }
 protected:
-    Tween(const Time a_duration) : started(false), finished(false), duration(a_duration), nextTween(nullptr), ownedByEffectsSystem(true) {}
+    Tween(const Time a_duration, Time& _clock = StateManager::globalTime) :
+        started(false), finished(false), clock(_clock), duration(a_duration), nextTween(nullptr), ownedByEffectsSystem(true) {}
 
     bool started;
     bool finished;
 
+    Time& clock;
     Time startTime;
     Time duration;
 

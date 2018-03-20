@@ -8,8 +8,8 @@
             "Material": {
 	            "DiffuseColor": "Red",
                 "SpecularColor": "Red",
-                "Specularity": 1,
-                "Emissiveness": 0.5
+                "Specularity": 0.1,
+                "Emissiveness": 0
             }
         }
     ]
