@@ -610,7 +610,7 @@ size_t VehicleComponent::GetRaycastGroup() const {
 
 
 void VehicleComponent::Boost(glm::vec3 boostDir, float amount) {
-	pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(boostDir * amount * GetChassisMass()), PxForceMode::eIMPULSE, true);
+	pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(glm::normalize(boostDir) * amount * GetChassisMass()), PxForceMode::eIMPULSE, true);
 	lastBoost = StateManager::gameTime;
 }
 
