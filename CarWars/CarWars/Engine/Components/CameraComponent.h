@@ -49,6 +49,7 @@ public:
 	void SetCameraVerticalAngle(float _cameraLift);
 
 	void UpdateCameraPosition(Entity* _vehicle, float _cameraHor, float _cameraVer);
+	void UpdatePositionFromAngles();
 	
 	void SetDistance(float distance);
 	
@@ -60,8 +61,7 @@ public:
 
 	Entity* GetGuiRoot();
 
-	//std::vector<Entity*>& GetGuiEntities();
-
+	bool follow;
 private:
 	//std::vector<Entity*> guiEntities;
 	Entity *guiRoot;
@@ -78,7 +78,6 @@ private:
 
 	void UpdateViewMatrix();
 	void UpdateProjectionMatrix();
-    void UpdatePositionFromAngles();
 
 	glm::mat4 viewMatrix;
 	glm::mat4 projectionMatrix;

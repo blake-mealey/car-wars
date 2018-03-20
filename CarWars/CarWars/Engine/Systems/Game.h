@@ -68,8 +68,6 @@ struct VehicleData {
     Entity* vehicleEntity;
     Entity* cameraEntity;
     CameraComponent* camera;
-	
-	bool follow;
 
     // Gamemode state
 	std::string name;

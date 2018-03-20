@@ -38,19 +38,6 @@ void InputManager::Update() {
 	HandleController();
 }
 
-void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs) {
-	float cameraHor = camera->GetCameraHorizontalAngle();
-	float cameraVer = camera->GetCameraVerticalAngle();
-	float cameraSpd = camera->GetCameraSpeed();
-	float cameraNewHor = (cameraHor + (angleDiffs.x * cameraSpd * StateManager::deltaTime.GetSeconds()));
-	float cameraNewVer = (cameraVer + (angleDiffs.y * cameraSpd * StateManager::deltaTime.GetSeconds()));
-
-	cameraNewVer = glm::clamp(cameraNewVer, 0.1f, (float) M_PI - 0.1f);
-	if (cameraNewHor > M_PI) cameraNewHor -= M_PI * 2;
-	if (cameraNewHor < -M_PI) cameraNewHor += M_PI * 2;
-
-	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
-}
 
 void InputManager::HandleMouse() {
 	//Mouse Inputs
@@ -76,7 +63,7 @@ void InputManager::HandleMouse() {
 		}
 
 		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_MIDDLE)) {
-			player.follow = !player.follow;
+			cameraC->follow = !cameraC->follow;
 		}
 
 		//Cursor Inputs
@@ -88,7 +75,7 @@ void InputManager::HandleMouse() {
 		//Get Camera Component
 		glm::vec2 angleDiffs = 10.f * (windowSize*0.5f - glm::vec2(xPos, yPos)) / windowSize;
 		angleDiffs.x = -angleDiffs.x;
-		UpdateCamera(player.vehicleEntity, cameraC, angleDiffs);
+		cameraC->UpdateCameraPosition(player.vehicleEntity, angleDiffs.x, angleDiffs.y);
 
 		//Set Cursor to Middle
 		glfwSetCursorPos(graphicsInstance.GetWindow(), windowSize.x / 2, windowSize.y / 2);
@@ -642,14 +629,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 	
 		// an attempt to reset camera behind the vehicle
 		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
-			player.follow = !player.follow;
-		}
-		if (player.follow) {
-			glm::vec3 vehicleDirection = vehicle->GetEntity()->transform.GetForward();
-			vehicleDirection.y = 0;
-			vehicleDirection = glm::normalize(vehicleDirection);
-			cameraX = -cameraC->GetCameraHorizontalAngle() + ((acos(glm::dot(vehicleDirection, Transform::FORWARD)))) * (glm::dot(vehicleDirection, Transform::RIGHT) > 0 ? 1 : -1) + M_PI_2;
-			cameraY = -cameraC->GetCameraVerticalAngle() + M_PI * .45f;
+			cameraC->follow = !cameraC->follow;
 		}
 
 		if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE && abs(controller->GetPreviousState().Gamepad.sThumbRX) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
@@ -722,7 +702,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		vehicle->Handbrake(handbrake);
 		vehicle->Steer(steer);
 
-		UpdateCamera(vehicle->GetEntity(), cameraC, glm::vec2(cameraX, cameraY));
+		cameraC->UpdateCameraPosition(vehicle->GetEntity(), cameraX, cameraY);
 	}
 }
 

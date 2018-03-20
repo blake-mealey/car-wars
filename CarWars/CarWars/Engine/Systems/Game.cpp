@@ -128,10 +128,19 @@ void Game::InitializeGame() {
         // Initialize their camera
         player.cameraEntity = ContentManager::LoadEntity("Game/Camera.json");
 	    player.camera = player.cameraEntity->GetComponent<CameraComponent>();
-        player.camera->SetCameraHorizontalAngle(-3.14 / 2);
-        player.camera->SetCameraVerticalAngle(3.14 / 4);
 
-        // Initialize their UI
+		player.camera->SetTarget(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
+		player.camera->SetTargetOffset(glm::vec3(0, 2, 0));
+
+		glm::vec3 vehicleDirection = player.vehicleEntity->transform.GetForward();
+		vehicleDirection.y = 0;
+		vehicleDirection = glm::normalize(vehicleDirection);
+
+		player.camera->SetCameraHorizontalAngle(-player.camera->GetCameraHorizontalAngle() + acos(glm::dot(vehicleDirection, Transform::FORWARD)) * (glm::dot(vehicleDirection, Transform::RIGHT) > 0 ? 1 : -1) + M_PI_2);
+		player.camera->SetCameraVerticalAngle(-player.camera->GetCameraVerticalAngle() + M_PI * .45f);
+		player.camera->UpdatePositionFromAngles();
+		
+		// Initialize their UI
         ContentManager::LoadScene("GUIs/HUD.json", player.camera->GetGuiRoot());
 	}
 
