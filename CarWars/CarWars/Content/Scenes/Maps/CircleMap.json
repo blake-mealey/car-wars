@@ -13,6 +13,7 @@
       },
       {
         "Type": "RigidStatic",
+        "BlocksNavMesh": false,
         "Colliders": [
           {
             "Type": "Mesh",
