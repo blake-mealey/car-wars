@@ -45,7 +45,7 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
                 LineComponent* line = bullet->GetComponent<LineComponent>();
                 const glm::vec3 start = gunPosition;
                 const glm::vec3 end = Transform::FromPx(gunHit.block.position);
-                auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Linear::easeNone>(start, end, 0.1);
+                auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Linear::easeNone>(start, end, 0.1, StateManager::gameTime);
                 tween->SetUpdateCallback([line, gunDirection](glm::vec3& value) mutable {
                     if (StateManager::GetState() != GameState_Playing) return;
                     line->SetPoint0(value);

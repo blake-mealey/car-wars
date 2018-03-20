@@ -18,11 +18,11 @@ void WeaponComponent::TweenChargeIndicator() {
         const Time duration = (nextShotTime - StateManager::gameTime) * 0.5;
         
         auto tweenIn = Effects::Instance().CreateTween<glm::vec3, easing::Sine::easeOut>(
-            glm::vec3(134.f, 134.f, 0.f), glm::vec3(134.f, 0.f, 0.f), duration);
+            glm::vec3(134.f, 134.f, 0.f), glm::vec3(134.f, 0.f, 0.f), duration, StateManager::gameTime);
         tweenIn->SetUpdateCallback([&mask](glm::vec3& value) { mask.SetScale(value); });
 
         auto tweenOut = Effects::Instance().CreateTween<glm::vec3, easing::Sine::easeIn>(
-            glm::vec3(134.f, 0.f, 0.f), glm::vec3(134.f, 134.f, 0.f), duration);
+            glm::vec3(134.f, 0.f, 0.f), glm::vec3(134.f, 134.f, 0.f), duration, StateManager::gameTime);
         tweenOut->SetUpdateCallback([&mask](glm::vec3& value) { mask.SetScale(value); });
         
         tweenIn->SetNext(tweenOut);

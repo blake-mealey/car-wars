@@ -165,13 +165,22 @@ bool Graphics::Initialize(char* windowTitle) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBlendEquation(GL_FUNC_ADD);
 
-    glDisable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     skyboxCube = ContentManager::GetMesh("Cube.obj");
     sunTexture = ContentManager::GetTexture("SunStrip.png");
 
 	return true;
 }
+
+struct IsMoreOpaque {
+    bool operator() (const Component* lhs, const Component* rhs) {
+        const MeshComponent* lhsMesh = static_cast<const MeshComponent*>(lhs);
+        const MeshComponent* rhsMesh = static_cast<const MeshComponent*>(rhs);
+        return lhsMesh->GetMaterial()->diffuseColor.a > rhsMesh->GetMaterial()->diffuseColor.a;
+    }
+};
 
 void Graphics::Update() {
 	glfwPollEvents();			// Should this be here or in InputManager?
@@ -180,7 +189,7 @@ void Graphics::Update() {
 	const std::vector<Component*> pointLights = EntityManager::GetComponents(ComponentType_PointLight);
 	const std::vector<Component*> directionLights = EntityManager::GetComponents(ComponentType_DirectionLight);
 	const std::vector<Component*> spotLights = EntityManager::GetComponents(ComponentType_SpotLight);
-	const std::vector<Component*> meshes = EntityManager::GetComponents(ComponentType_Mesh);
+	std::vector<Component*> meshes = EntityManager::GetComponents(ComponentType_Mesh);
 	const std::vector<Component*> lines = EntityManager::GetComponents(ComponentType_Line);
 	const std::vector<Component*> cameraComponents = EntityManager::GetComponents(ComponentType_Camera);
 	const std::vector<Component*> aiComponents = EntityManager::GetComponents(ComponentType_AI);
@@ -190,6 +199,8 @@ void Graphics::Update() {
         ComponentType_RigidStatic,
         ComponentType_Vehicle
     });
+
+    sort(meshes.begin(), meshes.end(), IsMoreOpaque());
 
     // Get the active cameras and setup their viewports
     LoadCameras(cameraComponents);
@@ -249,8 +260,9 @@ void Graphics::Update() {
 			// Render the model
             glDrawElements(GL_TRIANGLES, mesh->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
 		}
-	}
 
+        glCullFace(GL_BACK);
+	}
 
 	// -------------------------------------------------------------------------------------------------------------- //
 	// RENDER WORLD
@@ -261,7 +273,6 @@ void Graphics::Update() {
 
     // Clear the buffer and enable back-face culling
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glCullFace(GL_BACK);
 
 	// Use the geometry shader program
 	ShaderProgram *geometryProgram = shaders[Shaders::Geometry];
@@ -528,7 +539,7 @@ void Graphics::Update() {
     glBindTexture(GL_TEXTURE_CUBE_MAP, ContentManager::GetSkybox());
     skyboxProgram->LoadUniform(UniformName::SkyboxTexture, 0);
 
-	// Load the color adjustment to the GPU
+    // Load the color adjustment to the GPU
     skyboxProgram->LoadUniform(UniformName::SkyboxColor, glm::vec3(1.5f, 1.2f, 1.2f));
 
     // Load the skybox geometry into the GPU
@@ -544,8 +555,9 @@ void Graphics::Update() {
         skyboxProgram->LoadUniform(UniformName::SunDirection, shadowCaster->GetDirection());
     }
 
-    skyboxProgram->LoadUniform(UniformName::Time, StateManager::gameTime.GetSeconds());
+    skyboxProgram->LoadUniform(UniformName::Time, StateManager::globalTime.GetSeconds());
 
+    glDisable(GL_CULL_FACE);
     for (Camera camera : cameras) {
         // Setup the viewport for each camera (split-screen)
         glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
@@ -557,6 +569,7 @@ void Graphics::Update() {
         // Render the skybox
         glDrawElements(GL_TRIANGLES, skyboxCube->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
     }
+    glEnable(GL_CULL_FACE);
 
     // -------------------------------------------------------------------------------------------------------------- //
     // RENDER POST-PROCESSING EFFECTS (BLOOM)

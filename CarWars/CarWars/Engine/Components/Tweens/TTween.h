@@ -2,7 +2,6 @@
 
 #include "../../Systems/Time.h"
 #include <glm/glm.hpp>
-#include "../../Systems/StateManager.h"
 #include "Tween.h"
 #include <functional>
 
@@ -12,7 +11,7 @@ friend class Effects;
 public:
     void Update() override {
         if (!started || finished) return;
-        const Time current = StateManager::globalTime - startTime;
+        const Time current = clock - startTime;
         if (current >= duration) {
             value = end;
             Stop(true);
@@ -39,10 +38,10 @@ public:
     }
 
 protected:
-    TTween(V a_start, V a_end, const Time a_duration) : Tween(a_duration),
+    TTween(V a_start, V a_end, const Time a_duration, Time& clock = StateManager::globalTime) : Tween(a_duration, clock),
         updateCallback(nullptr), finishedCallback(nullptr), initialValue(a_start), value(initialValue), start(a_start), end(a_end) {}
 
-    TTween(V& a_value, V a_start, V a_end, const Time a_duration) : Tween(a_duration),
+    TTween(V& a_value, V a_start, V a_end, const Time a_duration, Time& clock = StateManager::globalTime) : Tween(a_duration, clock),
         updateCallback(nullptr), finishedCallback(nullptr), value(a_value), start(a_start), end(a_end) {}
 
     std::function<void(V&)> updateCallback;

@@ -31,6 +31,8 @@ class Component {
 public:
     virtual ~Component() = default;
     Component();
+    Component(const Component& component) = default;
+    Component& operator=(const Component& component) = default;
 	
 	bool enabled;
 	
