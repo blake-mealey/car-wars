@@ -228,5 +228,6 @@
     <None Include="Content\Prefabs\Entities\Menu\KillFeedRow.json" />
     <None Include="Content\Scenes\GUIs\GameEnd_GUI.json" />
     <None Include="Content\Prefabs\Entities\Bullet.json" />
+    <None Include="Content\Prefabs\Entities\ExplosionEffect.json" />
   </ItemGroup>
 </Project>

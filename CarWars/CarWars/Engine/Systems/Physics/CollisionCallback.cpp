@@ -1,11 +1,12 @@
 #include "CollisionCallback.h"
 #include "../Physics.h"
-#include "../../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../Engine/Components/WeaponComponents/MissileComponent.h"
 #include "../../Components/WeaponComponents/RocketLauncherComponent.h"
 #include "../../Entities/Transform.h"
-#include "../../Systems/Physics.h"
 #include <vector>
+#include "../Effects.h"
+#include "PennerEasing/Quint.h"
+#include "../../Components/RigidbodyComponents/RigidStaticComponent.h"
 
 void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 	if (_actor0->HasTag("Missile")) {
@@ -17,12 +18,28 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 			//Explode
 			float explosionRadius = _actor0->GetComponent<MissileComponent>()->GetExplosionRadius();
 
+            Entity* explosionEffect = ContentManager::LoadEntity("ExplosionEffect.json");
+            explosionEffect->transform.SetPosition(_actor0->transform.GetGlobalPosition());
+            MeshComponent* mesh = explosionEffect->GetComponent<MeshComponent>();
+            Material* mat = mesh->GetMaterial();
+            
+            auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.5);
+            tween->SetUpdateCallback([mesh, mat, explosionRadius](float& value) mutable {
+                mesh->transform.SetScale(glm::mix(glm::vec3(0.f), glm::vec3(explosionRadius*0.5f), value));
+                mat->diffuseColor = glm::mix(glm::vec4(1.f, 0.f, 0.f, 1.f), glm::vec4(1.f, 0.f, 0.f, 0.f), value);
+                mat->specularity = 1.f - value;
+                mat->emissiveness = 1.f - value;
+            });
+            tween->SetFinishedCallback([explosionEffect](float& value) mutable {
+                EntityManager::DestroyEntity(explosionEffect);
+            });
+            tween->Start();
+
+
 			//bool isOverlapping = overlap();
 			//Entity* explosionEntity;
-			Entity* explosionEntity = ContentManager::LoadEntity("Explosion.json");
-
-			explosionEntity->GetComponent<RigidDynamicComponent>()->actor->setGlobalPose(_actor0->GetComponent<RigidDynamicComponent>()->actor->getGlobalPose());
-			explosionEntity->GetComponent<RigidDynamicComponent>()->actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+//			Entity* explosionEntity = ContentManager::LoadEntity("Explosion.json");
+//			explosionEntity->GetComponent<RigidStaticComponent>()->pxRigid->setGlobalPose(_actor0->GetComponent<RigidDynamicComponent>()->actor->getGlobalPose());
 
 			std::vector<Component*> carComponents = EntityManager::GetComponents(ComponentType_Vehicle);
 			for (Component* component : carComponents) {
