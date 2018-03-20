@@ -64,6 +64,7 @@ struct VehicleData {
     int weaponType;
 
     // Game state
+	Time diedTime;
     bool alive;
     Entity* vehicleEntity;
     Entity* cameraEntity;
@@ -125,6 +126,8 @@ struct GameData {
     static constexpr size_t MIN_TIME_LIMIT_MINUTES = 1;
     static constexpr size_t MAX_TIME_LIMIT_MINUTES = 60;
 
+	Time respawnTime = 1.0;
+
     std::vector<TeamData> teams;
 };
 
@@ -139,6 +142,8 @@ public:
 	void Initialize();
 	void Update() override;
 
+	void SpawnVehicle(VehicleData& vehicle);
+	void SpawnAi(AiData& ai);
     void InitializeGame();
     void ResetGame();
     void FinishGame();
@@ -152,8 +157,6 @@ public:
 
     static VehicleData* GetDataFromEntity(Entity* vehicle);
     static PlayerData* GetPlayerFromEntity(Entity* vehicle);
-
-	static glm::vec3 FindSpawn(VehicleData player);
 private:
 	// No instantiation or copying
 	Game();

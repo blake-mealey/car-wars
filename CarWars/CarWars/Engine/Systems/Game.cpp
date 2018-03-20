@@ -73,6 +73,34 @@ void Game::Initialize() {
     StateManager::SetState(GameState_Menu);
 }
 
+void Game::SpawnVehicle(VehicleData& vehicle) {
+	std::vector<Entity*> spawns = EntityManager::FindEntities("SpawnLocation");
+	Entity* spawn = spawns[rand() % spawns.size()];
+	glm::vec3 position = spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f);
+
+	// Initialize their vehicle
+	vehicle.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[vehicle.vehicleType]);
+	vehicle.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(Transform::ToPx(position)));
+
+	// Initialize their turret mesh
+	Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[vehicle.weaponType], vehicle.vehicleEntity);
+	turret->transform.SetPosition(EntityManager::FindFirstChild(vehicle.vehicleEntity, "GunTurretBase")->transform.GetLocalPosition());
+
+	// Initialize their weapon
+	Component* weapon = ContentManager::LoadComponent(WeaponType::prefabPaths[vehicle.weaponType]);
+	EntityManager::AddComponent(vehicle.vehicleEntity, weapon);
+
+	vehicle.alive = true;
+}
+
+void Game::SpawnAi(AiData& ai) {
+	SpawnVehicle(ai);
+	
+	// Initialize their AI
+	ai.brain = static_cast<AiComponent*>(ContentManager::LoadComponent("Ai.json"));
+	EntityManager::AddComponent(ai.vehicleEntity, ai.brain);
+}
+
 void Game::InitializeGame() {
     // Initialize the map
     ContentManager::DestroySceneAndLoadScene(MapType::scenePaths[gameData.map]);
@@ -96,12 +124,6 @@ void Game::InitializeGame() {
 	for (int i = 0; i < gameData.playerCount; ++i) {
         PlayerData& player = players[i];
 		player.name = "Player " + to_string(i + 1);
-        player.alive = true;
-
-		// Initialize their vehicle
-		player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
-
-		//TODO: remove duplicate code from player and ai initialze
 
         // Set their team
         if (gameData.gameMode == GameModeType::FreeForAll) {
@@ -111,18 +133,7 @@ void Game::InitializeGame() {
             player.teamIndex = i % 2;
         }
 
-		// TODO: Proper spawn location
-		//glm::vec3 spawn = Game::GetSpawn();
-		//player.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(spawn));
-        player.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(0.f, 30.f, i*15.f)));
-
-        // Initialize their turret mesh
-        Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType], player.vehicleEntity);
-        turret->transform.SetPosition(EntityManager::FindFirstChild(player.vehicleEntity, "GunTurretBase")->transform.GetLocalPosition());
-
-        // Initialize their weapon
-        Component* weapon = ContentManager::LoadComponent(WeaponType::prefabPaths[player.weaponType]);
-        EntityManager::AddComponent(player.vehicleEntity, weapon);
+		SpawnVehicle(player);
 
         // Initialize their camera
         player.cameraEntity = ContentManager::LoadEntity("Game/Camera.json");
@@ -149,7 +160,6 @@ void Game::InitializeGame() {
         // TODO: Choose vehicle and weapon type somehow
         ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun, AiComponent::MAX_DIFFUCULTY));
         AiData& ai = ais[i];
-		ai.alive = true;
 		ai.name = "Computer " + to_string(i + 1);
 
         // Set their team
@@ -160,24 +170,7 @@ void Game::InitializeGame() {
             ai.teamIndex = (gameData.playerCount + i) % 2;
         }
 
-        // Initialize their vehicle
-        // TODO: Proper spawn location
-		//glm::vec3 spawn = Game::GetSpawn();
-		//ai.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(spawn));
-        ai.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[ai.vehicleType]);
-        ai.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
-
-        // Initialize their turret mesh
-        Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[WeaponType::MachineGun], ai.vehicleEntity);
-        turret->transform.SetPosition(EntityManager::FindFirstChild(ai.vehicleEntity, "GunTurretBase")->transform.GetLocalPosition());
-
-        // Initialize their weapon
-        Component* weapon = ContentManager::LoadComponent(WeaponType::prefabPaths[ai.weaponType]);
-        EntityManager::AddComponent(ai.vehicleEntity, weapon);
-
-        // Initialize their AI
-        ai.brain = static_cast<AiComponent*>(ContentManager::LoadComponent("Ai.json"));
-        EntityManager::AddComponent(ai.vehicleEntity, ai.brain);
+		SpawnAi(ai);
     }
 
 	navigationMesh = new NavigationMesh({
@@ -258,14 +251,29 @@ void Game::Update() {
 			glm::vec3 direction = glm::normalize(player.camera->GetPosition() - player.camera->GetTarget());
 			PxQueryFilterData filterData;
 			filterData.data.word0 = -1 ^ player.vehicleEntity->GetComponent<VehicleComponent>()->GetRaycastGroup();
+			
 			//Raycast
 			if (scene->raycast(Transform::ToPx(player.camera->GetTarget()), Transform::ToPx(direction), CameraComponent::MAX_DISTANCE + 3, hit, PxHitFlag::eDEFAULT, filterData)) {
 				player.camera->SetDistance(hit.block.distance - 3);
-			}
-			else {
+			} else {
 				player.camera->SetDistance(CameraComponent::MAX_DISTANCE);
 			}
         }
+
+		// Respawn vehicles
+		for (size_t i = 0; i < gameData.playerCount; ++i) {
+			PlayerData& player = players[i];
+			if (!player.alive && StateManager::gameTime >= player.diedTime + gameData.respawnTime) {
+				SpawnVehicle(player);
+				GuiHelper::GetSecondGui("HealthBar", i)->transform.SetScale(glm::vec3(240.f, 20.f, 0.f));
+			}
+		}
+
+		for (AiData& ai : ais) {
+			if (!ai.alive && StateManager::gameTime >= ai.diedTime + gameData.respawnTime) {
+				SpawnAi(ai);
+			}
+		}
 
         // ---------------
         // Gamemode update

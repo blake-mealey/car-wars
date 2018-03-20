@@ -452,6 +452,7 @@ void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
 
 
 void VehicleComponent::TakeDamage(WeaponComponent* damager) {
+	if (!damager) return;
     VehicleData* attacker = Game::GetDataFromEntity(damager->GetEntity());
     VehicleData* me = Game::GetDataFromEntity(GetEntity());
 
@@ -595,6 +596,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
 
         me->deathCount++;
         me->alive = false;
+		me->diedTime = StateManager::gameTime;
 
         Physics::Instance().AddToDelete(GetEntity());
     }

@@ -150,5 +150,41 @@
             }
 		]
 	},
-  "Sun.json"
+  "Sun.json",
+  {
+    "Tag": "SpawnLocation",
+    "Position": [ 0, 0, 0 ]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [ 0, 0, 50 ]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [ 0, 0, -50 ]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [50, 0, 0]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [-50, 0, 0]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [50, 0, 50]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [-50, 0, 50]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [50, 0, -50]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [-50, 0, -50]
+  }
 ]
