@@ -6,6 +6,7 @@
 #include "Game.h"
 #include "StateManager.h"
 #include "../Components/CameraComponent.h"
+#include "../Components/RigidbodyComponents/VehicleComponent.h"
 #include "fmod/fmod.hpp"
 #include "fmod/fmod_errors.h"
 #include "../Entities/EntityManager.h"
@@ -32,7 +33,7 @@ struct CarSound {
 
 class Audio : public System {
 public:
-    float musicVolume = 0.25f;
+    float musicVolume = 0.15f;
 
     // Access the singleton instance
     static Audio& Instance();

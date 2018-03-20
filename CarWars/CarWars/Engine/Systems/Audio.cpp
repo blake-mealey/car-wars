@@ -83,7 +83,6 @@ void Audio::MenuMusicControl() {
 
 void Audio::UpdateListeners() {
     // update listener position for every camera/player vehicle
-
     if (StateManager::GetState() == GameState_Playing) {
         for (int i = 0; i < Game::gameData.playerCount; i++) {
             FMOD_VECTOR velocity, forward, up, position;
@@ -99,26 +98,6 @@ void Audio::UpdateListeners() {
             soundSystem->set3DListenerAttributes(i, &position, &velocity, &forward, &up);
         }
     }
-
-    //for (int i = 0; i<cameras.size(); i++) {
-    //    FMOD_VECTOR velocity, forward, up;
-    //    if (cars.size() < 1 || StateManager::GetState() != GameState_Playing) {
-    //        velocity = { 0.0, 0.0, 0.0 };
-    //        forward = { 0.0, 0.0, 1.0 };
-    //        up = { 0.0, 1.0, 0.0 };
-    //    } else { // transform causing a crash
-    //             //glm::vec3 carUp = cars[i]->transform.GetUp();
-    //             //glm::vec3 carForward = cars[i]->transform.GetForward();
-    //        velocity = { 0.0, 0.0, 0.0 };
-    //        //forward = { carForward.x, carForward.y, carForward.z };
-    //        //up = { carUp.x, carUp.y, carUp.z };
-    //        forward = { 0.0, 0.0, 1.0 };
-    //        up = { 0.0, 1.0, 0.0 };
-    //    }
-
-    //    glm::vec3 cameraPos = static_cast<CameraComponent*>(cameras[i])->GetPosition();
-    //    FMOD_VECTOR position = { cameraPos.x, cameraPos.y, cameraPos.z };
-    //}
 }
 
 void Audio::StartCars() {
@@ -140,7 +119,7 @@ void Audio::StartCars() {
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
         carSounds[i].channel->set3DAttributes(&pos, &vel);
         carSounds[i].channel->setPaused(true);
-        carSounds[i].channel->setVolume(10.0f);
+        carSounds[i].channel->setVolume(1.0f);
     }
     size_t offset = Game::gameData.playerCount;
     //ai
@@ -153,7 +132,7 @@ void Audio::StartCars() {
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
         carSounds[i + offset].channel->set3DAttributes(&pos, &vel);
         carSounds[i + offset].channel->setPaused(false);
-        carSounds[i + offset].channel->setVolume(5.0f);
+        carSounds[i + offset].channel->setVolume(3.0f);
     }
     carsStarted = true;
 }
@@ -170,7 +149,10 @@ void Audio::UpdateCars() {
     //players
     for (int i = 0; i < Game::gameData.playerCount; i++) {
         auto playerPos = Game::players[i].vehicleEntity->transform.GetGlobalPosition();
-        //auto vehicle = Game::players[i].vehicleEntity->
+        VehicleComponent* vehicle = Game::players[i].vehicleEntity->GetComponent<VehicleComponent>();
+        if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
+            // set reverse sound
+        }
         //soundSystem->createSound(engineSound, FMOD_3D | FMOD_LOOP_NORMAL, 0, &carSounds[i].sound);
         //carSounds[i].sound->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
         //soundSystem->playSound(carSounds[i].sound, 0, true, &carSounds[i].channel);
