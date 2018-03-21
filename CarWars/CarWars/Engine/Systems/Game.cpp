@@ -263,15 +263,15 @@ void Game::Update() {
 		// Respawn vehicles
 		for (size_t i = 0; i < gameData.humanCount; ++i) {
 			HumanData& player = humans[i];
-			if (!player.alive && StateManager::gameTime >= player.diedTime + gameData.respawnTime) {
+			if (!player.alive && StateManager::gameTime >= player.diedTime + gameData.respawnTime && player.deathCount < gameData.numberOfLives) {
 				SpawnVehicle(player);
 				GuiHelper::GetSecondGui("HealthBar", i)->transform.SetScale(glm::vec3(240.f, 20.f, 0.f));
 			}
 		}
 
-		for (AiData& ai : ais) {
-			if (!ai.alive && StateManager::gameTime >= ai.diedTime + gameData.respawnTime) {
-				SpawnAi(ai);
+		for (AiData& player : ais) {
+			if (!player.alive && StateManager::gameTime >= player.diedTime + gameData.respawnTime && player.deathCount < gameData.numberOfLives) {
+				SpawnAi(player);
 			}
 		}
 
@@ -283,6 +283,10 @@ void Game::Update() {
         size_t highestTeamKillCount = 0;
         for (TeamData& team : gameData.teams) {
             if (team.killCount > highestTeamKillCount) highestTeamKillCount = team.killCount;
+			if (team.killCount >= gameData.killLimit) {
+				FinishGame();
+				return;
+			}
         }
 
         for (size_t i = 0; i < gameData.humanCount; ++i) {
@@ -305,10 +309,15 @@ void Game::Update() {
         // Kill limit and lives
         bool allDeadForever = true;
         for (size_t i = 0; i < gameData.humanCount; ++i) {
-            HumanData& player = humans[i];
+            PlayerData& player = humans[i];
             if (player.killCount >= gameData.killLimit) FinishGame();
             if (allDeadForever && player.deathCount < gameData.numberOfLives) allDeadForever = false;
         }
+		for (size_t i = 0; i < gameData.aiCount; ++i) {
+			PlayerData& player = ais[i];
+			if (player.killCount >= gameData.killLimit) FinishGame();
+			if (allDeadForever && player.deathCount < gameData.numberOfLives) allDeadForever = false;
+		}
         if (allDeadForever) FinishGame();
 	} else if (StateManager::GetState() == GameState_Paused) {
         // PAUSED
