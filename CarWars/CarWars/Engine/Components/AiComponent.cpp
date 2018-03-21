@@ -253,7 +253,6 @@ void AiComponent::Update() {
 					}
 				}
 				if (bestRating == INFINITY) { // couldn't find a target 
-					std::cout << "no target found" << std::endl;
 					UpdateMode(AiMode_GetPowerup);
 					return;
 				}

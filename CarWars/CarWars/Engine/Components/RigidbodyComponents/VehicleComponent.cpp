@@ -646,7 +646,6 @@ void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPowe
 		}
 	}
 
-	std::cout << brake << "<- brake, amountPressed ->" << amountPressed << " gear ->" << pxVehicle->mDriveDynData.getCurrentGear() <<std::endl;
 	if (!brake && amountPressed > 0.01) pxVehicleInputData.setAnalogAccel(amountPressed);
 	else{
 		pxVehicleInputData.setAnalogAccel(0);
