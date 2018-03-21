@@ -399,7 +399,7 @@ void AiComponent::Update() {
 	}
 }
 
-void AiComponent::TakeDamage(WeaponComponent* damager) {
+void AiComponent::TakeDamage(WeaponComponent* damager, float damage) {
 	if (Game::GetPlayerFromEntity(damager->GetEntity())->teamIndex != Game::GetPlayerFromEntity(GetEntity())->teamIndex) {
 		mode = AiMode_Attack;
 		UpdateMode(AiMode_Attack);

@@ -52,7 +52,7 @@ public:
 
     void RenderDebugGui() override;
 
-	void TakeDamage(WeaponComponent* damager) override;
+	void TakeDamage(WeaponComponent* damager, float damage) override;
 	float GetHealth();
 
 	size_t GetRaycastGroup() const;

@@ -4,11 +4,16 @@
 #include "../../Systems/Game.h"
 #include "../../Entities/EntityManager.h"
 #include "../../Components/CameraComponent.h"
+#include "../../Components/GuiComponents/GuiHelper.h"
+#include "../../Components/GuiComponents/GuiComponent.h"
 #include "../../Systems/Content/ContentManager.h"
 #include "../../Systems/Physics/RaycastGroups.h"
 #include "../LineComponent.h"
 #include "PennerEasing/Linear.h"
+#include "PennerEasing/Sine.h"
 #include "../../Systems/Effects.h"
+
+#include <string>
 
 RailGunComponent::RailGunComponent() : WeaponComponent(1150.0f) {}
 
@@ -33,36 +38,58 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 		PxScene* scene = &Physics::Instance().GetScene();
 		float rayLength = 100.0f;
 		//Cast Gun Ray
+		glm::vec3 hitPosition;
 		PxRaycastBuffer gunHit;
 		PxQueryFilterData filterData;
 		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
 		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
-			if (gunHit.hasAnyHits()) {
-                Entity* bullet = ContentManager::LoadEntity("Bullet.json");
-                LineComponent* line = bullet->GetComponent<LineComponent>();
-                line->SetPoint0(gunPosition);
-                line->SetPoint1(Transform::FromPx(gunHit.block.position));
-                auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(1.f, 0.f, 0.1, StateManager::gameTime);
-                tween->SetUpdateCallback([line, rgTurret](float& value) mutable {
-                    if (StateManager::GetState() != GameState_Playing) return;
-                    line->SetColor(glm::vec4(1.f, 0.f, 0.f, value));
-                    line->SetPoint0(rgTurret->transform.GetGlobalPosition());
-                });
-                tween->SetFinishedCallback([bullet](float& value) mutable {
-                    if (StateManager::GetState() != GameState_Playing) return;
-                    EntityManager::DestroyEntity(bullet);
-                });
-                tween->Start();
+			hitPosition = Transform::FromPx(gunHit.block.position);
+			Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
+            if (thingHit) {
+				thingHit->TakeDamage(this, this->damage);
+            }
+		} else {
+			hitPosition = gunPosition + (gunDirection * rayLength);
+		}
+		Entity* bullet = ContentManager::LoadEntity("Bullet.json");
+		LineComponent* line = bullet->GetComponent<LineComponent>();
+		line->SetPoint0(gunPosition);
+		line->SetPoint1(hitPosition);
+		auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(1.f, 0.f, 0.1, StateManager::gameTime);
+		tween->SetUpdateCallback([line, rgTurret](float& value) mutable {
+			if (StateManager::GetState() != GameState_Playing) return;
+			line->SetColor(glm::vec4(1.f, 0.f, 0.f, value));
+			line->SetPoint0(rgTurret->transform.GetGlobalPosition());
+		});
+		tween->SetFinishedCallback([bullet](float& value) mutable {
+			if (StateManager::GetState() != GameState_Playing) return;
+			EntityManager::DestroyEntity(bullet);
+		});
+		tween->Start();
 
-				Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
-                if (thingHit) {
-					thingHit->TakeDamage(this);
-                }
+		HumanData* player = Game::Instance().GetHumanFromEntity(GetEntity());
+		if (player) {
+			GuiComponent* gui = GuiHelper::GetFirstGui(EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "ChargeIndicator"));
+			Transform& mask = gui->GetMask();
+
+			auto tweenOut = Effects::Instance().CreateTween<glm::vec3, easing::Sine::easeIn>(
+				glm::vec3(134.f, 0.f, 0.f), glm::vec3(134.f, 134.f, 0.f), timeBetweenShots, StateManager::gameTime);
+			tweenOut->SetUpdateCallback([&mask](glm::vec3& value) {
+				if (StateManager::GetState() != GameState_Playing) return;
+				mask.SetScale(value);
+			});
+			tweenOut->SetTag("RailGunChargeOut" + std::to_string(player->id));
+			tweenOut->Start();
+		}
+	} else if (StateManager::gameTime > nextChargeTime && StateManager::gameTime < nextShotTime) {
+		HumanData* player = Game::Instance().GetHumanFromEntity(GetEntity());
+		if (player) {
+			Tween* chargeTween = Effects::Instance().FindTween("RailGunChargeIn" + std::to_string(player->id));
+			if (!chargeTween) {
+				Charge();
 			}
 		}
-        TweenChargeIndicator();
-	} else if (StateManager::gameTime.GetSeconds() < nextChargeTime.GetSeconds()) {
-	} else {
+	} else{
 	}
 }
 
@@ -70,6 +97,25 @@ void RailGunComponent::Charge() {
 	if (StateManager::gameTime.GetSeconds() >= nextChargeTime.GetSeconds()) { // charging
 		nextShotTime = StateManager::gameTime + chargeTime;
 		//Play Charging Sound
+
+
+		HumanData* player = Game::Instance().GetHumanFromEntity(GetEntity());
+		if (player) {
+			Tween* oldTween = Effects::Instance().FindTween("RailGunChargeOut" + std::to_string(player->id));
+			if (oldTween) Effects::Instance().DestroyTween(oldTween);
+
+			GuiComponent* gui = GuiHelper::GetFirstGui(EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "ChargeIndicator"));
+			Transform& mask = gui->GetMask();
+			
+			auto tweenIn = Effects::Instance().CreateTween<glm::vec3, easing::Sine::easeOut>(
+				glm::vec3(134.f, 134.f, 0.f), glm::vec3(134.f, 0.f, 0.f), chargeTime, StateManager::gameTime);
+			tweenIn->SetUpdateCallback([&mask](glm::vec3& value) {
+				if (StateManager::GetState() != GameState_Playing) return;
+				mask.SetScale(value);
+			});
+			tweenIn->SetTag("RailGunChargeIn" + std::to_string(player->id));
+			tweenIn->Start();
+		}
 	} else { // on cooldown
 	}
 }
@@ -84,4 +130,27 @@ void RailGunComponent::HandleEvent(Event* event) {
 
 void RailGunComponent::RenderDebugGui() {
 	RailGunComponent::RenderDebugGui();
+}
+
+void RailGunComponent::ChargeRelease() {
+	HumanData* player = Game::Instance().GetHumanFromEntity(GetEntity());
+	if (player) {
+		Tween* outTween = Effects::Instance().FindTween("RailGunChargeOut" + std::to_string(player->id));
+		if (outTween) return;
+
+		Tween* oldTween = Effects::Instance().FindTween("RailGunChargeIn" + std::to_string(player->id));
+		if (oldTween) Effects::Instance().DestroyTween(oldTween);
+
+		GuiComponent* gui = GuiHelper::GetFirstGui(EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "ChargeIndicator"));
+		Transform& mask = gui->GetMask();
+
+		auto tweenOut = Effects::Instance().CreateTween<glm::vec3, easing::Sine::easeIn>(
+			mask.GetLocalScale(), glm::vec3(134.f, 134.f, 0.f), 0.05, StateManager::gameTime);
+		tweenOut->SetUpdateCallback([&mask](glm::vec3& value) {
+			if (StateManager::GetState() != GameState_Playing) return;
+			mask.SetScale(value);
+		});
+		tweenOut->SetTag("RailGunChargeOut" + std::to_string(player->id));
+		tweenOut->Start();
+	}
 }

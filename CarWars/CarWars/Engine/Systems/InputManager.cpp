@@ -61,6 +61,9 @@ void InputManager::HandleMouse() {
 			filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
 			glm::vec3 cameraHit = cameraC->CastRay(rayLength, filterData);
 			weapon->Shoot(cameraHit);
+		} else if (Mouse::ButtonReleased(GLFW_MOUSE_BUTTON_LEFT)) {
+			if(weapon->GetType() == ComponentType_RailGun)
+				static_cast<RailGunComponent*>(weapon)->ChargeRelease();
 		}
 
 		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_MIDDLE)) {
@@ -718,6 +721,11 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 			glm::vec3 cameraHit = cameraC->CastRay(rayLength, filterData);
 			vehicle->GetEntity()->GetComponent<WeaponComponent>()->Shoot(cameraHit);
 	 	}
+		if (releasedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+			if (weapon->GetType() == ComponentType_RailGun) {
+				static_cast<RailGunComponent*>(weapon)->ChargeRelease();
+			}
+		}
 		
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Update
