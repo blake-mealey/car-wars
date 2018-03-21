@@ -11,7 +11,7 @@
 WeaponComponent::WeaponComponent(float _damage) : damage(_damage) {}
 
 void WeaponComponent::TweenChargeIndicator() {
-    PlayerData* player = Game::Instance().GetPlayerFromEntity(GetEntity());
+    HumanData* player = Game::Instance().GetHumanFromEntity(GetEntity());
     if (player) {
         GuiComponent* gui = GuiHelper::GetFirstGui(EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "ChargeIndicator"));
         Transform& mask = gui->GetMask();

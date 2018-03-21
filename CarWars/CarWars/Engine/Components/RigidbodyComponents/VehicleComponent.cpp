@@ -453,23 +453,22 @@ void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
 
 void VehicleComponent::TakeDamage(WeaponComponent* damager) {
 	if (!damager) return;
-    VehicleData* attacker = Game::GetDataFromEntity(damager->GetEntity());
-    VehicleData* me = Game::GetDataFromEntity(GetEntity());
+    PlayerData* attacker = Game::GetPlayerFromEntity(damager->GetEntity());
+    PlayerData* me = Game::GetPlayerFromEntity(GetEntity());
 
     if (attacker->teamIndex == me->teamIndex) return;
     health -= damager->GetDamage() * (1.f-resistance);
 
-    PlayerData* attackerPlayer = Game::GetPlayerFromEntity(damager->GetEntity());
+    HumanData* attackerPlayer = Game::GetHumanFromEntity(damager->GetEntity());
     if (attackerPlayer) {
         Entity* entity = EntityManager::FindFirstChild(attackerPlayer->camera->GetGuiRoot(), "HitIndicator");
         GuiComponent* gui = entity->GetComponent<GuiComponent>();
         GuiHelper::OpacityEffect(gui, 0.5, 0.8f, 0.1, 0.1);
     }
 
-    PlayerData *myPlayer = Game::GetPlayerFromEntity(GetEntity());
+    HumanData *myPlayer = Game::GetHumanFromEntity(GetEntity());
     if (myPlayer) {
-
-        {
+		{
             Entity* entity = EntityManager::FindFirstChild(myPlayer->camera->GetGuiRoot(), "DamageIndicator");
             GuiComponent* gui = entity->GetComponent<GuiComponent>();
 
@@ -519,8 +518,8 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
         attacker->killCount++;
         Game::gameData.teams[attacker->teamIndex].killCount++;
 
-        for (size_t i = 0; i < Game::gameData.playerCount; ++i) {
-            PlayerData& player = Game::players[i];
+        for (size_t i = 0; i < Game::gameData.humanCount; ++i) {
+            HumanData& player = Game::humans[i];
             Entity* killFeed = EntityManager::FindFirstChild(player.camera->GetGuiRoot(), "KillFeed");
 
             Entity* row = ContentManager::LoadEntity("Menu/KillFeedRow.json", killFeed);
