@@ -17,7 +17,7 @@
 const float AiComponent::MAX_DIFFUCULTY = 10.f;	// this is the max AI diffuculty
 const float AiComponent::ACCELERATION = .5f;	// bottom end of vehicle acceleration
 const float AiComponent::STUCK_TIME = 2.f;		// how long until the AI realizes they are stuck
-const float AiComponent::UPDATE_TIME = 1.f;		// how frequently the AI updates its mode in seconds
+const float AiComponent::UPDATE_TIME = 2.f;		// how frequently the AI updates its mode in seconds
 const float AiComponent::STUCK_CONTROL = 1.5f;	// controls the cycles of reverse and accelerate for the AI (better AI has smaller cycles)
 
 // all these values are modified by the max because they are changed based on their diffuculty later (easier to tune the hard AI this way)

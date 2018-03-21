@@ -135,15 +135,38 @@
 	{
 		"Tag": "KillFeed"
 	},
-	{
-		"Tag": "HealthBar",
+  {
+    "Tag": "HealthBar",
+    "Components": [
+      {
+        "Type": "GUI",
+        "AnchorPoint": [ 0.5, 1 ],
+        "ScaledPosition": [ 0.5, 1 ],
+        "Position": [ 0, -20, 0 ],
+        "Scale": [ 250, 30, 0 ],
+        "Texture": "White.png",
+        "TextureColor": "BlackHalfAlpha"
+      },
+      {
+        "Type": "GUI",
+        "AnchorPoint": [ 0.5, 1 ],
+        "ScaledPosition": [ 0.5, 1 ],
+        "Position": [ 0, -25, 0 ],
+        "Scale": [ 240, 20, 0 ],
+        "Texture": "White.png",
+        "TextureColor": "RedHalfAlpha"
+      }
+    ]
+  },
+  	{
+		"Tag": "BoostBar",
         "Components": [
 	        {
 		        "Type": "GUI",
                 "AnchorPoint": [0.5, 1],
                 "ScaledPosition": [0.5, 1],
-                "Position": [0, -20, 0],
-                "Scale": [250, 30, 0],
+                "Position": [0, -55, 0],
+                "Scale": [250, 20, 0],
                 "Texture": "White.png",
                 "TextureColor": "BlackHalfAlpha"
 	        },
@@ -151,10 +174,10 @@
 		        "Type": "GUI",
 		        "AnchorPoint": [0.5, 1],
 		        "ScaledPosition": [0.5, 1],
-		        "Position": [0, -25, 0],
-		        "Scale": [240, 20, 0],
+		        "Position": [0, -60, 0],
+		        "Scale": [240, 10, 0],
 		        "Texture": "White.png",
-		        "TextureColor": "RedHalfAlpha"
+		        "TextureColor": "BlueHalfAlpha"
 	        }
         ]
 	}

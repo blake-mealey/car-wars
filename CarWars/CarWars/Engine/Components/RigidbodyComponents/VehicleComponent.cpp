@@ -614,6 +614,28 @@ size_t VehicleComponent::GetRaycastGroup() const {
 void VehicleComponent::Boost(glm::vec3 boostDir, float amount) {
 	pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(glm::normalize(boostDir) * amount * GetChassisMass()), PxForceMode::eIMPULSE, true);
 	lastBoost = StateManager::gameTime;
+
+	HumanData* player = Game::GetHumanFromEntity(GetEntity());
+
+	if (player) {
+		Entity* bar = EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "BoostBar");
+
+		GuiComponent* gui = GuiHelper::GetSecondGui(bar);
+
+
+		auto tween1 = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(1.f, 0.f, 0.05, StateManager::gameTime);
+		tween1->SetUpdateCallback([gui](float &value) mutable {
+			gui->transform.SetScale(glm::vec3(240.f * value, 10.f, 0.f));
+		});
+		
+		auto tween2 = Effects::Instance().CreateTween<float, easing::Linear::easeOut>(0.f, 1.f, 5.0 - 0.05, StateManager::gameTime);
+		tween2->SetUpdateCallback([gui](float &value) mutable {
+			gui->transform.SetScale(glm::vec3(240.f * value, 10.f, 0.f));
+		});
+
+		tween1->SetNext(tween2);
+		tween1->Start();
+	}
 }
 
 void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPower) {
