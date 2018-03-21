@@ -45,7 +45,6 @@ HeightMap::HeightMap(char* file, const int& height, const int& width, const int&
 //This is the one we will be using
 HeightMap::HeightMap(char* file, const int& maxHeight, const int& maxWidth, const int& maxLength, const float& uvstep) {
 	Image image = Image(file);
-	cout << "I'm here";
 	const int length = maxLength / image.Height();
 	const int width = maxWidth / image.Width();
 
@@ -110,15 +109,15 @@ HeightMap::HeightMap(char* file, const int& maxHeight, const int& maxWidth, cons
 	
 }
 
-vector<glm::vec3>& HeightMap::Vertices() {
+vector<glm::vec3> HeightMap::Vertices() {
 	return vertices;
 }
 
-vector<Triangle>& HeightMap::Triangles() {
+vector<Triangle> HeightMap::Triangles() {
 	return elements;
 }
 
-vector<glm::vec2>& HeightMap::UVS() {
+vector<glm::vec2> HeightMap::UVS() {
 	return uvs;
 }
 

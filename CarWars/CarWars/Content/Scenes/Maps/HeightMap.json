@@ -21,6 +21,12 @@
         "Colliders": [
           {
             "Type": "Mesh",
+			"HeightMap": true,
+		    "MaxHeight": 5,
+			"MaxWidth": 20,
+		    "MaxLength": 20,
+	        "Map": "arena.png",
+		    "UVStep": 0.5,
             "CollisionGroup": "Ground",
             "Mesh": "CircleMap.obj"
           }

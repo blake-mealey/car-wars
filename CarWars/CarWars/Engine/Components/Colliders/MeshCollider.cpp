@@ -1,4 +1,5 @@
 #include "MeshCollider.h"
+#include "../../Systems/Content/HeightMap.h"
 #include <cooking/PxConvexMeshDesc.h>
 #include "../../Systems/Content/Mesh.h"
 #include "../../Systems/Physics.h"
@@ -18,7 +19,12 @@ MeshCollider::MeshCollider(std::string _collisionGroup, physx::PxMaterial *_mate
 }
 
 MeshCollider::MeshCollider(nlohmann::json data) : Collider(data) {
-    InitializeGeometry(ContentManager::GetMesh(data["Mesh"]));
+	if (!ContentManager::GetFromJson<bool>(data["HeightMap"], false)) {
+		InitializeGeometry(ContentManager::GetMesh(data["Mesh"]));
+	}
+	else {
+		InitializeGeometry(HeightMap::CreateMesh(data));
+	}
 }
 
 MeshCollider::MeshCollider(Mesh* mesh, nlohmann::json data) : Collider(data) {

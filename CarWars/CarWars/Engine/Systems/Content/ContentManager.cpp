@@ -331,7 +331,6 @@ Entity* ContentManager::LoadEntity(json data, Entity *parent) {
     if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);
     entity->transform = Transform(data);
     if (parent) entity->transform.parent = &parent->transform;
-
     for (const auto componentData : data["Components"]) {
         Component *component = LoadComponent(componentData);
         if (component != nullptr) {
