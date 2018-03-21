@@ -119,7 +119,7 @@ void Audio::StartCars() {
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
         carSounds[i].channel->set3DAttributes(&pos, &vel);
         carSounds[i].channel->setPaused(false);
-        carSounds[i].channel->setVolume(1.0f);
+        carSounds[i].channel->setVolume(0.25f);
     }
     size_t offset = Game::gameData.playerCount;
     //ai
@@ -132,7 +132,7 @@ void Audio::StartCars() {
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
         carSounds[i + offset].channel->set3DAttributes(&pos, &vel);
         carSounds[i + offset].channel->setPaused(false);
-        carSounds[i + offset].channel->setVolume(3.0f);
+        carSounds[i + offset].channel->setVolume(0.5f);
     }
     carsStarted = true;
 }

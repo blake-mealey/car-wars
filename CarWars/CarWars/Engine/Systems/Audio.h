@@ -13,7 +13,7 @@
 #include "glm/glm.hpp"
 
 #define MAX_DISTANCE 5000.0
-#define MIN_DISTANCE 0.5
+#define MIN_DISTANCE 0.15
 #define MAX_CHANNELS 100
 
 typedef FMOD::Sound* SoundClass;
@@ -33,7 +33,7 @@ struct CarSound {
 
 class Audio : public System {
 public:
-    float musicVolume = 0.0f;
+    float musicVolume = 0.11f;
 
     // Access the singleton instance
     static Audio& Instance();
