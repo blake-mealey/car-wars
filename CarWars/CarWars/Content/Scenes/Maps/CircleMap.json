@@ -26,6 +26,9 @@
  {
         "Prefab": "DamagePowerUp.json",
 	    "Position": [ -50, 2, -20 ]
+    }, {
+        "Prefab": "DefencePowerUp.json",
+	    "Position": [ -40, 2, -10 ]
     },
     {
         "Prefab": "Waypoint.json",

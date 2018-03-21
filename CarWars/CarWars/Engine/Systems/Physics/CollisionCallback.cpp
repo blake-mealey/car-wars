@@ -25,7 +25,7 @@ void HandlePowerUpCollision(Entity* _actor0, Entity* _actor1) {
         VehicleComponent* vehicle = actor1->GetComponent<VehicleComponent>();
         if (vehicle) {
             Physics& physicsInstance = Physics::Instance();
-            actor0->GetComponent<DamagePowerUp>()->Collect(actor1);
+            actor0->GetComponent<PowerUp>()->Collect(actor1);
             physicsInstance.AddToDelete(actor0);
         }
     }
@@ -68,8 +68,10 @@ void CollisionCallback::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 coun
 	RigidbodyComponent* actor1RB = static_cast<RigidbodyComponent*>(pairs->otherActor->userData);
 	Entity* actor1 = actor1RB->GetEntity();
     if (actor0 && actor1) {
-		HandleMissileCollision(actor0, actor1);
-		HandleMissileCollision(actor1, actor0);
+        if (actor0->HasTag("Missile") || actor1->HasTag("Missle")) {
+            HandleMissileCollision(actor0, actor1);
+            HandleMissileCollision(actor1, actor0);
+        }
         if (actor0->HasTag("PowerUp") || actor1->HasTag("PowerUp")) {
             HandlePowerUpCollision(actor0, actor1);
         }
@@ -84,8 +86,6 @@ void CollisionCallback::onContact(const physx::PxContactPairHeader& pairHeader, 
 	Entity* actor1 = actor1RB->GetEntity();
 
     if (actor0 && actor1) {
-        std::cout << "Collision Called" << std::endl;
-
         VehicleComponent* vehicle0 = actor0->GetComponent<VehicleComponent>();
         VehicleComponent* vehicle1 = actor1->GetComponent<VehicleComponent>();
         if (vehicle0 && vehicle1) {
