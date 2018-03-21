@@ -118,7 +118,7 @@ void Audio::StartCars() {
         FMOD_VECTOR pos = { playerPos.x+1.0f, playerPos.y+1.0f, playerPos.z+1.0f };
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
         carSounds[i].channel->set3DAttributes(&pos, &vel);
-        carSounds[i].channel->setPaused(true);
+        carSounds[i].channel->setPaused(false);
         carSounds[i].channel->setVolume(1.0f);
     }
     size_t offset = Game::gameData.playerCount;
@@ -152,6 +152,28 @@ void Audio::UpdateCars() {
         VehicleComponent* vehicle = Game::players[i].vehicleEntity->GetComponent<VehicleComponent>();
         if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
             // set reverse sound
+            if (!carSounds[i].reversing) {
+                carSounds[i].sound->release();
+                carSounds[i].reversing = true;
+                carSounds[i].changedDirection = true;
+                soundSystem->createSound(engineReverse, FMOD_3D | FMOD_LOOP_NORMAL, 0, &carSounds[i].sound);
+                carSounds[i].sound->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
+                soundSystem->playSound(carSounds[i].sound, 0, true, &carSounds[i].channel);
+                carSounds[i].channel->setPaused(false);
+
+            }
+        } else {
+            // set forward sound
+            if (carSounds[i].changedDirection) {
+                carSounds[i].sound->release();
+                carSounds[i].changedDirection = false;
+                carSounds[i].reversing = false;
+                soundSystem->createSound(engineIdle, FMOD_3D | FMOD_LOOP_NORMAL, 0, &carSounds[i].sound);
+                carSounds[i].sound->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
+                soundSystem->playSound(carSounds[i].sound, 0, true, &carSounds[i].channel);
+                carSounds[i].channel->setPaused(false);
+
+            }
         }
         //soundSystem->createSound(engineSound, FMOD_3D | FMOD_LOOP_NORMAL, 0, &carSounds[i].sound);
         //carSounds[i].sound->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
@@ -160,7 +182,7 @@ void Audio::UpdateCars() {
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
         carSounds[i].channel->set3DAttributes(&pos, &vel);
         //carSounds[i].channel->setPaused(true);
-        //carSounds[i].channel->setVolume(3.0f);
+        carSounds[i].channel->setVolume(1.0f);
     }
     size_t offset = Game::gameData.playerCount;
     //ai
@@ -173,7 +195,7 @@ void Audio::UpdateCars() {
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
         carSounds[i + offset].channel->set3DAttributes(&pos, &vel);
         //carSounds[i + offset].channel->setPaused(false);
-        //carSounds[i + offset].channel->setVolume(5.0f);
+        carSounds[i + offset].channel->setVolume(3.0f);
     }
 }
 
@@ -205,9 +227,6 @@ void Audio::Update() {
     UpdateRunningCars();
     MenuMusicControl(); // prevGameState saved
     UpdateListeners();
-    // update car sounds
-    auto cars = EntityManager::FindEntities("Vehicle");
-
 
     soundSystem->update();
 }

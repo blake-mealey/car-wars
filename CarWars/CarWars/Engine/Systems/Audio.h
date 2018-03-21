@@ -33,7 +33,7 @@ struct CarSound {
 
 class Audio : public System {
 public:
-    float musicVolume = 0.15f;
+    float musicVolume = 0.0f;
 
     // Access the singleton instance
     static Audio& Instance();
