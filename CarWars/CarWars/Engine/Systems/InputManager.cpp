@@ -46,7 +46,7 @@ void InputManager::HandleMouse() {
 	Graphics& graphicsInstance = Graphics::Instance();
 
 	if (StateManager::GetState() == GameState_Playing) {
-		HumanData& player = Game::humans[0];
+		HumanData& player = Game::humanPlayers[0];
 		if (!player.alive) return;
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
 		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
@@ -87,7 +87,7 @@ void InputManager::HandleMouse() {
 }
 
 void UpdateVehicleStats(const int playerIndex) {
-    HumanData& player = Game::humans[playerIndex];
+    HumanData& player = Game::humanPlayers[playerIndex];
     Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[playerIndex];
     EntityManager::DestroyChildren(stats);
     for (size_t i = 0; i < VehicleType::STAT_COUNT; ++i) {
@@ -99,7 +99,7 @@ void UpdateVehicleStats(const int playerIndex) {
 }
 
 void UpdateWeaponStats(const int playerIndex) {
-    HumanData& player = Game::humans[playerIndex];
+    HumanData& player = Game::humanPlayers[playerIndex];
     Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[playerIndex];
     EntityManager::DestroyChildren(stats);
     for (size_t i = 0; i < WeaponType::STAT_COUNT; ++i) {
@@ -158,7 +158,7 @@ void UpdateLeaderboardMenu(Entity* leaderboard, int playerIndex) {
 	std::vector<PlayerData> allPlayers;
 	
 	for (size_t i = 0; i < Game::gameData.humanCount; ++i) {
-		allPlayers.push_back(Game::humans[i]);
+		allPlayers.push_back(Game::humanPlayers[i]);
 	}
 	for (AiData& ai : Game::ais) {
 		allPlayers.push_back(ai);
@@ -167,7 +167,7 @@ void UpdateLeaderboardMenu(Entity* leaderboard, int playerIndex) {
 	std::sort(allPlayers.begin(), allPlayers.end());
 
     if (playerIndex > -1) {
-        HumanData& thisPlayer = Game::humans[playerIndex];
+        HumanData& thisPlayer = Game::humanPlayers[playerIndex];
         for (size_t i = 0; i < allPlayers.size(); ++i) {
             PlayerData& player = allPlayers[i];
             if (player.id != thisPlayer.id) continue;
@@ -207,7 +207,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 	navData.NormalizeInputs();
 
     // Get the player for the current controller
-    HumanData& player = Game::humans[navData.playerIndex];
+    HumanData& player = Game::humanPlayers[navData.playerIndex];
 	const GameState gameState = StateManager::GetState();
 	// Navigate buttons up/down
 	if (navData.vertDir) {
@@ -359,7 +359,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
                     player.ready = true;
                     bool allReady = true;
                     for (int i = 0; i < Game::gameData.humanCount; ++i) {
-                        allReady = Game::humans[i].ready;
+                        allReady = Game::humanPlayers[i].ready;
                         if (!allReady) break;
                     }
                     // TODO: Countdown?
@@ -466,7 +466,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
     if (navData.escape) {
         if (gameState == GameState_Playing) {
             StateManager::SetState(GameState_Paused);
-            ContentManager::LoadEntity("Menu/PauseMenu.json", Game::humans[navData.playerIndex].camera->GetGuiRoot());
+            ContentManager::LoadEntity("Menu/PauseMenu.json", Game::humanPlayers[navData.playerIndex].camera->GetGuiRoot());
         } else if (gameState == GameState_Paused) {
             StateManager::SetState(GameState_Playing);
         }
@@ -474,7 +474,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 
 	if (gameState == GameState_Playing) {
 		if (navData.tabPressed) {
-			Entity* guiRoot = Game::humans[navData.playerIndex].camera->GetGuiRoot();
+			Entity* guiRoot = Game::humanPlayers[navData.playerIndex].camera->GetGuiRoot();
 			Entity* leaderboard;
 
 			Tween* outTween = Effects::Instance().FindTween("LeaderboardOut" + to_string(navData.playerIndex));
@@ -491,7 +491,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 			tween->SetTag("LeaderboardIn" + to_string(navData.playerIndex));
 			tween->Start();
 		} else if (navData.tabReleased) {
-			Entity* guiRoot = Game::humans[navData.playerIndex].camera->GetGuiRoot();
+			Entity* guiRoot = Game::humanPlayers[navData.playerIndex].camera->GetGuiRoot();
 			Entity* leaderboard = EntityManager::FindFirstChild(guiRoot, "LeaderboardMenu");
 
 			Tween* inTween = Effects::Instance().FindTween("LeaderboardIn" + to_string(navData.playerIndex));
@@ -504,7 +504,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 			});
 			tween->Start();
 		} else if (navData.tabHeld) {
-			Entity* guiRoot = Game::humans[navData.playerIndex].camera->GetGuiRoot();
+			Entity* guiRoot = Game::humanPlayers[navData.playerIndex].camera->GetGuiRoot();
 			Entity* leaderboard = EntityManager::FindFirstChild(guiRoot, "LeaderboardMenu");
 			if (leaderboard) {
 				UpdateLeaderboardMenu(leaderboard, navData.playerIndex);
@@ -536,7 +536,7 @@ void InputManager::HandleKeyboard() {
 
 	if (gameState == GameState_Playing) {
 		//Get Vehicle Component
-		HumanData& player = Game::humans[0];
+		HumanData& player = Game::humanPlayers[0];
 		if (!player.alive) return;
 
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
@@ -594,7 +594,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 	XboxController *controller = xboxControllers[controllerNum];
 
 	if (controllerNum > Game::gameData.humanCount - 1) return;
-	//if (!Game::humans[controllerNum].alive) return;
+	//if (!Game::humanPlayers[controllerNum].alive) return;
 
 	bool active = controller->GetPreviousState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||
 		controller->GetPreviousState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||
@@ -615,7 +615,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Get Components
 		// -------------------------------------------------------------------------------------------------------------- //
-		HumanData& player = Game::humans[controllerNum];
+		HumanData& player = Game::humanPlayers[controllerNum];
 		if (!player.alive) return;
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
 		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
@@ -634,10 +634,10 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		float forwardPower = 0; 
 		float backwardPower = 0; 
 		if (abs(controller->GetState().Gamepad.bRightTrigger) >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-			forwardPower = controller->GetState().Gamepad.bRightTrigger / 255;
+			forwardPower = controller->GetState().Gamepad.bRightTrigger / 255.f;
 		}
 		if (abs(controller->GetState().Gamepad.bLeftTrigger) >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-			backwardPower = controller->GetState().Gamepad.bLeftTrigger / 255;
+			backwardPower = controller->GetState().Gamepad.bLeftTrigger / 255.f;
 		}
 
 		// -------------------------------------------------------------------------------------------------------------- //

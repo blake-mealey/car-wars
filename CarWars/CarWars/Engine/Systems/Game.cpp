@@ -51,7 +51,7 @@ const string WeaponType::statValues[Count][STAT_COUNT] = {
 const unsigned int Game::MAX_VEHICLE_COUNT = 20;
 
 GameData Game::gameData;
-HumanData Game::humans[4];
+HumanData Game::humanPlayers[4];
 vector<AiData> Game::ais;
 
 Time gameTime(0);
@@ -120,9 +120,9 @@ void Game::InitializeGame() {
         gameData.teams.push_back(team);
     }
 
-    // Initialize the humans
+    // Initialize the humanPlayers
 	for (int i = 0; i < gameData.humanCount; ++i) {
-        HumanData& player = humans[i];
+        HumanData& player = humanPlayers[i];
 		player.name = "Player " + to_string(i + 1);
 
         // Set their team
@@ -192,9 +192,9 @@ void ResetPlayerData(PlayerData& player) {
 }
 
 void Game::ResetGame() {
-    // Reset humans
+    // Reset humanPlayers
     for (size_t i = 0; i < gameData.humanCount; ++i) {
-        HumanData& player = humans[i];
+        HumanData& player = humanPlayers[i];
         player.ready = false;
         ResetPlayerData(player);
     }
@@ -240,7 +240,7 @@ void Game::Update() {
 		
         // Update cameras
         for (int i = 0; i < gameData.humanCount; ++i) {
-            HumanData& player = humans[i];
+            HumanData& player = humanPlayers[i];
             if (!player.alive) continue;
             player.cameraEntity->transform.SetPosition(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
 			player.camera->SetTarget(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
@@ -262,7 +262,7 @@ void Game::Update() {
 
 		// Respawn vehicles
 		for (size_t i = 0; i < gameData.humanCount; ++i) {
-			HumanData& player = humans[i];
+			HumanData& player = humanPlayers[i];
 			if (!player.alive && StateManager::gameTime >= player.diedTime + gameData.respawnTime && player.deathCount < gameData.numberOfLives) {
 				SpawnVehicle(player);
 				GuiHelper::GetSecondGui("HealthBar", i)->transform.SetScale(glm::vec3(240.f, 20.f, 0.f));
@@ -290,7 +290,7 @@ void Game::Update() {
         }
 
         for (size_t i = 0; i < gameData.humanCount; ++i) {
-            HumanData& player = humans[i];
+            HumanData& player = humanPlayers[i];
             GuiHelper::SetFirstGuiText("GameClock", (gameData.timeLimit - StateManager::gameTime).ToString(), i);
             if (gameData.gameMode == GameModeType::Team) {
                 GuiHelper::SetFirstGuiText("GameScores", to_string(gameData.teams[0].killCount), i);
@@ -309,7 +309,7 @@ void Game::Update() {
         // Kill limit and lives
         bool allDeadForever = true;
         for (size_t i = 0; i < gameData.humanCount; ++i) {
-            PlayerData& player = humans[i];
+            PlayerData& player = humanPlayers[i];
             if (player.killCount >= gameData.killLimit) FinishGame();
             if (allDeadForever && player.deathCount < gameData.numberOfLives) allDeadForever = false;
         }
@@ -340,7 +340,7 @@ PlayerData* Game::GetPlayerFromEntity(Entity* vehicle) {
 
 HumanData* Game::GetHumanFromEntity(Entity* vehicle) {
     for (size_t i = 0; i < gameData.humanCount; ++i) {
-        HumanData& player = humans[i];
+        HumanData& player = humanPlayers[i];
         if (player.vehicleEntity == vehicle) return &player;
     }
     return nullptr;

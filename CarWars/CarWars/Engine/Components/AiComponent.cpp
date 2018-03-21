@@ -212,7 +212,7 @@ void AiComponent::Update() {
 
 	// get players
 	for (size_t i = 0; i < gameData.humanCount; ++i) { 
-		players.push_back(&Game::humans[i]);
+		players.push_back(&Game::humanPlayers[i]);
 	}
 	for (size_t i = 0; i < gameData.aiCount; ++i) {
 		players.push_back(&Game::ais[i]);

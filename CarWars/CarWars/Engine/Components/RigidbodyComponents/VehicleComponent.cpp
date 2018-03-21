@@ -519,7 +519,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
         Game::gameData.teams[attacker->teamIndex].killCount++;
 
         for (size_t i = 0; i < Game::gameData.humanCount; ++i) {
-            HumanData& player = Game::humans[i];
+            HumanData& player = Game::humanPlayers[i];
             Entity* killFeed = EntityManager::FindFirstChild(player.camera->GetGuiRoot(), "KillFeed");
 
             Entity* row = ContentManager::LoadEntity("Menu/KillFeedRow.json", killFeed);
@@ -619,13 +619,14 @@ void VehicleComponent::Boost(glm::vec3 boostDir, float amount) {
 void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPower) {
 	const float amountPressed = abs(forwardPower - backwardPower);
 	bool brake = false;
+	float speed = pxVehicle->computeForwardSpeed();
 	if (backwardPower) {
 		if (amountPressed < 0.01) { // if both are pressed 
 			brake = true;
 			pxVehicleInputData.setAnalogBrake(1.f);
 		}
 		else { // just backward power
-			if (pxVehicle->computeForwardSpeed() > 5.f) { // going fast brake 
+			if (speed > 5.f) { // going fast brake 
 				brake = true;
 				pxVehicleInputData.setAnalogBrake(backwardPower);
 			}
@@ -640,15 +641,15 @@ void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPowe
 	}
 
 	if (amountPressed > 0.1 && forwardPower > backwardPower) {
-		if (pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eFIRST) {
+		if (pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eNEUTRAL) {
 			pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 		}
 	}
 
+	std::cout << brake << "<- brake, amountPressed ->" << amountPressed << " gear ->" << pxVehicle->mDriveDynData.getCurrentGear() <<std::endl;
 	if (!brake && amountPressed > 0.01) pxVehicleInputData.setAnalogAccel(amountPressed);
-	else {
+	else{
 		pxVehicleInputData.setAnalogAccel(0);
-		pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eNEUTRAL);
 	}
 }
 
