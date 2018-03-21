@@ -32,6 +32,13 @@ void HandlePowerUpCollision(Entity* _actor0, Entity* _actor1) {
 }
 
 void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
+    Entity* temp;
+    if (_actor1->HasTag("Missle")) {
+        temp = _actor1;
+        _actor1 = _actor0;
+        _actor0 = temp;
+    }
+
 	if (_actor0->HasTag("Missile")) {
 		Physics& physicsInstance = Physics::Instance();
 		if (_actor1->GetId() == _actor0->GetComponent<MissileComponent>()->GetOwner()->GetId()) {
@@ -68,11 +75,11 @@ void CollisionCallback::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 coun
 	RigidbodyComponent* actor1RB = static_cast<RigidbodyComponent*>(pairs->otherActor->userData);
 	Entity* actor1 = actor1RB->GetEntity();
     if (actor0 && actor1) {
-        if (actor0->HasTag("Missile") || actor1->HasTag("Missle")) {
-            HandleMissileCollision(actor0, actor1);
-            HandleMissileCollision(actor1, actor0);
-        }
-        if (actor0->HasTag("PowerUp") || actor1->HasTag("PowerUp")) {
+        //if (actor0->HasTag("Missile") || actor1->HasTag("Missle")) {
+            //HandleMissileCollision(actor0, actor1);
+            //HandleMissileCollision(actor1, actor0);
+        //}
+        /*else*/ if (actor0->HasTag("PowerUp") || actor1->HasTag("PowerUp")) {
             HandlePowerUpCollision(actor0, actor1);
         }
 	}

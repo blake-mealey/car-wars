@@ -39,7 +39,7 @@ void SpeedPowerUp::Collect(Entity* car) {
         auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.25);
         tween->SetUpdateCallback([gui](float &value) mutable {
             gui->SetTextureOpacity(value);
-            gui->SetTextureColor(glm::vec4(1.f, 1.f, 0.f, value));
+            //gui->SetTextureColor(glm::vec4(1.f, 1.f, 0.f, value));
             gui->transform.SetScale(glm::mix(glm::vec3(100.f, 100.f, 0.f), glm::vec3(0.f, 0.f, 0.f), value));
         });
         tween->Start();

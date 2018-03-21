@@ -17,7 +17,7 @@
       {
         "Type": "GUI",
         "ScaledScale": [ 1.0, 1.0 ],
-        "TextureColor": [ 1, 1, 0, 0 ],
+        "TextureColor": [ 1, 1, 1, 0 ],
         "Texture": "HUD/speed-vignette.png",
         "AnchorPoint": [ 0.5, 0.5 ],
         "ScaledPosition": [ 0.5, 0.5 ]
