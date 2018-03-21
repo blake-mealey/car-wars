@@ -29,6 +29,9 @@
     }, {
         "Prefab": "DefencePowerUp.json",
 	    "Position": [ -40, 2, -10 ]
+    },{
+        "Prefab": "SpeedPowerUp.json",
+	    "Position": [ -60, 2, -30 ]
     },
     {
         "Prefab": "Waypoint.json",

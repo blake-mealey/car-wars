@@ -386,6 +386,10 @@
   <ItemGroup>
     <Media Include="Content\Sounds\powerup.mp3" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Picture2.png" />
+    <Image Include="Content\Textures\HUD\speed-vingette.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
