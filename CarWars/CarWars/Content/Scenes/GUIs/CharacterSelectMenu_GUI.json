@@ -9,7 +9,7 @@
 				"AnchorPoint": [0.5, 0],
 				"Text": "",
 				"Font": "Starjedi.ttf",
-				"FontColor": [1, 1, 0, 1],
+				"FontColor": "Yellow",
 				"FontSize": 30
 			}
 		]
@@ -24,7 +24,7 @@
 				"AnchorPoint": [0.5, 0],
 				"Text": "",
 				"Font": "Starjedi.ttf",
-				"FontColor": [1, 1, 0, 1],
+				"FontColor": "Yellow",
 				"FontSize": 24
 			}
 		]
@@ -38,7 +38,7 @@
 				"ScaledPosition": [0.5, 1],
 				"AnchorPoint": [0.5, 1],
 				"Position": [0, -20, 0],
-				"SelectedFontColor": [1, 1, 0, 1],
+				"SelectedFontColor": "Yellow",
 				"Selected": true
 			}
 		]
@@ -52,7 +52,7 @@
         "AnchorPoint": [ 1, 0.5 ],
         "Position": [ -150, 80, 0 ],
         "Scale": [ 15, 25, 1 ],
-        "TextureColor": [1, 1, 0, 1],
+        "TextureColor": "Yellow",
         "Texture": "Menu/Arrow-Left.png",
         "Enabled": false
       },
@@ -62,7 +62,7 @@
         "AnchorPoint": [ 0, 0.5 ],
         "Position": [ 150, 80, 0 ],
         "Scale": [ 15, 25, 1 ],
-        "TextureColor": [1, 1, 0, 1],
+        "TextureColor": "Yellow",
         "Texture": "Menu/Arrow-Right.png",
         "Enabled": false
       }
@@ -90,7 +90,7 @@
             "Scale": [ 0, 20, 1 ],
             "Text": "stats",
             "Font": "Starjedi.ttf",
-            "FontColor": [ 1, 1, 0, 1 ],
+            "FontColor": "Yellow",
             "FontSize": 20,
             "Enabled": false
           }

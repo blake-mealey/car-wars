@@ -80,6 +80,8 @@ enum GameState {
 	(Either (A) to Ready, or (Start) to Continue)
 	*/
 
+	GameState_Menu_GameEnd,
+
     // Marker for end of GameState_Menu items
     __GameState_Menu_End,
 

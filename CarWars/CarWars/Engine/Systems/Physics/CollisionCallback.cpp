@@ -9,23 +9,28 @@
 #include "../../Systems/Physics.h"
 #include "../../Systems/Audio.h"
 #include <vector>
+#include "../Effects.h"
+#include "PennerEasing/Quint.h"
+#include "../../Components/RigidbodyComponents/RigidStaticComponent.h"
 
 void HandlePowerUpCollision(Entity* _actor0, Entity* _actor1) {
     Entity* actor0;
     Entity* actor1;
-    if (_actor0->HasTag("PowerUp")) {
-        actor0 = _actor0;
-        actor1 = _actor1;
-    } else {
-        actor0 = _actor1;
-        actor1 = _actor0;
-    }
+    if (_actor0 && _actor1) {
+        if (_actor0->HasTag("PowerUp")) {
+            actor0 = _actor0;
+            actor1 = _actor1;
+        } else {
+            actor0 = _actor1;
+            actor1 = _actor0;
+        }
 
-    VehicleComponent* vehicle = actor1->GetComponent<VehicleComponent>();
-    if (vehicle) {
-        Physics& physicsInstance = Physics::Instance();
-        actor0->GetComponent<PowerUp>()->Collect(actor1);
-        physicsInstance.AddToDelete(actor0);
+        VehicleComponent* vehicle = actor1->GetComponent<VehicleComponent>();
+        if (vehicle) {
+            Physics& physicsInstance = Physics::Instance();
+            actor0->GetComponent<PowerUp>()->Collect(actor1);
+            physicsInstance.AddToDelete(actor0);
+        }
     }
 }
 
@@ -39,19 +44,35 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 			//Explode
 			float explosionRadius = _actor0->GetComponent<MissileComponent>()->GetExplosionRadius();
             Audio::Instance().PlayAudio2D("Content/Sounds/explosion.mp3"); // TODO: is this the best place for this?
-			//bool isOverlapping = overlap();
-			//Entity* explosionEntity;
-			Entity* explosionEntity = ContentManager::LoadEntity("Explosion.json");
 
-			explosionEntity->GetComponent<RigidDynamicComponent>()->actor->setGlobalPose(_actor0->GetComponent<RigidDynamicComponent>()->actor->getGlobalPose());
-			explosionEntity->GetComponent<RigidDynamicComponent>()->actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+            Entity* explosionEffect = ContentManager::LoadEntity("ExplosionEffect.json");
+            explosionEffect->transform.SetPosition(_actor0->transform.GetGlobalPosition());
+            MeshComponent* mesh = explosionEffect->GetComponent<MeshComponent>();
+            Material* mat = mesh->GetMaterial();
+            
+            auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.5, StateManager::gameTime);
+            tween->SetUpdateCallback([mesh, mat, explosionRadius](float& value) mutable {
+                if (StateManager::GetState() != GameState_Playing) return;
+                mesh->transform.SetScale(glm::mix(glm::vec3(0.f), glm::vec3(explosionRadius*0.5f), value));
+                mat->diffuseColor = glm::mix(glm::vec4(1.f, 0.f, 0.f, 1.f), glm::vec4(1.f, 0.f, 0.f, 0.f), value);
+                mat->specularColor = glm::mix(glm::vec4(1.f, 0.f, 0.f, 1.f), glm::vec4(1.f, 0.f, 0.f, 0.f), value);
+            });
+            tween->SetFinishedCallback([explosionEffect](float& value) mutable {
+                if (StateManager::GetState() != GameState_Playing) return;
+                EntityManager::DestroyEntity(explosionEffect);
+            });
+            tween->Start();
+
 
 			std::vector<Component*> carComponents = EntityManager::GetComponents(ComponentType_Vehicle);
 			for (Component* component : carComponents) {
 				if (glm::length(component->GetEntity()->transform.GetGlobalPosition() - _actor0->transform.GetGlobalPosition()) < explosionRadius) {
 					RocketLauncherComponent* weapon = _actor0->GetComponent<MissileComponent>()->GetOwner()->GetComponent<RocketLauncherComponent>();
 					//Take Damage Equal to damage / 1 + distanceFromExplosion?
-					component->TakeDamage(weapon);
+					float missileDamage = _actor0->GetComponent<MissileComponent>()->GetDamage();
+					float damageToTake = missileDamage - (15.0f * (glm::length(component->GetEntity()->transform.GetGlobalPosition() - _actor0->transform.GetGlobalPosition())));
+					std::cout << damageToTake << std::endl;
+					component->TakeDamage(weapon, damageToTake);
 				}
 			}
 			physicsInstance.AddToDelete(_actor0);

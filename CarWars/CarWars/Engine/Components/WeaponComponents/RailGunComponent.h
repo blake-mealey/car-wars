@@ -20,6 +20,8 @@ public:
 
 	void RenderDebugGui() override;
 
+	void ChargeRelease();
+
 private:
 	Time timeBetweenShots = 1.0f;
 	Time chargeTime = 2.0f;

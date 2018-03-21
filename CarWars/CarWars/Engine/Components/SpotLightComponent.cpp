@@ -5,7 +5,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 SpotLightComponent::SpotLightComponent(nlohmann::json data) {
-	color = ContentManager::JsonToVec3(data["Color"], glm::vec3(1.f));
+	color = ContentManager::GetColorFromJson(data["Color"], glm::vec4(1.f));
 	direction = ContentManager::JsonToVec3(data["Direction"], glm::vec3(0.f, 0.f, 1.f));
 	power = ContentManager::GetFromJson<float>(data["Power"], 10);
 	angle = glm::radians(ContentManager::GetFromJson<float>(data["Angle"], 20));

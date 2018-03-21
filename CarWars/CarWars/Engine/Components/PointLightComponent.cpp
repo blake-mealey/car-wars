@@ -4,7 +4,7 @@
 #include "imgui/imgui.h"
 
 PointLightComponent::PointLightComponent(nlohmann::json data) {
-	color = ContentManager::JsonToVec3(data["Color"], glm::vec3(1.f));
+	color = ContentManager::GetColorFromJson(data["Color"], glm::vec4(1.f));
 	power = ContentManager::GetFromJson<float>(data["Power"], 10);
 }
 

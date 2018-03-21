@@ -243,9 +243,26 @@
     <None Include="Content\Shaders\shadowMap.vert" />
     <None Include="Content\Shaders\skybox.frag" />
     <None Include="Content\Shaders\skybox.vert" />
+<<<<<<< HEAD
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\Picture2.png" />
     <Image Include="Content\Textures\HUD\speed-vingette.png" />
+=======
+    <None Include="Content\Prefabs\Components\Ai.json" />
+    <None Include="Content\Scenes\Maps\CircleMap.json" />
+    <None Include="Content\Prefabs\Entities\Menu\PauseMenu.json" />
+    <None Include="Content\Prefabs\Entities\Explosion.json" />
+    <None Include="Content\Prefabs\Entities\Vehicles\Flatbed.json" />
+    <None Include="Content\Prefabs\Entities\Vehicles\Hearse.json" />
+    <None Include="Content\Prefabs\Entities\Weapons\MachineGunTurret.json" />
+    <None Include="Content\Prefabs\Components\GUIs\StarjediFont.json" />
+    <None Include="Content\Prefabs\Entities\Menu\LeaderboardMenu.json" />
+    <None Include="Content\Prefabs\Entities\Menu\LeaderboardRow.json" />
+    <None Include="Content\Prefabs\Entities\Menu\KillFeedRow.json" />
+    <None Include="Content\Scenes\GUIs\GameEnd_GUI.json" />
+    <None Include="Content\Prefabs\Entities\Bullet.json" />
+    <None Include="Content\Prefabs\Entities\ExplosionEffect.json" />
+>>>>>>> master
   </ItemGroup>
 </Project>

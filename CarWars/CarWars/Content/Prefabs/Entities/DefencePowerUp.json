@@ -3,7 +3,7 @@
 	"Components": [
 		{
 			"Type": "Mesh",
-			"Mesh": "Sphere.obj",
+			"Mesh": "Cube.obj",
 			"Material": "CyanShiny.json"
 		},
     {

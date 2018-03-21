@@ -3,6 +3,8 @@
 #include "../../Entities/EntityManager.h"
 #include "../../Systems/Content/ContentManager.h"
 #include "GuiComponent.h"
+#include "../../Systems/Effects.h"
+#include "PennerEasing/Quad.h"
 
 GuiComponent* GuiHelper::GetSelectedGui(Entity* entity) {
     for (GuiComponent* gui : entity->GetComponents<GuiComponent>()) {
@@ -149,6 +151,11 @@ void GuiHelper::LoadGuiSceneToCamera(size_t cameraIndex, std::string guiScene) {
     ContentManager::LoadScene(guiScene, camera->GetGuiRoot());
 }
 
+Entity* GuiHelper::LoadGuiPrefabToCamera(size_t cameraIndex, std::string guiPrefab) {
+    CameraComponent *camera = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[cameraIndex]);
+    return ContentManager::LoadEntity(guiPrefab, camera->GetGuiRoot());
+}
+
 void GuiHelper::SetGuisEnabled(Entity *entity, bool enabled) {
 	for (GuiComponent *gui : entity->GetComponents<GuiComponent>()) {
 		gui->enabled = enabled;
@@ -293,4 +300,26 @@ GuiComponent* GuiHelper::GetFourthGui(Entity* entity) {
 
 GuiComponent* GuiHelper::GetFourthGui(std::string entityTag, int playerIndex) {
     return GetFourthGui(EntityManager::FindEntities(entityTag)[playerIndex]);
+}
+
+std::vector<GuiComponent*> GuiHelper::GetGuisRecursive(Entity* parent) {
+	std::vector<GuiComponent*> guis;
+	GetGuisRecursive(parent, guis);
+	return guis;
+}
+
+void GuiHelper::GetGuisRecursive(Entity* parent, std::vector<GuiComponent*>& guis) {
+	std::vector<GuiComponent*> components = parent->GetComponents<GuiComponent>();
+	guis.insert(guis.end(), components.begin(), components.end());
+	for (Entity* child : EntityManager::GetChildren(parent)) {
+		GetGuisRecursive(child, guis);
+	}
+}
+
+void GuiHelper::SetOpacityRecursive(Entity* parent, const float goalOpacity) {
+	std::vector<GuiComponent*> guis = GetGuisRecursive(parent);
+    for (GuiComponent* gui : guis) {
+        gui->SetFontOpacity(goalOpacity);
+        gui->SetTextureOpacity(goalOpacity);
+    }
 }

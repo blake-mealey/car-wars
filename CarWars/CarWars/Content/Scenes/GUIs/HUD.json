@@ -1,5 +1,4 @@
-[
-  {
+[  {
     "Tag": "DamagePowerUp",
     "Components": [
       {
@@ -37,141 +36,163 @@
       }
     ]
   },
-  {
-    "Tag": "GameClock",
-    "Components": [
-      {
-        "Prefab": "GUIs/StarjediFont.json",
-        "AnchorPoint": [ 0.5, 0 ],
-        "ScaledPosition": [ 0.5, 0 ],
-        "Position": [ 0, 20, 0 ],
-        "Scale": [ 150, 75, 1 ],
-        "FontSize": 48,
-        "Text": "0:00"
-      }
-    ]
-  },
-  {
-    "Tag": "GameScores",
-    "Components": [
-      {
-        "Prefab": "GUIs/StarjediFont.json",
-        "AnchorPoint": [ 1, 0 ],
-        "ScaledPosition": [ 0.5, 0 ],
-        "Position": [ -95, 20, 0 ],
-        "Scale": [ 150, 75, 1 ],
-        "FontSize": 36,
-        "TextXAlignment": "Right",
-        "Text": "0"
-      },
-      {
-        "Prefab": "GUIs/StarjediFont.json",
-        "AnchorPoint": [ 0, 0 ],
-        "ScaledPosition": [ 0.5, 0 ],
-        "Position": [ 95, 20, 0 ],
-        "Scale": [ 150, 75, 1 ],
-        "FontSize": 36,
-        "TextXAlignment": "Left",
-        "Text": "0"
-      }
-    ]
-  },
-  {
-    "Tag": "Crosshair",
-    "Components": [
-      {
-        "Type": "GUI",
-        "AnchorPoint": [ 0.5, 0.5 ],
-        "ScaledPosition": [ 0.5, 0.5 ],
-        "Scale": [ 4, 4, 1 ],
-        "Texture": "HUD/sight-dot.png"
-      },
-      {
-        "Type": "GUI",
-        "AnchorPoint": [ 1, 0.5 ],
-        "ScaledPosition": [ 0.5, 0.5 ],
-        "Position": [ -10, 0, 0 ],
-        "Scale": [ 7, 12, 1 ],
-        "Texture": "HUD/sight-left.png"
-      },
-      {
-        "Type": "GUI",
-        "AnchorPoint": [ 0, 0.5 ],
-        "ScaledPosition": [ 0.5, 0.5 ],
-        "Position": [ 10, 0, 0 ],
-        "Scale": [ 7, 12, 1 ],
-        "Texture": "HUD/sight-right.png"
-      }
-    ]
-  },
-  {
-    "Tag": "Vignettes",
-    "Components": [
-      {
-        "Type": "GUI",
-        "AnchorPoint": [ 0.5, 0.5 ],
-        "ScaledPosition": [ 0.5, 0.5 ],
-        "ScaledScale": [ 1, 1 ],
-        "Texture": "HUD/health-vignette-red.png",
-        "Enabled": false
-      },
-      {
-        "Type": "GUI",
-        "AnchorPoint": [ 0.5, 0.5 ],
-        "ScaledPosition": [ 0.5, 0.5 ],
-        "ScaledScale": [ 1, 1 ],
-        "Texture": "HUD/shield-vignette.png",
-        "Enabled": false
-      }
-    ]
-  },
-  {
-    "Tag": "HitIndicator",
-    "Components": [
-      {
-        "Type": "GUI",
-        "AnchorPoint": [ 0.5, 0.5 ],
-        "ScaledPosition": [ 0.5, 0.5 ],
-        "Scale": [ 30, 30, 1 ],
-        "Texture": "HUD/hit-indicator.png",
-        "TextureColor": [ 1, 1, 1, 0 ]
-      }
-    ]
-  },
-  {
-    "Tag": "DamageIndicator",
-    "Components": [
-      {
-        "Type": "GUI",
-        "AnchorPoint": [ 0.5, 0.5 ],
-        "ScaledPosition": [ 0.5, 0.5 ],
-        "Scale": [ 500, 500, 1 ],
-        "TextureColor": [ 1, 0, 0, 0 ],
-        "Texture": "HUD/damage-indicator.png"
-      }
-    ]
-  },
-  {
-    "Tag": "ChargeIndicator",
-    "Components": [
-      {
-        "Type": "GUI",
-        "AnchorPoint": [ 0.5, 0.5 ],
-        "ScaledPosition": [ 0.5, 0.5 ],
-        "Rotate": [ 0, 0, 180 ],
-        "Scale": [ 134, 134, 1 ],
-        "TextureColor": [ 1, 1, 1, 1 ],
-        "Texture": "HUD/recharge.png",
-        "MaskEnabled": true,
-        "MaskInverted": true,
-        "Mask": {
-          "Scale": [ 134, 134, 0 ]
-        }
-      }
-    ]
-  },
-
-  {
-    "Tag": "KillFeed"
-  }
+	{
+		"Tag": "GameClock",
+        "Components": [
+	        {
+                "Prefab": "GUIs/StarjediFont.json",
+                "AnchorPoint": [0.5, 0],
+                "ScaledPosition": [0.5, 0],
+                "Position": [0, 20, 0],
+                "Scale": [150, 75, 1],
+                "FontSize": 48,
+                "Text": "0:00"
+	        }
+        ]
+	},
+	{
+		"Tag": "GameScores",
+        "Components": [
+	        {
+                "Prefab": "GUIs/StarjediFont.json",
+		        "AnchorPoint": [1, 0],
+		        "ScaledPosition": [0.5, 0],
+		        "Position": [-95, 20, 0],
+		        "Scale": [150, 75, 1],
+		        "FontSize": 36,
+                "TextXAlignment": "Right",
+		        "Text": "0"
+	        },
+		    {
+                "Prefab": "GUIs/StarjediFont.json",
+		        "AnchorPoint": [0, 0],
+		        "ScaledPosition": [0.5, 0],
+		        "Position": [95, 20, 0],
+		        "Scale": [150, 75, 1],
+		        "FontSize": 36,
+		        "TextXAlignment": "Left",
+		        "Text": "0"
+	        }
+        ]
+	},
+	{
+		"Tag": "Crosshair",
+        "Components": [
+	        {
+            "Type": "GUI",
+                "AnchorPoint": [0.5, 0.5],
+                "ScaledPosition": [0.5, 0.5],
+                "Scale": [4, 4, 1],
+                "Texture": "HUD/sight-dot.png"
+	        },
+	        {
+		        "Type": "GUI",
+		        "AnchorPoint": [1, 0.5],
+		        "ScaledPosition": [0.5, 0.5],
+                "Position": [-10, 0, 0],
+		        "Scale": [7, 12, 1],
+		        "Texture": "HUD/sight-left.png"
+	        },
+	        {
+		        "Type": "GUI",
+		        "AnchorPoint": [0, 0.5],
+		        "ScaledPosition": [0.5, 0.5],
+		        "Position": [10, 0, 0],
+		        "Scale": [7, 12, 1],
+		        "Texture": "HUD/sight-right.png"
+	        }
+        ]
+	},
+	{
+		"Tag": "Vignettes",
+		"Components": [
+			{
+				"Type": "GUI",
+				"AnchorPoint": [0.5, 0.5],
+                "ScaledPosition": [0.5, 0.5],
+				"ScaledScale": [1, 1],
+				"Texture": "HUD/health-vignette-red.png",
+                "Enabled": false
+			},
+			{
+				"Type": "GUI",
+				"AnchorPoint": [0.5, 0.5],
+				"ScaledPosition": [0.5, 0.5],
+				"ScaledScale": [1, 1],
+				"Texture": "HUD/shield-vignette.png",
+				"Enabled": false
+			}
+		]
+	},
+	{
+		"Tag": "HitIndicator",
+        "Components": [
+	        {
+		        "Type": "GUI",
+		        "AnchorPoint": [0.5, 0.5],
+		        "ScaledPosition": [0.5, 0.5],
+		        "Scale": [30, 30, 1],
+		        "Texture": "HUD/hit-indicator.png",
+                "TextureColor": "AlphaWhite"
+	        }
+        ]
+	},
+	{
+		"Tag": "DamageIndicator",
+		"Components": [
+			{
+				"Type": "GUI",
+				"AnchorPoint": [0.5, 0.5],
+				"ScaledPosition": [0.5, 0.5],
+				"Scale": [500, 500, 1],
+                "TextureColor": "AlphaRed",
+				"Texture": "HUD/damage-indicator.png"
+			}
+		]
+	},
+	{
+		"Tag": "ChargeIndicator",
+		"Components": [
+			{
+				"Type": "GUI",
+				"AnchorPoint": [0.5, 0.5],
+				"ScaledPosition": [0.5, 0.5],
+                "Rotate": [0, 0, 180],
+				"Scale": [134, 134, 1],
+				"TextureColor": "White",
+				"Texture": "HUD/recharge.png",
+                "MaskEnabled": true,
+                "MaskInverted": true,
+                "Mask": {
+	                "Scale": [134, 134, 0]
+                }
+			}
+		]
+	},
+	{
+		"Tag": "KillFeed"
+	},
+	{
+		"Tag": "HealthBar",
+        "Components": [
+	        {
+		        "Type": "GUI",
+                "AnchorPoint": [0.5, 1],
+                "ScaledPosition": [0.5, 1],
+                "Position": [0, -20, 0],
+                "Scale": [250, 30, 0],
+                "Texture": "White.png",
+                "TextureColor": "BlackHalfAlpha"
+	        },
+	        {
+		        "Type": "GUI",
+		        "AnchorPoint": [0.5, 1],
+		        "ScaledPosition": [0.5, 1],
+		        "Position": [0, -25, 0],
+		        "Scale": [240, 20, 0],
+		        "Texture": "White.png",
+		        "TextureColor": "RedHalfAlpha"
+	        }
+        ]
+	}
 ]

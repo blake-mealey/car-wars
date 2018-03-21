@@ -17,11 +17,15 @@ public:
 	ComponentType GetType() override;
 	void HandleEvent(Event* event) override;
 	
+    ~MeshComponent() = default;
 	MeshComponent(nlohmann::json data);
 	MeshComponent(std::string meshPath, std::string materialPath);
 	MeshComponent(std::string meshPath, Material *_material);
 	MeshComponent(std::string meshPath, std::string materialPath, std::string texturePath);
 	MeshComponent(MeshComponent* component);
+    
+    MeshComponent(const MeshComponent& mesh) = default;
+    MeshComponent& operator=(const MeshComponent& mesh) = default;
 
 	void MakeCylinder(Mesh* mesh);
 

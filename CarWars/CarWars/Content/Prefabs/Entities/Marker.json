@@ -6,8 +6,8 @@
       "Type": "Mesh",
       "Mesh": "Sphere.obj",
       "Material": {
-        "DiffuseColor": [ 0, 1, 0 ],
-        "SpecularColor": [ 0, 1, 0 ],
+        "DiffuseColor": "Green",
+        "SpecularColor": "Green",
         "Specularity": 1,
         "Emissiveness": 1
       }

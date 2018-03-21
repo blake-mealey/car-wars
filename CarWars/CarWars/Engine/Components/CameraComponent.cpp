@@ -4,8 +4,12 @@
 #include "../Entities/Entity.h"
 #include "../Systems/Content/ContentManager.h"
 #include "imgui/imgui.h"
+#include "../Systems/StateManager.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 const float CameraComponent::NEAR_CLIPPING_PLANE = 0.1f;
 const float CameraComponent::FAR_CLIPPING_PLANE = 1000.f;
@@ -34,12 +38,12 @@ CameraComponent::CameraComponent(nlohmann::json data) : guiRoot(nullptr) {
 	upVector = ContentManager::JsonToVec3(data["UpVector"], glm::vec3(0.f, 1.f, 0.f));
     distanceFromCenter = ContentManager::GetFromJson<float>(data["CenterDistance"], DEFAULT_DISTANCE);
     targetInLocalSpace = ContentManager::GetFromJson<bool>(data["TargetInLocalSpace"], false);
-
+	follow = false;
 	UpdateViewMatrix();
 }
 
 CameraComponent::CameraComponent(glm::vec3 _position, glm::vec3 _target, glm::vec3 _upVector) : targetInLocalSpace(false),
-	position(_position), target(_target), upVector(_upVector), fieldOfView(DEFAULT_FIELD_OF_VIEW), distanceFromCenter(DEFAULT_DISTANCE), guiRoot(nullptr) {
+	position(_position), target(_target), upVector(_upVector), fieldOfView(DEFAULT_FIELD_OF_VIEW), distanceFromCenter(DEFAULT_DISTANCE), guiRoot(nullptr), follow(false) {
 	
 	UpdateViewMatrix();
 }
@@ -144,13 +148,27 @@ void CameraComponent::RenderDebugGui() {
 }
 
 void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, float _cameraVer) {
-	/*
-	x = r cos T sin O
-	y = r sin T sin O
-	z = r cos O
-	*/
-	SetCameraHorizontalAngle(_cameraHor);
-	SetCameraVerticalAngle(_cameraVer);
+	if (follow) {
+		glm::vec3 vehicleDirection = _vehicle->transform.GetForward();
+		vehicleDirection.y = 0;
+		vehicleDirection = glm::normalize(vehicleDirection);
+		_cameraHor += -GetCameraHorizontalAngle() + ((acos(glm::dot(vehicleDirection, Transform::FORWARD)))) * (glm::dot(vehicleDirection, Transform::RIGHT) > 0 ? 1 : -1) + M_PI_2;
+		_cameraVer += -GetCameraVerticalAngle() + M_PI * .45f;
+	}
+
+	if (_cameraHor > M_PI) _cameraHor -= M_PI * 2;
+	if (_cameraHor < -M_PI) _cameraHor += M_PI * 2;
+
+	float cameraNewHor = GetCameraHorizontalAngle() + _cameraHor * GetCameraSpeed() * StateManager::deltaTime.GetSeconds();
+	float cameraNewVer = GetCameraVerticalAngle() + _cameraVer * GetCameraSpeed() * StateManager::deltaTime.GetSeconds();
+
+	cameraNewVer = glm::clamp(cameraNewVer, 0.1f, (float)M_PI - 0.1f);
+
+	if (cameraNewHor > M_PI) cameraNewHor -= M_PI * 2;
+	if (cameraNewHor < -M_PI) cameraNewHor += M_PI * 2;
+	
+	SetCameraHorizontalAngle(cameraNewHor);
+	SetCameraVerticalAngle(cameraNewVer);
 	UpdatePositionFromAngles();
 }
 

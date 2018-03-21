@@ -20,6 +20,8 @@
 #include "../Components/AiComponent.h"
 #include "Pathfinder.h"
 #include "../Components/GuiComponents/GuiHelper.h"
+#include "Effects.h"
+#include "PennerEasing/Quint.h"
 using namespace std;
 
 const string GameModeType::displayNames[Count] = { "Team", "Free for All" };
@@ -49,7 +51,7 @@ const string WeaponType::statValues[Count][STAT_COUNT] = {
 const unsigned int Game::MAX_VEHICLE_COUNT = 20;
 
 GameData Game::gameData;
-PlayerData Game::players[4];
+HumanData Game::humanPlayers[4];
 vector<AiData> Game::ais;
 
 Time gameTime(0);
@@ -71,6 +73,34 @@ void Game::Initialize() {
     StateManager::SetState(GameState_Menu);
 }
 
+void Game::SpawnVehicle(PlayerData& player) {
+	std::vector<Entity*> spawns = EntityManager::FindEntities("SpawnLocation");
+	Entity* spawn = spawns[rand() % spawns.size()];
+	glm::vec3 position = spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f);
+
+	// Initialize their vehicle
+	player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
+	player.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(Transform::ToPx(position)));
+
+	// Initialize their turret mesh
+	Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType], player.vehicleEntity);
+	turret->transform.SetPosition(EntityManager::FindFirstChild(player.vehicleEntity, "GunTurretBase")->transform.GetLocalPosition());
+
+	// Initialize their weapon
+	Component* weapon = ContentManager::LoadComponent(WeaponType::prefabPaths[player.weaponType]);
+	EntityManager::AddComponent(player.vehicleEntity, weapon);
+
+	player.alive = true;
+}
+
+void Game::SpawnAi(AiData& ai) {
+	SpawnVehicle(ai);
+	
+	// Initialize their AI
+	ai.brain = static_cast<AiComponent*>(ContentManager::LoadComponent("Ai.json"));
+	EntityManager::AddComponent(ai.vehicleEntity, ai.brain);
+}
+
 void Game::InitializeGame() {
     // Initialize the map
     ContentManager::DestroySceneAndLoadScene(MapType::scenePaths[gameData.map]);
@@ -81,45 +111,46 @@ void Game::InitializeGame() {
     // Initialize teams
     size_t teamCount = 0;
     if (gameData.gameMode == GameModeType::Team) teamCount = 2;
-    else if (gameData.gameMode == GameModeType::FreeForAll) teamCount = gameData.playerCount + gameData.aiCount;
+    else if (gameData.gameMode == GameModeType::FreeForAll) teamCount = gameData.humanCount + gameData.aiCount;
     for (size_t i = 0; i < teamCount; ++i) {
-        gameData.teams.push_back(TeamData());
+        TeamData team;
+        if (gameData.gameMode == GameModeType::Team) {
+            team.name = "Team " + to_string(i + 1);
+        }
+        gameData.teams.push_back(team);
     }
 
-    // Initialize the players
-	for (int i = 0; i < gameData.playerCount; ++i) {
-        PlayerData& player = players[i];
+    // Initialize the humanPlayers
+	for (int i = 0; i < gameData.humanCount; ++i) {
+        HumanData& player = humanPlayers[i];
 		player.name = "Player " + to_string(i + 1);
-        player.alive = true;
-		player.follow = false;
 
         // Set their team
         if (gameData.gameMode == GameModeType::FreeForAll) {
             player.teamIndex = i;
+            gameData.teams[player.teamIndex].name = player.name;
         } else if (gameData.gameMode == GameModeType::Team) {
             player.teamIndex = i % 2;
         }
 
-        // Initialize their vehicle
-        // TODO: Proper spawn location
-        player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
-        player.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(0.f, 10.f, i*15.f)));
-
-        // Initialize their turret mesh
-        Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType], player.vehicleEntity);
-        turret->transform.SetPosition(EntityManager::FindFirstChild(player.vehicleEntity, "GunTurretBase")->transform.GetLocalPosition());
-
-        // Initialize their weapon
-        Component* weapon = ContentManager::LoadComponent(WeaponType::prefabPaths[player.weaponType]);
-        EntityManager::AddComponent(player.vehicleEntity, weapon);
+		SpawnVehicle(player);
 
         // Initialize their camera
         player.cameraEntity = ContentManager::LoadEntity("Game/Camera.json");
 	    player.camera = player.cameraEntity->GetComponent<CameraComponent>();
-        player.camera->SetCameraHorizontalAngle(-3.14 / 2);
-        player.camera->SetCameraVerticalAngle(3.14 / 4);
 
-        // Initialize their UI
+		player.camera->SetTarget(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
+		player.camera->SetTargetOffset(glm::vec3(0, 2, 0));
+
+		glm::vec3 vehicleDirection = player.vehicleEntity->transform.GetForward();
+		vehicleDirection.y = 0;
+		vehicleDirection = glm::normalize(vehicleDirection);
+
+		player.camera->SetCameraHorizontalAngle(-player.camera->GetCameraHorizontalAngle() + acos(glm::dot(vehicleDirection, Transform::FORWARD)) * (glm::dot(vehicleDirection, Transform::RIGHT) > 0 ? 1 : -1) + M_PI_2);
+		player.camera->SetCameraVerticalAngle(-player.camera->GetCameraVerticalAngle() + M_PI * .45f);
+		player.camera->UpdatePositionFromAngles();
+		
+		// Initialize their UI
         ContentManager::LoadScene("GUIs/HUD.json", player.camera->GetGuiRoot());
 	}
 
@@ -127,40 +158,22 @@ void Game::InitializeGame() {
     for (size_t i = 0; i < gameData.aiCount; ++i) {
         // Create the AI
         // TODO: Choose vehicle and weapon type somehow
-        ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun));
+        ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun, AiComponent::MAX_DIFFUCULTY));
         AiData& ai = ais[i];
-		ai.alive = true;
-		ai.diffuculty = 1.f;
 		ai.name = "Computer " + to_string(i + 1);
 
         // Set their team
         if (gameData.gameMode == GameModeType::FreeForAll) {
-            ai.teamIndex = gameData.playerCount + i;
+            ai.teamIndex = gameData.humanCount + i;
+            gameData.teams[ai.teamIndex].name = ai.name;
         } else if (gameData.gameMode == GameModeType::Team) {
-            ai.teamIndex = (gameData.playerCount + i) % 2;
+            ai.teamIndex = (gameData.humanCount + i) % 2;
         }
 
-        // Initialize their vehicle
-        // TODO: Proper spawn location
-        ai.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[ai.vehicleType]);
-        ai.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(PxVec3(15.f + 5.f * i, 10.f, 0.f)));
-
-        // Initialize their turret mesh
-        Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[WeaponType::MachineGun], ai.vehicleEntity);
-        turret->transform.SetPosition(EntityManager::FindFirstChild(ai.vehicleEntity, "GunTurretBase")->transform.GetLocalPosition());
-
-        // Initialize their weapon
-        Component* weapon = ContentManager::LoadComponent(WeaponType::prefabPaths[ai.weaponType]);
-        EntityManager::AddComponent(ai.vehicleEntity, weapon);
-
-        // Initialize their AI
-        ai.brain = static_cast<AiComponent*>(ContentManager::LoadComponent("Ai.json"));
-        EntityManager::AddComponent(ai.vehicleEntity, ai.brain);
+		SpawnAi(ai);
     }
 
-    waypoints = EntityManager::FindEntities("Waypoint");
-
-    navigationMesh = new NavigationMesh({
+	navigationMesh = new NavigationMesh({
         { "ColumnCount", 100 },
         { "RowCount", 100 },
         { "Spacing", 2.5f }
@@ -172,34 +185,33 @@ void Game::InitializeGame() {
     }
 }
 
-void ResetVehicleData(VehicleData& vehicle) {
-    vehicle.alive = false;
-    vehicle.killCount = 0;
-    vehicle.deathCount = 0;
+void ResetPlayerData(PlayerData& player) {
+    player.alive = false;
+    player.killCount = 0;
+    player.deathCount = 0;
 }
 
-void Game::FinishGame() {
-    // TODO: Show leaderboard GUI
-
-    // Reset players
-    for (size_t i = 0; i < gameData.playerCount; ++i) {
-        PlayerData& player = players[i];
+void Game::ResetGame() {
+    // Reset humanPlayers
+    for (size_t i = 0; i < gameData.humanCount; ++i) {
+        HumanData& player = humanPlayers[i];
         player.ready = false;
-        ResetVehicleData(player);
+        ResetPlayerData(player);
     }
 
     // Reset ais
     for (AiData& ai : ais) {
-        ResetVehicleData(ai);
+        ResetPlayerData(ai);
     }
 
     // Reset game
-    gameData.playerCount = 0;
+    gameData.humanCount = 0;
     gameData.teams.clear();
     StateManager::gameTime = 0.0;
+}
 
-    // Load the main menu
-    StateManager::SetState(GameState_Menu);
+void Game::FinishGame() {
+    StateManager::SetState(GameState_Menu_GameEnd);
 }
 
 void Game::Update() {
@@ -226,27 +238,42 @@ void Game::Update() {
         const glm::vec3 sunPosition = glm::vec3(cos(t), 0.5f, sin(t));
         EntityManager::FindEntities("Sun")[0]->GetComponent<DirectionLightComponent>()->SetDirection(-sunPosition);
 		
-        // Update player cameras
-        for (int i = 0; i < gameData.playerCount; ++i) {
-            PlayerData& player = players[i];
+        // Update cameras
+        for (int i = 0; i < gameData.humanCount; ++i) {
+            HumanData& player = humanPlayers[i];
             if (!player.alive) continue;
             player.cameraEntity->transform.SetPosition(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
-			player.camera->SetTarget(player.vehicleEntity->transform.GetGlobalPosition());
-			
+			player.camera->SetTarget(EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition());
+			player.camera->SetTargetOffset(glm::vec3(0, 2, 0));
+
 			PxScene* scene = &Physics::Instance().GetScene();
 			PxRaycastBuffer hit;
 			glm::vec3 direction = glm::normalize(player.camera->GetPosition() - player.camera->GetTarget());
-			player.camera->SetTargetOffset(glm::vec3(0, 2, 0) + EntityManager::FindChildren(player.vehicleEntity, "GunTurret")[0]->transform.GetGlobalPosition() - player.vehicleEntity->transform.GetGlobalPosition());
 			PxQueryFilterData filterData;
 			filterData.data.word0 = -1 ^ player.vehicleEntity->GetComponent<VehicleComponent>()->GetRaycastGroup();
+			
 			//Raycast
-			if (scene->raycast(Transform::ToPx(player.camera->GetTarget()), Transform::ToPx(direction), CameraComponent::MAX_DISTANCE + 1, hit, PxHitFlag::eDEFAULT, filterData)) {
-				player.camera->SetDistance(hit.block.distance - .5);
-			}
-			else {
+			if (scene->raycast(Transform::ToPx(player.camera->GetTarget()), Transform::ToPx(direction), CameraComponent::MAX_DISTANCE + 3, hit, PxHitFlag::eDEFAULT, filterData)) {
+				player.camera->SetDistance(hit.block.distance - 3);
+			} else {
 				player.camera->SetDistance(CameraComponent::MAX_DISTANCE);
 			}
         }
+
+		// Respawn vehicles
+		for (size_t i = 0; i < gameData.humanCount; ++i) {
+			HumanData& player = humanPlayers[i];
+			if (!player.alive && StateManager::gameTime >= player.diedTime + gameData.respawnTime && player.deathCount < gameData.numberOfLives) {
+				SpawnVehicle(player);
+				GuiHelper::GetSecondGui("HealthBar", i)->transform.SetScale(glm::vec3(240.f, 20.f, 0.f));
+			}
+		}
+
+		for (AiData& player : ais) {
+			if (!player.alive && StateManager::gameTime >= player.diedTime + gameData.respawnTime && player.deathCount < gameData.numberOfLives) {
+				SpawnAi(player);
+			}
+		}
 
         // ---------------
         // Gamemode update
@@ -256,10 +283,14 @@ void Game::Update() {
         size_t highestTeamKillCount = 0;
         for (TeamData& team : gameData.teams) {
             if (team.killCount > highestTeamKillCount) highestTeamKillCount = team.killCount;
+			if (team.killCount >= gameData.killLimit) {
+				FinishGame();
+				return;
+			}
         }
 
-        for (size_t i = 0; i < gameData.playerCount; ++i) {
-            PlayerData& player = players[i];
+        for (size_t i = 0; i < gameData.humanCount; ++i) {
+            HumanData& player = humanPlayers[i];
             GuiHelper::SetFirstGuiText("GameClock", (gameData.timeLimit - StateManager::gameTime).ToString(), i);
             if (gameData.gameMode == GameModeType::Team) {
                 GuiHelper::SetFirstGuiText("GameScores", to_string(gameData.teams[0].killCount), i);
@@ -277,16 +308,19 @@ void Game::Update() {
 
         // Kill limit and lives
         bool allDeadForever = true;
-        for (size_t i = 0; i < gameData.playerCount; ++i) {
-            PlayerData& player = players[i];
+        for (size_t i = 0; i < gameData.humanCount; ++i) {
+            PlayerData& player = humanPlayers[i];
             if (player.killCount >= gameData.killLimit) FinishGame();
             if (allDeadForever && player.deathCount < gameData.numberOfLives) allDeadForever = false;
         }
+		for (size_t i = 0; i < gameData.aiCount; ++i) {
+			PlayerData& player = ais[i];
+			if (player.killCount >= gameData.killLimit) FinishGame();
+			if (allDeadForever && player.deathCount < gameData.numberOfLives) allDeadForever = false;
+		}
         if (allDeadForever) FinishGame();
 	} else if (StateManager::GetState() == GameState_Paused) {
-
         // PAUSED
-
 	}
 }
 
@@ -294,9 +328,9 @@ NavigationMesh* Game::GetNavigationMesh() const {
     return navigationMesh;
 }
 
-VehicleData* Game::GetDataFromEntity(Entity* vehicle) {
-    PlayerData* playerData = GetPlayerFromEntity(vehicle);
-    if (playerData) return playerData;
+PlayerData* Game::GetPlayerFromEntity(Entity* vehicle) {
+    HumanData* player = GetHumanFromEntity(vehicle);
+    if (player) return player;
 
     for (AiData& ai : ais) {
         if (ai.vehicleEntity == vehicle) return &ai;
@@ -304,9 +338,9 @@ VehicleData* Game::GetDataFromEntity(Entity* vehicle) {
     return nullptr;
 }
 
-PlayerData* Game::GetPlayerFromEntity(Entity* vehicle) {
-    for (size_t i = 0; i < gameData.playerCount; ++i) {
-        PlayerData& player = players[i];
+HumanData* Game::GetHumanFromEntity(Entity* vehicle) {
+    for (size_t i = 0; i < gameData.humanCount; ++i) {
+        HumanData& player = humanPlayers[i];
         if (player.vehicleEntity == vehicle) return &player;
     }
     return nullptr;

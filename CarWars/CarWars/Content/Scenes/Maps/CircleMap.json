@@ -13,6 +13,7 @@
       },
       {
         "Type": "RigidStatic",
+        "BlocksNavMesh": false,
         "Colliders": [
           {
             "Type": "Mesh",
@@ -49,33 +50,78 @@
     {
         "Prefab": "Jump.json",
         "Position": [ 14.8, -2.4, 20 ],
-	    "Rotate": [0, 0, -20]
+      "Rotate": [ 0, 0, -20 ],
+      "scale": [10,10,10]
     },
-    {
-        "Tag": "Wall",
-        "Position": [-20, 5, -15],
-        "Scale": [10, 10, 60],
+	{
+		"Tag": "Dome",
+		"Position": [ 0, 0, -30 ],
+		"Scale": [ 15, 15, 15 ],
+		"Components": [
+			{
+				"Type": "Mesh",
+				"Mesh": "Sphere.obj",
+				"Material": {
+					"DiffuseColor": "RedAlpha",
+					"SpecularColor": "RedAlpha",
+					"Specularity": 1,
+					"Emissiveness": 1
+				}
+			}
+		]
+	},
+  {
+    "Tag": "Wall",
+    "Position": [ -20, 5, -15 ],
+    "Rotate": [ 20, 0, 0 ],
+    "Scale": [ 10, 10, 80 ],
+    "Components": [
+      {
+        "Type": "Mesh",
+        "Mesh": "Cube.obj",
+        "Texture": "DiamondPlate.jpg",
+        "Material": "Basic.json",
+        "UvScale": [ 10, 10 ],
+        "Scale": [ 0.5, 0.5, 0.5 ]
+      },
+      {
+        "Type": "RigidStatic",
+        "Colliders": [
+          {
+            "Type": "Box",
+            "CollisionGroup": "DrivableObstacles"
+          }
+        ]
+      }
+    ]
+  },
+   {
+        "Tag": "Cylinder",
+        "Position": [ 20, 5, -15 ],
+        "Rotate": [ -20, 0, 0 ],
+        "Scale": [5, 5, 80],
         "Components": [
             {
                 "Type": "Mesh",
-                "Mesh": "Cube.obj",
+                "Mesh": "Cylinder.obj",
                 "Texture": "DiamondPlate.jpg",
                 "Material": "Basic.json",
                 "UvScale": [10, 10],
-                "Scale": [0.5, 0.5, 0.5]
+                "Scale": [1, 1, 1]
             },
             {
                 "Type": "RigidStatic",
                 "Colliders": [
                     {
-                        "Type": "Box",
+                      "Type": "ConvexMesh",
+                      "Mesh": "Cylinder.obj",
                         "CollisionGroup": "DrivableObstacles"
                     }
                 ]
             }
         ]
     },
-	{
+  	{
 		"Tag": "Light",
 		"Position": [ -10, 2, 10 ],
 		"Components": [
@@ -86,7 +132,7 @@
 			},
 			{
 				"Type": "PointLight",
-				"Color": [0, 0, 1],
+				"Color": "Blue",
 				"Power": 50
 			},
             {
@@ -126,5 +172,41 @@
             }
 		]
 	},
-  "Sun.json"
+  "Sun.json",
+  {
+    "Tag": "SpawnLocation",
+    "Position": [ 0, 0, 0 ]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [ 0, 0, 50 ]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [ 0, 0, -50 ]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [50, 0, 0]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [-50, 0, 0]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [50, 0, 50]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [-50, 0, 50]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [50, 0, -50]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [-50, 0, -50]
+  }
 ]

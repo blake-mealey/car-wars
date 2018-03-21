@@ -1,0 +1,10 @@
+{
+	"Tag": "Bullet",
+    "Components": [
+	    {
+		    "Type": "Line",
+		    "Color": "Red",
+		    "Points": [[],[]]
+	    }
+    ]
+}

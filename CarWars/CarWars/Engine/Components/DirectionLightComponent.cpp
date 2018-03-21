@@ -4,7 +4,7 @@
 #include "imgui/imgui.h"
 
 DirectionLightComponent::DirectionLightComponent(nlohmann::json data) {
-    color = ContentManager::JsonToVec3(data["Color"], glm::vec3(1.f));
+    color = ContentManager::GetColorFromJson(data["Color"], glm::vec4(1.f));
 	direction = normalize(ContentManager::JsonToVec3(data["Direction"], glm::vec3(0.f, 0.f, 1.f)));
 	castsShadows = ContentManager::GetFromJson<bool>(data["CastsShadows"], false);
 }

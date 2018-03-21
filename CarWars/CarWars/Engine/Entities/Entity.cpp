@@ -90,8 +90,11 @@ void Entity::MarkForDeletion() {
 	markedForDeletion = true;
 }
 
-void Entity::TakeDamage(WeaponComponent* damager) {
+void Entity::TakeDamage(WeaponComponent* damager, float _damage) {
 	for (Component* component : components) {
-		component->TakeDamage(damager);
+		component->TakeDamage(damager, _damage);
+	}
+	for (Entity* entity : children) {
+		entity->TakeDamage(damager, _damage);
 	}
 }

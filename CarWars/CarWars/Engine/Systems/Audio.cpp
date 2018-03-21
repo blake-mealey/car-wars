@@ -19,7 +19,7 @@ void Audio::Initialize() {
     FMOD::System_Create(&soundSystem);
     soundSystem->init(MAX_CHANNELS, FMOD_INIT_NORMAL, 0);
     soundSystem->set3DSettings(1.0f, 1.0f, 1.0f); 
-    soundSystem->set3DNumListeners(Game::gameData.playerCount);
+    soundSystem->set3DNumListeners(Game::gameData.humanCount);
 
 
     prevGameState = StateManager::GetState();
@@ -84,9 +84,9 @@ void Audio::MenuMusicControl() {
 void Audio::UpdateListeners() {
     // update listener position for every camera/player vehicle
     if (StateManager::GetState() == GameState_Playing) {
-        for (int i = 0; i < Game::gameData.playerCount; i++) {
+        for (int i = 0; i < Game::gameData.humanCount; i++) {
             FMOD_VECTOR velocity, forward, up, position;
-            auto player = Game::players[i];
+            auto player = Game::humanPlayers[i];
             auto carForward = player.vehicleEntity->transform.GetForward();
             auto carUp = player.vehicleEntity->transform.GetUp();
             auto carPosition = player.vehicleEntity->transform.GetGlobalPosition();
@@ -107,11 +107,11 @@ void Audio::StartCars() {
     // channels and sounds for cars
     carSounds.resize(
         Game::gameData.aiCount +
-        Game::gameData.playerCount);
+        Game::gameData.humanCount);
 
     //players
-    for (int i = 0; i < Game::gameData.playerCount; i++) {
-        auto playerPos = Game::players[i].vehicleEntity->transform.GetGlobalPosition();
+    for (int i = 0; i < Game::gameData.humanCount; i++) {
+        auto playerPos = Game::humanPlayers[i].vehicleEntity->transform.GetGlobalPosition();
         soundSystem->createSound(engineSound, FMOD_3D | FMOD_LOOP_NORMAL, 0, &carSounds[i].sound);
         carSounds[i].sound->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
         soundSystem->playSound(carSounds[i].sound, 0, true, &carSounds[i].channel);
@@ -121,7 +121,7 @@ void Audio::StartCars() {
         carSounds[i].channel->setPaused(false);
         carSounds[i].channel->setVolume(0.25f);
     }
-    size_t offset = Game::gameData.playerCount;
+    size_t offset = Game::gameData.humanCount;
     //ai
     for (int i = 0; i < Game::gameData.aiCount; i++) {
         auto aiPos = Game::ais[i].vehicleEntity->transform.GetGlobalPosition();
@@ -147,9 +147,9 @@ void Audio::UpdateCars() {
     const char *engineReverse = "Content/Sounds/Truck/reverse.mp3";
 
     //players
-    for (int i = 0; i < Game::gameData.playerCount; i++) {
-        auto playerPos = Game::players[i].vehicleEntity->transform.GetGlobalPosition();
-        VehicleComponent* vehicle = Game::players[i].vehicleEntity->GetComponent<VehicleComponent>();
+    for (int i = 0; i < Game::gameData.humanCount; i++) {
+        auto playerPos = Game::humanPlayers[i].vehicleEntity->transform.GetGlobalPosition();
+        VehicleComponent* vehicle = Game::humanPlayers[i].vehicleEntity->GetComponent<VehicleComponent>();
         if (vehicle->pxVehicle->mDriveDynData.getCurrentGear() == PxVehicleGearsData::eREVERSE) {
             // set reverse sound
             if (!carSounds[i].reversing) {
@@ -184,7 +184,7 @@ void Audio::UpdateCars() {
         //carSounds[i].channel->setPaused(true);
         carSounds[i].channel->setVolume(1.0f);
     }
-    size_t offset = Game::gameData.playerCount;
+    size_t offset = Game::gameData.humanCount;
     //ai
     for (int i = 0; i < Game::gameData.aiCount; i++) {
         auto aiPos = Game::ais[i].vehicleEntity->transform.GetGlobalPosition();
