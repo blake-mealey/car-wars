@@ -47,7 +47,10 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 				if (glm::length(component->GetEntity()->transform.GetGlobalPosition() - _actor0->transform.GetGlobalPosition()) < explosionRadius) {
 					RocketLauncherComponent* weapon = _actor0->GetComponent<MissileComponent>()->GetOwner()->GetComponent<RocketLauncherComponent>();
 					//Take Damage Equal to damage / 1 + distanceFromExplosion?
-					component->TakeDamage(weapon);
+					float missileDamage = _actor0->GetComponent<MissileComponent>()->GetDamage();
+					float damageToTake = missileDamage - (15.0f * (glm::length(component->GetEntity()->transform.GetGlobalPosition() - _actor0->transform.GetGlobalPosition())));
+					std::cout << damageToTake << std::endl;
+					component->TakeDamage(weapon, damageToTake);
 				}
 			}
 			physicsInstance.AddToDelete(_actor0);

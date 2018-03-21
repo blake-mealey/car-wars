@@ -50,7 +50,7 @@ public:
 
 	void UpdateMode(AiMode _mode);
 
-	void TakeDamage(WeaponComponent* damager) override;
+	void TakeDamage(WeaponComponent* damager, float _damage) override;
 
 	static const float MAX_DIFFUCULTY;	 // this is the max AI diffuculty
 

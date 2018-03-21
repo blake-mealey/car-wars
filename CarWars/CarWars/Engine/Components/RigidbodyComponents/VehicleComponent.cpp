@@ -451,13 +451,13 @@ void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
 }
 
 
-void VehicleComponent::TakeDamage(WeaponComponent* damager) {
+void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
 	if (!damager) return;
     PlayerData* attacker = Game::GetPlayerFromEntity(damager->GetEntity());
     PlayerData* me = Game::GetPlayerFromEntity(GetEntity());
 
     if (attacker->teamIndex == me->teamIndex) return;
-    health -= damager->GetDamage() * (1.f-resistance);
+    health -= _damage * (1.f-resistance);
 
     HumanData* attackerPlayer = Game::GetHumanFromEntity(damager->GetEntity());
     if (attackerPlayer) {

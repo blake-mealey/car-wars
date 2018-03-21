@@ -45,7 +45,7 @@ public:
 
     virtual void UpdateFromPhysics(physx::PxTransform t);
 
-	virtual void TakeDamage(WeaponComponent* damager);
+	virtual void TakeDamage(WeaponComponent* damager, float damage);
 
 	virtual void SetEntity(Entity *_entity);
 	Entity* GetEntity() const;

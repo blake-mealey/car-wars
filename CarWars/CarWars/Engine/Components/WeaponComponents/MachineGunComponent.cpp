@@ -37,32 +37,35 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		const float rayLength = 1000.0f;
 		PxRaycastBuffer cameraHit;
 		PxQueryFilterData filterData;
+		glm::vec3 hitPosition;
 		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
 		PxRaycastBuffer gunHit;
 		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
-			if (gunHit.hasAnyHits()) {
-                Entity* bullet = ContentManager::LoadEntity("Bullet.json");
-                LineComponent* line = bullet->GetComponent<LineComponent>();
-                const glm::vec3 start = gunPosition;
-                const glm::vec3 end = Transform::FromPx(gunHit.block.position);
-                auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Linear::easeNone>(start, end, 0.1, StateManager::gameTime);
-                tween->SetUpdateCallback([line, gunDirection](glm::vec3& value) mutable {
-                    if (StateManager::GetState() != GameState_Playing) return;
-                    line->SetPoint0(value);
-                    line->SetPoint1(value + gunDirection * 5.f);
-                });
-                tween->SetFinishedCallback([bullet](glm::vec3& value) mutable {
-                    if (StateManager::GetState() != GameState_Playing) return;
-                    EntityManager::DestroyEntity(bullet);
-                });
-                tween->Start();
-
-				Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
-                if (thingHit) {
-					thingHit->TakeDamage(this);
-                }
-			}
+			hitPosition = Transform::FromPx(gunHit.block.position);
+			Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
+            if (thingHit) {
+				thingHit->TakeDamage(this, this->damage);
+            }
+		} else {
+			hitPosition = gunPosition + (gunDirection * rayLength);
 		}
+
+		Entity* bullet = ContentManager::LoadEntity("Bullet.json");
+		LineComponent* line = bullet->GetComponent<LineComponent>();
+		line->SetPoint0(gunPosition);
+		line->SetPoint1(hitPosition);
+		auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(1.f, 0.f, timeBetweenShots*0.5, StateManager::gameTime);
+		tween->SetUpdateCallback([line, mgTurret](float& value) mutable {
+			if (StateManager::GetState() != GameState_Playing) return;
+			line->SetColor(glm::vec4(1.f, 1.f, 1.f, value));
+			line->SetPoint0(mgTurret->transform.GetGlobalPosition());
+		});
+		tween->SetFinishedCallback([bullet](float& value) mutable {
+			if (StateManager::GetState() != GameState_Playing) return;
+			EntityManager::DestroyEntity(bullet);
+		});
+		tween->Start();
+
 	} else { // betweeen shots
 	}
 }
