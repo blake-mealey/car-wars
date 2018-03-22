@@ -12,37 +12,29 @@
 
 #include <iostream>
 
-
-
-const float AiComponent::MAX_DIFFUCULTY = 10.f;	// this is the max AI diffuculty
-const float AiComponent::ACCELERATION = .5f;	// bottom end of vehicle acceleration
-const float AiComponent::STUCK_TIME = 2.f;		// how long until the AI realizes they are stuck
-const float AiComponent::UPDATE_TIME = 2.f;		// how frequently the AI updates its mode in seconds
-const float AiComponent::STUCK_CONTROL = 1.5f;	// controls the cycles of reverse and accelerate for the AI (better AI has smaller cycles)
-
-// all these values are modified by the max because they are changed based on their diffuculty later (easier to tune the hard AI this way)
-const float AiComponent::TARGETING_RANGE = 500.f	/ MAX_DIFFUCULTY;	// the range that AI searches for targeting
-const float AiComponent::LOCKON_RANGE = 400.f		/ MAX_DIFFUCULTY;	// the range that the target will shoot
-const float AiComponent::LOST_TIME = 1.f			/ MAX_DIFFUCULTY;	// how long until the AI no longer looks for the target, in seconds
-const float AiComponent::SPRAY = 1.5f				* MAX_DIFFUCULTY;	// how accurate the AI is (lower means more accurate)
-const float AiComponent::STOPING_DISTANCE = 100.f	/ MAX_DIFFUCULTY;	// how close to the target the AI will get (better AI is more accurate doesn't need to be as close)
-
-
 AiComponent::~AiComponent() {
     glDeleteBuffers(1, &pathVbo);
     glDeleteVertexArrays(1, &pathVao);
 }
 
-AiComponent::AiComponent(nlohmann::json data) : targetEntity(nullptr), waypointIndex(0), lastPathUpdate(0) {
-	mode = AiMode_Waypoints;
-    std::string modeName = ContentManager::GetFromJson<std::string>(data["Mode"], "Waypoints");
-    if (modeName == "Waypoints") {
-        UpdateMode(AiMode_Waypoints);
-    } else if (modeName == "Chase") {
-        UpdateMode(AiMode_Chase);
-    }
-	startedStuck = Time(-1);
+AiComponent::AiComponent(nlohmann::json data) : targetEntity(nullptr), lastPathUpdate(0) {
+	MAX_DIFFUCULTY = ContentManager::GetFromJson<float>(data["MaxDiffuculty"], 10.f);
+	ACCELERATION = ContentManager::GetFromJson<float>(data["Acceleration"], .5f);
+	STUCK_TIME = ContentManager::GetFromJson<float>(data["StuckTime"], 2.f);
+	UPDATE_TIME = ContentManager::GetFromJson<float>(data["UpdateTime"], 2.f);
+	STUCK_CONTROL = ContentManager::GetFromJson<float>(data["StuckControl"], 1.5f);
+	TARGETING_RANGE = ContentManager::GetFromJson<float>(data["TargetingRange"], 500.f) / MAX_DIFFUCULTY;
+	LOCKON_RANGE = ContentManager::GetFromJson<float>(data["LockonRange"], 400.f) / MAX_DIFFUCULTY;
+	LOST_TIME = ContentManager::GetFromJson<float>(data["LostTime"], 1.f) / MAX_DIFFUCULTY;
+	SPRAY = ContentManager::GetFromJson<float>(data[ "Spray"], 1.5f) * MAX_DIFFUCULTY;
+	STOPING_DISTANCE = ContentManager::GetFromJson<float>(data[	"StoppingDistance"], 100.f) / MAX_DIFFUCULTY;
+
+	mode = AiMode_Chase;
 	UpdateMode(AiMode_Attack);
+
+	startedStuck = Time(-1);
+	lostTarget = Time(-1);
+	modeStart = Time(-UPDATE_TIME);
 
     InitializeRenderBuffers();
 }

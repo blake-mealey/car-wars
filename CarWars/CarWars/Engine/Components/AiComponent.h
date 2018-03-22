@@ -52,18 +52,18 @@ public:
 
 	void TakeDamage(WeaponComponent* damager, float _damage) override;
 
-	static const float MAX_DIFFUCULTY;	 // this is the max AI diffuculty
+	static float MAX_DIFFUCULTY;	 // this is the max AI diffuculty
 
 private:
-	static const float STUCK_TIME;
-	static const float UPDATE_TIME;
-	static const float TARGETING_RANGE;	// the range that AI searches for targeting
-	static const float LOCKON_RANGE;	// the range that the target will shoot
-	static const float LOST_TIME;		// how long until the target is lost 
-	static const float SPRAY;			// how accurate the AI is (higher means more accurate)
-	static const float STOPING_DISTANCE;// how close to the target the AI will get (better AI is more accurate doesn't need to be as close)
-	static const float STUCK_CONTROL;	// controls the cycles of reverse and accelerate for the AI (better AI has smaller cycles)
-	static const float ACCELERATION;	// bottom end of vehicle acceleration
+	static float STUCK_TIME;		// how long before the AI is stuck
+	static float UPDATE_TIME;		// how frequent the AI Updates its mode
+	static float TARGETING_RANGE;	// the range that AI searches for targeting
+	static float LOCKON_RANGE;		// the range that the target will shoot
+	static float LOST_TIME;			// how long until the target is lost 
+	static float SPRAY;				// how accurate the AI is (higher means more accurate)
+	static float STOPING_DISTANCE;	// how close to the target the AI will get (better AI is more accurate doesn't need to be as close)
+	static float STUCK_CONTROL;		// controls the cycles of reverse and accelerate for the AI (better AI has smaller cycles)
+	static float ACCELERATION;		// bottom end of vehicle acceleration
 
 	void Shoot();
 	void Drive();
@@ -74,23 +74,20 @@ private:
 
 	bool GetLineOfSight(glm::vec3 _position);
 
-    Time lastPathUpdate;
-
-    Time startedStuck;
-
     std::vector<glm::vec3> path;
 
     AiMode mode;
 	AiMode previousMode;
-	Time modeStart;
-	Time lostTarget;
 
     Entity *targetEntity;
-    size_t waypointIndex;
 
+	Time modeStart;
+	Time lostTarget;
+	Time lastPathUpdate;
+	Time startedStuck;
 
 	bool charged = false;
-	bool stuck;
+	bool stuck = false;
 
 	float distanceToTarget;
 	bool lineOfSight;
