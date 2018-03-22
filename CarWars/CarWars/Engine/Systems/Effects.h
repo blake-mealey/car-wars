@@ -30,6 +30,7 @@ public:
     }
 
     void DestroyTween(Tween* tween);
+    void DestroyTweens();
 
     Tween* FindTween(std::string tag);
 

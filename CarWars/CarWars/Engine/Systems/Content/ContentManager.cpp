@@ -29,6 +29,7 @@
 #include "../../Components/AiComponent.h"
 #include "../../Components/GuiComponents/GuiComponent.h"
 #include "../../Components/LineComponent.h"
+#include "../Effects.h"
 
 using namespace nlohmann;
 using namespace physx;
@@ -217,6 +218,7 @@ vector<Entity*> ContentManager::LoadScene(string filePath, Entity *parent) {
 }
 
 vector<Entity*> ContentManager::DestroySceneAndLoadScene(string filePath, Entity* parent) {
+    Effects::Instance().DestroyTweens();
     EntityManager::DestroyScene();
     vector<Entity*> scene = LoadScene(filePath, parent);
     Graphics::Instance().SceneChanged();
