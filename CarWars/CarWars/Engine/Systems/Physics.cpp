@@ -232,7 +232,7 @@ void Physics::Update() {
 
 void Physics::AddToDelete(Entity* _entity) {
 	if (_entity) {
-		toDelete.push_back(_entity);
+		toDelete.insert(_entity);
 		_entity->MarkForDeletion();
 	}
 }

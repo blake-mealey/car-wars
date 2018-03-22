@@ -107,6 +107,9 @@ public:
     bool IsClipEnabled() const;
     Transform& GetMask();
 
+    void SetEmissiveness(float _emissiveness);
+    float GetEmissiveness();
+
 private:
     bool selected;
 
@@ -135,4 +138,6 @@ private:
     bool clipEnabled;
 
     std::unordered_set<GuiEffect*> effects;
+
+    float emissiveness;
 };

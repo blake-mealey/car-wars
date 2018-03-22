@@ -19,6 +19,7 @@
 #include "../../Systems/Effects.h"
 #include <glm/gtx/string_cast.hpp>
 #include "PennerEasing/Linear.h"
+#include "../../Systems/Physics/VehicleCreate.h"
 
 using namespace physx;
 
@@ -476,7 +477,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
             Entity* entity = EntityManager::FindFirstChild(myPlayer->camera->GetGuiRoot(), "DamageIndicator");
             GuiComponent* gui = entity->GetComponent<GuiComponent>();
 
-            GuiHelper::OpacityEffect(gui, 1.0, 0.5f, 0.25, 0.25);
+            GuiHelper::OpacityEffect(gui, 1.0, 0.8f, 0.25, 0.25);
 
             // NOTE: This isn't really a tween... but it's a nice hacky use for the tween system
             // We should probably make a special version of the tween for exactly this case
@@ -619,6 +620,26 @@ void VehicleComponent::Boost(glm::vec3 boostDir) {
 	if (GetTimeSinceBoost() > boostCooldown && boostDir != glm::vec3(0)) {
 		pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(glm::normalize(boostDir) * boostPower * GetChassisMass()), PxForceMode::eIMPULSE, true);
 		lastBoost = StateManager::gameTime;
+	}
+
+	HumanData* player = Game::GetHumanFromEntity(GetEntity());
+	if (player) {
+		Entity* bar = EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "BoostBar");
+
+		GuiComponent* gui = GuiHelper::GetSecondGui(bar);
+
+		auto tween1 = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(1.f, 0.f, 0.05, StateManager::gameTime);
+		tween1->SetUpdateCallback([gui](float &value) mutable {
+			gui->transform.SetScale(glm::vec3(240.f * value, 10.f, 0.f));
+		});
+		
+		auto tween2 = Effects::Instance().CreateTween<float, easing::Linear::easeOut>(0.f, 1.f, boostCooldown.GetSeconds() - 0.05, StateManager::gameTime);
+		tween2->SetUpdateCallback([gui](float &value) mutable {
+			gui->transform.SetScale(glm::vec3(240.f * value, 10.f, 0.f));
+		});
+
+		tween1->SetNext(tween2);
+		tween1->Start();
 	}
 }
 

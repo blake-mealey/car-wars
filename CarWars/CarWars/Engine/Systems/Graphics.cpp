@@ -571,12 +571,18 @@ void Graphics::Update() {
     }
     glEnable(GL_CULL_FACE);
 
-    // -------------------------------------------------------------------------------------------------------------- //
-    // RENDER POST-PROCESSING EFFECTS (BLOOM)
-    // -------------------------------------------------------------------------------------------------------------- //
+
+
 
     // Load the screen geometry (this will be used by all subsequent draw calls)
     glBindVertexArray(screenVao);
+
+
+
+
+    // -------------------------------------------------------------------------------------------------------------- //
+    // RENDER POST-PROCESSING EFFECTS (BLOOM)
+    // -------------------------------------------------------------------------------------------------------------- //
 
     if (bloomEnabled) {
         // Render to the glow framebuffer
@@ -681,7 +687,6 @@ void Graphics::Update() {
         glDepthMask(GL_TRUE);
     }
 
-
     // -------------------------------------------------------------------------------------------------------------- //
     // RENDER GAME GUI
     // -------------------------------------------------------------------------------------------------------------- //
@@ -713,14 +718,14 @@ void Graphics::Update() {
                     // Write a 1 at every pixel we write to
                     glStencilFunc(GL_ALWAYS, 1, 0xFF);
                     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-                    
+
                     // Only write to stencil buffer
                     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
                     glDepthMask(GL_FALSE);
 
                     // Use the GUI program
                     glUseProgram(guiProgram->GetId());
-                    
+
                     // Send the UV scale and texture color to the GPU
                     guiProgram->LoadUniform(UniformName::DiffuseColor, gui->GetTextureColor());
                     guiProgram->LoadUniform(UniformName::DiffuseTextureEnabled, false);
@@ -738,10 +743,11 @@ void Graphics::Update() {
                             camera.viewportSize,
                             glm::vec2(windowWidth, windowHeight));
                         guiProgram->LoadUniform(UniformName::ModelMatrix, modelMatrix);
-                        
+
                         // Render it
                         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-                    } else if (gui->IsMaskEnabled()) {
+                    }
+                    else if (gui->IsMaskEnabled()) {
                         // Send the transform to the GPU
                         Transform mask = Transform(
                             gui->transform.GetLocalPosition() + gui->GetMask().GetLocalPosition(),
@@ -763,7 +769,8 @@ void Graphics::Update() {
                     // Only write with correct stencil value
                     if (gui->IsMaskEnabled() && gui->IsMaskInverted()) {
                         glStencilFunc(GL_EQUAL, 0, 0xFF);
-                    } else {
+                    }
+                    else {
                         glStencilFunc(GL_EQUAL, 1, 0xFF);
                     }
 
@@ -788,6 +795,7 @@ void Graphics::Update() {
                     guiProgram->LoadUniform(UniformName::UvScale, gui->GetUvScale());
                     guiProgram->LoadUniform(UniformName::DiffuseColor, gui->GetTextureColor());
                     guiProgram->LoadUniform(UniformName::DiffuseTextureEnabled, true);
+                    guiProgram->LoadUniform(UniformName::MaterialEmissiveness, gui->GetEmissiveness());
 
                     // Send the transform to the GPU
                     const glm::mat4 modelMatrix = gui->transform.GetGuiTransformationMatrix(
