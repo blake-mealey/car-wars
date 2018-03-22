@@ -5,17 +5,37 @@
     <ClCompile Include="Dependencies\imgui\imgui_demo.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui_draw.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui_impl_glfw_gl3.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Back.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Bounce.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Circ.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Cubic.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Elastic.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Expo.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Linear.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Quad.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Quart.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Quint.cpp" />
+    <ClCompile Include="Dependencies\PennerEasing\Sine.cpp" />
     <ClCompile Include="Engine\Components\AiComponent.cpp" />
     <ClCompile Include="Engine\Components\Colliders\MeshCollider.cpp" />
     <ClCompile Include="Engine\Components\CameraComponent.cpp" />
     <ClCompile Include="Engine\Components\Colliders\BoxCollider.cpp" />
     <ClCompile Include="Engine\Components\Colliders\Collider.cpp" />
+    <ClCompile Include="Engine\Components\Colliders\SphereCollider.cpp" />
     <ClCompile Include="Engine\Components\Component.cpp" />
     <ClCompile Include="Engine\Components\DirectionLightComponent.cpp" />
     <ClCompile Include="Engine\Components\Colliders\ConvexMeshCollider.cpp" />
     <ClCompile Include="Engine\Components\GuiComponents\GuiComponent.cpp" />
+    <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
+    <ClCompile Include="Engine\Components\LineComponent.cpp" />
+    <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
+    <ClCompile Include="Engine\Systems\Effects.cpp" />
     <ClCompile Include="Engine\Components\MeshComponent.cpp" />
     <ClCompile Include="Engine\Components\PointLightComponent.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\DamagePowerUp.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\DefencePowerUp.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\PowerUp.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\SpeedPowerUp.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\RigidDynamicComponent.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\RigidStaticComponent.cpp" />
@@ -37,6 +57,7 @@
     <ClCompile Include="Engine\Systems\Content\ShaderProgram.cpp" />
     <ClCompile Include="Engine\Systems\Game.cpp" />
     <ClCompile Include="Engine\Systems\Graphics.cpp" />
+    <ClCompile Include="Engine\Components\GuiComponents\GuiHelper.cpp" />
     <ClCompile Include="Engine\Systems\InputManager.cpp" />
     <ClCompile Include="Engine\Systems\IO\Keyboard.cpp" />
     <ClCompile Include="Engine\Systems\IO\Mouse.cpp" />
@@ -45,397 +66,16 @@
     <ClCompile Include="Engine\Systems\Physics.cpp" />
     <ClCompile Include="Engine\Systems\Physics\CollisionCallback.cpp" />
     <ClCompile Include="Engine\Systems\Physics\CollisionGroups.cpp" />
+    <ClCompile Include="Engine\Systems\Physics\RaycastGroups.cpp" />
     <ClCompile Include="Engine\Systems\Physics\VehicleCreate.cpp" />
     <ClCompile Include="Engine\Systems\Physics\VehicleSceneQuery.cpp" />
     <ClCompile Include="Engine\Systems\Physics\VehicleTireFriction.cpp" />
     <ClCompile Include="Engine\Systems\StateManager.cpp" />
     <ClCompile Include="Engine\Systems\Time.cpp" />
     <ClCompile Include="HelloWorld.cpp" />
-    <ClCompile Include="Engine\Systems\Physics\RaycastGroups.cpp" />
-    <ClCompile Include="Engine\Components\GuiComponents\GuiHelper.cpp" />
-    <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
     <ClCompile Include="Engine\Components\GuiEffects\OpacityEffect.cpp" />
-    <ClCompile Include="Dependencies\PennerEasing\Back.cpp" />
-    <ClCompile Include="Dependencies\PennerEasing\Bounce.cpp" />
-    <ClCompile Include="Dependencies\PennerEasing\Circ.cpp" />
-    <ClCompile Include="Dependencies\PennerEasing\Cubic.cpp" />
-    <ClCompile Include="Dependencies\PennerEasing\Elastic.cpp" />
-    <ClCompile Include="Dependencies\PennerEasing\Expo.cpp" />
-    <ClCompile Include="Dependencies\PennerEasing\Linear.cpp" />
-    <ClCompile Include="Dependencies\PennerEasing\Quad.cpp" />
-    <ClCompile Include="Dependencies\PennerEasing\Quart.cpp" />
-    <ClCompile Include="Dependencies\PennerEasing\Quint.cpp" />
-    <ClCompile Include="Dependencies\PennerEasing\Sine.cpp" />
-    <ClCompile Include="Engine\Components\Colliders\SphereCollider.cpp" />
-    <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
-    <ClCompile Include="Engine\Systems\Effects.cpp" />
-    <ClCompile Include="Engine\Components\LineComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
-<<<<<<< HEAD
-    <ClCompile Include="HelloWorld.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\CameraComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Component.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\DirectionLightComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\MeshComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\PointLightComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\SpotLightComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Entities\Entity.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Entities\EntityManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Entities\Transform.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Content\ContentManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Content\Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Content\ShaderProgram.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\IO\Keyboard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\IO\Mouse.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\IO\XboxController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Physics\VehicleCreate.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Physics\VehicleSceneQuery.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Physics\VehicleTireFriction.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Game.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Graphics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\InputManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Physics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\StateManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Time.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Dependencies\imgui\imgui.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Dependencies\imgui\imgui_demo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Dependencies\imgui\imgui_draw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Dependencies\imgui\imgui_impl_glfw_gl3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Content\Material.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Audio.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\WeaponComponents\WeaponComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\WeaponComponents\MachineGunComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\WeaponComponents\RocketLauncherComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\WeaponComponents\RailGunComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Colliders\Collider.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Colliders\BoxCollider.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Colliders\MeshCollider.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Colliders\ConvexMeshCollider.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\RigidbodyComponents\RigidStaticComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\RigidbodyComponents\RigidDynamicComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\RigidbodyComponents\VehicleComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Physics\CollisionGroups.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\AiComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\PowerUpComponents\DamagePowerUp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\PowerUpComponents\DefencePowerUp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\PowerUpComponents\SpeedPowerUp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\PowerUpComponents\PowerUp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Content\NavigationMesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Pathfinder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\GuiComponents\GuiComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\GuiHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\WeaponComponents\MissileComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Systems\Physics\CollisionCallback.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Engine\Components\CameraComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Component.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\DirectionLightComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\MeshComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\PointLightComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\SpotLightComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Entities\Entity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Entities\EntityManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Entities\Transform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Events\Event.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Content\ContentManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Content\DirectionLight.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Content\Material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Content\Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Content\PointLight.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Content\ShaderProgram.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Content\SpotLight.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Content\Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\IO\Keyboard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\IO\Mouse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\IO\XboxController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Physics\VehicleConcurrency.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Physics\VehicleCreate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Physics\VehicleSceneQuery.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Physics\VehicleTireFriction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Physics\VehicleWheelQueryResult.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Graphics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\InputManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Physics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\StateManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\System.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Time.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\imgui\imconfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\imgui\imgui.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\imgui\imgui_impl_glfw_gl3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\imgui\imgui_internal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\imgui\stb_rect_pack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\imgui\stb_textedit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\imgui\stb_truetype.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Audio.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\WeaponComponents\WeaponComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\WeaponComponents\MachineGunComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\WeaponComponents\RocketLauncherComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\WeaponComponents\RailGunComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Colliders\Collider.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Colliders\BoxCollider.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Colliders\MeshCollider.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Colliders\ConvexMeshCollider.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\RigidbodyComponents\RigidStaticComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\RigidbodyComponents\RigidDynamicComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\RigidbodyComponents\VehicleComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Physics\CollisionGroups.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\AiComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\PowerUpComponents\DamagePowerUp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\PowerUpComponents\DefencePowerUp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\PowerUpComponents\SpeedPowerUp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\PowerUpComponents\PowerUp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Content\NavigationMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Pathfinder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\GuiComponents\GuiComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\GuiHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\WeaponComponents\MissileComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Systems\Physics\CollisionCallback.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-=======
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
     <ClInclude Include="Dependencies\imgui\imgui.h" />
     <ClInclude Include="Dependencies\imgui\imgui_impl_glfw_gl3.h" />
@@ -443,17 +83,39 @@
     <ClInclude Include="Dependencies\imgui\stb_rect_pack.h" />
     <ClInclude Include="Dependencies\imgui\stb_textedit.h" />
     <ClInclude Include="Dependencies\imgui\stb_truetype.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Back.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Bounce.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Circ.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Cubic.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Elastic.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Expo.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Linear.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Quad.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Quart.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Quint.h" />
+    <ClInclude Include="Dependencies\PennerEasing\Sine.h" />
     <ClInclude Include="Engine\Components\AiComponent.h" />
     <ClInclude Include="Engine\Components\Colliders\MeshCollider.h" />
     <ClInclude Include="Engine\Components\CameraComponent.h" />
     <ClInclude Include="Engine\Components\Colliders\BoxCollider.h" />
     <ClInclude Include="Engine\Components\Colliders\Collider.h" />
+    <ClInclude Include="Engine\Components\Colliders\SphereCollider.h" />
     <ClInclude Include="Engine\Components\Component.h" />
     <ClInclude Include="Engine\Components\DirectionLightComponent.h" />
     <ClInclude Include="Engine\Components\Colliders\ConvexMeshCollider.h" />
     <ClInclude Include="Engine\Components\GuiComponents\GuiComponent.h" />
+    <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
+    <ClInclude Include="Engine\Components\LineComponent.h" />
+    <ClInclude Include="Engine\Components\ParticleComponent.h" />
+    <ClInclude Include="Engine\Components\Tweens\TTween.h" />
+    <ClInclude Include="Engine\Components\Tweens\Tween.h" />
+    <ClInclude Include="Engine\Systems\Effects.h" />
     <ClInclude Include="Engine\Components\MeshComponent.h" />
     <ClInclude Include="Engine\Components\PointLightComponent.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\DamagePowerUp.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\DefencePowerUp.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\PowerUp.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\SpeedPowerUp.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\RigidbodyComponent.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\RigidDynamicComponent.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\RigidStaticComponent.h" />
@@ -480,6 +142,7 @@
     <ClInclude Include="Engine\Systems\Content\Texture.h" />
     <ClInclude Include="Engine\Systems\Game.h" />
     <ClInclude Include="Engine\Systems\Graphics.h" />
+    <ClInclude Include="Engine\Components\GuiComponents\GuiHelper.h" />
     <ClInclude Include="Engine\Systems\InputManager.h" />
     <ClInclude Include="Engine\Systems\IO\Keyboard.h" />
     <ClInclude Include="Engine\Systems\IO\Mouse.h" />
@@ -488,6 +151,7 @@
     <ClInclude Include="Engine\Systems\Physics.h" />
     <ClInclude Include="Engine\Systems\Physics\CollisionCallback.h" />
     <ClInclude Include="Engine\Systems\Physics\CollisionGroups.h" />
+    <ClInclude Include="Engine\Systems\Physics\RaycastGroups.h" />
     <ClInclude Include="Engine\Systems\Physics\VehicleConcurrency.h" />
     <ClInclude Include="Engine\Systems\Physics\VehicleCreate.h" />
     <ClInclude Include="Engine\Systems\Physics\VehicleSceneQuery.h" />
@@ -496,33 +160,21 @@
     <ClInclude Include="Engine\Systems\StateManager.h" />
     <ClInclude Include="Engine\Systems\System.h" />
     <ClInclude Include="Engine\Systems\Time.h" />
-    <ClInclude Include="Engine\Systems\Physics\RaycastGroups.h" />
-    <ClInclude Include="Engine\Components\GuiComponents\GuiHelper.h" />
-    <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
     <ClInclude Include="Engine\Components\GuiEffects\OpacityEffect.h" />
-    <ClInclude Include="Dependencies\PennerEasing\Back.h" />
-    <ClInclude Include="Dependencies\PennerEasing\Bounce.h" />
-    <ClInclude Include="Dependencies\PennerEasing\Circ.h" />
-    <ClInclude Include="Dependencies\PennerEasing\Cubic.h" />
-    <ClInclude Include="Dependencies\PennerEasing\Elastic.h" />
-    <ClInclude Include="Dependencies\PennerEasing\Expo.h" />
-    <ClInclude Include="Dependencies\PennerEasing\Linear.h" />
-    <ClInclude Include="Dependencies\PennerEasing\Quad.h" />
-    <ClInclude Include="Dependencies\PennerEasing\Quart.h" />
-    <ClInclude Include="Dependencies\PennerEasing\Quint.h" />
-    <ClInclude Include="Dependencies\PennerEasing\Sine.h" />
-    <ClInclude Include="Engine\Components\Colliders\SphereCollider.h" />
-    <ClInclude Include="Engine\Components\ParticleComponent.h" />
-    <ClInclude Include="Engine\Systems\Effects.h" />
-    <ClInclude Include="Engine\Components\Tweens\TTween.h" />
-    <ClInclude Include="Engine\Components\Tweens\Tween.h" />
-<<<<<<< HEAD
->>>>>>> master
-=======
-    <ClInclude Include="Engine\Components\LineComponent.h" />
->>>>>>> master
   </ItemGroup>
   <ItemGroup>
+    <Media Include="Content\Sounds\powerup.mp3" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Content\Materials\CyanShiny.json" />
+    <None Include="Content\Materials\PinkShiny.json" />
+    <None Include="Content\Materials\YellowShiny.json" />
+    <None Include="Content\Prefabs\Components\DamagePowerUp.json" />
+    <None Include="Content\Prefabs\Components\DefencePowerUp.json" />
+    <None Include="Content\Prefabs\Components\SpeedPowerUp.json" />
+    <None Include="Content\Prefabs\Entities\DamagePowerUp.json" />
+    <None Include="Content\Prefabs\Entities\DefencePowerUp.json" />
+    <None Include="Content\Prefabs\Entities\SpeedPowerUp.json" />
     <None Include="Content\CollisionGroups\Vehicles.json" />
     <None Include="Content\Materials\Basic.json" />
     <None Include="Content\Materials\BlueShiny.json" />
@@ -531,64 +183,51 @@
     <None Include="Content\Materials\PhysicsCollider.json" />
     <None Include="Content\Materials\RedShiny.json" />
     <None Include="Content\PhysicsMaterials\Default.json" />
-<<<<<<< HEAD
-    <None Include="Content\Materials\YellowShiny.json" />
-    <None Include="Content\Prefabs\Entities\SpeedPowerUp.json" />
-    <None Include="Content\Prefabs\Entities\DamagePowerUp.json" />
-    <None Include="Content\Prefabs\Entities\DefencePowerUp.json" />
-    <None Include="Content\Scenes\GameDemo.json" />
-    <None Include="Content\Scenes\GraphicsDemo.json" />
-    <None Include="Content\Scenes\PhysicsDemo.json" />
-    <None Include="Content\Prefabs\Entities\AiSewage.json" />
-=======
+    <None Include="Content\Prefabs\Components\Ai.json" />
     <None Include="Content\Prefabs\Components\Camera.json" />
     <None Include="Content\Prefabs\Components\GUIs\MainMenuButton.json" />
     <None Include="Content\Prefabs\Components\GUIs\MenuButton.json" />
-    <None Include="Content\Prefabs\Entities\Boulder.json" />
-    <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
+    <None Include="Content\Prefabs\Components\GUIs\StarjediFont.json" />
     <None Include="Content\Prefabs\Components\Missile.json" />
->>>>>>> master
+    <None Include="Content\Prefabs\Components\Weapons\MachineGun.json" />
+    <None Include="Content\Prefabs\Components\Weapons\RailGun.json" />
+    <None Include="Content\Prefabs\Components\Weapons\RocketLauncher.json" />
     <None Include="Content\Prefabs\Entities\Boulder.json" />
+    <None Include="Content\Prefabs\Entities\Explosion.json" />
+    <None Include="Content\Prefabs\Entities\Game\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
+    <None Include="Content\Prefabs\Entities\Menu\CharacterMenuStat.json" />
+    <None Include="Content\Prefabs\Entities\Menu\KillFeedRow.json" />
+    <None Include="Content\Prefabs\Entities\Menu\LeaderboardMenu.json" />
+    <None Include="Content\Prefabs\Entities\Menu\LeaderboardRow.json" />
+    <None Include="Content\Prefabs\Entities\Menu\MenuOption.json" />
+    <None Include="Content\Prefabs\Entities\Menu\PauseMenu.json" />
+    <None Include="Content\Prefabs\Entities\Menu\Pillar.json" />
+    <None Include="Content\Prefabs\Entities\Vehicles\Flatbed.json" />
     <None Include="Content\Prefabs\Entities\HeadLamp.json" />
+    <None Include="Content\Prefabs\Entities\Vehicles\Hearse.json" />
     <None Include="Content\Prefabs\Entities\Jump.json" />
     <None Include="Content\Prefabs\Entities\Marker.json" />
     <None Include="Content\Prefabs\Entities\Menu\CharacterSelect.json" />
     <None Include="Content\Prefabs\Entities\Missile.json" />
+    <None Include="Content\Prefabs\Entities\Vehicles\Sewage.json" />
     <None Include="Content\Prefabs\Entities\Sun.json" />
     <None Include="Content\Prefabs\Entities\Waypoint.json" />
+    <None Include="Content\Prefabs\Entities\Weapons\GunTurret.json" />
+    <None Include="Content\Prefabs\Entities\Weapons\MachineGunTurret.json" />
+    <None Include="Content\Prefabs\Entities\Weapons\RailGunTurret.json" />
+    <None Include="Content\Prefabs\Entities\Weapons\RocketLauncherTurret.json" />
     <None Include="Content\Scenes\CharacterSelectMenu.json" />
+    <None Include="Content\Scenes\Maps\CircleMap.json" />
     <None Include="Content\Scenes\GameDemo.json" />
     <None Include="Content\Scenes\GUIs\HUD.json" />
     <None Include="Content\Scenes\GUIs\MainMenu_GUI.json" />
     <None Include="Content\Scenes\GUIs\CharacterSelectMenu_GUI.json" />
     <None Include="Content\Scenes\GUIs\OptionsMenu_GUI.json" />
-<<<<<<< HEAD
-    <None Include="Content\Prefabs\Components\SpeedPowerUp.json" />
-    <None Include="Content\Prefabs\Components\DamagePowerUp.json" />
-    <None Include="Content\Prefabs\Components\DefencePowerUp.json" />
-    <None Include="Content\Materials\PinkShiny.json" />
-    <None Include="Content\Materials\CyanShiny.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Media Include="Content\Sounds\powerup.mp3" />
-=======
     <None Include="Content\Scenes\GUIs\StartMenu_GUI.json" />
     <None Include="Content\Scenes\MainMenu.json" />
     <None Include="Content\Scenes\Menu.json" />
     <None Include="Content\Scenes\PhysicsDemo.json" />
-    <None Include="Content\Prefabs\Components\Weapons\MachineGun.json" />
-    <None Include="Content\Prefabs\Components\Weapons\RocketLauncher.json" />
-    <None Include="Content\Prefabs\Components\Weapons\RailGun.json" />
-    <None Include="Content\Prefabs\Entities\Vehicles\Sewage.json" />
-    <None Include="Content\Prefabs\Entities\Weapons\GunTurret.json" />
-    <None Include="Content\Prefabs\Entities\Weapons\RailGunTurret.json" />
-    <None Include="Content\Prefabs\Entities\Weapons\RocketLauncherTurret.json" />
-    <None Include="Content\Prefabs\Entities\Game\Camera.json" />
-    <None Include="Content\Prefabs\Entities\Menu\Pillar.json" />
-    <None Include="Content\Prefabs\Entities\Game\Camera.json" />
-    <None Include="Content\Prefabs\Entities\Menu\CharacterMenuStat.json" />
-    <None Include="Content\Prefabs\Entities\Menu\MenuOption.json" />
     <None Include="Content\Shaders\blur.frag" />
     <None Include="Content\Shaders\geometry.frag" />
     <None Include="Content\Shaders\geometry.vert" />
@@ -604,6 +243,12 @@
     <None Include="Content\Shaders\shadowMap.vert" />
     <None Include="Content\Shaders\skybox.frag" />
     <None Include="Content\Shaders\skybox.vert" />
+<<<<<<< HEAD
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Picture2.png" />
+    <Image Include="Content\Textures\HUD\speed-vingette.png" />
+=======
     <None Include="Content\Prefabs\Components\Ai.json" />
     <None Include="Content\Scenes\Maps\CircleMap.json" />
     <None Include="Content\Prefabs\Entities\Menu\PauseMenu.json" />
@@ -615,6 +260,9 @@
     <None Include="Content\Prefabs\Entities\Menu\LeaderboardMenu.json" />
     <None Include="Content\Prefabs\Entities\Menu\LeaderboardRow.json" />
     <None Include="Content\Prefabs\Entities\Menu\KillFeedRow.json" />
+    <None Include="Content\Scenes\GUIs\GameEnd_GUI.json" />
+    <None Include="Content\Prefabs\Entities\Bullet.json" />
+    <None Include="Content\Prefabs\Entities\ExplosionEffect.json" />
 >>>>>>> master
   </ItemGroup>
 </Project>

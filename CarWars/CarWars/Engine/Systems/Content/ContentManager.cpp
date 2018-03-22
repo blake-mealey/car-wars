@@ -172,8 +172,8 @@ Material* ContentManager::GetMaterial(json data) {
 		data = LoadJson(MATERIAL_DIR_PATH + filePath);
 	}
 
-	const glm::vec3 diffuseColor = JsonToVec3(data["DiffuseColor"]);
-	const glm::vec3 specularColor = JsonToVec3(data["SpecularColor"]);
+	const glm::vec4 diffuseColor = GetColorFromJson(data["DiffuseColor"], glm::vec4(1.f));
+	const glm::vec4 specularColor = GetColorFromJson(data["SpecularColor"], glm::vec4(1.f));
     const float specularity = GetFromJson<float>(data["Specularity"], 1);
     const float emissiveness = GetFromJson<float>(data["Emissiveness"], 0);
 
@@ -279,9 +279,9 @@ Component* ContentManager::LoadComponent(json data) {
     else if (type == "SpeedPowerUp") component = new SpeedPowerUp();
     else if (type == "DefencePowerUp") component = new DefencePowerUp();
     else if (type == "DamagePowerUp") component = new DamagePowerUp();
+	else if (type == "Missile") component = new MissileComponent();
 	else if (type == "AI") component = new AiComponent(data);
 	else if (type == "GUI") component = new GuiComponent(data);
-	else if (type == "Missile") component = new MissileComponent();
 	else if (type == "Line") component = new LineComponent(data);
     else {
         cout << "Unsupported component type: " << type << endl;
@@ -419,6 +419,30 @@ glm::vec2 ContentManager::JsonToVec2(json data, glm::vec2 defaultValue) {
 
 glm::vec2 ContentManager::JsonToVec2(json data) {
     return JsonToVec2(data, glm::vec2());
+}
+
+glm::vec4 ContentManager::GetColorFromJson(json data, glm::vec4 defaultValue) {
+    glm::vec4 color = defaultValue;
+    if (data.is_array()) {
+        if (data.size() == 3) {
+            color = glm::vec4(JsonToVec3(data), 255.f) / 255.f;
+        } else if (data.size() == 4) {
+            color = JsonToVec4(data) / 255.f;
+        }
+    } else if (data.is_string()) {
+        string name = data.get<string>();
+        if (name.find("White") != string::npos)                     color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+        else if (name.find("Black") != string::npos)                color = glm::vec4(0.f, 0.f, 0.f, 1.f);
+        else if (name.find("Red") != string::npos)                  color = glm::vec4(206.f, 0.f, 0.f, 255.f) / 255.f;
+        else if (name.find("Green") != string::npos)                color = glm::vec4(0.f, 1.f, 0.f, 1.f);
+        else if (name.find("Blue") != string::npos)                 color = glm::vec4(0.f, 0.f, 1.f, 1.f);
+        else if (name.find("Yellow") != string::npos)               color = glm::vec4(255.f, 233.f, 25.f, 255.f) / 255.f;
+        else if (name.find("Cyan") != string::npos)                 color = glm::vec4(0.f, 1.f, 1.f, 1.f);
+
+        if (name.find("HalfAlpha") != string::npos) color.a = 0.5f;
+        else if (name.find("Alpha") != string::npos) color.a = 0.f;
+    }
+    return color;
 }
 
 void ContentManager::LoadCollisionGroups(string filePath) {

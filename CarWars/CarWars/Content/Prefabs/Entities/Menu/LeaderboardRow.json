@@ -10,7 +10,7 @@
       "Position": [ 0, -85, 0 ],
       "TextXAlignment": "Left",
       "TextYAlignment": "Top",
-      "Text": "player 1"
+      "Text": "Player 1"
     },
     {
       "Type": "GUI",

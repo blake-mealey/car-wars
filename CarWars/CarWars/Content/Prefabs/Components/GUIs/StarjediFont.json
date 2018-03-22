@@ -2,6 +2,6 @@
   "Type": "GUI",
   "Font": "Starjedi.ttf",
   "FontSize": 24,
-  "FontColor": [ 1, 1, 0, 1 ],
-  "SelectedFontColor": [1, 0, 0, 1]
+  "FontColor": "Yellow",
+  "SelectedFontColor": "Red"
 }

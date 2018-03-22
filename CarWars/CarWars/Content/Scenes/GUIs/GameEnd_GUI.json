@@ -1,0 +1,26 @@
+[
+  {
+    "Tag": "WinnerTitle",
+    "Components": [
+      {
+        "Prefab": "GUIs/StarjediFont.json",
+        "AnchorPoint": [ 0.5, 0.5 ],
+        "ScaledPosition": [ 0.5, 0.5 ],
+        "FontSize": 128
+      }
+    ]
+  },
+  {
+    "Tag": "Buttons",
+    "Components": [
+      {
+        "Prefab": "GUIs/MenuButton.json",
+        "AnchorPoint": [ 0.5, 1 ],
+        "ScaledPosition": [ 0.5, 1 ],
+        "Position": [ 0, -20, 0 ],
+        "Text": "Continue",
+        "Selected": true
+      }
+    ]
+  }
+]

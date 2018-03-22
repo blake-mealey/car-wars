@@ -35,6 +35,8 @@ class Component {
 public:
     virtual ~Component() = default;
     Component();
+    Component(const Component& component) = default;
+    Component& operator=(const Component& component) = default;
 	
 	bool enabled;
 	
@@ -47,7 +49,7 @@ public:
 
     virtual void UpdateFromPhysics(physx::PxTransform t);
 
-	virtual void TakeDamage(WeaponComponent* damager);
+	virtual void TakeDamage(WeaponComponent* damager, float damage);
 
 	virtual void SetEntity(Entity *_entity);
 	Entity* GetEntity() const;

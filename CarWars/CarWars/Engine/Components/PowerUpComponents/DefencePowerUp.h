@@ -9,6 +9,8 @@ class DefencePowerUp : public PowerUp {
 public:
     DefencePowerUp();
     void Collect() override;
+    void Collect(Entity* car) override;
+    void SetEntity(Entity* _entity) override;
 
     ComponentType GetType() override;
     void HandleEvent(Event *event) override;

@@ -6,13 +6,14 @@
 #include "Game.h"
 #include "StateManager.h"
 #include "../Components/CameraComponent.h"
+#include "../Components/RigidbodyComponents/VehicleComponent.h"
 #include "fmod/fmod.hpp"
 #include "fmod/fmod_errors.h"
 #include "../Entities/EntityManager.h"
 #include "glm/glm.hpp"
 
 #define MAX_DISTANCE 5000.0
-#define MIN_DISTANCE 0.5
+#define MIN_DISTANCE 0.15
 #define MAX_CHANNELS 100
 
 typedef FMOD::Sound* SoundClass;
@@ -24,13 +25,15 @@ struct CarSound {
     glm::vec3 velocity;
     FMOD::Sound *sound=0;
     FMOD::Channel *channel=0;
+    bool changedDirection = false;
+    bool reversing = false;
 };
 
 
 
 class Audio : public System {
 public:
-    float musicVolume = 0.25f;
+    float musicVolume = 0.11f;
 
     // Access the singleton instance
     static Audio& Instance();

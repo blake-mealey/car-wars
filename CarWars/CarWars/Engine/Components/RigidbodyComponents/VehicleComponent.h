@@ -54,7 +54,7 @@ public:
 
     float speedMutliplier = 1.f;
     float defenceMultiplier = 1.f;
-	void TakeDamage(WeaponComponent* damager) override;
+	void TakeDamage(WeaponComponent* damager, float damage) override;
 	float GetHealth();
 
 	size_t GetRaycastGroup() const;
@@ -64,7 +64,9 @@ public:
 	void Steer( float amount);
 	void Handbrake( float amount);
 
+	Time GetTimeSinceBoost();
 private:
+	Time lastBoost;
     MeshComponent* wheelMeshPrefab;
     std::vector<MeshComponent*> wheelMeshes;
     std::vector<Collider*> wheelColliders;

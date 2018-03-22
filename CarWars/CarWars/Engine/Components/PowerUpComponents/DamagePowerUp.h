@@ -9,6 +9,7 @@ class DamagePowerUp : public PowerUp {
 public:
     DamagePowerUp();
     void Collect() override;
+    void Collect(Entity* car) override;
 
     void SetEntity(Entity* _entity) override;
 

@@ -6,7 +6,7 @@
 #include "../Entities/EntityManager.h"
 
 // Singleton
-Effects::Effects() {}
+Effects::Effects() : inUpdate(false) {}
 Effects &Effects::Instance() {
     static Effects instance;
     return instance;
@@ -30,7 +30,16 @@ void Effects::DestroyTween(Tween* tween) {
     delete tween;
 }
 
+Tween* Effects::FindTween(std::string tag) {
+    for (Tween* tween : tweens) {
+        if (tween->HasTag(tag)) return tween;
+    }
+    return nullptr;
+}
+
 void Effects::Update() {
+    inUpdate = true;
+
     std::vector<Component*> guis = EntityManager::GetComponents(ComponentType_GUI);
     for (Component* component : guis) {
         GuiComponent* gui = static_cast<GuiComponent*>(component);
@@ -54,4 +63,13 @@ void Effects::Update() {
             ++it;
         }
     }
+
+    if (!tweensCreatedInUpdate.empty()) {
+        for (Tween* tween : tweensCreatedInUpdate) {
+            tweens.push_back(tween);
+        }
+        tweensCreatedInUpdate.clear();
+    }
+
+    inUpdate = false;
 }

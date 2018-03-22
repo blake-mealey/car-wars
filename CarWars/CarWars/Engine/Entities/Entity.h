@@ -50,7 +50,7 @@ public:
 	bool IsMarkedForDeletion() const;
 	void MarkForDeletion();
 
-	void TakeDamage(WeaponComponent* damager);
+	void TakeDamage(WeaponComponent* damager, float _damage);
 
 private:
 	bool markedForDeletion;

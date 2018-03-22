@@ -452,52 +452,75 @@ void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
 }
 
 
-void VehicleComponent::TakeDamage(WeaponComponent* damager) {
-    VehicleData* attacker = Game::GetDataFromEntity(damager->GetEntity());
-    VehicleData* me = Game::GetDataFromEntity(GetEntity());
+void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
+	if (!damager) return;
+    PlayerData* attacker = Game::GetPlayerFromEntity(damager->GetEntity());
+    PlayerData* me = Game::GetPlayerFromEntity(GetEntity());
 
     if (attacker->teamIndex == me->teamIndex) return;
-    health -= damager->GetDamage() * resistance;
+    health -= _damage * (1.f-resistance);
 
-    PlayerData* attackerPlayer = Game::GetPlayerFromEntity(damager->GetEntity());
+    HumanData* attackerPlayer = Game::GetHumanFromEntity(damager->GetEntity());
     if (attackerPlayer) {
         Entity* entity = EntityManager::FindFirstChild(attackerPlayer->camera->GetGuiRoot(), "HitIndicator");
         GuiComponent* gui = entity->GetComponent<GuiComponent>();
         GuiHelper::OpacityEffect(gui, 0.5, 0.8f, 0.1, 0.1);
     }
 
-    PlayerData *myPlayer = Game::GetPlayerFromEntity(GetEntity());
+    HumanData *myPlayer = Game::GetHumanFromEntity(GetEntity());
     if (myPlayer) {
-        Entity* entity = EntityManager::FindFirstChild(myPlayer->camera->GetGuiRoot(), "DamageIndicator");
-        GuiComponent* gui = entity->GetComponent<GuiComponent>();
+		{
+            Entity* entity = EntityManager::FindFirstChild(myPlayer->camera->GetGuiRoot(), "DamageIndicator");
+            GuiComponent* gui = entity->GetComponent<GuiComponent>();
 
-        GuiHelper::OpacityEffect(gui, 1.0, 0.5f, 0.25, 0.25);
+            GuiHelper::OpacityEffect(gui, 1.0, 0.5f, 0.25, 0.25);
 
-        // NOTE: This isn't really a tween... but it's a nice hacky use for the tween system
-        // We should probably make a special version of the tween for exactly this case
-        if (myPlayer->damageIndicatorTween) Effects::Instance().DestroyTween(myPlayer->damageIndicatorTween);
-        auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeIn>(0.f, 1.f, 1.0);
-        tween->TakeOwnership();
-        tween->SetUpdateCallback([gui, myPlayer, attacker](float& value) mutable {
-            if (StateManager::GetState() != GameState_Playing || !myPlayer->alive || !attacker->alive) return;
-            const glm::vec3 cameraPos = myPlayer->camera->GetPosition();
-            const glm::vec3 cameraForward = normalize(Transform::ProjectVectorOnPlane(myPlayer->camera->GetForward(), Transform::UP));
-            const glm::vec3 cameraRight = normalize(Transform::ProjectVectorOnPlane(myPlayer->camera->GetRight(), Transform::UP));
-            const glm::vec3 direction = normalize(Transform::ProjectVectorOnPlane(cameraPos - attacker->vehicleEntity->transform.GetGlobalPosition(), Transform::UP));
-            const float sign = dot(cameraRight, direction) < 0.f ? 1.f : -1.f;
-            const float theta = sign * acos(dot(cameraForward, direction));
-            gui->transform.SetRotationAxisAngles(-Transform::FORWARD, theta);
-        });
-        tween->Start();
-        myPlayer->damageIndicatorTween = tween;
+            // NOTE: This isn't really a tween... but it's a nice hacky use for the tween system
+            // We should probably make a special version of the tween for exactly this case
+            const std::string tweenTag = "DamageIndicator" + std::to_string(myPlayer->id);
+            Tween* oldTween = Effects::Instance().FindTween(tweenTag);
+            if (oldTween) Effects::Instance().DestroyTween(oldTween);
+            auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeIn>(0.f, 1.f, 1.0, StateManager::gameTime);
+            tween->SetTag(tweenTag);
+            tween->SetUpdateCallback([gui, myPlayer, attacker](float& value) mutable {
+                if (StateManager::GetState() != GameState_Playing || !myPlayer->alive || !attacker->alive) return;
+                const glm::vec3 cameraPos = myPlayer->camera->GetPosition();
+                const glm::vec3 cameraForward = normalize(Transform::ProjectVectorOnPlane(myPlayer->camera->GetForward(), Transform::UP));
+                const glm::vec3 cameraRight = normalize(Transform::ProjectVectorOnPlane(myPlayer->camera->GetRight(), Transform::UP));
+                const glm::vec3 direction = normalize(Transform::ProjectVectorOnPlane(cameraPos - attacker->vehicleEntity->transform.GetGlobalPosition(), Transform::UP));
+                const float sign = dot(cameraRight, direction) < 0.f ? 1.f : -1.f;
+                const float theta = sign * acos(dot(cameraForward, direction));
+                gui->transform.SetRotationAxisAngles(-Transform::FORWARD, theta);
+            });
+            tween->Start();
+        }
+        
+        {
+            const float healthPercent = glm::max(0.f, health) / 1000.f;
+            Entity* entity = EntityManager::FindFirstChild(myPlayer->camera->GetGuiRoot(), "HealthBar");
+            GuiComponent* gui = GuiHelper::GetSecondGui(entity);
+
+            const std::string tweenTag = "HealthBar" + std::to_string(myPlayer->id);
+            Tween* oldTween = Effects::Instance().FindTween(tweenTag);
+            if (oldTween) Effects::Instance().DestroyTween(oldTween);
+            const glm::vec3 start = gui->transform.GetLocalScale();
+            const glm::vec3 end = glm::vec3(240.f * healthPercent, 20.f, 0.f);
+            auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Quint::easeOut>(start, end, 0.1, StateManager::gameTime);
+            tween->SetTag(tweenTag);
+            tween->SetUpdateCallback([gui](glm::vec3& value) mutable {
+				if (StateManager::GetState() != GameState_Playing) return;
+                gui->transform.SetScale(value);
+            });
+            tween->Start();
+        }
     }
 
     if (health <= 0) {
         attacker->killCount++;
         Game::gameData.teams[attacker->teamIndex].killCount++;
 
-        for (size_t i = 0; i < Game::gameData.playerCount; ++i) {
-            PlayerData& player = Game::players[i];
+        for (size_t i = 0; i < Game::gameData.humanCount; ++i) {
+            HumanData& player = Game::humanPlayers[i];
             Entity* killFeed = EntityManager::FindFirstChild(player.camera->GetGuiRoot(), "KillFeed");
 
             Entity* row = ContentManager::LoadEntity("Menu/KillFeedRow.json", killFeed);
@@ -533,11 +556,12 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
 
             constexpr size_t maxCount = 5;
 
-            static TTween<float, easing::Quint::easeOut>* tween = nullptr;
-            if (tween) Effects::Instance().DestroyTween(tween);
+            const std::string tweenTag = "KillFeed";
+            Tween* oldTween = Effects::Instance().FindTween(tweenTag);
+            if (oldTween) Effects::Instance().DestroyTween(oldTween);
 
-            tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.5);
-            tween->TakeOwnership();
+            auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.5, StateManager::gameTime);
+            tween->SetTag(tweenTag);
             tween->SetUpdateCallback([rows, maxCount](float& value) mutable {
                 if (StateManager::GetState() != GameState_Playing) return;
                 for (int j = 0; j < rows.size(); ++j) {
@@ -573,6 +597,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager) {
 
         me->deathCount++;
         me->alive = false;
+		me->diedTime = StateManager::gameTime;
 
         Physics::Instance().AddToDelete(GetEntity());
     }
@@ -588,20 +613,22 @@ size_t VehicleComponent::GetRaycastGroup() const {
 
 
 void VehicleComponent::Boost(glm::vec3 boostDir, float amount) {
-	pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(boostDir * amount * GetChassisMass()), PxForceMode::eIMPULSE, true);
-    
+
+	pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(glm::normalize(boostDir) * amount * GetChassisMass()), PxForceMode::eIMPULSE, true);
+	lastBoost = StateManager::gameTime;
 }
 
 void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPower) {
 	const float amountPressed = abs(forwardPower - backwardPower);
 	bool brake = false;
+	float speed = pxVehicle->computeForwardSpeed();
 	if (backwardPower) {
 		if (amountPressed < 0.01) { // if both are pressed 
 			brake = true;
 			pxVehicleInputData.setAnalogBrake(1.f);
 		}
 		else { // just backward power
-			if (pxVehicle->computeForwardSpeed() > 5.f) { // going fast brake 
+			if (speed > 5.f) { // going fast brake 
 				brake = true;
 				pxVehicleInputData.setAnalogBrake(backwardPower);
 			}
@@ -616,15 +643,14 @@ void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPowe
 	}
 
 	if (amountPressed > 0.1 && forwardPower > backwardPower) {
-		if (pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eFIRST) {
+		if (pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eNEUTRAL) {
 			pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 		}
 	}
 
 	if (!brake && amountPressed > 0.01) pxVehicleInputData.setAnalogAccel(amountPressed);
-	else {
+	else{
 		pxVehicleInputData.setAnalogAccel(0);
-		pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eNEUTRAL);
 	}
 }
 
@@ -634,4 +660,8 @@ void VehicleComponent::Steer( float amount) {
 
 void VehicleComponent::Handbrake( float amount) {
 	pxVehicleInputData.setAnalogHandbrake(amount);
+}
+
+Time VehicleComponent::GetTimeSinceBoost() {
+	return StateManager::gameTime - lastBoost;
 }

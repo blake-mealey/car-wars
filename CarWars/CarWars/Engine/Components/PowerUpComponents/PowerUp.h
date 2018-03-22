@@ -17,6 +17,7 @@
 class PowerUp : public Component {
 public:
     virtual void Collect() = 0;
+    virtual void Collect(Entity *car) = 0;
 
     ComponentType GetType() override;
     void HandleEvent(Event *event) override;

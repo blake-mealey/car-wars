@@ -1,0 +1,16 @@
+{
+	"Tag": "ExplosionEffect",
+    "Components": [
+        {
+            "Type": "Mesh",
+            "Mesh": "Sphere.obj",
+            "Scale": [0, 0, 0],
+            "Material": {
+	            "DiffuseColor": "Red",
+                "SpecularColor": "Red",
+                "Specularity": 0.1,
+                "Emissiveness": 0
+            }
+        }
+    ]
+}

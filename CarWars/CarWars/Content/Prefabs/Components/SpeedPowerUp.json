@@ -1,6 +1,3 @@
 {
-	"Type": "Mesh",
-	"Mesh": "Sphere.obj",
-	"Texture": "Boulder.jpg",
-	"Material": "YellowShiny.json"
+	"Type": "SpeedPowerUp"
 }

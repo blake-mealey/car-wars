@@ -17,11 +17,13 @@
 #include "../Systems/Physics/CollisionGroups.h"
 #include "../Systems/Physics/RaycastGroups.h"
 #include "../Systems/Audio.h"
-
+#include "Effects.h"
+#include "PennerEasing/Quint.h"
+#include "PennerEasing/Quad.h"
+#include "PennerEasing/Circ.h"
+#include "PennerEasing/Expo.h"
 
 vector<XboxController*> InputManager::xboxControllers;
-
-Time dt;
 
 InputManager &InputManager::Instance() {
 	for (int i = 0; i < XUSER_MAX_COUNT; i++) {
@@ -33,25 +35,11 @@ InputManager &InputManager::Instance() {
 }
 
 void InputManager::Update() {
-	dt = StateManager::deltaTime;
 	HandleMouse();
 	HandleKeyboard();
 	HandleController();
 }
 
-void UpdateCamera(Entity *vehicle, CameraComponent *camera, glm::vec2 angleDiffs) {
-	float cameraHor = camera->GetCameraHorizontalAngle();
-	float cameraVer = camera->GetCameraVerticalAngle();
-	float cameraSpd = camera->GetCameraSpeed();
-	float cameraNewHor = (cameraHor + (angleDiffs.x * cameraSpd * StateManager::deltaTime.GetSeconds()));
-	float cameraNewVer = (cameraVer + (angleDiffs.y * cameraSpd * StateManager::deltaTime.GetSeconds()));
-
-	cameraNewVer = glm::clamp(cameraNewVer, 0.1f, (float) M_PI - 0.1f);
-	if (cameraNewHor > M_PI) cameraNewHor -= M_PI * 2;
-	if (cameraNewHor < -M_PI) cameraNewHor += M_PI * 2;
-
-	camera->UpdateCameraPosition(vehicle, cameraNewHor, cameraNewVer);
-}
 
 void InputManager::HandleMouse() {
 	//Mouse Inputs
@@ -59,11 +47,12 @@ void InputManager::HandleMouse() {
 	Graphics& graphicsInstance = Graphics::Instance();
 
 	if (StateManager::GetState() == GameState_Playing) {
-		PlayerData& player = Game::players[0];
+		HumanData& player = Game::humanPlayers[0];
 		if (!player.alive) return;
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
 		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
 		CameraComponent* cameraC = player.camera;
+
 		//Shoot Weapon
 		float rayLength = 100.0f;
 		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
@@ -73,10 +62,13 @@ void InputManager::HandleMouse() {
 			filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
 			glm::vec3 cameraHit = cameraC->CastRay(rayLength, filterData);
 			weapon->Shoot(cameraHit);
+		} else if (Mouse::ButtonReleased(GLFW_MOUSE_BUTTON_LEFT)) {
+			if(weapon->GetType() == ComponentType_RailGun)
+				static_cast<RailGunComponent*>(weapon)->ChargeRelease();
 		}
 
 		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_MIDDLE)) {
-			player.follow = !player.follow;
+			cameraC->follow = !cameraC->follow;
 		}
 
 		//Cursor Inputs
@@ -88,7 +80,7 @@ void InputManager::HandleMouse() {
 		//Get Camera Component
 		glm::vec2 angleDiffs = 10.f * (windowSize*0.5f - glm::vec2(xPos, yPos)) / windowSize;
 		angleDiffs.x = -angleDiffs.x;
-		UpdateCamera(player.vehicleEntity, cameraC, angleDiffs);
+		cameraC->UpdateCameraPosition(player.vehicleEntity, angleDiffs.x, angleDiffs.y);
 
 		//Set Cursor to Middle
 		glfwSetCursorPos(graphicsInstance.GetWindow(), windowSize.x / 2, windowSize.y / 2);
@@ -99,7 +91,7 @@ void InputManager::HandleMouse() {
 }
 
 void UpdateVehicleStats(const int playerIndex) {
-    PlayerData& player = Game::players[playerIndex];
+    HumanData& player = Game::humanPlayers[playerIndex];
     Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[playerIndex];
     EntityManager::DestroyChildren(stats);
     for (size_t i = 0; i < VehicleType::STAT_COUNT; ++i) {
@@ -111,7 +103,7 @@ void UpdateVehicleStats(const int playerIndex) {
 }
 
 void UpdateWeaponStats(const int playerIndex) {
-    PlayerData& player = Game::players[playerIndex];
+    HumanData& player = Game::humanPlayers[playerIndex];
     Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[playerIndex];
     EntityManager::DestroyChildren(stats);
     for (size_t i = 0; i < WeaponType::STAT_COUNT; ++i) {
@@ -167,40 +159,41 @@ void NextEnumOption(Entity* option, int dir, size_t &value, size_t count, const 
 
 void UpdateLeaderboardMenu(Entity* leaderboard, int playerIndex) {
 	Entity* container = EntityManager::FindFirstChild(leaderboard, "LeaderboardRows");
-	std::vector<VehicleData> allVehicles;
+	std::vector<PlayerData> allPlayers;
 	
-	for (size_t i = 0; i < Game::gameData.playerCount; ++i) {
-		allVehicles.push_back(Game::players[i]);
+	for (size_t i = 0; i < Game::gameData.humanCount; ++i) {
+		allPlayers.push_back(Game::humanPlayers[i]);
 	}
-
 	for (AiData& ai : Game::ais) {
-		allVehicles.push_back(ai);
+		allPlayers.push_back(ai);
 	}
 
-	std::sort(allVehicles.begin(), allVehicles.end());
+	std::sort(allPlayers.begin(), allPlayers.end());
 
-	PlayerData& thisPlayer = Game::players[playerIndex];
-	for (size_t i = 0; i < allVehicles.size(); ++i) {
-		VehicleData& vehicle = allVehicles[i];
-		if (vehicle.id != thisPlayer.id) continue;
+    if (playerIndex > -1) {
+        HumanData& thisPlayer = Game::humanPlayers[playerIndex];
+        for (size_t i = 0; i < allPlayers.size(); ++i) {
+            PlayerData& player = allPlayers[i];
+            if (player.id != thisPlayer.id) continue;
 
-		if (i > 9) allVehicles[9] = vehicle;
-		break;
-	}
+            if (i > 9) allPlayers[9] = player;
+            break;
+        }
+    }
 
 	std::vector<Entity*> rows = EntityManager::GetChildren(container);
 	for (size_t i = 0; i < rows.size(); ++i) {
-		VehicleData& vehicle = allVehicles[i];
+		PlayerData& player = allPlayers[i];
 		Entity* row = rows[i];
-		GuiHelper::SetFirstGuiText(row, vehicle.name);
-		GuiHelper::SetSecondGuiText(row, to_string(vehicle.killCount));
+		GuiHelper::SetFirstGuiText(row, player.name);
+		GuiHelper::SetSecondGuiText(row, to_string(player.killCount));
 	}
 }
 
 void CreateLeaderboardMenu(Entity* leaderboard, int playerIndex) {
 	Entity* container = EntityManager::FindFirstChild(leaderboard, "LeaderboardRows");
 
-	size_t count = Game::gameData.playerCount + Game::gameData.aiCount;
+	size_t count = Game::gameData.humanCount + Game::gameData.aiCount;
 	count = count < 10 ? count : 10;
 	for (size_t i = 0; i < count; ++i) {
 		Entity* row = ContentManager::LoadEntity("Menu/LeaderboardRow.json", container);
@@ -213,12 +206,12 @@ void CreateLeaderboardMenu(Entity* leaderboard, int playerIndex) {
 void InputManager::NavigateGuis(GuiNavData navData) {
     // If there was no navigation, do nothing
     if (!navData.Valid()) return;
-
+    Audio::Instance().PlayAudio("Content/Sounds/menu/eshop.wav");
 	// Normalize directional inputs
 	navData.NormalizeInputs();
 
     // Get the player for the current controller
-    PlayerData& player = Game::players[navData.playerIndex];
+    HumanData& player = Game::humanPlayers[navData.playerIndex];
 	const GameState gameState = StateManager::GetState();
 	// Navigate buttons up/down
 	if (navData.vertDir) {
@@ -333,7 +326,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 		else if (gameState == GameState_Menu_Start_CharacterSelect) {
 			GuiComponent *selected = GuiHelper::GetSelectedGui("CharacterMenu_Buttons", navData.playerIndex);
 			if (selected->ContainsText("join")) {
-                Game::gameData.playerCount++;
+                Game::gameData.humanCount++;
 
 				GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", true, navData.playerIndex);
 				GuiHelper::SetGuisEnabled("CharacterMenu_Stats", true, navData.playerIndex);
@@ -369,8 +362,8 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 
                     player.ready = true;
                     bool allReady = true;
-                    for (int i = 0; i < Game::gameData.playerCount; ++i) {
-                        allReady = Game::players[i].ready;
+                    for (int i = 0; i < Game::gameData.humanCount; ++i) {
+                        allReady = Game::humanPlayers[i].ready;
                         if (!allReady) break;
                     }
                     // TODO: Countdown?
@@ -383,6 +376,39 @@ void InputManager::NavigateGuis(GuiNavData navData) {
                 StateManager::SetState(GameState_Playing);
             } else if (selected->ContainsText("exit")) {
                 Game::Instance().FinishGame();
+            }
+		} else if (gameState == GameState_Menu_GameEnd) {
+            GuiComponent* selected = GuiHelper::GetSelectedGui("Buttons");
+            if (selected) {
+                std::vector<Entity*> entities = EntityManager::FindEntities("LeaderboardMenu");
+                if (entities.size() > 0) {
+					Tween* tween = Effects::Instance().FindTween("WinnerTitle");
+					if (tween) Effects::Instance().DestroyTween(tween);
+					tween = Effects::Instance().FindTween("Leaderboard");
+					if (tween) Effects::Instance().DestroyTween(tween);
+
+                    Game::Instance().ResetGame();
+                    StateManager::SetState(GameState_Menu);
+                } else {
+                    GuiComponent* winnerTitle = GuiHelper::GetFirstGui("WinnerTitle");
+                    
+                    auto tween = Effects::Instance().CreateTween<float, easing::Expo::easeOut>(0.f, 1.f, 1.0);
+					tween->SetTag("WinnerTitle");
+                    tween->SetUpdateCallback([winnerTitle](float& value) mutable {
+                        winnerTitle->SetFontSize(glm::mix(128.f, 64.f, value));
+                        winnerTitle->SetScaledPosition(glm::mix(glm::vec2(0.5f, 0.5f), glm::vec2(0.5f, 0.f), value));
+                        winnerTitle->transform.SetPosition(glm::mix(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 100.f, 0.f), value));
+                    });
+                    tween->Start();
+
+					Entity* menu = GuiHelper::LoadGuiPrefabToCamera(0, "Menu/LeaderboardMenu.json");
+					CreateLeaderboardMenu(menu, -1);
+                    GuiHelper::SetOpacityRecursive(menu, 0.f);
+
+					auto tween2 = GuiHelper::TweenOpacityRecursive<easing::Quad::easeOut>(menu, 1.f, 1.0);
+					tween2->SetTag("Leaderboard");
+					tween2->Start();
+                }
             }
 		}
 	}
@@ -412,7 +438,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
                     Entity* stats = EntityManager::FindEntities("CharacterMenu_Stats")[navData.playerIndex];
                     EntityManager::DestroyChildren(stats);
 
-                    Game::gameData.playerCount--;
+                    Game::gameData.humanCount--;
                     selected->SetText("a to join");
                 } else if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "weapon", navData.playerIndex)) {
                     GuiHelper::SetFirstGuiText("CharacterMenu_Title", "vehicle selection", navData.playerIndex);
@@ -444,7 +470,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
     if (navData.escape) {
         if (gameState == GameState_Playing) {
             StateManager::SetState(GameState_Paused);
-            ContentManager::LoadEntity("Menu/PauseMenu.json", Game::players[navData.playerIndex].camera->GetGuiRoot());
+            ContentManager::LoadEntity("Menu/PauseMenu.json", Game::humanPlayers[navData.playerIndex].camera->GetGuiRoot());
         } else if (gameState == GameState_Paused) {
             StateManager::SetState(GameState_Playing);
         }
@@ -452,14 +478,37 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 
 	if (gameState == GameState_Playing) {
 		if (navData.tabPressed) {
-			Entity* guiRoot = Game::players[navData.playerIndex].camera->GetGuiRoot();
-			Entity* leaderboard = ContentManager::LoadEntity("Menu/LeaderboardMenu.json", guiRoot);
-			CreateLeaderboardMenu(leaderboard, navData.playerIndex);
+			Entity* guiRoot = Game::humanPlayers[navData.playerIndex].camera->GetGuiRoot();
+			Entity* leaderboard;
+
+			Tween* outTween = Effects::Instance().FindTween("LeaderboardOut" + to_string(navData.playerIndex));
+			if (outTween) {
+				Effects::Instance().DestroyTween(outTween);
+				leaderboard = EntityManager::FindFirstChild(guiRoot, "LeaderboardMenu");
+			} else {
+				leaderboard = ContentManager::LoadEntity("Menu/LeaderboardMenu.json", guiRoot);
+				CreateLeaderboardMenu(leaderboard, navData.playerIndex);
+				GuiHelper::SetOpacityRecursive(leaderboard, 0.f);
+			}
+
+			auto tween = GuiHelper::TweenOpacityRecursive<easing::Quad::easeOut>(leaderboard, 1.f, 0.1);
+			tween->SetTag("LeaderboardIn" + to_string(navData.playerIndex));
+			tween->Start();
 		} else if (navData.tabReleased) {
-			Entity* guiRoot = Game::players[navData.playerIndex].camera->GetGuiRoot();
-			EntityManager::DestroyEntity(EntityManager::FindFirstChild(guiRoot, "LeaderboardMenu"));
+			Entity* guiRoot = Game::humanPlayers[navData.playerIndex].camera->GetGuiRoot();
+			Entity* leaderboard = EntityManager::FindFirstChild(guiRoot, "LeaderboardMenu");
+
+			Tween* inTween = Effects::Instance().FindTween("LeaderboardIn" + to_string(navData.playerIndex));
+			if (inTween) Effects::Instance().DestroyTween(inTween);
+			
+			auto tween = GuiHelper::TweenOpacityRecursive<easing::Quad::easeOut>(leaderboard, 0.f, 0.1);
+			tween->SetTag("LeaderboardOut" + to_string(navData.playerIndex));
+			tween->SetFinishedCallback([leaderboard](float& value) mutable {
+				EntityManager::DestroyEntity(leaderboard);
+			});
+			tween->Start();
 		} else if (navData.tabHeld) {
-			Entity* guiRoot = Game::players[navData.playerIndex].camera->GetGuiRoot();
+			Entity* guiRoot = Game::humanPlayers[navData.playerIndex].camera->GetGuiRoot();
 			Entity* leaderboard = EntityManager::FindFirstChild(guiRoot, "LeaderboardMenu");
 			if (leaderboard) {
 				UpdateLeaderboardMenu(leaderboard, navData.playerIndex);
@@ -491,14 +540,12 @@ void InputManager::HandleKeyboard() {
 
 	if (gameState == GameState_Playing) {
 		//Get Vehicle Component
-		PlayerData& player = Game::players[0];
+		HumanData& player = Game::humanPlayers[0];
 		if (!player.alive) return;
 
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
 		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
 		CameraComponent* cameraC = player.camera;
-
-
 
 		float forwardPower = 0;
 		float backwardPower = 0;
@@ -506,13 +553,13 @@ void InputManager::HandleKeyboard() {
 
 		if (Keyboard::KeyDown(GLFW_KEY_W)) {
 			forwardPower = 1;
-			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+			if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
 				boostDir = boostDir - player.vehicleEntity->transform.GetUp();
 			}
 		}
 		if (Keyboard::KeyDown(GLFW_KEY_S)) {
 			backwardPower = 1;
-			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+			if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
 				boostDir = boostDir + player.vehicleEntity->transform.GetUp();
 			}
 		}
@@ -521,13 +568,13 @@ void InputManager::HandleKeyboard() {
 		float steer = 0;
 		if (Keyboard::KeyDown(GLFW_KEY_A)) { //Steer Left
 			steer += 1;
-			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+			if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
 				boostDir = boostDir - player.vehicleEntity->transform.GetRight();
 			}
 		}
 		if (Keyboard::KeyDown(GLFW_KEY_D)) { //Steer Right
 			steer += -1;
-			if (Keyboard::KeyPressed(GLFW_KEY_SPACE)) {
+			if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
 				boostDir = boostDir + player.vehicleEntity->transform.GetRight();
 			}
 		}
@@ -539,8 +586,9 @@ void InputManager::HandleKeyboard() {
             // TODO: this sounds needs to be improved
 		}
 
-
-		vehicle->Boost(boostDir, 10.f);
+		if (vehicle->GetTimeSinceBoost().GetSeconds() > 5.f && boostDir != glm::vec3()) {
+			vehicle->Boost(boostDir, 10.f);
+		}
 		vehicle->HandleAcceleration(forwardPower, backwardPower);
 		vehicle->Handbrake(handbrake);
 		vehicle->Steer(steer);
@@ -551,8 +599,8 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 
 	XboxController *controller = xboxControllers[controllerNum];
 
-	if (controllerNum > Game::gameData.playerCount - 1) return;
-	//if (!Game::players[controllerNum].alive) return;
+	if (controllerNum > Game::gameData.humanCount - 1) return;
+	//if (!Game::humanPlayers[controllerNum].alive) return;
 
 	bool active = controller->GetPreviousState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||
 		controller->GetPreviousState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||
@@ -573,7 +621,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Get Components
 		// -------------------------------------------------------------------------------------------------------------- //
-		PlayerData& player = Game::players[controllerNum];
+		HumanData& player = Game::humanPlayers[controllerNum];
 		if (!player.alive) return;
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
 		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
@@ -592,10 +640,10 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		float forwardPower = 0; 
 		float backwardPower = 0; 
 		if (abs(controller->GetState().Gamepad.bRightTrigger) >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-			forwardPower = controller->GetState().Gamepad.bRightTrigger / 255;
+			forwardPower = controller->GetState().Gamepad.bRightTrigger / 255.f;
 		}
 		if (abs(controller->GetState().Gamepad.bLeftTrigger) >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-			backwardPower = controller->GetState().Gamepad.bLeftTrigger / 255;
+			backwardPower = controller->GetState().Gamepad.bLeftTrigger / 255.f;
 		}
 
 		// -------------------------------------------------------------------------------------------------------------- //
@@ -614,14 +662,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 	
 		// an attempt to reset camera behind the vehicle
 		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
-			player.follow = !player.follow;
-		}
-		if (player.follow) {
-			glm::vec3 vehicleDirection = vehicle->GetEntity()->transform.GetForward();
-			vehicleDirection.y = 0;
-			vehicleDirection = glm::normalize(vehicleDirection);
-			cameraX = -cameraC->GetCameraHorizontalAngle() + ((acos(glm::dot(vehicleDirection, Transform::FORWARD)))) * (glm::dot(vehicleDirection, Transform::RIGHT) > 0 ? 1 : -1) + M_PI_2;
-			cameraY = -cameraC->GetCameraVerticalAngle() + M_PI * .45f;
+			cameraC->follow = !cameraC->follow;
 		}
 
 		if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE && abs(controller->GetPreviousState().Gamepad.sThumbRX) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
@@ -645,21 +686,21 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		// -------------------------------------------------------------------------------------------------------------- //
 		glm::vec3 boostDir = glm::vec3();
 
-		if (pressedButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
+		if (heldButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
 			boostDir = boostDir - player.vehicleEntity->transform.GetRight();
 		}
 
-		if (pressedButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
+		if (heldButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
 			boostDir = boostDir + player.vehicleEntity->transform.GetRight();
 		}
 
-		if (pressedButtons & XINPUT_GAMEPAD_DPAD_UP) {
+		if (heldButtons & XINPUT_GAMEPAD_DPAD_UP) {
 			boostDir = boostDir - player.vehicleEntity->transform.GetUp();
             //Audio::Instance().PlayAudio("Content/Sounds/jump.mp3");
             // TODO: This may not be in the right place...
 		}
 
-		if (pressedButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
+		if (heldButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
 			boostDir = boostDir + player.vehicleEntity->transform.GetUp();
 		}
 
@@ -685,20 +726,23 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 			glm::vec3 cameraHit = cameraC->CastRay(rayLength, filterData);
 			vehicle->GetEntity()->GetComponent<WeaponComponent>()->Shoot(cameraHit);
 	 	}
+		if (releasedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+			if (weapon->GetType() == ComponentType_RailGun) {
+				static_cast<RailGunComponent*>(weapon)->ChargeRelease();
+			}
+		}
 		
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Update
 		// -------------------------------------------------------------------------------------------------------------- //
-
-		std::cout << static_cast<float>(controller->GetState().Gamepad.sThumbRX) << std::endl;
-
-
-		vehicle->Boost(boostDir, 10.f);
+		if (vehicle->GetTimeSinceBoost().GetSeconds() > 5.f && boostDir != glm::vec3()) {
+			vehicle->Boost(boostDir, 10.f);
+		}
 		vehicle->HandleAcceleration(forwardPower, backwardPower);
 		vehicle->Handbrake(handbrake);
 		vehicle->Steer(steer);
 
-		UpdateCamera(vehicle->GetEntity(), cameraC, glm::vec2(cameraX, cameraY));
+		cameraC->UpdateCameraPosition(vehicle->GetEntity(), cameraX, cameraY);
 	}
 }
 

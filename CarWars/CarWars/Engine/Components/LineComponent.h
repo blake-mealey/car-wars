@@ -9,7 +9,7 @@ class LineComponent : public Component {
 public:
     ~LineComponent();
     explicit LineComponent(nlohmann::json data);
-    explicit LineComponent(std::vector<glm::vec3> _points={}, glm::vec3 _color=glm::vec3(1.f, 0.f, 0.f));
+    explicit LineComponent(std::vector<glm::vec3> _points={}, glm::vec4 _color=glm::vec4(1.f, 0.f, 0.f, 1.f));
 
     ComponentType GetType() override;
     void HandleEvent(Event* event) override;
@@ -28,8 +28,8 @@ public:
     glm::vec3 GetPoint1() const;
     glm::vec3 GetPoint2() const;
 
-    void SetColor(glm::vec3 _color);
-    glm::vec3 GetColor() const;
+    void SetColor(glm::vec4 _color);
+    glm::vec4 GetColor() const;
     size_t GetPointCount() const;
 
     GLuint GetVaoId() const;
@@ -40,6 +40,6 @@ private:
     GLuint vbo;
     GLuint vao;
 
-    glm::vec3 color;
+    glm::vec4 color;
     std::vector<glm::vec3> points;
 };

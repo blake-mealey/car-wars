@@ -44,10 +44,11 @@ struct TeamData {
     TeamData() : killCount(0) {}
 
     size_t killCount;
+    std::string name;
 };
 
-struct VehicleData {
-    VehicleData(int _vehicleType = VehicleType::Heavy, int _weaponType = WeaponType::MachineGun) :
+struct PlayerData {
+    PlayerData(int _vehicleType = VehicleType::Heavy, int _weaponType = WeaponType::MachineGun) :
         name(""), vehicleType(_vehicleType), weaponType(_weaponType),
         alive(false), vehicleEntity(nullptr), cameraEntity(nullptr), camera(nullptr),
         teamIndex(0), killCount(0), deathCount(0) {
@@ -63,12 +64,11 @@ struct VehicleData {
     int weaponType;
 
     // Game state
+	Time diedTime;
     bool alive;
     Entity* vehicleEntity;
     Entity* cameraEntity;
     CameraComponent* camera;
-	
-	bool follow;
 
     // Gamemode state
 	std::string name;
@@ -77,24 +77,21 @@ struct VehicleData {
     size_t deathCount;
 
 	// For leaderboard sorting
-	bool operator <(const VehicleData& rhs) {
+	bool operator <(const PlayerData& rhs) {
 		return killCount > rhs.killCount;
 	}
 
 };
 
-struct PlayerData : VehicleData {
-    PlayerData() : VehicleData(), ready(false), damageIndicatorTween(nullptr) {}
+struct HumanData : PlayerData {
+    HumanData() : PlayerData(), ready(false) {}
 
 	// Menu state
     bool ready;
-
-    // Tweens
-    Tween* damageIndicatorTween;
 };
 
-struct AiData : VehicleData {
-    AiData(int _vehicleType, int _weaponType) : VehicleData(_vehicleType, _weaponType), brain(nullptr) {}
+struct AiData : PlayerData {
+    AiData(int _vehicleType, int _weaponType, float _diffuculty) : PlayerData(_vehicleType, _weaponType), brain(nullptr), diffuculty(_diffuculty){}
 
     // Game state
     AiComponent* brain;
@@ -102,13 +99,13 @@ struct AiData : VehicleData {
 };
 
 struct GameData {
-    GameData() : map(0), gameMode(0), playerCount(0), aiCount(1),
+    GameData() : map(0), gameMode(0), humanCount(0), aiCount(1),
         numberOfLives(3), killLimit(10), timeLimitMinutes(10) {}
 
     size_t map;
     size_t gameMode;
 
-    size_t playerCount;
+    size_t humanCount;
     static constexpr size_t MIN_PLAYER_COUNT = 1;
     static constexpr size_t MAX_PLAYER_COUNT = 4;
 
@@ -129,6 +126,8 @@ struct GameData {
     static constexpr size_t MIN_TIME_LIMIT_MINUTES = 1;
     static constexpr size_t MAX_TIME_LIMIT_MINUTES = 60;
 
+	Time respawnTime = 1.0;
+
     std::vector<TeamData> teams;
 };
 
@@ -143,36 +142,26 @@ public:
 	void Initialize();
 	void Update() override;
 
+	void SpawnVehicle(PlayerData& vehicle);
+	void SpawnAi(AiData& ai);
     void InitializeGame();
+    void ResetGame();
     void FinishGame();
 
 	//Game Creation Variables
     static GameData gameData;
-    static PlayerData players[4];
+    static HumanData humanPlayers[4];
     static std::vector<AiData> ais;
 
     NavigationMesh *GetNavigationMesh() const;
 
-    static VehicleData* GetDataFromEntity(Entity* vehicle);
     static PlayerData* GetPlayerFromEntity(Entity* vehicle);
-
+    static HumanData* GetHumanFromEntity(Entity* vehicle);
 private:
 	// No instantiation or copying
 	Game();
 	Game(const Game&) = delete;
 	Game& operator= (const Game&) = delete;
-
-//    physx::PxRigidDynamic *cylinderRigid;
-
-    std::vector<Entity*> waypoints;
-
-	Entity *boulder;
-	Entity *camera;
-	Entity *sun;
-	Entity *floor;
-	Entity *baby;
-
-	Entity *car;
 
     NavigationMesh *navigationMesh;
 };

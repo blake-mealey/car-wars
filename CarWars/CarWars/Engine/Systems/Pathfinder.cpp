@@ -4,9 +4,23 @@
 
 std::vector<glm::vec3> Pathfinder::FindPath(NavigationMesh* navigationMesh, glm::vec3 startPosition,
     glm::vec3 goalPosition) {
+	
+	size_t startIndex;
+	size_t goalIndex;
 
-    const size_t startIndex = navigationMesh->FindClosestVertex(startPosition);
-    const size_t goalIndex = navigationMesh->FindClosestVertex(goalPosition);
+	glm::vec3 start = startPosition;
+	glm::vec3 end = goalPosition;
+
+	glm::vec3 pathDirection = glm::normalize(end - start);
+
+	do {
+		startIndex = navigationMesh->FindClosestVertex(start);
+		start += pathDirection;
+	} while (navigationMesh->GetScore(startIndex) == 0.f);
+	do {
+		goalIndex = navigationMesh->FindClosestVertex(end);
+		end -= pathDirection;
+	} while (navigationMesh->GetScore(goalIndex) == 0.f);
 
     // Unreachable goal or start
     if (navigationMesh->GetScore(startIndex) == 0.f || navigationMesh->GetScore(goalIndex) == 0.f) {
