@@ -24,7 +24,7 @@ const float AiComponent::STUCK_CONTROL = 1.5f;	// controls the cycles of reverse
 const float AiComponent::TARGETING_RANGE = 500.f	/ MAX_DIFFUCULTY;	// the range that AI searches for targeting
 const float AiComponent::LOCKON_RANGE = 400.f		/ MAX_DIFFUCULTY;	// the range that the target will shoot
 const float AiComponent::LOST_TIME = 1.f			/ MAX_DIFFUCULTY;	// how long until the AI no longer looks for the target, in seconds
-const float AiComponent::SPRAY = 2.5f				* MAX_DIFFUCULTY;	// how accurate the AI is (lower means more accurate)
+const float AiComponent::SPRAY = 1.5f				* MAX_DIFFUCULTY;	// how accurate the AI is (lower means more accurate)
 const float AiComponent::STOPING_DISTANCE = 100.f	/ MAX_DIFFUCULTY;	// how close to the target the AI will get (better AI is more accurate doesn't need to be as close)
 
 
@@ -320,11 +320,14 @@ void AiComponent::Update() {
 						weapon->Charge();
 						charged = true;
 					}
-					glm::vec3 randomOffset = (glm::vec3(
-						(float)rand() / RAND_MAX,
-						(float)rand() / RAND_MAX,
-						(float)rand() / RAND_MAX
-					) - glm::vec3(.5f)) * (SPRAY / std::max(myData->diffuculty,.1f));
+
+					float randomHorizontalAngle = (float)rand() / (float)RAND_MAX * M_PI * 2.f;
+					float randomVerticalAngle = (float)rand() / (float)RAND_MAX * M_PI;
+
+					// pick a random point on a sphere for spray
+					glm::vec3 randomOffset = (glm::vec3(cos(randomHorizontalAngle) * sin(randomVerticalAngle),
+						cos(randomVerticalAngle),
+						sin(randomHorizontalAngle) * sin(randomVerticalAngle)) - glm::vec3(.5f)) * (SPRAY / std::max(myData->diffuculty, .1f));
 
 					glm::vec3 hitLocation = targetPosition + randomOffset;
 					weapon->Shoot(hitLocation);
