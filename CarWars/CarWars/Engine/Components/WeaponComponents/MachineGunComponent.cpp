@@ -13,13 +13,44 @@
 #include "../../Systems/Effects.h"
 #include "PennerEasing/Linear.h"
 
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtc/matrix_transform.inl>
+#include <glm/gtc/type_ptr.hpp>
+
+const float SPRAY = 1.1f;
+
 MachineGunComponent::MachineGunComponent() : WeaponComponent(20.0f) {}
 
 void MachineGunComponent::Shoot(glm::vec3 position) {
 	if (StateManager::gameTime.GetSeconds() > nextShotTime.GetSeconds()) {
-		//Get Vehicle
 		Entity* vehicle = GetEntity();
 		Entity* mgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
+		const glm::vec3 gunPosition = mgTurret->transform.GetGlobalPosition();
+
+		glm::vec3 gunDirection = position - gunPosition;
+		float distanceToTarget = glm::length(gunDirection);
+		gunDirection = glm::normalize(gunDirection);
+
+		//work for clamping guns
+		glm::vec3 up = mgTurret->transform.GetUp();
+		glm::vec3 front = mgTurret->transform.GetForward();
+		glm::vec3 right = mgTurret->transform.GetRight();
+
+		glm::vec3 directionRFplane = glm::normalize(gunDirection - (glm::dot(gunDirection, up) * up)); //project to RF plane
+		glm::vec3 directionFUplane = glm::normalize(gunDirection - (glm::dot(gunDirection, right) * right)); //project to the FU plane
+
+		
+
+		float randomHorizontalAngle = (float)rand() / (float)RAND_MAX * M_PI * 2.f;
+		float randomVerticalAngle = (float)rand() / (float)RAND_MAX * M_PI;
+
+		// pick a random point on a sphere for spray
+		glm::vec3 randomOffset = glm::vec3(cos(randomHorizontalAngle) * sin(randomVerticalAngle),
+			cos(randomVerticalAngle),
+			sin(randomHorizontalAngle) * sin(randomVerticalAngle)) * SPRAY;
+
+		glm::vec3 shotPosition = glm::normalize(gunDirection)*100.f + randomOffset + gunPosition;
+
 
 		//Calculate Next Shooting Time
 		nextShotTime = StateManager::gameTime + timeBetweenShots;
@@ -29,8 +60,7 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		audioManager.PlayAudio("Content/Sounds/machine_gun_shot.mp3");
 
 		//Variables Needed
-		const glm::vec3 gunPosition = mgTurret->transform.GetGlobalPosition();
-		const glm::vec3 gunDirection = glm::normalize(position - gunPosition);
+		const glm::vec3 shotDirection = glm::normalize(shotPosition - gunPosition);
 
 		//Cast Gun Ray
 	    PxScene* scene = &Physics::Instance().GetScene();
@@ -40,14 +70,14 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		glm::vec3 hitPosition;
 		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
 		PxRaycastBuffer gunHit;
-		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
+		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(shotDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
 			hitPosition = Transform::FromPx(gunHit.block.position);
 			Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
             if (thingHit) {
 				thingHit->TakeDamage(this, this->damage);
             }
 		} else {
-			hitPosition = gunPosition + (gunDirection * rayLength);
+			hitPosition = gunPosition + (shotDirection * rayLength);
 		}
 
 		Entity* bullet = ContentManager::LoadEntity("Bullet.json");
