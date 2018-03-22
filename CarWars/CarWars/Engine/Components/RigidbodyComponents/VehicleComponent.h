@@ -52,7 +52,7 @@ public:
 
     void RenderDebugGui() override;
 
-    float speedMutliplier = 1.f;
+    float speedMultiplier = 1.f;
     float defenceMultiplier = 1.f;
 	void TakeDamage(WeaponComponent* damager, float damage) override;
 	float GetHealth();

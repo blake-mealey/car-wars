@@ -31,7 +31,7 @@ void SpeedPowerUp::Collect(Entity* car) {
     PowerUp::Collect();
     PlayerData* player = Game::Instance().GetPlayerFromEntity(car);
     VehicleComponent* vehicle = car->GetComponent<VehicleComponent>();
-    vehicle->speedMutliplier = 1.25f;
+    vehicle->speedMultiplier += multiplier;
     if (player) {
         Entity* guiRoot = player->camera->GetGuiRoot();
         Entity* guiEntity = EntityManager::FindFirstChild(guiRoot, "SpeedPowerUp");
@@ -39,7 +39,7 @@ void SpeedPowerUp::Collect(Entity* car) {
         auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.25);
         tween->SetUpdateCallback([gui](float &value) mutable {
             gui->SetTextureOpacity(value);
-            //gui->SetTextureColor(glm::vec4(1.f, 1.f, 0.f, value));
+            gui->SetTextureColor(glm::vec4(1.f, 1.f, 0.f, 1.f));
             gui->transform.SetScale(glm::mix(glm::vec3(100.f, 100.f, 0.f), glm::vec3(0.f, 0.f, 0.f), value));
         });
         tween->Start();

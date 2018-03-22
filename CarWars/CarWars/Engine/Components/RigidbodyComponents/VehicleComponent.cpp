@@ -458,7 +458,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
     PlayerData* me = Game::GetPlayerFromEntity(GetEntity());
 
     if (attacker->teamIndex == me->teamIndex) return;
-    health -= _damage * (1.f-resistance);
+    health -= _damage * (1.f-resistance*defenceMultiplier);
 
     HumanData* attackerPlayer = Game::GetHumanFromEntity(damager->GetEntity());
     if (attackerPlayer) {
@@ -630,7 +630,7 @@ void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPowe
 		else { // just backward power
 			if (speed > 5.f) { // going fast brake 
 				brake = true;
-				pxVehicleInputData.setAnalogBrake(backwardPower);
+				pxVehicleInputData.setAnalogBrake(backwardPower*speedMultiplier);
 			}
 			else { // go to reverse
 				pxVehicleInputData.setAnalogBrake(0.0f);
@@ -648,7 +648,7 @@ void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPowe
 		}
 	}
 
-	if (!brake && amountPressed > 0.01) pxVehicleInputData.setAnalogAccel(amountPressed);
+	if (!brake && amountPressed > 0.01) pxVehicleInputData.setAnalogAccel(amountPressed*speedMultiplier);
 	else{
 		pxVehicleInputData.setAnalogAccel(0);
 	}

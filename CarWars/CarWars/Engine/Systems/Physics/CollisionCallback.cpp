@@ -86,7 +86,7 @@ void CollisionCallback::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 coun
 	Entity* actor0 = actor0RB->GetEntity();
 	RigidbodyComponent* actor1RB = static_cast<RigidbodyComponent*>(pairs->otherActor->userData);
 	Entity* actor1 = actor1RB->GetEntity();
-    if (actor0 && actor1) {
+    if (actor0 && actor1 && pairs->status != physx::PxPairFlag::eNOTIFY_TOUCH_LOST) {
         if (actor0->HasTag("Missile") || actor1->HasTag("Missle")) {
             HandleMissileCollision(actor0, actor1);
             HandleMissileCollision(actor1, actor0);
