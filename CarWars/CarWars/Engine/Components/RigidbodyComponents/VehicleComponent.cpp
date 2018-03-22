@@ -623,31 +623,32 @@ void VehicleComponent::Boost(glm::vec3 boostDir) {
 	if (GetTimeSinceBoost() > boostCooldown && boostDir != glm::vec3(0)) {
 		pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(glm::normalize(boostDir) * boostPower * GetChassisMass()), PxForceMode::eIMPULSE, true);
 		lastBoost = StateManager::gameTime;
+
+		HumanData* player = Game::GetHumanFromEntity(GetEntity());
+		if (player) {
+			Entity* bar = EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "BoostBar");
+
+			GuiComponent* boostBar = GuiHelper::GetSecondGui(bar);
+
+			float emptyTime = 1.f;
+			auto tweenEmpty = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(1.f, 0.01f, emptyTime, StateManager::gameTime);
+			tweenEmpty->SetUpdateCallback([boostBar](float &value) mutable {
+				boostBar->transform.SetScale(glm::vec3(240.f * value, 10.f, 0.f));
+			});
+
+			auto tweenFill = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(0.01f, 1.f, boostCooldown.GetSeconds() - emptyTime, StateManager::gameTime);
+			tweenFill->SetUpdateCallback([boostBar](float &value) mutable {
+				boostBar->transform.SetScale(glm::vec3(240.f * value, 10.f, 0.f));
+			});
+			tweenEmpty->SetNext(tweenFill);
+			tweenEmpty->Start();
+
+			//play boost sound
+		}
 	}
-
-	// boost bar indicator
-	HumanData* player = Game::GetHumanFromEntity(GetEntity());
-	if (player) {
-		Entity* bar = EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "BoostBar");
-
-		GuiComponent* gui = GuiHelper::GetSecondGui(bar);
-
-		float emptyTime = .5f;
-		auto tweenEmpty = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(1.f, 0.f, emptyTime, StateManager::gameTime);
-		tweenEmpty->SetUpdateCallback([gui](float &value) mutable {
-			gui->transform.SetScale(glm::vec3(240.f * value, 10.f, 0.f));
-		});
-		
-		auto tweenFill = Effects::Instance().CreateTween<float, easing::Linear::easeOut>(0.f, 1.f, boostCooldown.GetSeconds() - emptyTime, StateManager::gameTime);
-		tweenFill->SetUpdateCallback([gui](float &value) mutable {
-			gui->transform.SetScale(glm::vec3(240.f * value, 10.f, 0.f));
-		});
-
-		tweenEmpty->SetNext(tweenFill);
-		tweenEmpty->Start();
+	else {
+	//uable to boost sound??	
 	}
-
-	//play boost sound
 }
 
 void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPower) {
