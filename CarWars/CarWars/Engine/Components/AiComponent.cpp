@@ -12,6 +12,19 @@
 
 #include <iostream>
 
+float AiComponent::MAX_DIFFUCULTY;
+float AiComponent::STUCK_TIME;
+float AiComponent::UPDATE_TIME;
+float AiComponent::TARGETING_RANGE;
+float AiComponent::LOCKON_RANGE;
+float AiComponent::LOST_TIME;
+float AiComponent::SPRAY;
+float AiComponent::STOPING_DISTANCE;
+float AiComponent::STUCK_CONTROL;
+float AiComponent::ACCELERATION;
+
+
+
 AiComponent::~AiComponent() {
     glDeleteBuffers(1, &pathVbo);
     glDeleteVertexArrays(1, &pathVao);
