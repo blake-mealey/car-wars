@@ -65,8 +65,14 @@ private:
 	static const float STUCK_CONTROL;	// controls the cycles of reverse and accelerate for the AI (better AI has smaller cycles)
 	static const float ACCELERATION;	// bottom end of vehicle acceleration
 
+	void Shoot();
+	void Drive();
+	bool FindTarget();
+
 	void LostTargetTime();
 	Time LostTargetDuration();
+
+	bool GetLineOfSight(glm::vec3 _position);
 
     Time lastPathUpdate;
 
@@ -85,6 +91,9 @@ private:
 
 	bool charged = false;
 	bool stuck;
+
+	float distanceToTarget;
+	bool lineOfSight;
 
     void InitializeRenderBuffers();
     void UpdateRenderBuffers();
