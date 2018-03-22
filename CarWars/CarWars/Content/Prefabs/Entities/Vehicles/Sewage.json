@@ -4,7 +4,7 @@
     {
       "Type": "Mesh",
       "Mesh": "Vehicles/sewage_chassis.obj",
-      "Texture": "Vehicles/Green_Sewage.png",
+      "Texture": "Vehicles/Sewage.png",
       "Material": "Basic.json",
       "Rotate": [ 0, 180, 0 ],
       "Position": [ 0.0825, -0.825, 0.18 ]

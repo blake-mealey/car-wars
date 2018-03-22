@@ -31,6 +31,11 @@ const string MapType::scenePaths[Count] = { "Maps/CircleMap.json" };
 
 const string VehicleType::displayNames[Count] = { "Heavy", "Medium", "Light" };
 const string VehicleType::prefabPaths[Count] = { "Vehicles/Sewage.json", "Vehicles/Hearse.json", "Vehicles/Flatbed.json" };
+const string VehicleType::teamTextureNames[Count][2] = {
+    { "Vehicles/Green_Sewage.png", "Vehicles/Red_Sewage.png" },
+    { "Vehicles/Hearse.png", "Vehicles/Hearse.png" },
+    { "Vehicles/Flatbed2.png", "Vehicles/Flatbed2.png" }
+};
 const string VehicleType::statDisplayNames[STAT_COUNT] = { "Speed", "Handling", "Armour" };
 const string VehicleType::statValues[Count][STAT_COUNT] = {
 	{ "1", "10", "100" },      // Heavy
@@ -81,6 +86,11 @@ void Game::SpawnVehicle(PlayerData& player) {
 	// Initialize their vehicle
 	player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
 	player.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(Transform::ToPx(position)));
+
+    if (gameData.gameMode == GameModeType::Team) {
+        MeshComponent* mesh = player.vehicleEntity->GetComponent<MeshComponent>();
+        mesh->SetTexture(ContentManager::GetTexture(VehicleType::teamTextureNames[player.vehicleType][player.teamIndex]));
+    }
 
 	// Initialize their turret mesh
 	Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType], player.vehicleEntity);

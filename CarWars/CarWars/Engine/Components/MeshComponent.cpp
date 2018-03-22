@@ -75,6 +75,10 @@ void MeshComponent::RenderDebugGui() {
     ImGui::DragFloat2("UV Scale", glm::value_ptr(uvScale), 0.1f);
 }
 
+void MeshComponent::SetTexture(Texture* _texture) {
+    texture = _texture;
+}
+
 void MeshComponent::SetEntity(Entity* _entity) {
 	Component::SetEntity(_entity);
 	transform.parent = &_entity->transform;
