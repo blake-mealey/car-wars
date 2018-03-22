@@ -6,6 +6,6 @@
 	"Font": "Starjedi.ttf",
 	"FontSize": 36,
 	"Texture": "MenuButton.png",
-	"FontColor": "White",
-	"SelectedFontColor": "DarkBlue"
+	"FontColor": "DarkBlue",
+	"SelectedFontColor": "White"
 }
