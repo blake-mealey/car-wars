@@ -306,19 +306,22 @@ void Game::Update() {
         // Time limit
         if (StateManager::gameTime >= gameData.timeLimit) FinishGame();
 
-        // Kill limit and lives
-        bool allDeadForever = true;
+        // Kill limit
+        for (TeamData& team : gameData.teams) {
+            if (team.killCount >= gameData.killLimit) FinishGame();
+        }
+
+        // Max lives
+        size_t deadForeverCount = 0;
         for (size_t i = 0; i < gameData.humanCount; ++i) {
             PlayerData& player = humanPlayers[i];
-            if (player.killCount >= gameData.killLimit) FinishGame();
-            if (allDeadForever && player.deathCount < gameData.numberOfLives) allDeadForever = false;
+            if (player.deathCount < gameData.numberOfLives) deadForeverCount++;
         }
 		for (size_t i = 0; i < gameData.aiCount; ++i) {
 			PlayerData& player = ais[i];
-			if (player.killCount >= gameData.killLimit) FinishGame();
-			if (allDeadForever && player.deathCount < gameData.numberOfLives) allDeadForever = false;
+			if (player.deathCount < gameData.numberOfLives) deadForeverCount++;
 		}
-        if (allDeadForever) FinishGame();
+        if (deadForeverCount == gameData.aiCount + gameData.humanCount - 1) FinishGame();
 	} else if (StateManager::GetState() == GameState_Paused) {
         // PAUSED
 	}
