@@ -473,7 +473,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
             Entity* entity = EntityManager::FindFirstChild(myPlayer->camera->GetGuiRoot(), "DamageIndicator");
             GuiComponent* gui = entity->GetComponent<GuiComponent>();
 
-            GuiHelper::OpacityEffect(gui, 1.0, 0.5f, 0.25, 0.25);
+            GuiHelper::OpacityEffect(gui, 1.0, 0.8f, 0.25, 0.25);
 
             // NOTE: This isn't really a tween... but it's a nice hacky use for the tween system
             // We should probably make a special version of the tween for exactly this case

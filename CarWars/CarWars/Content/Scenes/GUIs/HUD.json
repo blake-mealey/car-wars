@@ -6,10 +6,27 @@
                 "Prefab": "GUIs/StarjediFont.json",
                 "AnchorPoint": [0.5, 0],
                 "ScaledPosition": [0.5, 0],
-                "Position": [0, 20, 0],
-                "Scale": [150, 75, 1],
+                "Position": [0, 0, 0],
+                "Scale": [200, 75, 1],
                 "FontSize": 48,
-                "Text": "0:00"
+                "Text": "0:00",
+                "Texture": "HUD/Clock.png"
+	        },
+	        {
+                "Type": "GUI",
+		        "AnchorPoint": [1, 0],
+		        "ScaledPosition": [0.5, 0],
+		        "Position": [-100, 0, 0],
+		        "Scale": [20, 75, 1],
+		        "Texture": "HUD/Clock-Green.png"
+	        },
+	        {
+		        "Type": "GUI",
+		        "AnchorPoint": [0, 0],
+		        "ScaledPosition": [0.5, 0],
+		        "Position": [100, 0, 0],
+		        "Scale": [20, 75, 1],
+		        "Texture": "HUD/Clock-Red.png"
 	        }
         ]
 	},
@@ -20,21 +37,23 @@
                 "Prefab": "GUIs/StarjediFont.json",
 		        "AnchorPoint": [1, 0],
 		        "ScaledPosition": [0.5, 0],
-		        "Position": [-95, 20, 0],
+		        "Position": [-120, 0, 0],
 		        "Scale": [150, 75, 1],
 		        "FontSize": 36,
                 "TextXAlignment": "Right",
-		        "Text": "0"
+		        "Text": "0",
+                "Texture": "HUD/Scores-Green.png"
 	        },
 		    {
                 "Prefab": "GUIs/StarjediFont.json",
 		        "AnchorPoint": [0, 0],
 		        "ScaledPosition": [0.5, 0],
-		        "Position": [95, 20, 0],
+		        "Position": [120, 0, 0],
 		        "Scale": [150, 75, 1],
 		        "FontSize": 36,
 		        "TextXAlignment": "Left",
-		        "Text": "0"
+		        "Text": "0",
+                "Texture": "HUD/Scores-Red.png"
 	        }
         ]
 	},
@@ -108,7 +127,7 @@
 				"AnchorPoint": [0.5, 0.5],
 				"ScaledPosition": [0.5, 0.5],
 				"Scale": [500, 500, 1],
-                "TextureColor": "AlphaRed",
+                "TextureColor": "AlphaLightBlue",
 				"Texture": "HUD/damage-indicator.png"
 			}
 		]

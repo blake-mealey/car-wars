@@ -54,6 +54,8 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
     maskInverted = ContentManager::GetFromJson<bool>(data["MaskInverted"], false);
     if (data["Mask"].is_object()) mask = Transform(data["Mask"]);
     clipEnabled = ContentManager::GetFromJson<bool>(data["ClipEnabled"], false);
+
+    emissiveness = ContentManager::GetFromJson<float>(data["Emissiveness"], 0.f);
 }
 
 ComponentType GuiComponent::GetType() {
@@ -89,6 +91,8 @@ void GuiComponent::RenderDebugGui() {
         mask.RenderDebugGui(1.f, 1.f);
         ImGui::TreePop();
     }
+
+    ImGui::DragFloat("Emissiveness", &emissiveness, 0.1f);
 }
 
 void GuiComponent::SetText(std::string _text) {
@@ -288,4 +292,12 @@ bool GuiComponent::IsClipEnabled() const {
 
 Transform& GuiComponent::GetMask() {
     return mask;
+}
+
+void GuiComponent::SetEmissiveness(float _emissiveness) {
+    emissiveness = _emissiveness;
+}
+
+float GuiComponent::GetEmissiveness() {
+    return emissiveness;
 }

@@ -26,15 +26,15 @@ void OpacityEffect::Update(GuiComponent* gui) {
     // tweening in
     if (!startedTweenIn && time <= startTime + tweenInTime) {
         startedTweenIn = true;
-        Effects::Instance().CreateTween<float, easing::Quint::easeOut>(thisTextureOpacity, previousTextureOpacity, opacityMod, tweenInTime.GetSeconds())->Start();
-        Effects::Instance().CreateTween<float, easing::Quint::easeOut>(thisFontOpacity, previousFontOpacity, opacityMod, tweenInTime.GetSeconds())->Start();
+        Effects::Instance().CreateTween<float, easing::Quint::easeOut>(thisTextureOpacity, previousTextureOpacity, opacityMod, tweenInTime.GetSeconds(), StateManager::globalTime)->Start();
+        Effects::Instance().CreateTween<float, easing::Quint::easeOut>(thisFontOpacity, previousFontOpacity, opacityMod, tweenInTime.GetSeconds(), StateManager::globalTime)->Start();
     }
 
     // tweening out
     if (!startedTweenOut && time >= expireTime - tweenOutTime) {
         startedTweenOut = true;
-        Effects::Instance().CreateTween<float, easing::Quint::easeIn>(thisTextureOpacity, opacityMod, previousTextureOpacity, tweenOutTime.GetSeconds())->Start();
-        Effects::Instance().CreateTween<float, easing::Quint::easeIn>(thisFontOpacity, opacityMod, previousFontOpacity, tweenOutTime.GetSeconds())->Start();
+        Effects::Instance().CreateTween<float, easing::Quint::easeIn>(thisTextureOpacity, opacityMod, previousTextureOpacity, tweenOutTime.GetSeconds(), StateManager::globalTime)->Start();
+        Effects::Instance().CreateTween<float, easing::Quint::easeIn>(thisFontOpacity, opacityMod, previousFontOpacity, tweenOutTime.GetSeconds(), StateManager::globalTime)->Start();
     }
     
     gui->SetTextureOpacity(thisTextureOpacity);

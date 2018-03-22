@@ -90,7 +90,7 @@ public:
     static GuiComponent* GetFourthGui(std::string entityTag, int playerIndex = 0);
 
 	template <float Ease(float t, float b, float c, float d)>
-	static TTween<float, Ease>* TweenOpacityRecursive(Entity* parent, const float goalOpacity, const Time duration) {
+	static TTween<float, Ease>* TweenOpacityRecursive(Entity* parent, const float goalOpacity, const Time duration, Time& clock) {
 		std::vector<GuiComponent*> guis = GetGuisRecursive(parent);
 
 		std::vector<glm::vec2> starts;
@@ -98,7 +98,7 @@ public:
 			starts.push_back(glm::vec2(gui->GetFontOpacity(), gui->GetTextureOpacity()));
 		}
 
-		auto tween = Effects::Instance().CreateTween<float, Ease>(0.f, 1.f, duration);
+		auto tween = Effects::Instance().CreateTween<float, Ease>(0.f, 1.f, duration, clock);
 		tween->SetUpdateCallback([guis, starts, goalOpacity](float& value) mutable {
 			for (size_t i = 0; i < guis.size(); ++i) {
 				GuiComponent* gui = guis[i];

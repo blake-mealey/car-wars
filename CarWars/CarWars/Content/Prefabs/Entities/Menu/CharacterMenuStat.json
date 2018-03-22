@@ -3,7 +3,7 @@
     {
       "Type": "GUI",
       "Position": [ -25, 40, 0 ],
-      "ScaledPosition": [ 1, 0.3 ],
+      "ScaledPosition": [ 1, 0.5 ],
       "AnchorPoint": [ 1, 0.5 ],
       "ScaledScale": [ 0.2, 0 ],
       "Scale": [ -10, 20, 1 ],
@@ -11,13 +11,13 @@
       "TextXAlignment": "Left",
       "Text": "armour",
       "Font": "Starjedi.ttf",
-      "FontColor": "Yellow",
+      "FontColor": "White",
       "FontSize": 15
     },
     {
       "Type": "GUI",
       "Position": [ -25, 40, 0 ],
-      "ScaledPosition": [ 1, 0.3 ],
+      "ScaledPosition": [ 1, 0.5 ],
       "AnchorPoint": [ 1, 0.5 ],
       "ScaledScale": [ 0.2, 0 ],
       "Scale": [ -10, 20, 1 ],
@@ -25,7 +25,7 @@
       "TextXAlignment": "Right",
       "Text": "10",
       "Font": "Starjedi.ttf",
-      "FontColor": "Red",
+      "FontColor": "DarkBlue",
       "FontSize": 15
     }
   ]
