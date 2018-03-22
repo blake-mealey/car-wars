@@ -6,7 +6,7 @@
 #include "Physics/CollisionCallback.h"
 #include "PxPhysicsAPI.h"
 #include "Physics/VehicleSceneQuery.h"
-#include "Physics/VehicleCreate.h"
+#include <unordered_set>
 
 class VehicleComponent;
 
@@ -33,7 +33,7 @@ private:
 	Physics& operator= (const Physics&) = delete;
 
 	CollisionCallback collisionCallbackInstance;
-	std::vector<Entity*> toDelete;
+	std::unordered_set<Entity*> toDelete;
 
     void InitializeVehicles();
 

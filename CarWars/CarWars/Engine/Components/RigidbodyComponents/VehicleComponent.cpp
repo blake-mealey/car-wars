@@ -19,6 +19,7 @@
 #include "../../Systems/Effects.h"
 #include <glm/gtx/string_cast.hpp>
 #include "PennerEasing/Linear.h"
+#include "../../Systems/Physics/VehicleCreate.h"
 
 using namespace physx;
 

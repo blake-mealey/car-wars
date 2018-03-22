@@ -200,9 +200,7 @@ void Game::ResetGame() {
     }
 
     // Reset ais
-    for (AiData& ai : ais) {
-        ResetPlayerData(ai);
-    }
+    ais.clear();
 
     // Reset game
     gameData.humanCount = 0;
