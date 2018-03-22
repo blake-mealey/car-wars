@@ -169,7 +169,9 @@ void Audio::UpdateCars() {
 
     //players
     for (int i = 0; i < Game::gameData.playerCount; i++) {
-        auto playerPos = Game::players[i].vehicleEntity->transform.GetGlobalPosition();
+        PlayerData& player = Game::players[i];
+        if (!player.alive) continue;
+        const auto playerPos = player.vehicleEntity->transform.GetGlobalPosition();
         //soundSystem->createSound(engineSound, FMOD_3D | FMOD_LOOP_NORMAL, 0, &carSounds[i].sound);
         //carSounds[i].sound->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
         //soundSystem->playSound(carSounds[i].sound, 0, true, &carSounds[i].channel);
@@ -182,7 +184,9 @@ void Audio::UpdateCars() {
     size_t offset = Game::gameData.playerCount;
     //ai
     for (int i = 0; i < Game::gameData.aiCount; i++) {
-        auto aiPos = Game::ais[i].vehicleEntity->transform.GetGlobalPosition();
+        AiData& ai = Game::ais[i];
+        if (!ai.alive) continue;
+        const auto aiPos = ai.vehicleEntity->transform.GetGlobalPosition();
         //soundSystem->createSound(engineSound, FMOD_3D | FMOD_LOOP_NORMAL, 0, &carSounds[i + offset].sound);
         //carSounds[i + offset].sound->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
         //soundSystem->playSound(carSounds[i + offset].sound, 0, true, &carSounds[i + offset].channel);
