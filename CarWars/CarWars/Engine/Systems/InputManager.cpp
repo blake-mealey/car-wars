@@ -95,7 +95,7 @@ void UpdateVehicleStats(const int playerIndex) {
     EntityManager::DestroyChildren(stats);
     for (size_t i = 0; i < VehicleType::STAT_COUNT; ++i) {
         Entity* stat = ContentManager::LoadEntity("Menu/CharacterMenuStat.json", stats);
-        GuiHelper::SetGuiPositions(stat, glm::vec3(-25.f, 40.f + i*20.f, 0.f));
+        GuiHelper::SetGuiPositions(stat, glm::vec3(-25.f, -10.f + i*20.f, 0.f));
         GuiHelper::SetFirstGuiText(stat, VehicleType::statDisplayNames[i]);
         GuiHelper::SetSecondGuiText(stat, VehicleType::statValues[player.vehicleType][i]);
     }
@@ -107,7 +107,7 @@ void UpdateWeaponStats(const int playerIndex) {
     EntityManager::DestroyChildren(stats);
     for (size_t i = 0; i < WeaponType::STAT_COUNT; ++i) {
         Entity* stat = ContentManager::LoadEntity("Menu/CharacterMenuStat.json", stats);
-        GuiHelper::SetGuiPositions(stat, glm::vec3(-25.f, 40.f + i*20.f, 0.f));
+        GuiHelper::SetGuiPositions(stat, glm::vec3(-25.f, -10.f + i*20.f, 0.f));
         GuiHelper::SetFirstGuiText(stat, WeaponType::statDisplayNames[i]);
         GuiHelper::SetSecondGuiText(stat, WeaponType::statValues[player.weaponType][i]);
     }
@@ -391,7 +391,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
                 } else {
                     GuiComponent* winnerTitle = GuiHelper::GetFirstGui("WinnerTitle");
                     
-                    auto tween = Effects::Instance().CreateTween<float, easing::Expo::easeOut>(0.f, 1.f, 1.0);
+                    auto tween = Effects::Instance().CreateTween<float, easing::Expo::easeOut>(0.f, 1.f, 1.0, StateManager::globalTime);
 					tween->SetTag("WinnerTitle");
                     tween->SetUpdateCallback([winnerTitle](float& value) mutable {
                         winnerTitle->SetFontSize(glm::mix(128.f, 64.f, value));
@@ -404,7 +404,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 					CreateLeaderboardMenu(menu, -1);
                     GuiHelper::SetOpacityRecursive(menu, 0.f);
 
-					auto tween2 = GuiHelper::TweenOpacityRecursive<easing::Quad::easeOut>(menu, 1.f, 1.0);
+					auto tween2 = GuiHelper::TweenOpacityRecursive<easing::Quad::easeOut>(menu, 1.f, 1.0, StateManager::globalTime);
 					tween2->SetTag("Leaderboard");
 					tween2->Start();
                 }
@@ -470,6 +470,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
         if (gameState == GameState_Playing) {
             StateManager::SetState(GameState_Paused);
             ContentManager::LoadEntity("Menu/PauseMenu.json", Game::humanPlayers[navData.playerIndex].camera->GetGuiRoot());
+            if (navData.tabHeld) navData.tabReleased = true;
         } else if (gameState == GameState_Paused) {
             StateManager::SetState(GameState_Playing);
         }
@@ -490,17 +491,18 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 				GuiHelper::SetOpacityRecursive(leaderboard, 0.f);
 			}
 
-			auto tween = GuiHelper::TweenOpacityRecursive<easing::Quad::easeOut>(leaderboard, 1.f, 0.1);
+			auto tween = GuiHelper::TweenOpacityRecursive<easing::Quad::easeOut>(leaderboard, 1.f, 0.1, StateManager::globalTime);
 			tween->SetTag("LeaderboardIn" + to_string(navData.playerIndex));
 			tween->Start();
 		} else if (navData.tabReleased) {
 			Entity* guiRoot = Game::humanPlayers[navData.playerIndex].camera->GetGuiRoot();
 			Entity* leaderboard = EntityManager::FindFirstChild(guiRoot, "LeaderboardMenu");
+            if (!leaderboard) return;
 
 			Tween* inTween = Effects::Instance().FindTween("LeaderboardIn" + to_string(navData.playerIndex));
 			if (inTween) Effects::Instance().DestroyTween(inTween);
 			
-			auto tween = GuiHelper::TweenOpacityRecursive<easing::Quad::easeOut>(leaderboard, 0.f, 0.1);
+			auto tween = GuiHelper::TweenOpacityRecursive<easing::Quad::easeOut>(leaderboard, 0.f, 0.1, StateManager::globalTime);
 			tween->SetTag("LeaderboardOut" + to_string(navData.playerIndex));
 			tween->SetFinishedCallback([leaderboard](float& value) mutable {
 				EntityManager::DestroyEntity(leaderboard);

@@ -6,7 +6,6 @@
 #include "Physics/CollisionCallback.h"
 #include "PxPhysicsAPI.h"
 #include "Physics/VehicleSceneQuery.h"
-#include "Physics/VehicleCreate.h"
 #include <unordered_set>
 
 class VehicleComponent;
