@@ -33,7 +33,7 @@ const string VehicleType::displayNames[Count] = { "Heavy", "Medium", "Light" };
 const string VehicleType::prefabPaths[Count] = { "Vehicles/Sewage.json", "Vehicles/Hearse.json", "Vehicles/Flatbed.json" };
 const string VehicleType::teamTextureNames[Count][2] = {
     { "Vehicles/Green_Sewage.png", "Vehicles/Red_Sewage.png" },
-    { "Vehicles/Hearse.png", "Vehicles/Hearse.png" },
+    { "Vehicles/Green_Hearse.png", "Vehicles/Red_Hearse.png" },
     { "Vehicles/Flatbed2.png", "Vehicles/Flatbed2.png" }
 };
 const string VehicleType::statDisplayNames[STAT_COUNT] = { "Speed", "Handling", "Armour" };
