@@ -384,10 +384,7 @@ void AiComponent::Update() {
 
 		bool reverse = backwardPower > forwardPower;
 
-		if (vehicle->GetTimeSinceBoost().GetSeconds() > 5.f && boostDir != glm::vec3()) {
-			vehicle->Boost(boostDir, 10.f);
-		}
-
+		vehicle->Boost(boostDir);
 		vehicle->Steer(reverse ? -steer : steer);
 		vehicle->HandleAcceleration(forwardPower, backwardPower);
 

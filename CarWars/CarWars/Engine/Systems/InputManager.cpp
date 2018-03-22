@@ -583,9 +583,7 @@ void InputManager::HandleKeyboard() {
 			handbrake = 1;
 		}
 
-		if (vehicle->GetTimeSinceBoost().GetSeconds() > 5.f && boostDir != glm::vec3()) {
-			vehicle->Boost(boostDir, 10.f);
-		}
+		vehicle->Boost(boostDir);
 		vehicle->HandleAcceleration(forwardPower, backwardPower);
 		vehicle->Handbrake(handbrake);
 		vehicle->Steer(steer);
@@ -730,9 +728,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Update
 		// -------------------------------------------------------------------------------------------------------------- //
-		if (vehicle->GetTimeSinceBoost().GetSeconds() > 5.f && boostDir != glm::vec3()) {
-			vehicle->Boost(boostDir, 10.f);
-		}
+		vehicle->Boost(boostDir);
 		vehicle->HandleAcceleration(forwardPower, backwardPower);
 		vehicle->Handbrake(handbrake);
 		vehicle->Steer(steer);

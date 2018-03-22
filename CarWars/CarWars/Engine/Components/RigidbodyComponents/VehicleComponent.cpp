@@ -46,6 +46,9 @@ VehicleComponent::VehicleComponent(nlohmann::json data) : RigidDynamicComponent(
     wheelWidth = ContentManager::GetFromJson<float>(data["WheelWidth"], 0.4f);
     wheelCount = ContentManager::GetFromJson<size_t>(data["WheelCount"], 4);
 
+	boostPower = ContentManager::GetFromJson<float>(data["BoostPower"], 10.f);
+	boostCooldown = Time(ContentManager::GetFromJson<float>(data["BoostCooldown"], 5.f));
+
     // Load any axle data present in data file
     for (nlohmann::json axle : data["Axles"]) {
         axleData.push_back(AxleData(
@@ -59,8 +62,9 @@ VehicleComponent::VehicleComponent(nlohmann::json data) : RigidDynamicComponent(
 
 VehicleComponent::VehicleComponent(size_t _wheelCount, bool _inputTypeDigital) : RigidDynamicComponent(),
     inputTypeDigital(_inputTypeDigital), chassisSize(glm::vec3(2.5f, 2.f, 5.f)),
-    wheelMass(20.f), wheelRadius(0.5f), wheelWidth(0.4f), wheelCount(_wheelCount) {
+    wheelMass(20.f), wheelRadius(0.5f), wheelWidth(0.4f), wheelCount(_wheelCount), boostPower(10.f) {
 
+	boostCooldown = Time(5.f);
     wheelMeshPrefab = new MeshComponent("Boulder.obj", "Basic.json", "Boulder.jpg");
 
     Initialize();
@@ -611,9 +615,11 @@ size_t VehicleComponent::GetRaycastGroup() const {
 }
 
 
-void VehicleComponent::Boost(glm::vec3 boostDir, float amount) {
-	pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(glm::normalize(boostDir) * amount * GetChassisMass()), PxForceMode::eIMPULSE, true);
-	lastBoost = StateManager::gameTime;
+void VehicleComponent::Boost(glm::vec3 boostDir) {
+	if (GetTimeSinceBoost() > boostCooldown && boostDir != glm::vec3(0)) {
+		pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(glm::normalize(boostDir) * boostPower * GetChassisMass()), PxForceMode::eIMPULSE, true);
+		lastBoost = StateManager::gameTime;
+	}
 }
 
 void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPower) {
@@ -641,7 +647,7 @@ void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPowe
 	}
 
 	if (amountPressed > 0.1 && forwardPower > backwardPower) {
-		if (pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eNEUTRAL) {
+		if (pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eNEUTRAL || speed <= 5.f) {
 			pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 		}
 	}
