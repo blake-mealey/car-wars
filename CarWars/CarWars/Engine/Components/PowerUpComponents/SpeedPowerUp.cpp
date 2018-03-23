@@ -4,12 +4,11 @@
 #include "../Dependencies/PennerEasing/Quint.h"
 #include "../../Components/GuiComponents/GuiComponent.h"
 #include "../../Components/RigidbodyComponents/VehicleComponent.h"
+#include "../../Systems/Content/ContentManager.h"
+#include "../Colliders/BoxCollider.h"
+#include "../../Systems/Game.h"
 
 SpeedPowerUp::SpeedPowerUp() {}
-
-void SpeedPowerUp::Collect() {
-    std::cout << "Speed Collected" << std::endl;
-}
 
 void SpeedPowerUp::SetEntity(Entity* _entity) {
     Component::SetEntity(_entity);
@@ -28,7 +27,9 @@ void SpeedPowerUp::SetEntity(Entity* _entity) {
 }
 
 void SpeedPowerUp::Collect(Entity* car) {
-    PowerUp::Collect();
+    std::cout << "Speed Collected" << std::endl;
+    PowerUp::Collect(car);
+
     PlayerData* player = Game::Instance().GetPlayerFromEntity(car);
     VehicleComponent* vehicle = car->GetComponent<VehicleComponent>();
     vehicle->speedMutliplier = 1.25f;
@@ -48,10 +49,6 @@ void SpeedPowerUp::Collect(Entity* car) {
 
 ComponentType SpeedPowerUp::GetType() {
     return ComponentType_SpeedPowerUp;
-}
-
-void SpeedPowerUp::HandleEvent(Event *event) {
-    return;
 }
 
 void SpeedPowerUp::RenderDebugGui() {

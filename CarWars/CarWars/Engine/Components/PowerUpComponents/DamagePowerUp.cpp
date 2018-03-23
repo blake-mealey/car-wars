@@ -4,6 +4,10 @@
 #include "../Dependencies/PennerEasing/Quint.h"
 #include "../../Components/GuiComponents/GuiComponent.h"
 #include "../../Components/WeaponComponents/WeaponComponent.h"
+#include "../../Systems/Game.h"
+#include "../Colliders/BoxCollider.h"
+#include "../../Systems/Content/ContentManager.h"
+#include "../RigidbodyComponents/RigidDynamicComponent.h"
 
 DamagePowerUp::DamagePowerUp() {
 
@@ -25,13 +29,10 @@ void DamagePowerUp::SetEntity(Entity* _entity) {
     powerUpRigid->actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 }
 
-void DamagePowerUp::Collect() {
-    PowerUp::Collect();
-    std::cout << "Damage Collected" << std::endl;
-}
-
 void DamagePowerUp::Collect(Entity* car) {
-    PowerUp::Collect();
+    std::cout << "Damage Collected" << std::endl;
+    PowerUp::Collect(car);
+
     PlayerData* player = Game::Instance().GetPlayerFromEntity(car);
     WeaponComponent* weapon = car->GetComponent<WeaponComponent>();
     weapon->damageMultiplier = 1.25f;
@@ -50,10 +51,6 @@ void DamagePowerUp::Collect(Entity* car) {
 
 ComponentType DamagePowerUp::GetType() {
     return ComponentType_DamagePowerUp;
-}
-
-void DamagePowerUp::HandleEvent(Event *event) {
-    return;
 }
 
 void DamagePowerUp::RenderDebugGui() {

@@ -4,12 +4,12 @@
 #include "../Dependencies/PennerEasing/Quint.h"
 #include "../../Components/GuiComponents/GuiComponent.h"
 #include "../../Components/RigidbodyComponents/VehicleComponent.h"
+#include "../Colliders/BoxCollider.h"
+#include "../../Systems/Content/ContentManager.h"
+#include "../../Systems/Game.h"
 
 DefencePowerUp::DefencePowerUp() {}
 
-void DefencePowerUp::Collect() {
-    std::cout << "Defence Collected" << std::endl;
-}
 
 void DefencePowerUp::SetEntity(Entity* _entity) {
     Component::SetEntity(_entity);
@@ -28,7 +28,10 @@ void DefencePowerUp::SetEntity(Entity* _entity) {
 }
 
 void DefencePowerUp::Collect(Entity* car) {
-    PowerUp::Collect();
+    std::cout << "Defence Collected" << std::endl;
+
+    PowerUp::Collect(car);
+
     PlayerData* player = Game::Instance().GetPlayerFromEntity(car);
     VehicleComponent* vehicle = car->GetComponent<VehicleComponent>();
     vehicle->defenceMultiplier = 1.25f;
@@ -47,10 +50,6 @@ void DefencePowerUp::Collect(Entity* car) {
 
 ComponentType DefencePowerUp::GetType() {
     return ComponentType_DefencePowerUp;
-}
-
-void DefencePowerUp::HandleEvent(Event *event) {
-    return;
 }
 
 void DefencePowerUp::RenderDebugGui() {
