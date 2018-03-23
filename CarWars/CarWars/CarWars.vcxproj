@@ -314,6 +314,7 @@
     <None Include="Content\Prefabs\Components\DefencePowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\PowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\SpeedPowerUpMesh.json" />
+    <None Include="Content\Prefabs\Entities\Controls\GamepadX.json" />
     <None Include="Content\Prefabs\Entities\Game\PowerUpSpawner.json" />
     <None Include="Content\CollisionGroups\Vehicles.json" />
     <None Include="Content\Materials\Basic.json" />

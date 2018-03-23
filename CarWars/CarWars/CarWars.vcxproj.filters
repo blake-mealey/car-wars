@@ -253,5 +253,6 @@
     <None Include="Content\Prefabs\Components\PowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\DamagePowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\DefencePowerUpMesh.json" />
+    <None Include="Content\Prefabs\Entities\Controls\GamepadX.json" />
   </ItemGroup>
 </Project>

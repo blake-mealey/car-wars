@@ -1,0 +1,14 @@
+{
+    "Tag": "GamepadX",
+    "Components": [
+	    {
+		    "Type": "GUI",
+		    "Texture": "Controls/lineLight36.png",
+            "TextureColor": "Cyan",
+		    "Scale": [80, 80, 0],
+            "ScaledPosition": [0.5, 0.5],
+            "AnchorPoint": [0.5, 0.5],
+            "Enabled": false
+	    }
+    ]
+}
