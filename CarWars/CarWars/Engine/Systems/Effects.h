@@ -16,20 +16,22 @@ public:
     void Update() override;
 
     template <typename V, float Ease(float t, float b, float c, float d)>
-    TTween<V, Ease>* CreateTween(V& a_value, V a_start, V a_end, const Time a_duration, Time& clock = StateManager::globalTime) {
+    TTween<V, Ease>* CreateTween(V& a_value, V a_start, V a_end, const Time a_duration, Time& clock) {
         auto tween = new TTween<V, Ease>(a_value, a_start, a_end, a_duration, clock);
         AddTween(tween);
         return tween;
     }
 
     template <typename V, float Ease(float t, float b, float c, float d)>
-    TTween<V, Ease>* CreateTween(V a_start, V a_end, const Time a_duration, Time& clock = StateManager::globalTime) {
+    TTween<V, Ease>* CreateTween(V a_start, V a_end, const Time a_duration, Time& clock) {
         auto tween = new TTween<V, Ease>(a_start, a_end, a_duration, clock);
         AddTween(tween);
         return tween;
     }
 
     void DestroyTween(Tween* tween);
+    void DestroyTween(std::string tweenTag);
+    void DestroyTweens();
 
     Tween* FindTween(std::string tag);
 

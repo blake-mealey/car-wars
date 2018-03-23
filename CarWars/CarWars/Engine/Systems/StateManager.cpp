@@ -55,10 +55,7 @@ void StateManager::SetState(GameState state) {
         break;
     case GameState_Playing:
         if (previousState < __GameState_Menu_End) {
-            Game::Instance().InitializeGame();
-        } else if (previousState == GameState_Paused) {
-            EntityManager::DestroyEntities(EntityManager::FindEntities("PauseMenu"));
-        }
+            Game::Instance().InitializeGame();}
         break;
     case GameState_Paused:
         break;

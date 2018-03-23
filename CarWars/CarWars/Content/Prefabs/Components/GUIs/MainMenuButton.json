@@ -1,5 +1,6 @@
 {
 	"Prefab": "GUIs/MenuButton.json",
 	"ScaledPosition": [0.75, 0.5],
-	"Scale": [200, 50, 1]
+	"Scale": [200, 50, 1],
+    "Texture": "MainMenuButton.png"
 }

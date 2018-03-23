@@ -4,12 +4,12 @@
 #include "../Dependencies/PennerEasing/Quint.h"
 #include "../../Components/GuiComponents/GuiComponent.h"
 #include "../../Components/RigidbodyComponents/VehicleComponent.h"
+#include "../Colliders/BoxCollider.h"
+#include "../../Systems/Content/ContentManager.h"
+#include "../../Systems/Game.h"
 
 DefencePowerUp::DefencePowerUp() {}
 
-void DefencePowerUp::Collect() {
-    std::cout << "Defence Collected" << std::endl;
-}
 
 void DefencePowerUp::SetEntity(Entity* _entity) {
     Component::SetEntity(_entity);
@@ -28,7 +28,10 @@ void DefencePowerUp::SetEntity(Entity* _entity) {
 }
 
 void DefencePowerUp::Collect(Entity* car) {
-    PowerUp::Collect();
+    std::cout << "Defence Collected" << std::endl;
+
+    PowerUp::Collect(car);
+
     PlayerData* player = Game::Instance().GetPlayerFromEntity(car);
     VehicleComponent* vehicle = car->GetComponent<VehicleComponent>();
     vehicle->defenceMultiplier = 1.25f;
@@ -36,7 +39,7 @@ void DefencePowerUp::Collect(Entity* car) {
         Entity* guiRoot = player->camera->GetGuiRoot();
         Entity* guiEntity = EntityManager::FindFirstChild(guiRoot, "DefencePowerUp");
         GuiComponent* gui = guiEntity->GetComponent<GuiComponent>();
-        auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.25);
+        auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.25, StateManager::gameTime);
         tween->SetUpdateCallback([gui](float &value) mutable {
             gui->SetTextureOpacity(value);
             gui->transform.SetScale(glm::mix(glm::vec3(100.f, 100.f, 0.f), glm::vec3(0.f, 0.f, 0.f), value));
@@ -47,10 +50,6 @@ void DefencePowerUp::Collect(Entity* car) {
 
 ComponentType DefencePowerUp::GetType() {
     return ComponentType_DefencePowerUp;
-}
-
-void DefencePowerUp::HandleEvent(Event *event) {
-    return;
 }
 
 void DefencePowerUp::RenderDebugGui() {

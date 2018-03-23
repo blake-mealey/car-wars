@@ -7,6 +7,7 @@
 #include "../GuiEffects/OpacityEffect.h"
 
 #include "../Tweens/TTween.h"
+#include <unordered_set>
 
 class Time;
 class CameraComponent;
@@ -90,15 +91,15 @@ public:
     static GuiComponent* GetFourthGui(std::string entityTag, int playerIndex = 0);
 
 	template <float Ease(float t, float b, float c, float d)>
-	static TTween<float, Ease>* TweenOpacityRecursive(Entity* parent, const float goalOpacity, const Time duration) {
-		std::vector<GuiComponent*> guis = GetGuisRecursive(parent);
+	static TTween<float, Ease>* TweenOpacityRecursive(Entity* parent, const float goalOpacity, const Time duration, Time& clock, std::unordered_set<GuiComponent*> ignoreList = {}) {
+		std::vector<GuiComponent*> guis = GetGuisRecursive(parent, ignoreList);
 
 		std::vector<glm::vec2> starts;
 		for (GuiComponent* gui : guis) {
 			starts.push_back(glm::vec2(gui->GetFontOpacity(), gui->GetTextureOpacity()));
 		}
 
-		auto tween = Effects::Instance().CreateTween<float, Ease>(0.f, 1.f, duration);
+		auto tween = Effects::Instance().CreateTween<float, Ease>(0.f, 1.f, duration, clock);
 		tween->SetUpdateCallback([guis, starts, goalOpacity](float& value) mutable {
 			for (size_t i = 0; i < guis.size(); ++i) {
 				GuiComponent* gui = guis[i];
@@ -112,7 +113,7 @@ public:
     
 	static void SetOpacityRecursive(Entity* parent, float goalOpacity);
 
-	static std::vector<GuiComponent*> GetGuisRecursive(Entity* parent);
+	static std::vector<GuiComponent*> GetGuisRecursive(Entity* parent, std::unordered_set<GuiComponent*> ignoreList = {});
 private:
-	static void GetGuisRecursive(Entity* parent, std::vector<GuiComponent*>& guis);
+	static void GetGuisRecursive(Entity* parent, std::vector<GuiComponent*>& guis, std::unordered_set<GuiComponent*> ignoreList = {});
 };

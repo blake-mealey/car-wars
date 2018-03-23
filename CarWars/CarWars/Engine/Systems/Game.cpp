@@ -31,6 +31,11 @@ const string MapType::scenePaths[Count] = { "Maps/CircleMap.json" };
 
 const string VehicleType::displayNames[Count] = { "Heavy", "Medium", "Light" };
 const string VehicleType::prefabPaths[Count] = { "Vehicles/Sewage.json", "Vehicles/Hearse.json", "Vehicles/Flatbed.json" };
+const string VehicleType::teamTextureNames[Count][2] = {
+    { "Vehicles/Green_Sewage.png", "Vehicles/Red_Sewage.png" },
+    { "Vehicles/Green_Hearse.png", "Vehicles/Red_Hearse.png" },
+    { "Vehicles/Green_Flatbed.png", "Vehicles/Red_Flatbed.png" }
+};
 const string VehicleType::statDisplayNames[STAT_COUNT] = { "Speed", "Handling", "Armour" };
 const string VehicleType::statValues[Count][STAT_COUNT] = {
 	{ "1", "10", "100" },      // Heavy
@@ -81,6 +86,11 @@ void Game::SpawnVehicle(PlayerData& player) {
 	// Initialize their vehicle
 	player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
 	player.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(Transform::ToPx(position)));
+
+    if (gameData.gameMode == GameModeType::Team) {
+        MeshComponent* mesh = player.vehicleEntity->GetComponent<MeshComponent>();
+        mesh->SetTexture(ContentManager::GetTexture(VehicleType::teamTextureNames[player.vehicleType][player.teamIndex]));
+    }
 
 	// Initialize their turret mesh
 	Entity* turret = ContentManager::LoadEntity(WeaponType::turretPrefabPaths[player.weaponType], player.vehicleEntity);
@@ -200,9 +210,7 @@ void Game::ResetGame() {
     }
 
     // Reset ais
-    for (AiData& ai : ais) {
-        ResetPlayerData(ai);
-    }
+    ais.clear();
 
     // Reset game
     gameData.humanCount = 0;
@@ -265,7 +273,8 @@ void Game::Update() {
 			HumanData& player = humanPlayers[i];
 			if (!player.alive && StateManager::gameTime >= player.diedTime + gameData.respawnTime && player.deathCount < gameData.numberOfLives) {
 				SpawnVehicle(player);
-				GuiHelper::GetSecondGui("HealthBar", i)->transform.SetScale(glm::vec3(240.f, 20.f, 0.f));
+                GuiComponent* gui = GuiHelper::GetSecondGui("HealthBar", i);
+				gui->GetMask().SetScale(gui->transform.GetLocalScale());
 			}
 		}
 
@@ -306,19 +315,22 @@ void Game::Update() {
         // Time limit
         if (StateManager::gameTime >= gameData.timeLimit) FinishGame();
 
-        // Kill limit and lives
-        bool allDeadForever = true;
+        // Kill limit
+        for (TeamData& team : gameData.teams) {
+            if (team.killCount >= gameData.killLimit) FinishGame();
+        }
+
+        // Max lives
+        size_t deadForeverCount = 0;
         for (size_t i = 0; i < gameData.humanCount; ++i) {
             PlayerData& player = humanPlayers[i];
-            if (player.killCount >= gameData.killLimit) FinishGame();
-            if (allDeadForever && player.deathCount < gameData.numberOfLives) allDeadForever = false;
+            if (player.deathCount >= gameData.numberOfLives) deadForeverCount++;
         }
 		for (size_t i = 0; i < gameData.aiCount; ++i) {
 			PlayerData& player = ais[i];
-			if (player.killCount >= gameData.killLimit) FinishGame();
-			if (allDeadForever && player.deathCount < gameData.numberOfLives) allDeadForever = false;
+			if (player.deathCount >= gameData.numberOfLives) deadForeverCount++;
 		}
-        if (allDeadForever) FinishGame();
+        if (deadForeverCount == gameData.aiCount + gameData.humanCount - 1) FinishGame();
 	} else if (StateManager::GetState() == GameState_Paused) {
         // PAUSED
 	}

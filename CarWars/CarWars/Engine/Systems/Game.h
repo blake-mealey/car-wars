@@ -25,6 +25,7 @@ struct VehicleType {
     enum { Heavy = 0, Medium, Light, Count };
     static const std::string displayNames[Count];
     static const std::string prefabPaths[Count];
+    static const std::string teamTextureNames[Count][2];
 	static constexpr size_t STAT_COUNT = 3;
 	static const std::string statDisplayNames[STAT_COUNT];
 	static const std::string statValues[Count][STAT_COUNT];		// accel, handle, resist

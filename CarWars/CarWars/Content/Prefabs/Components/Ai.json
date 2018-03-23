@@ -1,5 +1,14 @@
 {
 	"Type": "AI",
-	"Mode": "Waypoints",
-	"Enabled": false
+  "Enabled": false,
+  "MaxDiffuculty": 10,
+  "Acceleration": 0.5,
+  "StuckTime": 2,
+  "UpdateTime": 2,
+  "StuckControl": 1.5,
+  "TargetingRange": 500,
+  "LockonRange": 400,
+  "LostTime": 1,
+  "Spray": 1.5,
+  "StoppingDistance": 100
 }

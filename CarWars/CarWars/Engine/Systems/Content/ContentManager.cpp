@@ -32,6 +32,8 @@
 #include "../../Components/PowerUpComponents/DamagePowerUp.h"
 #include "../../Components/GuiComponents/GuiComponent.h"
 #include "../../Components/LineComponent.h"
+#include "../Effects.h"
+#include "imgui/imgui.h"
 
 using namespace nlohmann;
 using namespace physx;
@@ -201,6 +203,16 @@ PxMaterial* ContentManager::GetPxMaterial(string filePath) {
     return material;
 }
 
+std::string ContentManager::GetTextureName(Texture* texture) {
+    std::string name;
+
+    for (auto it = textures.begin(); it != textures.end(); ++it) {
+        if (it->second == texture) return it->first;
+    }
+
+    return name;
+}
+
 vector<Entity*> ContentManager::LoadScene(string filePath, Entity *parent) {
 	vector<Entity*> entities;
 
@@ -220,6 +232,8 @@ vector<Entity*> ContentManager::LoadScene(string filePath, Entity *parent) {
 }
 
 vector<Entity*> ContentManager::DestroySceneAndLoadScene(string filePath, Entity* parent) {
+    Effects::Instance().DestroyTweens();
+    Physics::Instance().ClearDeleteList();
     EntityManager::DestroyScene();
     vector<Entity*> scene = LoadScene(filePath, parent);
     Graphics::Instance().SceneChanged();
@@ -432,9 +446,12 @@ glm::vec4 ContentManager::GetColorFromJson(json data, glm::vec4 defaultValue) {
     } else if (data.is_string()) {
         string name = data.get<string>();
         if (name.find("White") != string::npos)                     color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+        else if (name.find("LightGrey") != string::npos)            color = glm::vec4(224.f, 224.f, 224.f, 255.f) / 255.f;
         else if (name.find("Black") != string::npos)                color = glm::vec4(0.f, 0.f, 0.f, 1.f);
         else if (name.find("Red") != string::npos)                  color = glm::vec4(206.f, 0.f, 0.f, 255.f) / 255.f;
         else if (name.find("Green") != string::npos)                color = glm::vec4(0.f, 1.f, 0.f, 1.f);
+        else if (name.find("DarkBlue") != string::npos)             color = glm::vec4(0.f, 57.f, 75.f, 255.f) / 255.f;
+        else if (name.find("LightBlue") != string::npos)             color = glm::vec4(0.f, 106.f, 139.f, 255.f) / 255.f;
         else if (name.find("Blue") != string::npos)                 color = glm::vec4(0.f, 0.f, 1.f, 1.f);
         else if (name.find("Yellow") != string::npos)               color = glm::vec4(255.f, 233.f, 25.f, 255.f) / 255.f;
         else if (name.find("Cyan") != string::npos)                 color = glm::vec4(0.f, 1.f, 1.f, 1.f);

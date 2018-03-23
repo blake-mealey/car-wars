@@ -9,7 +9,7 @@
 				"AnchorPoint": [0.5, 0],
 				"Text": "",
 				"Font": "Starjedi.ttf",
-				"FontColor": "Yellow",
+				"FontColor": "White",
 				"FontSize": 30
 			}
 		]
@@ -24,7 +24,7 @@
 				"AnchorPoint": [0.5, 0],
 				"Text": "",
 				"Font": "Starjedi.ttf",
-				"FontColor": "Yellow",
+				"FontColor": "White",
 				"FontSize": 24
 			}
 		]
@@ -38,7 +38,6 @@
 				"ScaledPosition": [0.5, 1],
 				"AnchorPoint": [0.5, 1],
 				"Position": [0, -20, 0],
-				"SelectedFontColor": "Yellow",
 				"Selected": true
 			}
 		]
@@ -52,7 +51,7 @@
         "AnchorPoint": [ 1, 0.5 ],
         "Position": [ -150, 80, 0 ],
         "Scale": [ 15, 25, 1 ],
-        "TextureColor": "Yellow",
+        "TextureColor": "LightBlue",
         "Texture": "Menu/Arrow-Left.png",
         "Enabled": false
       },
@@ -62,7 +61,7 @@
         "AnchorPoint": [ 0, 0.5 ],
         "Position": [ 150, 80, 0 ],
         "Scale": [ 15, 25, 1 ],
-        "TextureColor": "Yellow",
+        "TextureColor": "LightBlue",
         "Texture": "Menu/Arrow-Right.png",
         "Enabled": false
       }
@@ -73,24 +72,23 @@
     "Components": [
           {
             "Type": "GUI",
-            "Position": [ -20, 0, 0 ],
+            "Scale": [40, 120, 0],
             "ScaledPosition": [ 1, 0.5 ],
             "AnchorPoint": [ 1, 0.5 ],
-            "ScaledScale": [ 0.2, 0.4 ],
-            "Texture": "DiamondPlate.jpg",
-            "UvScale": [ 1.0, 1.33 ],
+            "ScaledScale": [ 0.2, 0 ],
+            "Texture": "Menu.png",
             "Enabled": false
           },
           {
             "Type": "GUI",
-            "Position": [ -20, 10, 0 ],
-            "ScaledPosition": [ 1, 0.3 ],
+            "Position": [ -20, -35, 0 ],
+            "ScaledPosition": [ 1, 0.5 ],
             "AnchorPoint": [ 1, 0.5 ],
             "ScaledScale": [ 0.2, 0 ],
             "Scale": [ 0, 20, 1 ],
             "Text": "stats",
             "Font": "Starjedi.ttf",
-            "FontColor": "Yellow",
+            "FontColor": "White",
             "FontSize": 20,
             "Enabled": false
           }

@@ -57,12 +57,10 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 		line->SetPoint1(hitPosition);
 		auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(1.f, 0.f, 0.1, StateManager::gameTime);
 		tween->SetUpdateCallback([line, rgTurret](float& value) mutable {
-			if (StateManager::GetState() != GameState_Playing) return;
 			line->SetColor(glm::vec4(1.f, 0.f, 0.f, value));
 			line->SetPoint0(rgTurret->transform.GetGlobalPosition());
 		});
 		tween->SetFinishedCallback([bullet](float& value) mutable {
-			if (StateManager::GetState() != GameState_Playing) return;
 			EntityManager::DestroyEntity(bullet);
 		});
 		tween->Start();
@@ -75,7 +73,6 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 			auto tweenOut = Effects::Instance().CreateTween<glm::vec3, easing::Sine::easeIn>(
 				glm::vec3(134.f, 0.f, 0.f), glm::vec3(134.f, 134.f, 0.f), timeBetweenShots, StateManager::gameTime);
 			tweenOut->SetUpdateCallback([&mask](glm::vec3& value) {
-				if (StateManager::GetState() != GameState_Playing) return;
 				mask.SetScale(value);
 			});
 			tweenOut->SetTag("RailGunChargeOut" + std::to_string(player->id));
@@ -110,7 +107,6 @@ void RailGunComponent::Charge() {
 			auto tweenIn = Effects::Instance().CreateTween<glm::vec3, easing::Sine::easeOut>(
 				glm::vec3(134.f, 134.f, 0.f), glm::vec3(134.f, 0.f, 0.f), chargeTime, StateManager::gameTime);
 			tweenIn->SetUpdateCallback([&mask](glm::vec3& value) {
-				if (StateManager::GetState() != GameState_Playing) return;
 				mask.SetScale(value);
 			});
 			tweenIn->SetTag("RailGunChargeIn" + std::to_string(player->id));
@@ -147,7 +143,6 @@ void RailGunComponent::ChargeRelease() {
 		auto tweenOut = Effects::Instance().CreateTween<glm::vec3, easing::Sine::easeIn>(
 			mask.GetLocalScale(), glm::vec3(134.f, 134.f, 0.f), 0.05, StateManager::gameTime);
 		tweenOut->SetUpdateCallback([&mask](glm::vec3& value) {
-			if (StateManager::GetState() != GameState_Playing) return;
 			mask.SetScale(value);
 		});
 		tweenOut->SetTag("RailGunChargeOut" + std::to_string(player->id));

@@ -5,7 +5,8 @@
 			"Type": "GUI",
 			"AnchorPoint": [0.5, 0.5],
 			"ScaledPosition": [0.5, 0.5],
-			"Scale": [500, 330, 0]
+            "Position": [0, -20, 0],
+            "Texture": "Menu.png"
 		},
 		{
 			"Type": "GUI",
@@ -14,7 +15,7 @@
 			"Position": [0, -120, 0],
 			"Font": "Starjedi.ttf",
 			"FontSize": 64,
-			"FontColor": "Yellow",
+			"FontColor": "White",
 			"Text": "paused"
 		}
 	],
