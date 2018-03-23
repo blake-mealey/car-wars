@@ -2,15 +2,24 @@
 
 #include "../../Systems/Time.h"
 
+class GuiComponent;
 struct PlayerData;
 
 class PowerUp {
 public:
-    PowerUp(Time a_duration = 5.0);
+    explicit PowerUp(Time a_duration = 10.0);
 
     virtual void Collect(PlayerData* player);
-private:
+
+    void TweenVignette(std::string guiName) const;
+
+    void Remove();
+protected:
+    virtual void RemoveInternal() = 0;
+
     float multiplier;
+
+    PlayerData* player;
     
     Time collectedTime;
     Time duration;

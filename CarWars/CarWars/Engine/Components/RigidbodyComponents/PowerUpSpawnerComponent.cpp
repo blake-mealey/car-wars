@@ -50,6 +50,8 @@ void PowerUpSpawnerComponent::Respawn() {
     case Defence:
         activePowerUp = new DefencePowerUp();
         break;
+    default:
+        return;
     }
 
     powerUpMesh = ContentManager::LoadComponent<MeshComponent>("PowerUpMesh.json");

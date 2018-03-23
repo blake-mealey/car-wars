@@ -279,7 +279,7 @@ Component* ContentManager::LoadComponent(json data) {
     // Load the component from the data
     Component *component = nullptr;
     bool supportedType = true;
-    string type = data["Type"];
+    const string type = data["Type"];
     if (type == "Mesh") component = new MeshComponent(data);
     else if (type == "Camera") component = new CameraComponent(data);
     else if (type == "PointLight") component = new PointLightComponent(data);

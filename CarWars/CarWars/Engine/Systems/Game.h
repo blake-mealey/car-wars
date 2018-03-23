@@ -52,7 +52,7 @@ struct TeamData {
 struct PlayerData {
     PlayerData(int _vehicleType = VehicleType::Heavy, int _weaponType = WeaponType::MachineGun) :
         name(""), vehicleType(_vehicleType), weaponType(_weaponType),
-        alive(false), vehicleEntity(nullptr), cameraEntity(nullptr), camera(nullptr),
+        alive(false), vehicleEntity(nullptr),
         teamIndex(0), killCount(0), deathCount(0), activePowerUp(nullptr) {
 	
 		static int nextId = 0;
@@ -69,8 +69,6 @@ struct PlayerData {
 	Time diedTime;
     bool alive;
     Entity* vehicleEntity;
-    Entity* cameraEntity;
-    CameraComponent* camera;
 
     // Gamemode state
 	std::string name;
@@ -87,10 +85,12 @@ struct PlayerData {
 };
 
 struct HumanData : PlayerData {
-    HumanData() : PlayerData(), ready(false) {}
+    HumanData() : PlayerData(), ready(false), cameraEntity(nullptr), camera(nullptr) {}
 
 	// Menu state
     bool ready;
+    Entity* cameraEntity;
+    CameraComponent* camera;
 };
 
 struct AiData : PlayerData {

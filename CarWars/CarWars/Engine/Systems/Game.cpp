@@ -291,6 +291,13 @@ void Game::Update() {
             spawner->Respawn();
         }
 
+        // Remove powerups from players
+        for (size_t i = 0; i < gameData.humanCount; ++i) {
+            HumanData& player = humanPlayers[i];
+            if (player.activePowerUp) player.activePowerUp->Remove();
+        }
+        for (AiData& player : ais) if (player.activePowerUp) player.activePowerUp->Remove();
+
         // ---------------
         // Gamemode update
         // ---------------
