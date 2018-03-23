@@ -36,6 +36,8 @@ public:
 	static Material* GetMaterial(nlohmann::json data);
 	static physx::PxMaterial* GetPxMaterial(std::string filePath);
 
+    static std::string GetTextureName(Texture* texture);
+
 	static std::vector<Entity*> LoadScene(std::string filePath, Entity *parent=nullptr);
     static std::vector<Entity*> DestroySceneAndLoadScene(std::string filePath, Entity *parent = nullptr);
 

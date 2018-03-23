@@ -30,6 +30,7 @@
 #include "../../Components/GuiComponents/GuiComponent.h"
 #include "../../Components/LineComponent.h"
 #include "../Effects.h"
+#include "imgui/imgui.h"
 
 using namespace nlohmann;
 using namespace physx;
@@ -199,6 +200,16 @@ PxMaterial* ContentManager::GetPxMaterial(string filePath) {
     return material;
 }
 
+std::string ContentManager::GetTextureName(Texture* texture) {
+    std::string name;
+
+    for (auto it = textures.begin(); it != textures.end(); ++it) {
+        if (it->second == texture) return it->first;
+    }
+
+    return name;
+}
+
 vector<Entity*> ContentManager::LoadScene(string filePath, Entity *parent) {
 	vector<Entity*> entities;
 
@@ -219,6 +230,7 @@ vector<Entity*> ContentManager::LoadScene(string filePath, Entity *parent) {
 
 vector<Entity*> ContentManager::DestroySceneAndLoadScene(string filePath, Entity* parent) {
     Effects::Instance().DestroyTweens();
+    Physics::Instance().ClearDeleteList();
     EntityManager::DestroyScene();
     vector<Entity*> scene = LoadScene(filePath, parent);
     Graphics::Instance().SceneChanged();

@@ -511,7 +511,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
             Tween* oldTween = Effects::Instance().FindTween(tweenTag);
             if (oldTween) Effects::Instance().DestroyTween(oldTween);
             const glm::vec3 start = gui->transform.GetLocalScale();
-            const glm::vec3 end = glm::vec3(240.f * healthPercent, 20.f, 0.f);
+            const glm::vec3 end = glm::vec3(252.f * healthPercent, 32.f, 0.f);
             auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Quint::easeOut>(start, end, 0.1, StateManager::gameTime);
             tween->SetTag(tweenTag);
             tween->SetUpdateCallback([gui](glm::vec3& value) mutable {

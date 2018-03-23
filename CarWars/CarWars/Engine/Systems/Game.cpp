@@ -273,7 +273,7 @@ void Game::Update() {
 			HumanData& player = humanPlayers[i];
 			if (!player.alive && StateManager::gameTime >= player.diedTime + gameData.respawnTime && player.deathCount < gameData.numberOfLives) {
 				SpawnVehicle(player);
-				GuiHelper::GetSecondGui("HealthBar", i)->transform.SetScale(glm::vec3(240.f, 20.f, 0.f));
+				GuiHelper::GetSecondGui("HealthBar", i)->transform.SetScale(glm::vec3(252.f, 32.f, 0.f));
 			}
 		}
 

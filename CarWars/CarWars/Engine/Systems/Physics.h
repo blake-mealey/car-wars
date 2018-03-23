@@ -26,6 +26,8 @@ public:
 
 	void AddToDelete(Entity* _entity);
 
+    void ClearDeleteList();
+
 private:
 	// No instantiation or copying
 	Physics();
