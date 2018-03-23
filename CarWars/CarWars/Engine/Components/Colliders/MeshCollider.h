@@ -9,7 +9,7 @@ class MeshCollider : public Collider {
 public:
     ~MeshCollider() override;
     MeshCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, bool _isTrigger, Mesh *_mesh);
-    MeshCollider(nlohmann::json data);
+    MeshCollider(nlohmann::json data, Mesh* heightmap = nullptr);
 
     ColliderType GetType() const override;
 

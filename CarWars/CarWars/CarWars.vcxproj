@@ -172,6 +172,8 @@
     <ClCompile Include="Engine\Components\LineComponent.cpp" />
     <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.cpp" />
+    <ClCompile Include="Engine\Systems\Content\HeightMap.cpp" />
+    <ClCompile Include="Engine\Systems\Content\Picture.cpp" />
     <ClCompile Include="Engine\Systems\Effects.cpp" />
     <ClCompile Include="Engine\Components\MeshComponent.cpp" />
     <ClCompile Include="Engine\Components\PointLightComponent.cpp" />
@@ -253,6 +255,8 @@
     <ClInclude Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.h" />
     <ClInclude Include="Engine\Components\Tweens\TTween.h" />
     <ClInclude Include="Engine\Components\Tweens\Tween.h" />
+    <ClInclude Include="Engine\Systems\Content\HeightMap.h" />
+    <ClInclude Include="Engine\Systems\Content\Picture.h" />
     <ClInclude Include="Engine\Systems\Effects.h" />
     <ClInclude Include="Engine\Components\MeshComponent.h" />
     <ClInclude Include="Engine\Components\PointLightComponent.h" />
@@ -370,6 +374,7 @@
     <None Include="Content\Scenes\GUIs\OptionsMenu_GUI.json" />
     <None Include="Content\Scenes\GUIs\StartMenu_GUI.json" />
     <None Include="Content\Scenes\MainMenu.json" />
+    <None Include="Content\Scenes\Maps\HeightMap.json" />
     <None Include="Content\Scenes\Menu.json" />
     <None Include="Content\Scenes\PhysicsDemo.json" />
     <None Include="Content\Shaders\blur.frag" />
@@ -392,6 +397,7 @@
     <Media Include="Content\Sounds\powerup.mp3" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Content\Scenes\Maps\arena.png" />
     <Image Include="Content\Textures\HUD\health-vignette.png" />
     <Image Include="Content\Textures\HUD\shield-vignette-blue.png" />
     <Image Include="Content\Textures\HUD\shield-vignette.png" />

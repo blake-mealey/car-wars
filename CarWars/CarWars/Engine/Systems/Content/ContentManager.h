@@ -7,11 +7,13 @@
 #include "Material.h"
 #include "json/json.hpp"
 #include "../../Entities/Entity.h"
+#include "../Content/HeightMap.h"
 
 struct Texture;
 
 class ContentManager {
 public:
+	static HeightMap* heightmap;
 	static const std::string CONTENT_DIR_PATH;
 
 	static const std::string MESH_DIR_PATH;
@@ -65,7 +67,7 @@ public:
 
     template <class T>
     static T* LoadComponent(nlohmann::json data);
-	static Component* LoadComponent(nlohmann::json data);
+	static Component* LoadComponent(nlohmann::json data, Mesh* heightmap = nullptr);
 	static Entity* LoadEntity(nlohmann::json data, Entity *parent=nullptr);
 
 private:

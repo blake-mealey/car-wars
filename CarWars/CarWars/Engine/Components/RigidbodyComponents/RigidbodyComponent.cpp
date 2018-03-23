@@ -21,20 +21,29 @@ RigidbodyComponent::~RigidbodyComponent() {
 
 RigidbodyComponent::RigidbodyComponent() : pxRigid(nullptr), blocksNavigationMesh(true) {}
 
-RigidbodyComponent::RigidbodyComponent(nlohmann::json data) : RigidbodyComponent() {
-    blocksNavigationMesh = ContentManager::GetFromJson<bool>(data["BlocksNavMesh"], true);
+RigidbodyComponent::RigidbodyComponent(nlohmann::json data, Mesh* heightmap) : RigidbodyComponent() {
+	blocksNavigationMesh = ContentManager::GetFromJson<bool>(data["BlocksNavMesh"], true);
+	if (heightmap == nullptr) {
+		for (nlohmann::json colliderData : data["Colliders"]) {
+			std::string type = colliderData["Type"];
+			Collider *collider = nullptr;
 
-    for (nlohmann::json colliderData : data["Colliders"]) {
-        std::string type = colliderData["Type"];
-        Collider *collider = nullptr;
-        
-        if (type == "Box") collider = new BoxCollider(colliderData);
-        else if (type == "ConvexMesh") collider = new ConvexMeshCollider(colliderData);
-        else if (type == "Mesh") collider = new MeshCollider(colliderData);
-		else if (type == "Sphere") collider = new SphereCollider(colliderData);
-        
-        if (collider) AddCollider(collider);
-    }
+			if (type == "Box") collider = new BoxCollider(colliderData);
+			else if (type == "ConvexMesh") collider = new ConvexMeshCollider(colliderData);
+			else if (type == "Mesh") collider = new MeshCollider(colliderData);
+			else if (type == "Sphere") collider = new SphereCollider(colliderData);
+
+			if (collider) AddCollider(collider);
+		}
+	}
+	else {
+		for (nlohmann::json colliderData : data["Colliders"]) {
+			//std::string type = colliderData["Type"];
+			Collider *collider = nullptr;
+			collider = new MeshCollider(colliderData, heightmap);
+			if (collider) AddCollider(collider);
+		}
+	}
 }
 
 void RigidbodyComponent::AddCollider(Collider* collider) {

@@ -49,6 +49,7 @@ map<string, Texture*> ContentManager::textures;
 map<string, Material*> ContentManager::materials;
 map<string, PxMaterial*> ContentManager::pxMaterials;
 GLuint ContentManager::skyboxCubemap;
+HeightMap* ContentManager::heightmap = nullptr;
 
 const string ContentManager::CONTENT_DIR_PATH = "./Content/";
 
@@ -241,7 +242,7 @@ vector<Entity*> ContentManager::DestroySceneAndLoadScene(string filePath, Entity
     return scene;
 }
 
-Component* ContentManager::LoadComponent(json data) {
+Component* ContentManager::LoadComponent(json data, Mesh* heightmap) {
     // Get the top-level file path if applicable
     const bool fromFile = data.is_string();
     bool dataComplete = false;
@@ -280,12 +281,12 @@ Component* ContentManager::LoadComponent(json data) {
     Component *component = nullptr;
     bool supportedType = true;
     const string type = data["Type"];
-    if (type == "Mesh") component = new MeshComponent(data);
+    if (type == "Mesh") component = new MeshComponent(data, heightmap);
     else if (type == "Camera") component = new CameraComponent(data);
     else if (type == "PointLight") component = new PointLightComponent(data);
     else if (type == "DirectionLight") component = new DirectionLightComponent(data);
     else if (type == "SpotLight") component = new SpotLightComponent(data);
-    else if (type == "RigidStatic") component = new RigidStaticComponent(data);
+    else if (type == "RigidStatic") component = new RigidStaticComponent(data, heightmap);
     else if (type == "RigidDynamic") component = new RigidDynamicComponent(data);
     else if (type == "Vehicle") component = new VehicleComponent(data);
 	else if (type == "MachineGun") component = new MachineGunComponent();
@@ -346,13 +347,24 @@ Entity* ContentManager::LoadEntity(json data, Entity *parent) {
     if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);
     entity->transform = Transform(data);
     if (parent) entity->transform.parent = &parent->transform;
-
-    for (const auto componentData : data["Components"]) {
-        Component *component = LoadComponent(componentData);
-        if (component != nullptr) {
-            EntityManager::AddComponent(entity, component);
-        }
-    }
+	if (ContentManager::GetFromJson<bool>(data["HeightMap"], false)) { 
+		heightmap = new HeightMap(data);
+		Mesh* m = heightmap->CreateMesh();
+		for (const auto componentData : data["Components"]) {
+			Component *component = LoadComponent(componentData, m);
+			if (component != nullptr) {
+				EntityManager::AddComponent(entity, component);
+			}
+		}
+	}
+	else {
+		for (const auto componentData : data["Components"]) {
+			Component *component = LoadComponent(componentData);
+			if (component != nullptr) {
+				EntityManager::AddComponent(entity, component);
+			}
+		}
+	}
 
     json children = data["Children"];
     if (children.is_array()) {

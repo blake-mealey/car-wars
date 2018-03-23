@@ -4,7 +4,7 @@
 
 class RigidStaticComponent : public RigidbodyComponent {
 public:
-    RigidStaticComponent(nlohmann::json data);
+    RigidStaticComponent(nlohmann::json data, Mesh* heightmap = nullptr);
 
     ComponentType GetType() override;
     void HandleEvent(Event *event) override;

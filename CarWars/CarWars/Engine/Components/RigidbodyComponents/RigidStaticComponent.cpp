@@ -1,7 +1,7 @@
 #include "RigidStaticComponent.h"
 #include "../../Systems/Physics.h"
 
-RigidStaticComponent::RigidStaticComponent(nlohmann::json data) : RigidbodyComponent(data) {
+RigidStaticComponent::RigidStaticComponent(nlohmann::json data, Mesh* heightmap) : RigidbodyComponent(data, heightmap) {
     RigidStaticComponent::InitializeRigidbody();
 }
 
