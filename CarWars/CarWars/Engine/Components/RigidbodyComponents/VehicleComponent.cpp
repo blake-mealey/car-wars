@@ -48,9 +48,11 @@ VehicleComponent::VehicleComponent(nlohmann::json data) : RigidDynamicComponent(
     wheelCount = ContentManager::GetFromJson<size_t>(data["WheelCount"], 4);
 
 	boostPower = ContentManager::GetFromJson<float>(data["BoostPower"], 10.f);
-	boostCooldown = Time(ContentManager::GetFromJson<float>(data["BoostCooldown"], 5.f));
 
-    // Load any axle data present in data file
+	boostCooldown = Time(ContentManager::GetFromJson<float>(data["BoostCooldown"], 5.f));
+	lastBoost = Time(-boostCooldown.GetSeconds());
+    
+	// Load any axle data present in data file
     for (nlohmann::json axle : data["Axles"]) {
         axleData.push_back(AxleData(
             ContentManager::GetFromJson<float>(axle["CenterOffset"], 0.f),
@@ -66,6 +68,7 @@ VehicleComponent::VehicleComponent(size_t _wheelCount, bool _inputTypeDigital) :
     wheelMass(20.f), wheelRadius(0.5f), wheelWidth(0.4f), wheelCount(_wheelCount), boostPower(10.f) {
 
 	boostCooldown = Time(5.f);
+	lastBoost = Time(-boostCooldown.GetSeconds());
     wheelMeshPrefab = new MeshComponent("Boulder.obj", "Basic.json", "Boulder.jpg");
 
     Initialize();
@@ -620,26 +623,31 @@ void VehicleComponent::Boost(glm::vec3 boostDir) {
 	if (GetTimeSinceBoost() > boostCooldown && boostDir != glm::vec3(0)) {
 		pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(glm::normalize(boostDir) * boostPower * GetChassisMass()), PxForceMode::eIMPULSE, true);
 		lastBoost = StateManager::gameTime;
+
+		HumanData* player = Game::GetHumanFromEntity(GetEntity());
+		if (player) {
+			Entity* bar = EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "BoostBar");
+
+			GuiComponent* boostBar = GuiHelper::GetSecondGui(bar);
+
+			float emptyTime = 1.f;
+			auto tweenEmpty = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(1.f, 0.01f, emptyTime, StateManager::gameTime);
+			tweenEmpty->SetUpdateCallback([boostBar](float &value) mutable {
+				boostBar->transform.SetScale(glm::vec3(240.f * value, 10.f, 0.f));
+			});
+
+			auto tweenFill = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(0.01f, 1.f, boostCooldown.GetSeconds() - emptyTime, StateManager::gameTime);
+			tweenFill->SetUpdateCallback([boostBar](float &value) mutable {
+				boostBar->transform.SetScale(glm::vec3(240.f * value, 10.f, 0.f));
+			});
+			tweenEmpty->SetNext(tweenFill);
+			tweenEmpty->Start();
+
+			//play boost sound
+		}
 	}
-
-	HumanData* player = Game::GetHumanFromEntity(GetEntity());
-	if (player) {
-		Entity* bar = EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "BoostBar");
-
-		GuiComponent* gui = GuiHelper::GetSecondGui(bar);
-
-		auto tween1 = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(1.f, 0.f, 0.05, StateManager::gameTime);
-		tween1->SetUpdateCallback([gui](float &value) mutable {
-			gui->transform.SetScale(glm::vec3(240.f * value, 10.f, 0.f));
-		});
-		
-		auto tween2 = Effects::Instance().CreateTween<float, easing::Linear::easeOut>(0.f, 1.f, boostCooldown.GetSeconds() - 0.05, StateManager::gameTime);
-		tween2->SetUpdateCallback([gui](float &value) mutable {
-			gui->transform.SetScale(glm::vec3(240.f * value, 10.f, 0.f));
-		});
-
-		tween1->SetNext(tween2);
-		tween1->Start();
+	else {
+	//uable to boost sound??	
 	}
 }
 
