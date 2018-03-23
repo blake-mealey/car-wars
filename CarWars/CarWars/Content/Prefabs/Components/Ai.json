@@ -1,6 +1,6 @@
 {
   "Type": "AI",
-  "Enabled": false,
+  "Enabled": true,
   "MaxDiffuculty": 10,
   "Acceleration": 0.5,
   "StuckTime": 2,

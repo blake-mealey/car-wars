@@ -86,12 +86,10 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		line->SetPoint1(hitPosition);
 		auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(1.f, 0.f, timeBetweenShots*0.5, StateManager::gameTime);
 		tween->SetUpdateCallback([line, mgTurret](float& value) mutable {
-			if (StateManager::GetState() != GameState_Playing) return;
 			line->SetColor(glm::vec4(1.f, 1.f, 1.f, value));
 			line->SetPoint0(mgTurret->transform.GetGlobalPosition());
 		});
 		tween->SetFinishedCallback([bullet](float& value) mutable {
-			if (StateManager::GetState() != GameState_Playing) return;
 			EntityManager::DestroyEntity(bullet);
 		});
 		tween->Start();

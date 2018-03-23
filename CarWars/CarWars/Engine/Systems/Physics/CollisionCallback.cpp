@@ -25,13 +25,11 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
             
             auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.5, StateManager::gameTime);
             tween->SetUpdateCallback([mesh, mat, explosionRadius](float& value) mutable {
-                if (StateManager::GetState() != GameState_Playing) return;
                 mesh->transform.SetScale(glm::mix(glm::vec3(0.f), glm::vec3(explosionRadius*0.5f), value));
                 mat->diffuseColor = glm::mix(glm::vec4(1.f, 0.f, 0.f, 1.f), glm::vec4(1.f, 0.f, 0.f, 0.f), value);
                 mat->specularColor = glm::mix(glm::vec4(1.f, 0.f, 0.f, 1.f), glm::vec4(1.f, 0.f, 0.f, 0.f), value);
             });
             tween->SetFinishedCallback([explosionEffect](float& value) mutable {
-                if (StateManager::GetState() != GameState_Playing) return;
                 EntityManager::DestroyEntity(explosionEffect);
             });
             tween->Start();

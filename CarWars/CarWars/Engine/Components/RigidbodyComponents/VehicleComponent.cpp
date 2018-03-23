@@ -490,7 +490,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
             auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeIn>(0.f, 1.f, 1.0, StateManager::gameTime);
             tween->SetTag(tweenTag);
             tween->SetUpdateCallback([gui, myPlayer, attacker](float& value) mutable {
-                if (StateManager::GetState() != GameState_Playing || !myPlayer->alive || !attacker->alive) return;
+                if (!myPlayer->alive || !attacker->alive) return;
                 const glm::vec3 cameraPos = myPlayer->camera->GetPosition();
                 const glm::vec3 cameraForward = normalize(Transform::ProjectVectorOnPlane(myPlayer->camera->GetForward(), Transform::UP));
                 const glm::vec3 cameraRight = normalize(Transform::ProjectVectorOnPlane(myPlayer->camera->GetRight(), Transform::UP));
@@ -508,15 +508,15 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
             GuiComponent* gui = GuiHelper::GetSecondGui(entity);
 
             const std::string tweenTag = "HealthBar" + std::to_string(myPlayer->id);
-            Tween* oldTween = Effects::Instance().FindTween(tweenTag);
-            if (oldTween) Effects::Instance().DestroyTween(oldTween);
-            const glm::vec3 start = gui->transform.GetLocalScale();
-            const glm::vec3 end = glm::vec3(252.f * healthPercent, 32.f, 0.f);
+            Effects::Instance().DestroyTween(tweenTag);
+            
+            Transform& mask = gui->GetMask();
+            const glm::vec3 start = mask.GetLocalScale();
+            const glm::vec3 end = gui->transform.GetLocalScale() * glm::vec3(healthPercent, 1.f, 1.f);
             auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Quint::easeOut>(start, end, 0.1, StateManager::gameTime);
             tween->SetTag(tweenTag);
-            tween->SetUpdateCallback([gui](glm::vec3& value) mutable {
-				if (StateManager::GetState() != GameState_Playing) return;
-                gui->transform.SetScale(value);
+            tween->SetUpdateCallback([&mask](glm::vec3& value) mutable {
+                mask.SetScale(value);
             });
             tween->Start();
         }
@@ -570,7 +570,6 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
             auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.5, StateManager::gameTime);
             tween->SetTag(tweenTag);
             tween->SetUpdateCallback([rows, maxCount](float& value) mutable {
-                if (StateManager::GetState() != GameState_Playing) return;
                 for (int j = 0; j < rows.size(); ++j) {
                     Entity* row = rows[j];
 
@@ -592,7 +591,6 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
 
             if (rows.size() >= maxCount) {
                 tween->SetFinishedCallback([rows, maxCount](float& value) mutable {
-                    if (StateManager::GetState() != GameState_Playing) return;
                     for (size_t i = 0; i < rows.size() - maxCount; ++i) {
                         EntityManager::DestroyEntity(rows[i]);
                     }
@@ -629,16 +627,22 @@ void VehicleComponent::Boost(glm::vec3 boostDir) {
 			Entity* bar = EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "BoostBar");
 
 			GuiComponent* boostBar = GuiHelper::GetSecondGui(bar);
+            Transform& mask = boostBar->GetMask();
 
-			float emptyTime = 1.f;
-			auto tweenEmpty = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(1.f, 0.01f, emptyTime, StateManager::gameTime);
-			tweenEmpty->SetUpdateCallback([boostBar](float &value) mutable {
-				boostBar->transform.SetScale(glm::vec3(240.f * value, 10.f, 0.f));
+			const Time emptyTime = 1.0;
+
+            const glm::vec3 emptyStart = mask.GetLocalScale();
+            const glm::vec3 emptyEnd = boostBar->transform.GetLocalScale() * glm::vec3(0.f, 1.f, 1.f);
+			auto tweenEmpty = Effects::Instance().CreateTween<glm::vec3, easing::Quint::easeOut>(emptyStart, emptyEnd, emptyTime, StateManager::gameTime);
+			tweenEmpty->SetUpdateCallback([&mask](glm::vec3 &value) mutable {
+                mask.SetScale(value);
 			});
 
-			auto tweenFill = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(0.01f, 1.f, boostCooldown.GetSeconds() - emptyTime, StateManager::gameTime);
-			tweenFill->SetUpdateCallback([boostBar](float &value) mutable {
-				boostBar->transform.SetScale(glm::vec3(240.f * value, 10.f, 0.f));
+            const glm::vec3 fillStart = emptyEnd;
+            const glm::vec3 fillEnd = boostBar->transform.GetLocalScale();
+            auto tweenFill = Effects::Instance().CreateTween<glm::vec3, easing::Linear::easeNone>(fillStart, fillEnd , boostCooldown - emptyTime, StateManager::gameTime);
+			tweenFill->SetUpdateCallback([&mask](glm::vec3 &value) mutable {
+                mask.SetScale(value);
 			});
 			tweenEmpty->SetNext(tweenFill);
 			tweenEmpty->Start();
