@@ -665,3 +665,7 @@ void VehicleComponent::Handbrake( float amount) {
 Time VehicleComponent::GetTimeSinceBoost() {
 	return StateManager::gameTime - lastBoost;
 }
+
+void VehicleComponent::PoweredUp() {
+
+}

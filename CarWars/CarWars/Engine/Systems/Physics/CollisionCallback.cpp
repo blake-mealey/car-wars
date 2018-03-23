@@ -42,9 +42,12 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 			std::cout << "Missile Inside Owner - Do Not Explode" << std::endl;
 		} else {
 			//Explode
+            const char *explosionSound = "Content/Sounds/explosion.mp3";
+            glm::vec3 pos = _actor0->transform.GetGlobalPosition();
+            std::cout << to_string(pos) << std::endl;
 			float explosionRadius = _actor0->GetComponent<MissileComponent>()->GetExplosionRadius();
-            Audio::Instance().PlayAudio2D("Content/Sounds/explosion.mp3"); // TODO: is this the best place for this?
-
+            Audio::Instance().PlayAudio2D(explosionSound); // TODO: is this the best place for this?
+            //Audio::Instance().PlayAudio3D(explosionSound, pos, glm::vec3(0.f, 0.f, 0.f));
             Entity* explosionEffect = ContentManager::LoadEntity("ExplosionEffect.json");
             explosionEffect->transform.SetPosition(_actor0->transform.GetGlobalPosition());
             MeshComponent* mesh = explosionEffect->GetComponent<MeshComponent>();

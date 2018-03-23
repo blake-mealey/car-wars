@@ -206,7 +206,7 @@ void CreateLeaderboardMenu(Entity* leaderboard, int playerIndex) {
 void InputManager::NavigateGuis(GuiNavData navData) {
     // If there was no navigation, do nothing
     if (!navData.Valid()) return;
-    Audio::Instance().PlayAudio("Content/Sounds/menu/eshop.wav");
+    Audio::Instance().PlayAudio("Content/Sounds/menu/eshop.wav", 0.1f);
 	// Normalize directional inputs
 	navData.NormalizeInputs();
 

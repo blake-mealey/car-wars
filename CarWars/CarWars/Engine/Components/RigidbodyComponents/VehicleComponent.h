@@ -64,8 +64,11 @@ public:
 	void Steer( float amount);
 	void Handbrake( float amount);
 
+    void PoweredUp();
+
 	Time GetTimeSinceBoost();
 private:
+    Time powerUpLife;
 	Time lastBoost;
     MeshComponent* wheelMeshPrefab;
     std::vector<MeshComponent*> wheelMeshes;
