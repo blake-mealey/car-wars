@@ -2,6 +2,7 @@
 
 #include "../Component.h"
 #include "../../Systems/Game.h"
+#include "../../Systems/Audio.h"
 #include "../../Entities/EntityManager.h"
 #include "../../Components/CameraComponent.h"
 #include "../../Components/GuiComponents/GuiHelper.h"
@@ -19,6 +20,8 @@ RailGunComponent::RailGunComponent() : WeaponComponent(1150.0f) {}
 
 void RailGunComponent::Shoot(glm::vec3 position) {
 	if (StateManager::gameTime.GetSeconds() >= nextShotTime.GetSeconds()) {
+        Audio::Instance().PlayAudio2D("Content/Sounds/railgun-shoot.mp3");
+
 		//Get Vehicle
 		Entity* vehicle = GetEntity();
 		Entity* rgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
