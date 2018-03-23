@@ -10,7 +10,7 @@
 #include "../PowerUpComponents/DamagePowerUp.h"
 
 PowerUpSpawnerComponent::PowerUpSpawnerComponent(nlohmann::json data): RigidStaticComponent(data) {
-    respawnDuration = ContentManager::GetFromJson<double>(data["RespawnDuration"], 3.0);
+    respawnDuration = ContentManager::GetFromJson<double>(data["RespawnDuration"], 5.0);
     powerUpType = ContentManager::GetFromJson<int>(data["PowerUpType"], -1);
     activePowerUp = nullptr;
     powerUpMesh = nullptr;
@@ -43,18 +43,23 @@ void PowerUpSpawnerComponent::Respawn() {
     switch (type) {
     case Speed:
         activePowerUp = new SpeedPowerUp();
+        powerUpMesh = ContentManager::LoadComponent<MeshComponent>("SpeedPowerUpMesh.json");
+        GetEntity()->GetComponent<PointLightComponent>()->SetColor(glm::vec4(1.f, 1.f, 0.f, 1.f));
         break;
     case Damage:
         activePowerUp = new DamagePowerUp();
+        powerUpMesh = ContentManager::LoadComponent<MeshComponent>("DamagePowerUpMesh.json");
+        GetEntity()->GetComponent<PointLightComponent>()->SetColor(glm::vec4(1.f, 0.f, 0.f, 1.f));
         break;
     case Defence:
         activePowerUp = new DefencePowerUp();
+        powerUpMesh = ContentManager::LoadComponent<MeshComponent>("DefencePowerUpMesh.json");
+        GetEntity()->GetComponent<PointLightComponent>()->SetColor(glm::vec4(0.f, 1.f, 1.f, 1.f));
         break;
     default:
         return;
     }
 
-    powerUpMesh = ContentManager::LoadComponent<MeshComponent>("PowerUpMesh.json");
     EntityManager::AddComponent(GetEntity(), powerUpMesh);
 }
 
@@ -68,4 +73,6 @@ void PowerUpSpawnerComponent::Collect(VehicleComponent* vehicle) {
     activePowerUp->Collect(player);
     activePowerUp = nullptr;
     EntityManager::DestroyComponent(powerUpMesh);
+
+    GetEntity()->GetComponent<PointLightComponent>()->SetColor(glm::vec4(1.f));
 }

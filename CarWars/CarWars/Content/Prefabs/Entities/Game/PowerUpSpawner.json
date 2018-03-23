@@ -1,23 +1,27 @@
 {
 	"Tag": "PowerUpSpawner",
-	"Scale": [3, 3, 3],
     "Components": [
 	    {
 		    "Type": "PowerUpSpawner",
             "Colliders": [
 	            {
 		            "Type": "Box",
-                    "CollisionGroup": "Obstacles",
-                    "IsTrigger": true
+		            "Scale": [3, 3, 3],
+		            "IsTrigger": true,
+                    "CollisionGroup": "Obstacles"
 	            }
             ]
 	    },
 	    {
 		    "Type": "Mesh",
             "Mesh": "Cube.obj",
-            "Scale": [0.5, 0.5, 0.5],
             "Material": "Basic.json",
             "Enabled": false
+	    },
+	    {
+		    "Type": "PointLight",
+		    "Color": "White",
+		    "Power": 10
 	    }
     ]
 }

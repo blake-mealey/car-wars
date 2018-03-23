@@ -33,3 +33,7 @@ void PointLightComponent::RenderDebugGui() {
     ImGui::DragFloat("Power", &power);
     ImGui::ColorEdit3("Colour", glm::value_ptr(color));
 }
+
+void PointLightComponent::SetColor(glm::vec4 _color) {
+    color = _color;
+}

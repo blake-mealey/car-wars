@@ -1,5 +1,4 @@
 {
 	"Type": "Mesh",
-    "Mesh": "Sphere.obj",
-    "Material": "Basic.json"
+	"Mesh": "Sphere.obj"
 }

@@ -177,13 +177,7 @@
     <None Include="Content\Materials\CyanShiny.json" />
     <None Include="Content\Materials\PinkShiny.json" />
     <None Include="Content\Materials\YellowShiny.json" />
-    <None Include="Content\Prefabs\Components\DamagePowerUp.json" />
-    <None Include="Content\Prefabs\Components\DefencePowerUp.json" />
-    <None Include="Content\Prefabs\Components\SpeedPowerUp.json" />
-    <None Include="Content\Prefabs\Entities\DamagePowerUp.json" />
-    <None Include="Content\Prefabs\Entities\DefencePowerUp.json" />
     <None Include="Content\Prefabs\Entities\Game\PowerUpSpawner.json" />
-    <None Include="Content\Prefabs\Entities\SpeedPowerUp.json" />
     <None Include="Content\CollisionGroups\Vehicles.json" />
     <None Include="Content\Materials\Basic.json" />
     <None Include="Content\Materials\BlueShiny.json" />
@@ -255,6 +249,9 @@
     <None Include="Content\Shaders\shadowMap.vert" />
     <None Include="Content\Shaders\skybox.frag" />
     <None Include="Content\Shaders\skybox.vert" />
+    <None Include="Content\Prefabs\Components\SpeedPowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\PowerUpMesh.json" />
+    <None Include="Content\Prefabs\Components\DamagePowerUpMesh.json" />
+    <None Include="Content\Prefabs\Components\DefencePowerUpMesh.json" />
   </ItemGroup>
 </Project>

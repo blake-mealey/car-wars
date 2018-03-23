@@ -24,18 +24,14 @@
       }
     ]
   },
-	{
-		"Prefab": "Game/PowerUpSpawner.json",
-        "Position": [0, 2, 20]
-	},
  {
-        "Prefab": "DamagePowerUp.json",
+        "Prefab": "Game/PowerUpSpawner.json",
 	    "Position": [ -50, 2, -20 ]
     }, {
-        "Prefab": "DefencePowerUp.json",
+        "Prefab": "Game/PowerUpSpawner.json",
 	    "Position": [ -40, 2, -10 ]
     },{
-        "Prefab": "SpeedPowerUp.json",
+        "Prefab": "Game/PowerUpSpawner.json",
 	    "Position": [ -60, 2, -30 ]
     },
     {

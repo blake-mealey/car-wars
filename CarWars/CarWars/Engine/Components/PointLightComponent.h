@@ -18,6 +18,7 @@ public:
 	void HandleEvent(Event* event) override;
 
     void RenderDebugGui() override;
+    void SetColor(glm::vec4 _color);
 private:
 	glm::vec3 color;
 	float power;
