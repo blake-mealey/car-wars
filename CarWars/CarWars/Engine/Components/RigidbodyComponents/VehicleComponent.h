@@ -52,7 +52,7 @@ public:
 
     void RenderDebugGui() override;
 
-    float speedMutliplier = 1.f;
+    float speedMultiplier = 1.f;
     float defenceMultiplier = 1.f;
 	void TakeDamage(WeaponComponent* damager, float damage) override;
 	float GetHealth();
@@ -64,12 +64,15 @@ public:
 	void Steer( float amount);
 	void Handbrake( float amount);
 
+    void PoweredUp();
+
 	Time GetTimeSinceBoost();
 
     void OnContact(RigidbodyComponent* body) override;
     void OnTrigger(RigidbodyComponent* body) override;
 
 private:
+    Time powerUpLife;
 	Time lastBoost;
 	Time boostCooldown;
 

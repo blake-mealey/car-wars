@@ -169,6 +169,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Content\Textures\HUD\speed-vingette.png" />
+    <Image Include="Content\Textures\HUD\health-vignette.png" />
+    <Image Include="Content\Textures\HUD\shield-vignette.png" />
+    <Image Include="Content\Textures\HUD\shield-vignette-blue.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\Materials\CyanShiny.json" />
@@ -251,6 +254,9 @@
     <None Include="Content\Shaders\shadowMap.vert" />
     <None Include="Content\Shaders\skybox.frag" />
     <None Include="Content\Shaders\skybox.vert" />
+<<<<<<< HEAD
     <None Include="Content\Prefabs\Entities\Game\PowerUpSpawner.json" />
+=======
+>>>>>>> ba99bde493602749676fae1d12297ae3199b6809
   </ItemGroup>
 </Project>

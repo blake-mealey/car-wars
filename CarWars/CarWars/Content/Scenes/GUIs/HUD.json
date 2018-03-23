@@ -4,7 +4,7 @@
       {
         "Type": "GUI",
         "ScaledScale": [ 1.0, 1.0 ],
-        "TextureColor": [ 1, 1, 1, 0 ],
+        "TextureColor": [ 255, 255, 255, 0 ],
         "Texture": "HUD/health-vignette-red.png",
         "AnchorPoint": [ 0.5, 0.5 ],
         "ScaledPosition": [ 0.5, 0.5 ]
@@ -16,8 +16,8 @@
       {
         "Type": "GUI",
         "ScaledScale": [ 1.0, 1.0 ],
-        "TextureColor": [ 1, 1, 1, 0 ],
-        "Texture": "HUD/speed-vignette.png",
+        "TextureColor": [ 255, 255, 255, 0 ],
+        "Texture": "HUD/health-vignette.png",
         "AnchorPoint": [ 0.5, 0.5 ],
         "ScaledPosition": [ 0.5, 0.5 ]
       }
@@ -29,8 +29,8 @@
       {
         "Type": "GUI",
         "ScaledScale": [ 1.0, 1.0 ],
-        "TextureColor": [ 1, 1, 1, 0 ],
-        "Texture": "HUD/shield-vignette.png",
+        "TextureColor": [ 255, 255, 255, 0 ],
+        "Texture": "HUD/shield-vignette-blue.png",
         "AnchorPoint": [ 0.5, 0.5 ],
         "ScaledPosition": [ 0.5, 0.5 ]
       }

@@ -12,5 +12,5 @@ public:
 
     void RenderDebugGui() override;
 private:
-    float multiplier = 0.15f;
+    float multiplier = 10.f;
 };

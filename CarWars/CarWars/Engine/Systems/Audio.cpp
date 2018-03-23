@@ -1,4 +1,5 @@
 #include "Audio.h"
+#include <iostream>
 
 // Singleton
 Audio::Audio() { }
@@ -28,12 +29,12 @@ void Audio::Initialize() {
 }
 
 void Audio::PlayAudio2D(const char *filename) {
-    soundSystem->createStream(filename, FMOD_LOOP_NORMAL | FMOD_2D, 0, &sound);
-    soundSystem->playSound(sound, 0, false, &channel);
+    //soundSystem->createStream(filename, FMOD_LOOP_NORMAL | FMOD_2D, 0, &sound);
+    //soundSystem->playSound(sound, 0, false, &channel);
+    PlayAudio(filename, 1.f);
 }
 
 void Audio::PlayAudio(const char *filename) {
-    soundSystem->createStream(filename, FMOD_LOOP_OFF | FMOD_3D, 0, &sound);
     //sound->getNumSubSounds(&numsubsounds);
 
     //if (numsubsounds) {
@@ -41,19 +42,31 @@ void Audio::PlayAudio(const char *filename) {
     //} else {
     //    soundToPlay = sound;
     //}
+
+    PlayAudio(filename, 1.f);
+}
+
+void Audio::PlayAudio(const char *filename, float volume) {
+    soundSystem->createStream(filename, FMOD_LOOP_OFF | FMOD_3D, 0, &sound);
     soundSystem->playSound(sound, 0, false, &channel);
+    channel->setVolume(volume);
 }
 
 void Audio::PlayAudio(const char *filename, glm::vec3 position, glm::vec3 velocity) {
     FMOD_VECTOR pos = { position.x, position.y, position.z };
     FMOD_VECTOR vel = { velocity.x, velocity.y, velocity.z };
-
+    sound1->release();
     soundSystem->createSound(filename, FMOD_3D, 0, &sound1);
     sound1->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
     sound1->setMode(FMOD_LOOP_OFF);
     soundSystem->playSound(sound1, 0, true, &channel2);
     channel2->set3DAttributes(&pos, &vel);
     channel2->setPaused(false);
+    channel2->setVolume(5.f);
+}
+
+void Audio::PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity) {
+    PlayAudio(filename, position, velocity);
 }
 
 void Audio::PlayMusic(const char *filename) {

@@ -43,6 +43,7 @@ public:
 
     void Update() override;
     void PlayAudio(const char *filename);
+    void PlayAudio(const char *filename, float volume);
     void PlayAudio(const char *filename, glm::vec3 position, glm::vec3 velocity);
     void PlayMusic(const char *filename);
     void PlayAudio2D(const char *filename);

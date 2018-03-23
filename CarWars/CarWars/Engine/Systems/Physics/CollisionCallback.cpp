@@ -40,9 +40,12 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 			std::cout << "Missile Inside Owner - Do Not Explode" << std::endl;
 		} else {
 			//Explode
+            const char *explosionSound = "Content/Sounds/explosion.mp3";
+            glm::vec3 pos = _actor0->transform.GetGlobalPosition();
+            std::cout << to_string(pos) << std::endl;
 			float explosionRadius = _actor0->GetComponent<MissileComponent>()->GetExplosionRadius();
-            Audio::Instance().PlayAudio2D("Content/Sounds/explosion.mp3"); // TODO: is this the best place for this?
-
+            Audio::Instance().PlayAudio2D(explosionSound); // TODO: is this the best place for this?
+            //Audio::Instance().PlayAudio3D(explosionSound, pos, glm::vec3(0.f, 0.f, 0.f));
             Entity* explosionEffect = ContentManager::LoadEntity("ExplosionEffect.json");
             explosionEffect->transform.SetPosition(_actor0->transform.GetGlobalPosition());
             MeshComponent* mesh = explosionEffect->GetComponent<MeshComponent>();
@@ -85,7 +88,7 @@ void CollisionCallback::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 coun
     actor0RB->OnTrigger(actor1RB);
     actor1RB->OnTrigger(actor0RB);
 
-    if (actor0 && actor1) {
+    if (actor0 && actor1 && pairs->status != PxPairFlag::eNOTIFY_TOUCH_LOST) {
         if (actor0->HasTag("Missile") || actor1->HasTag("Missle")) {
             HandleMissileCollision(actor0, actor1);
             HandleMissileCollision(actor1, actor0);
