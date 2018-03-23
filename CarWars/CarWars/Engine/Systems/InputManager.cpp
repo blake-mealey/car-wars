@@ -274,7 +274,16 @@ void CloseMenu(int playerIndex, std::string menuName) {
 void InputManager::NavigateGuis(GuiNavData navData) {
     // If there was no navigation, do nothing
     if (!navData.Valid()) return;
-    Audio::Instance().PlayAudio("Content/Sounds/menu/eshop.wav", 0.1f);
+    
+    if (StateManager::GetState() != GameState_Playing)
+        if (navData.back)
+            Audio::Instance().PlayAudio("Content/Sounds/menu/jig1.wav", 0.1f);
+        else if (navData.enter)
+            Audio::Instance().PlayAudio("Content/Sounds/menu/jig0.wav", 0.1f);
+        else
+            Audio::Instance().PlayAudio("Content/Sounds/menu/eshop.wav", 0.1f);
+
+
 	// Normalize directional inputs
 	navData.NormalizeInputs();
 
