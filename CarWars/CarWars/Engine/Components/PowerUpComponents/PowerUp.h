@@ -1,16 +1,17 @@
 #pragma once
 
-#include "../Component.h"
+#include "../../Systems/Time.h"
 
-class PowerUp : public Component {
+struct PlayerData;
+
+class PowerUp {
 public:
-    virtual void Collect(Entity *car) = 0;
+    PowerUp(Time a_duration = 5.0);
 
-    ComponentType GetType() override;
-    void HandleEvent(Event *event) override;
-
-    void RenderDebugGui() override;
-
+    virtual void Collect(PlayerData* player);
 private:
     float multiplier;
+    
+    Time collectedTime;
+    Time duration;
 };

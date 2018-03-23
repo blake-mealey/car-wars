@@ -4,6 +4,7 @@
 #include <PxRigidDynamic.h>
 #include "Content/NavigationMesh.h"
 #include "../Components/Tweens/Tween.h"
+#include "../Components/PowerUpComponents/PowerUp.h"
 
 class CameraComponent;
 class AiComponent;
@@ -52,7 +53,7 @@ struct PlayerData {
     PlayerData(int _vehicleType = VehicleType::Heavy, int _weaponType = WeaponType::MachineGun) :
         name(""), vehicleType(_vehicleType), weaponType(_weaponType),
         alive(false), vehicleEntity(nullptr), cameraEntity(nullptr), camera(nullptr),
-        teamIndex(0), killCount(0), deathCount(0) {
+        teamIndex(0), killCount(0), deathCount(0), activePowerUp(nullptr) {
 	
 		static int nextId = 0;
 		id = nextId++;
@@ -76,9 +77,10 @@ struct PlayerData {
     size_t teamIndex;
     size_t killCount;
     size_t deathCount;
+    PowerUp* activePowerUp;
 
 	// For leaderboard sorting
-	bool operator <(const PlayerData& rhs) {
+	bool operator <(const PlayerData& rhs) const {
 		return killCount > rhs.killCount;
 	}
 

@@ -60,6 +60,10 @@ bool Time::operator>=(const Time other) const {
     return GetSeconds() >= other.GetSeconds();
 }
 
+Time Time::operator-() const {
+    return -GetSeconds();
+}
+
 Time Time::operator-(const Time other) const {
 	return GetSeconds() - other.GetSeconds();
 }

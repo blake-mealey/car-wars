@@ -713,6 +713,4 @@ void VehicleComponent::OnContact(RigidbodyComponent* body) {
     }
 }
 
-void VehicleComponent::OnTrigger(RigidbodyComponent* body) {
-    
-}
+void VehicleComponent::OnTrigger(RigidbodyComponent* body) { }

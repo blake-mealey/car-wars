@@ -88,7 +88,6 @@ T ContentManager::GetFromJson(nlohmann::json json, T defaultValue) {
 
 template <class T>
 T* ContentManager::LoadComponent(nlohmann::json data) {
-    T *component = new T(data);
-    component->enabled = GetFromJson<bool>(data["Enabled"], true);
-    return component;
+    Component* component = LoadComponent(data);
+    return static_cast<T*>(component);
 }

@@ -21,7 +21,7 @@
 #include "Pathfinder.h"
 #include "../Components/GuiComponents/GuiHelper.h"
 #include "Effects.h"
-#include "PennerEasing/Quint.h"
+#include "../Components/RigidbodyComponents/PowerUpSpawnerComponent.h"
 using namespace std;
 
 const string GameModeType::displayNames[Count] = { "Team", "Free for All" };
@@ -283,6 +283,13 @@ void Game::Update() {
 				SpawnAi(player);
 			}
 		}
+
+        // Respawn powerups
+        std::vector<Component*> powerUpSpawners = EntityManager::GetComponents(ComponentType_PowerUpSpawner);
+        for (Component* component : powerUpSpawners) {
+            PowerUpSpawnerComponent* spawner = static_cast<PowerUpSpawnerComponent*>(component);
+            spawner->Respawn();
+        }
 
         // ---------------
         // Gamemode update

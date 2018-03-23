@@ -5,12 +5,7 @@
 class SpeedPowerUp : public PowerUp {
 public:
     SpeedPowerUp();
-    void Collect(Entity* car) override;
-    void SetEntity(Entity* _entity) override;
-
-    ComponentType GetType() override;
-
-    void RenderDebugGui() override;
+    void Collect(PlayerData* player) override;
 private:
     float multiplier = 10.f;
 };

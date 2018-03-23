@@ -27,6 +27,7 @@ public:
 	bool operator<=(const Time other) const;
     bool operator>(const Time other) const;
     bool operator>=(const Time other) const;
+	Time operator-() const;
 	Time operator-(const Time other) const;
 	Time operator+(const Time other) const;
     Time operator*(const Time other) const;

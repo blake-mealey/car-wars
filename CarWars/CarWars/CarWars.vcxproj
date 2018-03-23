@@ -312,6 +312,7 @@
     <None Include="Content\Materials\YellowShiny.json" />
     <None Include="Content\Prefabs\Components\DamagePowerUp.json" />
     <None Include="Content\Prefabs\Components\DefencePowerUp.json" />
+    <None Include="Content\Prefabs\Components\PowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\SpeedPowerUp.json" />
     <None Include="Content\Prefabs\Entities\DamagePowerUp.json" />
     <None Include="Content\Prefabs\Entities\DefencePowerUp.json" />

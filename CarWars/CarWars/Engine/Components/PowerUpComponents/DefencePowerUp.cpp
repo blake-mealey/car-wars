@@ -11,30 +11,12 @@
 
 DefencePowerUp::DefencePowerUp() {}
 
-
-void DefencePowerUp::SetEntity(Entity* _entity) {
-    Component::SetEntity(_entity);
-    RigidDynamicComponent* powerUpRigid = new RigidDynamicComponent();
-    EntityManager::AddComponent(GetEntity(), powerUpRigid);
-    PxMaterial* material = ContentManager::GetPxMaterial("Default.json");
-    BoxCollider* powerUpCollider = new BoxCollider("PowerUps", material, PxFilterData(), true, glm::vec3(2.f, 2.f, 2.f));
-
-
-    powerUpRigid->AddCollider(powerUpCollider);
-    PxShape* shape;
-    powerUpRigid->actor->getShapes(&shape, 1);
-    shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
-    shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
-    powerUpRigid->actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-}
-
-void DefencePowerUp::Collect(Entity* car) {
+void DefencePowerUp::Collect(PlayerData* player) {
     std::cout << "Defence Collected" << std::endl;
 
-    PowerUp::Collect(car);
+    PowerUp::Collect(player);
 
-    PlayerData* player = Game::Instance().GetPlayerFromEntity(car);
-    VehicleComponent* vehicle = car->GetComponent<VehicleComponent>();
+    VehicleComponent* vehicle = player->vehicleEntity->GetComponent<VehicleComponent>();
     vehicle->defenceMultiplier = 1.25f;
     if (player) {
         Entity* guiRoot = player->camera->GetGuiRoot();
@@ -47,12 +29,4 @@ void DefencePowerUp::Collect(Entity* car) {
         });
         tween->Start();
     }
-}
-
-ComponentType DefencePowerUp::GetType() {
-    return ComponentType_DefencePowerUp;
-}
-
-void DefencePowerUp::RenderDebugGui() {
-    PowerUp::RenderDebugGui();
 }
