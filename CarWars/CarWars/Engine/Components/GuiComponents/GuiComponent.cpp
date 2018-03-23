@@ -12,7 +12,7 @@ GuiComponent::~GuiComponent() {
     }
 }
 
-GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr), texture(nullptr) {
+GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr), texture(nullptr), maskTexture(nullptr) {
 	transform = Transform(data);
 	text = ContentManager::GetFromJson<std::string>(data["Text"], "");
 	SetFont(ContentManager::GetFromJson<std::string>(data["Font"], "arial.ttf"));
@@ -54,6 +54,7 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
     maskInverted = ContentManager::GetFromJson<bool>(data["MaskInverted"], false);
     if (data["Mask"].is_object()) mask = Transform(data["Mask"]);
     clipEnabled = ContentManager::GetFromJson<bool>(data["ClipEnabled"], false);
+    if (data["MaskTexture"].is_string()) maskTexture = ContentManager::GetTexture(data["MaskTexture"]);
 
     emissiveness = ContentManager::GetFromJson<float>(data["Emissiveness"], 0.f);
 }
@@ -292,6 +293,14 @@ bool GuiComponent::IsClipEnabled() const {
 
 Transform& GuiComponent::GetMask() {
     return mask;
+}
+
+Texture* GuiComponent::GetMaskTexture() {
+    return maskTexture;
+}
+
+void GuiComponent::SetMaskTexture(Texture* texture) {
+    maskTexture = texture;
 }
 
 void GuiComponent::SetEmissiveness(float _emissiveness) {

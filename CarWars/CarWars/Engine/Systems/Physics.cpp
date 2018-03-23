@@ -220,12 +220,7 @@ void Physics::Update() {
         }
     }
 
-	if (!toDelete.empty()) {
-		for (Entity* _entity : toDelete) {
-			EntityManager::DestroyDynamicEntity(_entity);
-		}
-		toDelete.clear();
-	}
+    ClearDeleteList();
 
 	Game::Instance().GetNavigationMesh()->UpdateMesh(updatedComponents);
 }
@@ -235,4 +230,13 @@ void Physics::AddToDelete(Entity* _entity) {
 		toDelete.insert(_entity);
 		_entity->MarkForDeletion();
 	}
+}
+
+void Physics::ClearDeleteList() {
+    if (!toDelete.empty()) {
+        for (Entity* _entity : toDelete) {
+            EntityManager::DestroyDynamicEntity(_entity);
+        }
+        toDelete.clear();
+    }
 }

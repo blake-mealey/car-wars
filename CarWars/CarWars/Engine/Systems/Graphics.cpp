@@ -161,7 +161,6 @@ bool Graphics::Initialize(char* windowTitle) {
 
     //Alpha Blending
     glEnable(GL_BLEND);
-    glEnable(GL_ALPHA_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBlendEquation(GL_FUNC_ADD);
 
@@ -723,17 +722,23 @@ void Graphics::Update() {
                     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
                     glDepthMask(GL_FALSE);
 
+                    // Don't write pixels when they are transparent
+                    glEnable(GL_ALPHA_TEST);
+                    glAlphaFunc(GL_GREATER, 0.f);
+
                     // Use the GUI program
                     glUseProgram(guiProgram->GetId());
-
-                    // Send the UV scale and texture color to the GPU
-                    guiProgram->LoadUniform(UniformName::DiffuseColor, gui->GetTextureColor());
-                    guiProgram->LoadUniform(UniformName::DiffuseTextureEnabled, false);
 
                     // Set the viewport
                     glViewport(0, 0, windowWidth, windowHeight);
 
+                    // Load the color to the GPU
+                    guiProgram->LoadUniform(UniformName::DiffuseColor, glm::vec4(1.f));
+
                     if (gui->IsClipEnabled()) {
+                        // Send the UV scale and texture color to the GPU
+                        guiProgram->LoadUniform(UniformName::DiffuseTextureEnabled, false);
+
                         // Send the transform to the GPU
                         const glm::mat4 modelMatrix = gui->transform.GetGuiTransformationMatrix(
                             gui->GetAnchorPoint(),
@@ -748,6 +753,15 @@ void Graphics::Update() {
                         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
                     }
                     else if (gui->IsMaskEnabled()) {
+                        // Send the UV scale and texture color to the GPU
+                        Texture* maskTexture = gui->GetMaskTexture();
+                        if (maskTexture) {
+                            guiProgram->LoadUniform(UniformName::DiffuseTexture, maskTexture);
+                            guiProgram->LoadUniform(UniformName::DiffuseTextureEnabled, true);
+                        } else {
+                            guiProgram->LoadUniform(UniformName::DiffuseTextureEnabled, false);
+                        }
+
                         // Send the transform to the GPU
                         Transform mask = Transform(
                             gui->transform.GetLocalPosition() + gui->GetMask().GetLocalPosition(),
@@ -769,10 +783,12 @@ void Graphics::Update() {
                     // Only write with correct stencil value
                     if (gui->IsMaskEnabled() && gui->IsMaskInverted()) {
                         glStencilFunc(GL_EQUAL, 0, 0xFF);
-                    }
-                    else {
+                    } else {
                         glStencilFunc(GL_EQUAL, 1, 0xFF);
                     }
+
+                    // No more alpha testing
+                    glDisable(GL_ALPHA_TEST);
 
                     // Write to all buffers except stencil
                     glStencilMask(0x00);

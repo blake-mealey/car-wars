@@ -21,6 +21,15 @@ public:
         nextTween = tween;
     }
 
+    void SetNext(Tween* tween, Time delay) {
+        SetNext(tween);
+        nextTween->SetDelay(delay);
+    }
+
+    void SetDelay(Time _delay) {
+        delay = _delay;
+    }
+
     void TakeOwnership() {
         ownedByEffectsSystem = false;
     }
@@ -53,6 +62,7 @@ protected:
     Time& clock;
     Time startTime;
     Time duration;
+    Time delay;
 
     Tween* nextTween;
 

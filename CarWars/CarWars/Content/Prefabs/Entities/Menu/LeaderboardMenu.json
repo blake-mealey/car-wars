@@ -6,7 +6,6 @@
         "AnchorPoint": [ 0.5, 0.5 ],
         "ScaledPosition": [ 0.5, 0.5 ],
         "Position": [0, 22, 0],
-        "Scale": [ 800, 550, 1 ],
         "Texture": "Menu.png",
         "UvScale": [ 1, 1 ]
       },

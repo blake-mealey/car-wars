@@ -11,7 +11,9 @@ friend class Effects;
 public:
     void Update() override {
         if (!started || finished) return;
-        const Time current = clock - startTime;
+        Time current = clock - startTime;
+        if (current < delay) return;
+        current -= delay;
         if (current >= duration) {
             value = end;
             Stop(true);

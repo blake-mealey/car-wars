@@ -163,7 +163,7 @@
         "ScaledPosition": [ 0.5, 1 ],
         "Position": [ 0, -20, 0 ],
         "Scale": [ 250, 30, 0 ],
-        "Texture": "White.png",
+        "Texture": "HUD/HealthBarBkgMask.png",
         "TextureColor": "BlackHalfAlpha"
       },
       {
@@ -171,9 +171,14 @@
         "AnchorPoint": [ 0.5, 1 ],
         "ScaledPosition": [ 0.5, 1 ],
         "Position": [ 0, -25, 0 ],
-        "Scale": [ 240, 20, 0 ],
-        "Texture": "White.png",
-        "TextureColor": "RedHalfAlpha"
+        "Scale": [ 252, 32, 0 ],
+        "Texture": "HealthBar.png",
+        "TextureColor": "RedHalfAlpha",
+        "MaskEnabled": true,
+        "Mask": {
+	        "Scale": [240, 20, 0]
+        },
+        "MaskTexture": "HUD/HealthBarFgdMask.png"
       }
     ]
   },

@@ -302,15 +302,18 @@ GuiComponent* GuiHelper::GetFourthGui(std::string entityTag, int playerIndex) {
     return GetFourthGui(EntityManager::FindEntities(entityTag)[playerIndex]);
 }
 
-std::vector<GuiComponent*> GuiHelper::GetGuisRecursive(Entity* parent) {
+std::vector<GuiComponent*> GuiHelper::GetGuisRecursive(Entity* parent, std::unordered_set<GuiComponent*> ignoreList) {
 	std::vector<GuiComponent*> guis;
-	GetGuisRecursive(parent, guis);
+	GetGuisRecursive(parent, guis, ignoreList);
 	return guis;
 }
 
-void GuiHelper::GetGuisRecursive(Entity* parent, std::vector<GuiComponent*>& guis) {
+void GuiHelper::GetGuisRecursive(Entity* parent, std::vector<GuiComponent*>& guis, std::unordered_set<GuiComponent*> ignoreList) {
 	std::vector<GuiComponent*> components = parent->GetComponents<GuiComponent>();
-	guis.insert(guis.end(), components.begin(), components.end());
+    for (GuiComponent* gui : components) {
+        if (ignoreList.find(gui) != ignoreList.end()) continue;
+        guis.push_back(gui);
+    }
 	for (Entity* child : EntityManager::GetChildren(parent)) {
 		GetGuisRecursive(child, guis);
 	}
