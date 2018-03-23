@@ -123,27 +123,6 @@
         ]
 	},
 	{
-		"Tag": "Vignettes",
-		"Components": [
-			{
-				"Type": "GUI",
-				"AnchorPoint": [0.5, 0.5],
-                "ScaledPosition": [0.5, 0.5],
-				"ScaledScale": [1, 1],
-				"Texture": "HUD/health-vignette-red.png",
-                "Enabled": false
-			},
-			{
-				"Type": "GUI",
-				"AnchorPoint": [0.5, 0.5],
-				"ScaledPosition": [0.5, 0.5],
-				"ScaledScale": [1, 1],
-				"Texture": "HUD/shield-vignette.png",
-				"Enabled": false
-			}
-		]
-	},
-	{
 		"Tag": "HitIndicator",
         "Components": [
 	        {
