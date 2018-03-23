@@ -11,6 +11,7 @@
 #include "../Systems/Physics/RaycastGroups.h"
 
 #include <iostream>
+#include "../Entities/EntityManager.h"
 
 float AiComponent::MAX_DIFFUCULTY;
 float AiComponent::STUCK_TIME;

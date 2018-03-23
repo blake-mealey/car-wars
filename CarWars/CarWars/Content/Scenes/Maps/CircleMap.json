@@ -24,6 +24,10 @@
       }
     ]
   },
+	{
+		"Prefab": "Game/PowerUpSpawner.json",
+        "Position": [0, 2, 20]
+	},
  {
         "Prefab": "DamagePowerUp.json",
 	    "Position": [ -50, 2, -20 ]

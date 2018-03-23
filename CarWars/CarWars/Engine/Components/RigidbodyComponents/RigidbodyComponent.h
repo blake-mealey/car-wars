@@ -3,7 +3,6 @@
 #include "../Component.h"
 #include "../Colliders/Collider.h"
 
-#include "glm/glm.hpp"
 #include <json/json.hpp>
 
 class RigidbodyComponent : public Component {
@@ -21,6 +20,9 @@ public:
     void SetEntity(Entity *_entity) override;
 
     bool DoesBlockNavigationMesh() const;
+
+    virtual void OnContact(RigidbodyComponent* body);
+    virtual void OnTrigger(RigidbodyComponent* body);
 
     std::vector<Collider*> colliders;
     physx::PxRigidActor* pxRigid;

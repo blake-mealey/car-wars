@@ -92,3 +92,6 @@ void RigidbodyComponent::SetEntity(Entity* _entity) {
 bool RigidbodyComponent::DoesBlockNavigationMesh() const {
     return blocksNavigationMesh;
 }
+
+void RigidbodyComponent::OnContact(RigidbodyComponent* body) { }
+void RigidbodyComponent::OnTrigger(RigidbodyComponent* body) { }

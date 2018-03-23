@@ -66,6 +66,9 @@ public:
 
 	Time GetTimeSinceBoost();
 
+    void OnContact(RigidbodyComponent* body) override;
+    void OnTrigger(RigidbodyComponent* body) override;
+
 private:
 	Time lastBoost;
 	Time boostCooldown;

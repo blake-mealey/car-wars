@@ -7,6 +7,7 @@
 #include "../../Systems/Content/ContentManager.h"
 #include "../Colliders/BoxCollider.h"
 #include "../../Systems/Game.h"
+#include "../../Entities/EntityManager.h"
 
 SpeedPowerUp::SpeedPowerUp() {}
 

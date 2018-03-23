@@ -171,6 +171,7 @@
     <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
     <ClCompile Include="Engine\Components\LineComponent.cpp" />
     <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
+    <ClCompile Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.cpp" />
     <ClCompile Include="Engine\Systems\Effects.cpp" />
     <ClCompile Include="Engine\Components\MeshComponent.cpp" />
     <ClCompile Include="Engine\Components\PointLightComponent.cpp" />
@@ -249,6 +250,7 @@
     <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
     <ClInclude Include="Engine\Components\LineComponent.h" />
     <ClInclude Include="Engine\Components\ParticleComponent.h" />
+    <ClInclude Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.h" />
     <ClInclude Include="Engine\Components\Tweens\TTween.h" />
     <ClInclude Include="Engine\Components\Tweens\Tween.h" />
     <ClInclude Include="Engine\Systems\Effects.h" />
@@ -313,6 +315,7 @@
     <None Include="Content\Prefabs\Components\SpeedPowerUp.json" />
     <None Include="Content\Prefabs\Entities\DamagePowerUp.json" />
     <None Include="Content\Prefabs\Entities\DefencePowerUp.json" />
+    <None Include="Content\Prefabs\Entities\Game\PowerUpSpawner.json" />
     <None Include="Content\Prefabs\Entities\SpeedPowerUp.json" />
     <None Include="Content\CollisionGroups\Vehicles.json" />
     <None Include="Content\Materials\Basic.json" />
@@ -390,7 +393,6 @@
     <Media Include="Content\Sounds\powerup.mp3" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Picture2.png" />
     <Image Include="Content\Textures\HUD\speed-vingette.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

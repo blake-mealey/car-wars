@@ -8,6 +8,7 @@
 #include "../Colliders/BoxCollider.h"
 #include "../../Systems/Content/ContentManager.h"
 #include "../RigidbodyComponents/RigidDynamicComponent.h"
+#include "../../Entities/EntityManager.h"
 
 DamagePowerUp::DamagePowerUp() {
 

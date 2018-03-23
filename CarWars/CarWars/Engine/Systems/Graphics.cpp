@@ -196,7 +196,8 @@ void Graphics::Update() {
     const std::vector<Component*> rigidbodyComponents = EntityManager::GetComponents({
         ComponentType_RigidDynamic,
         ComponentType_RigidStatic,
-        ComponentType_Vehicle
+        ComponentType_Vehicle,
+        ComponentType_PowerUpSpawner
     });
 
     sort(meshes.begin(), meshes.end(), IsMoreOpaque());

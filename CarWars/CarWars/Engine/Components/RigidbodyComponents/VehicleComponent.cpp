@@ -703,3 +703,16 @@ void VehicleComponent::Handbrake( float amount) {
 Time VehicleComponent::GetTimeSinceBoost() {
 	return StateManager::gameTime - lastBoost;
 }
+
+void VehicleComponent::OnContact(RigidbodyComponent* body) {
+    VehicleComponent* otherVehicle = body->GetEntity()->GetComponent<VehicleComponent>();
+    if (otherVehicle) {
+        Audio::Instance().PlayAudio("Content/Sounds/car-on-car2.mp3");
+    } else {
+        Audio::Instance().PlayAudio("Content/Sounds/car-on-car.mp3");
+    }
+}
+
+void VehicleComponent::OnTrigger(RigidbodyComponent* body) {
+    
+}

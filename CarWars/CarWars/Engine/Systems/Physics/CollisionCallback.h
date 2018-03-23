@@ -1,10 +1,8 @@
 #pragma once
 
-#include <iostream>
 
 #include <PxSimulationEventCallback.h>
 
-#include "../Engine/Entities/EntityManager.h"
 #include "../Engine/Components/RigidbodyComponents/RigidbodyComponent.h"
 
 class CollisionCallback : public physx::PxSimulationEventCallback {

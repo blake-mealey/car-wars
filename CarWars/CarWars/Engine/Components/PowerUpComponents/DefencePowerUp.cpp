@@ -7,6 +7,7 @@
 #include "../Colliders/BoxCollider.h"
 #include "../../Systems/Content/ContentManager.h"
 #include "../../Systems/Game.h"
+#include "../../Entities/EntityManager.h"
 
 DefencePowerUp::DefencePowerUp() {}
 

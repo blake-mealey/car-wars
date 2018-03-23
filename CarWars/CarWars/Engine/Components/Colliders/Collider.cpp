@@ -14,15 +14,16 @@ Collider::Collider(std::string _collisionGroup, physx::PxMaterial *_material, ph
 Collider::Collider(nlohmann::json data) : shape(nullptr), geometry(nullptr) {
     collisionGroup = ContentManager::GetFromJson<std::string>(data["CollisionGroup"], "Default");
     material = ContentManager::GetPxMaterial(ContentManager::GetFromJson<std::string>(data["Material"], "Default.json"));
-    const std::string queryFilterType = ContentManager::GetFromJson<std::string>(data["QueryFilterType"], "DrivableSurface");
-    if (queryFilterType == "DrivableSurface") {
-        setupDrivableSurface(queryFilterData);
-    } else {
-        setupNonDrivableSurface(queryFilterData);
-    }
 	queryFilterData.word0 = RaycastGroups::GetDefaultGroup();
     transform = Transform(data);
 	isTrigger = ContentManager::GetFromJson<bool>(data["IsTrigger"], false);
+    const std::string queryFilterType = ContentManager::GetFromJson<std::string>(data["QueryFilterType"], isTrigger ? "NonDrivableSurface" : "DrivableSurface");
+    if (queryFilterType == "DrivableSurface") {
+        setupDrivableSurface(queryFilterData);
+    }
+    else {
+        setupNonDrivableSurface(queryFilterData);
+    }
 }
 
 Collider::~Collider() {

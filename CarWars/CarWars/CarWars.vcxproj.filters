@@ -74,6 +74,7 @@
     <ClCompile Include="Engine\Systems\Time.cpp" />
     <ClCompile Include="HelloWorld.cpp" />
     <ClCompile Include="Engine\Components\GuiEffects\OpacityEffect.cpp" />
+    <ClCompile Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -161,9 +162,13 @@
     <ClInclude Include="Engine\Systems\System.h" />
     <ClInclude Include="Engine\Systems\Time.h" />
     <ClInclude Include="Engine\Components\GuiEffects\OpacityEffect.h" />
+    <ClInclude Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="Content\Sounds\powerup.mp3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Content\Textures\HUD\speed-vingette.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\Materials\CyanShiny.json" />
@@ -193,7 +198,9 @@
     <None Include="Content\Prefabs\Components\Weapons\RailGun.json" />
     <None Include="Content\Prefabs\Components\Weapons\RocketLauncher.json" />
     <None Include="Content\Prefabs\Entities\Boulder.json" />
+    <None Include="Content\Prefabs\Entities\Bullet.json" />
     <None Include="Content\Prefabs\Entities\Explosion.json" />
+    <None Include="Content\Prefabs\Entities\ExplosionEffect.json" />
     <None Include="Content\Prefabs\Entities\Game\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\CharacterMenuStat.json" />
@@ -218,6 +225,7 @@
     <None Include="Content\Prefabs\Entities\Weapons\RailGunTurret.json" />
     <None Include="Content\Prefabs\Entities\Weapons\RocketLauncherTurret.json" />
     <None Include="Content\Scenes\CharacterSelectMenu.json" />
+    <None Include="Content\Scenes\GUIs\GameEnd_GUI.json" />
     <None Include="Content\Scenes\Maps\CircleMap.json" />
     <None Include="Content\Scenes\GameDemo.json" />
     <None Include="Content\Scenes\GUIs\HUD.json" />
@@ -243,26 +251,6 @@
     <None Include="Content\Shaders\shadowMap.vert" />
     <None Include="Content\Shaders\skybox.frag" />
     <None Include="Content\Shaders\skybox.vert" />
-<<<<<<< HEAD
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\..\..\Picture2.png" />
-    <Image Include="Content\Textures\HUD\speed-vingette.png" />
-=======
-    <None Include="Content\Prefabs\Components\Ai.json" />
-    <None Include="Content\Scenes\Maps\CircleMap.json" />
-    <None Include="Content\Prefabs\Entities\Menu\PauseMenu.json" />
-    <None Include="Content\Prefabs\Entities\Explosion.json" />
-    <None Include="Content\Prefabs\Entities\Vehicles\Flatbed.json" />
-    <None Include="Content\Prefabs\Entities\Vehicles\Hearse.json" />
-    <None Include="Content\Prefabs\Entities\Weapons\MachineGunTurret.json" />
-    <None Include="Content\Prefabs\Components\GUIs\StarjediFont.json" />
-    <None Include="Content\Prefabs\Entities\Menu\LeaderboardMenu.json" />
-    <None Include="Content\Prefabs\Entities\Menu\LeaderboardRow.json" />
-    <None Include="Content\Prefabs\Entities\Menu\KillFeedRow.json" />
-    <None Include="Content\Scenes\GUIs\GameEnd_GUI.json" />
-    <None Include="Content\Prefabs\Entities\Bullet.json" />
-    <None Include="Content\Prefabs\Entities\ExplosionEffect.json" />
->>>>>>> master
+    <None Include="Content\Prefabs\Entities\Game\PowerUpSpawner.json" />
   </ItemGroup>
 </Project>
