@@ -6,7 +6,7 @@
 #include "Physics/CollisionCallback.h"
 #include "PxPhysicsAPI.h"
 #include "Physics/VehicleSceneQuery.h"
-#include "Physics/VehicleCreate.h"
+#include <unordered_set>
 
 #include <unordered_set>
 
@@ -27,6 +27,8 @@ public:
 	void Update() override;
 
 	void AddToDelete(Entity* _entity);
+
+    void ClearDeleteList();
 
 private:
 	// No instantiation or copying

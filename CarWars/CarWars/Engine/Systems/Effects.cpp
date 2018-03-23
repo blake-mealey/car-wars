@@ -30,6 +30,17 @@ void Effects::DestroyTween(Tween* tween) {
     delete tween;
 }
 
+void Effects::DestroyTween(std::string tweenTag) {
+    Tween* tween = FindTween(tweenTag);
+    if (tween) DestroyTween(tween);
+}
+
+void Effects::DestroyTweens() {
+    while (!tweens.empty()) {
+        DestroyTween(tweens.back());
+    }
+}
+
 Tween* Effects::FindTween(std::string tag) {
     for (Tween* tween : tweens) {
         if (tween->HasTag(tag)) return tween;

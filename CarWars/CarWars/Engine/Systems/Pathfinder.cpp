@@ -13,14 +13,19 @@ std::vector<glm::vec3> Pathfinder::FindPath(NavigationMesh* navigationMesh, glm:
 
 	glm::vec3 pathDirection = glm::normalize(end - start);
 
+	size_t i = 0;
+	// need to wrap this better
 	do {
 		startIndex = navigationMesh->FindClosestVertex(start);
-		start += pathDirection;
-	} while (navigationMesh->GetScore(startIndex) == 0.f);
+		start += pathDirection; 
+		i++;
+	} while (navigationMesh->GetScore(startIndex) == 0.f && i < 10);
+	i = 0;
 	do {
 		goalIndex = navigationMesh->FindClosestVertex(end);
 		end -= pathDirection;
-	} while (navigationMesh->GetScore(goalIndex) == 0.f);
+		i++;
+	} while (navigationMesh->GetScore(goalIndex) == 0.f && i < 10);
 
     // Unreachable goal or start
     if (navigationMesh->GetScore(startIndex) == 0.f || navigationMesh->GetScore(goalIndex) == 0.f) {

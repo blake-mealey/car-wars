@@ -20,6 +20,7 @@
 #include "../Engine/Systems/Audio.h"
 #include <glm/gtx/string_cast.hpp>
 #include "PennerEasing/Linear.h"
+#include "../../Systems/Physics/VehicleCreate.h"
 
 using namespace physx;
 
@@ -47,7 +48,12 @@ VehicleComponent::VehicleComponent(nlohmann::json data) : RigidDynamicComponent(
     wheelWidth = ContentManager::GetFromJson<float>(data["WheelWidth"], 0.4f);
     wheelCount = ContentManager::GetFromJson<size_t>(data["WheelCount"], 4);
 
-    // Load any axle data present in data file
+	boostPower = ContentManager::GetFromJson<float>(data["BoostPower"], 10.f);
+
+	boostCooldown = Time(ContentManager::GetFromJson<float>(data["BoostCooldown"], 5.f));
+	lastBoost = Time(-boostCooldown.GetSeconds());
+    
+	// Load any axle data present in data file
     for (nlohmann::json axle : data["Axles"]) {
         axleData.push_back(AxleData(
             ContentManager::GetFromJson<float>(axle["CenterOffset"], 0.f),
@@ -60,8 +66,10 @@ VehicleComponent::VehicleComponent(nlohmann::json data) : RigidDynamicComponent(
 
 VehicleComponent::VehicleComponent(size_t _wheelCount, bool _inputTypeDigital) : RigidDynamicComponent(),
     inputTypeDigital(_inputTypeDigital), chassisSize(glm::vec3(2.5f, 2.f, 5.f)),
-    wheelMass(20.f), wheelRadius(0.5f), wheelWidth(0.4f), wheelCount(_wheelCount) {
+    wheelMass(20.f), wheelRadius(0.5f), wheelWidth(0.4f), wheelCount(_wheelCount), boostPower(10.f) {
 
+	boostCooldown = Time(5.f);
+	lastBoost = Time(-boostCooldown.GetSeconds());
     wheelMeshPrefab = new MeshComponent("Boulder.obj", "Basic.json", "Boulder.jpg");
 
     Initialize();
@@ -473,7 +481,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
             Entity* entity = EntityManager::FindFirstChild(myPlayer->camera->GetGuiRoot(), "DamageIndicator");
             GuiComponent* gui = entity->GetComponent<GuiComponent>();
 
-            GuiHelper::OpacityEffect(gui, 1.0, 0.5f, 0.25, 0.25);
+            GuiHelper::OpacityEffect(gui, 1.0, 0.8f, 0.25, 0.25);
 
             // NOTE: This isn't really a tween... but it's a nice hacky use for the tween system
             // We should probably make a special version of the tween for exactly this case
@@ -483,7 +491,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
             auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeIn>(0.f, 1.f, 1.0, StateManager::gameTime);
             tween->SetTag(tweenTag);
             tween->SetUpdateCallback([gui, myPlayer, attacker](float& value) mutable {
-                if (StateManager::GetState() != GameState_Playing || !myPlayer->alive || !attacker->alive) return;
+                if (!myPlayer->alive || !attacker->alive) return;
                 const glm::vec3 cameraPos = myPlayer->camera->GetPosition();
                 const glm::vec3 cameraForward = normalize(Transform::ProjectVectorOnPlane(myPlayer->camera->GetForward(), Transform::UP));
                 const glm::vec3 cameraRight = normalize(Transform::ProjectVectorOnPlane(myPlayer->camera->GetRight(), Transform::UP));
@@ -501,15 +509,15 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
             GuiComponent* gui = GuiHelper::GetSecondGui(entity);
 
             const std::string tweenTag = "HealthBar" + std::to_string(myPlayer->id);
-            Tween* oldTween = Effects::Instance().FindTween(tweenTag);
-            if (oldTween) Effects::Instance().DestroyTween(oldTween);
-            const glm::vec3 start = gui->transform.GetLocalScale();
-            const glm::vec3 end = glm::vec3(240.f * healthPercent, 20.f, 0.f);
+            Effects::Instance().DestroyTween(tweenTag);
+            
+            Transform& mask = gui->GetMask();
+            const glm::vec3 start = mask.GetLocalScale();
+            const glm::vec3 end = gui->transform.GetLocalScale() * glm::vec3(healthPercent, 1.f, 1.f);
             auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Quint::easeOut>(start, end, 0.1, StateManager::gameTime);
             tween->SetTag(tweenTag);
-            tween->SetUpdateCallback([gui](glm::vec3& value) mutable {
-				if (StateManager::GetState() != GameState_Playing) return;
-                gui->transform.SetScale(value);
+            tween->SetUpdateCallback([&mask](glm::vec3& value) mutable {
+                mask.SetScale(value);
             });
             tween->Start();
         }
@@ -563,7 +571,6 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
             auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.5, StateManager::gameTime);
             tween->SetTag(tweenTag);
             tween->SetUpdateCallback([rows, maxCount](float& value) mutable {
-                if (StateManager::GetState() != GameState_Playing) return;
                 for (int j = 0; j < rows.size(); ++j) {
                     Entity* row = rows[j];
 
@@ -585,7 +592,6 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
 
             if (rows.size() >= maxCount) {
                 tween->SetFinishedCallback([rows, maxCount](float& value) mutable {
-                    if (StateManager::GetState() != GameState_Playing) return;
                     for (size_t i = 0; i < rows.size() - maxCount; ++i) {
                         EntityManager::DestroyEntity(rows[i]);
                     }
@@ -612,10 +618,42 @@ size_t VehicleComponent::GetRaycastGroup() const {
 }
 
 
-void VehicleComponent::Boost(glm::vec3 boostDir, float amount) {
+void VehicleComponent::Boost(glm::vec3 boostDir) {
+	if (GetTimeSinceBoost() > boostCooldown && boostDir != glm::vec3(0)) {
+		pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(glm::normalize(boostDir) * boostPower * GetChassisMass()), PxForceMode::eIMPULSE, true);
+		lastBoost = StateManager::gameTime;
 
-	pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(glm::normalize(boostDir) * amount * GetChassisMass()), PxForceMode::eIMPULSE, true);
-	lastBoost = StateManager::gameTime;
+		HumanData* player = Game::GetHumanFromEntity(GetEntity());
+		if (player) {
+			Entity* bar = EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "BoostBar");
+
+			GuiComponent* boostBar = GuiHelper::GetSecondGui(bar);
+            Transform& mask = boostBar->GetMask();
+
+			const Time emptyTime = 1.0;
+
+            const glm::vec3 emptyStart = mask.GetLocalScale();
+            const glm::vec3 emptyEnd = boostBar->transform.GetLocalScale() * glm::vec3(0.f, 1.f, 1.f);
+			auto tweenEmpty = Effects::Instance().CreateTween<glm::vec3, easing::Quint::easeOut>(emptyStart, emptyEnd, emptyTime, StateManager::gameTime);
+			tweenEmpty->SetUpdateCallback([&mask](glm::vec3 &value) mutable {
+                mask.SetScale(value);
+			});
+
+            const glm::vec3 fillStart = emptyEnd;
+            const glm::vec3 fillEnd = boostBar->transform.GetLocalScale();
+            auto tweenFill = Effects::Instance().CreateTween<glm::vec3, easing::Linear::easeNone>(fillStart, fillEnd , boostCooldown - emptyTime, StateManager::gameTime);
+			tweenFill->SetUpdateCallback([&mask](glm::vec3 &value) mutable {
+                mask.SetScale(value);
+			});
+			tweenEmpty->SetNext(tweenFill);
+			tweenEmpty->Start();
+
+			//play boost sound
+		}
+	}
+	else {
+	//uable to boost sound??	
+	}
 }
 
 void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPower) {
@@ -643,7 +681,7 @@ void VehicleComponent::HandleAcceleration(float forwardPower, float backwardPowe
 	}
 
 	if (amountPressed > 0.1 && forwardPower > backwardPower) {
-		if (pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eNEUTRAL) {
+		if (pxVehicle->mDriveDynData.getCurrentGear() < PxVehicleGearsData::eNEUTRAL || speed <= 5.f) {
 			pxVehicle->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 		}
 	}

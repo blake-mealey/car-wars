@@ -12,20 +12,17 @@
 
 #include <iostream>
 
+float AiComponent::MAX_DIFFUCULTY;
+float AiComponent::STUCK_TIME;
+float AiComponent::UPDATE_TIME;
+float AiComponent::TARGETING_RANGE;
+float AiComponent::LOCKON_RANGE;
+float AiComponent::LOST_TIME;
+float AiComponent::SPRAY;
+float AiComponent::STOPING_DISTANCE;
+float AiComponent::STUCK_CONTROL;
+float AiComponent::ACCELERATION;
 
-
-const float AiComponent::MAX_DIFFUCULTY = 10.f;	// this is the max AI diffuculty
-const float AiComponent::ACCELERATION = .5f;	// bottom end of vehicle acceleration
-const float AiComponent::STUCK_TIME = 2.f;		// how long until the AI realizes they are stuck
-const float AiComponent::UPDATE_TIME = 1.f;		// how frequently the AI updates its mode in seconds
-const float AiComponent::STUCK_CONTROL = 1.5f;	// controls the cycles of reverse and accelerate for the AI (better AI has smaller cycles)
-
-// all these values are modified by the max because they are changed based on their diffuculty later (easier to tune the hard AI this way)
-const float AiComponent::TARGETING_RANGE = 500.f	/ MAX_DIFFUCULTY;	// the range that AI searches for targeting
-const float AiComponent::LOCKON_RANGE = 400.f		/ MAX_DIFFUCULTY;	// the range that the target will shoot
-const float AiComponent::LOST_TIME = 1.f			/ MAX_DIFFUCULTY;	// how long until the AI no longer looks for the target, in seconds
-const float AiComponent::SPRAY = 2.5f				* MAX_DIFFUCULTY;	// how accurate the AI is (lower means more accurate)
-const float AiComponent::STOPING_DISTANCE = 100.f	/ MAX_DIFFUCULTY;	// how close to the target the AI will get (better AI is more accurate doesn't need to be as close)
 
 
 AiComponent::~AiComponent() {
@@ -33,16 +30,24 @@ AiComponent::~AiComponent() {
     glDeleteVertexArrays(1, &pathVao);
 }
 
-AiComponent::AiComponent(nlohmann::json data) : targetEntity(nullptr), waypointIndex(0), lastPathUpdate(0) {
-	mode = AiMode_Waypoints;
-    std::string modeName = ContentManager::GetFromJson<std::string>(data["Mode"], "Waypoints");
-    if (modeName == "Waypoints") {
-        UpdateMode(AiMode_Waypoints);
-    } else if (modeName == "Chase") {
-        UpdateMode(AiMode_Chase);
-    }
-	startedStuck = Time(-1);
+AiComponent::AiComponent(nlohmann::json data) : targetEntity(nullptr), lastPathUpdate(0) {
+	MAX_DIFFUCULTY = ContentManager::GetFromJson<float>(data["MaxDiffuculty"], 10.f);
+	ACCELERATION = ContentManager::GetFromJson<float>(data["Acceleration"], .5f);
+	STUCK_TIME = ContentManager::GetFromJson<float>(data["StuckTime"], 2.f);
+	UPDATE_TIME = ContentManager::GetFromJson<float>(data["UpdateTime"], 2.f);
+	STUCK_CONTROL = ContentManager::GetFromJson<float>(data["StuckControl"], 1.5f);
+	TARGETING_RANGE = ContentManager::GetFromJson<float>(data["TargetingRange"], 500.f) / MAX_DIFFUCULTY;
+	LOCKON_RANGE = ContentManager::GetFromJson<float>(data["LockonRange"], 400.f) / MAX_DIFFUCULTY;
+	LOST_TIME = ContentManager::GetFromJson<float>(data["LostTime"], 1.f) / MAX_DIFFUCULTY;
+	SPRAY = ContentManager::GetFromJson<float>(data[ "Spray"], 1.5f) * MAX_DIFFUCULTY;
+	STOPING_DISTANCE = ContentManager::GetFromJson<float>(data[	"StoppingDistance"], 100.f) / MAX_DIFFUCULTY;
+
+	mode = AiMode_Chase;
 	UpdateMode(AiMode_Attack);
+
+	startedStuck = Time(-1);
+	lostTarget = Time(-1);
+	modeStart = Time(-UPDATE_TIME);
 
     InitializeRenderBuffers();
 }
@@ -196,213 +201,236 @@ void AiComponent::SetMode() {
 	return;
 }
 
-void AiComponent::Update() {
+void AiComponent::Drive() {
 	AiData* myData = static_cast<AiData*>(Game::GetPlayerFromEntity(GetEntity()));
 	if (!enabled || !myData->alive) return;
 
-	GameData gameData = Game::Instance().gameData;
-	const int playerCount = gameData.humanCount + gameData.aiCount;
-	std::vector<PlayerData*> players;
-
 	VehicleComponent* vehicle = GetEntity()->GetComponent<VehicleComponent>();
-	glm::vec3 localPosition = myData->vehicleEntity->transform.GetGlobalPosition();
 
+	// Driving Stuff
+	Transform &myTransform = GetEntity()->transform;
+	const glm::vec3 position = myTransform.GetGlobalPosition();
+	const glm::vec3 forward = myTransform.GetForward();
+	const glm::vec3 right = myTransform.GetRight();
+
+	UpdatePath(); // Will only update every x seconds
+
+	glm::vec3 nodePosition = NodeInPath();
+	glm::vec3 directionToNode = nodePosition - position;
+	float distanceToNode = glm::length(directionToNode);
+	directionToNode = glm::normalize(directionToNode);
+
+	NavigationMesh* navigationMesh = Game::Instance().GetNavigationMesh();
+
+	if (distanceToNode <= navigationMesh->GetSpacing() * 2.f) {
+		nodePosition = NodeInPath();
+	}
+
+	const float steer = glm::dot(directionToNode, right);
+
+	const float maxAcceleration = ACCELERATION + myData->diffuculty / MAX_DIFFUCULTY * (1 - ACCELERATION);
+
+	float forwardPower = maxAcceleration;
+	float backwardPower = 0.0f;
+
+	//stopping rage control
+	if (mode == AiMode_Attack) {
+		float stoppingDistance = STOPING_DISTANCE * myData->diffuculty;
+		if ((distanceToTarget < stoppingDistance) && lineOfSight) {
+			backwardPower = distanceToTarget / stoppingDistance * maxAcceleration;
+			forwardPower = backwardPower;
+			startedStuck = Time(-1); // dont become stuck
+		}
+	}
+
+	glm::vec3 boostDir = glm::vec3(0);
+	// try to unstick yourself
+	if (stuck) {
+		backwardPower = abs(std::cos(GetStuckDuration().GetSeconds() / M_PI / STUCK_CONTROL)) * maxAcceleration;
+		forwardPower = (maxAcceleration - backwardPower);
+		if (GetStuckDuration().GetSeconds() > 4 * STUCK_CONTROL) {
+			boostDir = -myTransform.GetUp() * ((float)rand() / RAND_MAX) + myTransform.GetRight() * ((float)rand() / RAND_MAX - .5f);
+		}
+	}
+
+	bool reverse = backwardPower > forwardPower;
+
+	vehicle->Boost(boostDir);
+	vehicle->Steer(reverse ? -steer : steer);
+	vehicle->HandleAcceleration(forwardPower, backwardPower);
+
+	if (FinishedPath()) {
+		UpdatePath();
+	}
+}
+
+
+
+bool AiComponent::GetLineOfSight(glm::vec3 _position) {
+	AiData* myData = static_cast<AiData*>(Game::GetPlayerFromEntity(GetEntity()));
+
+	glm::vec3 localPosition = myData->vehicleEntity->transform.GetGlobalPosition();
 	PxScene* scene = &Physics::Instance().GetScene();
 	PxRaycastBuffer hit;
 
-	// get players
-	for (size_t i = 0; i < gameData.humanCount; ++i) { 
-		players.push_back(&Game::humanPlayers[i]);
-	}
-	for (size_t i = 0; i < gameData.aiCount; ++i) {
-		players.push_back(&Game::ais[i]);
+	bool sight = false;
+	glm::vec3 directionToTarget = _position - localPosition;
+	float distanceToTarget = glm::length(directionToTarget);
+	directionToTarget = glm::normalize(directionToTarget);
+
+	PxQueryFilterData filterData;
+	filterData.data.word0 = -1 ^ GetEntity()->GetComponent<VehicleComponent>()->GetRaycastGroup();
+	VehicleComponent* enemyVehicleComponent = targetEntity->GetComponent<VehicleComponent>();
+	if (enemyVehicleComponent) filterData.data.word0 ^= enemyVehicleComponent->GetRaycastGroup();
+
+	//naive Raycast for line of sight
+	scene->raycast(Transform::ToPx(localPosition), Transform::ToPx(directionToTarget), distanceToTarget, hit, PxHitFlag::eDEFAULT, filterData);
+	if (!hit.hasAnyHits()){ // if you hit nothing then you have line or sight
+		sight = true;
 	}
 
-	if (vehicle) {
-		//find attack target
-		if (mode == AiMode_Attack) {
-			if (previousMode != mode || (GetTargetEntity() && !Game::GetPlayerFromEntity(targetEntity)->alive)) {
-				float bestRating = INFINITY;
-				for (PlayerData* enemyPlayer : players) {
-					if ((enemyPlayer->teamIndex != myData->teamIndex) // if they are not on my team
-						&& enemyPlayer->vehicleEntity						 // have a vehicle
-						&& enemyPlayer->alive) {							 // are alive
+	return sight;
+}
 
-						//Setup raycasting for the vehicle
-						glm::vec3 enemyPosition = enemyPlayer->vehicleEntity->transform.GetGlobalPosition();
-						glm::vec3 direction = enemyPosition - localPosition;
-						float distanceToEnemy = glm::length(direction);	
-						if (distanceToEnemy < myData->diffuculty * TARGETING_RANGE) { //see if they are in targeting range
-							direction = glm::normalize(direction);
-							PxQueryFilterData filterData;
-							filterData.data.word0 = (enemyPlayer->vehicleEntity->GetComponent<VehicleComponent>()->GetRaycastGroup() | RaycastGroups::GetDefaultGroup()); // only collide with enemy and terrain
-							//Raycast
-							if (scene->raycast(Transform::ToPx(localPosition), Transform::ToPx(direction), distanceToEnemy, hit, PxHitFlag::eDEFAULT, filterData) &&
-								EntityManager::FindEntity(hit.block.actor)->GetId() == enemyPlayer->vehicleEntity->GetId()) { // if you can see the enemy
-								float rating = distanceToEnemy; // this is used to select who to attack
-								if (rating <= bestRating) {
-									if (GetTargetEntity()) {
-										if (rating < bestRating || distanceToEnemy < glm::length(localPosition - targetEntity->transform.GetGlobalPosition())) { // if two are same rating. attack the closer one
-											bestRating = rating;
-											targetEntity = enemyPlayer->vehicleEntity;
-										}
-									}
+bool AiComponent::FindTarget() {
+	AiData* myData = static_cast<AiData*>(Game::GetPlayerFromEntity(GetEntity()));
+	glm::vec3 localPosition = myData->vehicleEntity->transform.GetGlobalPosition();
+
+	bool foundTarget = false;
+
+	if (mode == AiMode_Attack) {
+		GameData gameData = Game::Instance().gameData;
+		const int playerCount = gameData.humanCount + gameData.aiCount;
+		std::vector<PlayerData*> players;
+
+		if (previousMode != mode || (GetTargetEntity() && !Game::GetPlayerFromEntity(targetEntity)->alive)) {
+			// get players
+			for (size_t i = 0; i < gameData.humanCount; ++i) {
+				players.push_back(&Game::humanPlayers[i]);
+			}
+			for (size_t i = 0; i < gameData.aiCount; ++i) {
+				players.push_back(&Game::ais[i]);
+			}
+
+			//find attack target
+			float bestRating = INFINITY;
+			Entity* bestTarget = nullptr;
+
+			for (PlayerData* enemyPlayer : players) {
+				if ((enemyPlayer->teamIndex != myData->teamIndex) // if they are not on my team
+					&& enemyPlayer->vehicleEntity						 // have a vehicle
+					&& enemyPlayer->alive) {							 // are alive
+					glm::vec3 enemyPosition = enemyPlayer->vehicleEntity->transform.GetGlobalPosition();
+					float distanceToEnemy = glm::length(enemyPosition - localPosition);
+					if (distanceToEnemy < myData->diffuculty * TARGETING_RANGE) { //see if they are in targeting range
+						//set target to entity and check line of sight
+						targetEntity = enemyPlayer->vehicleEntity;
+						bool sightOnTarget = GetLineOfSight(enemyPosition);
+						if (sightOnTarget) {
+							float rating = distanceToEnemy; // this is used to select who to attack
+							if (rating <= bestRating) {
+								if (rating < bestRating || distanceToEnemy < glm::length(localPosition - bestTarget->transform.GetGlobalPosition())) { // if two are same rating. attack the closer one
+									bestRating = rating;
+									bestTarget = enemyPlayer->vehicleEntity;
 								}
 							}
 						}
 					}
 				}
-				if (bestRating == INFINITY) { // couldn't find a target 
-					UpdateMode(AiMode_GetPowerup);
-					return;
-				}
 			}
-		}
-		//find powerup
-		if (mode == AiMode_GetPowerup) {
-			std::vector<Component*> powerupComponents = EntityManager::GetComponents(ComponentType_Vehicle); // find powerup spawn locations
-			float bestDistance = INFINITY;
-			for (Component *component : powerupComponents) {
-				if (component->GetEntity()->GetId() != GetEntity()->GetId()) {
-					if (1) { /* is something there || no visibility */
-						float distance = glm::length(component->GetEntity()->transform.GetGlobalPosition() - GetEntity()->transform.GetGlobalPosition());
-						if (distance < bestDistance) {
-							bestDistance = distance;
-							targetEntity = component->GetEntity();
-						}
-					}
-				}
-			}
-			if (bestDistance == INFINITY) {
-				UpdateMode(AiMode_Attack);
-				return;
-			}
-		}
-
-		// check line of sight to target
-		bool lineOfSight = false;
-		float distanceToTarget = INFINITY;
-		glm::vec3 targetPosition = glm::vec3();
-		glm::vec3 directionToTarget = glm::vec3();
-		if (targetEntity) {
-			targetPosition = targetEntity->transform.GetGlobalPosition();
-			directionToTarget = targetPosition - localPosition;
-			distanceToTarget = glm::length(directionToTarget);
-			directionToTarget = glm::normalize(directionToTarget);
-			// TODO: add time for checking for line of sight
-			PxQueryFilterData filterData;
-			if (mode == AiMode_Attack) {
-				filterData.data.word0 = (targetEntity->GetComponent<VehicleComponent>()->GetRaycastGroup() | RaycastGroups::GetDefaultGroup()); // only collide with enemy and terrain
+			if (bestRating == INFINITY) { // couldn't find a target 
+				UpdateMode(AiMode_GetPowerup);
+				lineOfSight = false;
 			}
 			else {
-				filterData.data.word0 = -1 ^ GetEntity()->GetComponent<VehicleComponent>()->GetRaycastGroup(); // dont collide with self
-			}
-			//Raycast
-			if (scene->raycast(Transform::ToPx(localPosition), Transform::ToPx(directionToTarget), distanceToTarget + 1, hit, PxHitFlag::eDEFAULT, filterData) &&
-				EntityManager::FindEntity(hit.block.actor)->GetId() == targetEntity->GetId()) { // if you can see the enemy
+				targetEntity = bestTarget;
 				lineOfSight = true;
-			} else if (mode == AiMode_Attack){
-				LostTargetTime();
-				if (LostTargetDuration().GetSeconds() > LOST_TIME * myData->diffuculty) {
-					charged = false;
-					UpdateMode(AiMode_GetPowerup);
-					return;
-				}
+				foundTarget = true;
 			}
 		}
-
-		// Shooting stuff
-		if (mode == AiMode_Attack) {
-			WeaponComponent* weapon = GetEntity()->GetComponent<WeaponComponent>();
-			if (weapon) {
-				if (distanceToTarget < LOCKON_RANGE * myData->diffuculty) {
-					if (!charged) {
-						weapon->Charge();
-						charged = true;
-					}
-					glm::vec3 randomOffset = (glm::vec3(
-						(float)rand() / RAND_MAX,
-						(float)rand() / RAND_MAX,
-						(float)rand() / RAND_MAX
-					) - glm::vec3(.5f)) * (SPRAY / std::max(myData->diffuculty,.1f));
-
-					glm::vec3 hitLocation = targetPosition + randomOffset;
-					weapon->Shoot(hitLocation);
-				}
-				else{
-					LostTargetTime();
-				}
-			}
-			if (lineOfSight && distanceToTarget < TARGETING_RANGE * myData->diffuculty) lostTarget = Time(-1);
+		else {
+			foundTarget = true;
 		}
-
-		// Driving Stuff
-		Transform &myTransform = GetEntity()->transform;
-		const glm::vec3 position = myTransform.GetGlobalPosition();
-		const glm::vec3 forward = myTransform.GetForward();
-		const glm::vec3 right = myTransform.GetRight();
-
-		UpdatePath(); // Will only update every x seconds
-
-		glm::vec3 nodePosition = NodeInPath();
-		glm::vec3 directionToNode = nodePosition - position;
-		float distanceToNode = glm::length(directionToNode);
-		directionToNode = glm::normalize(directionToNode);
-
-		NavigationMesh* navigationMesh = Game::Instance().GetNavigationMesh();
-
-		if (distanceToNode <= navigationMesh->GetSpacing() * 2.f) {
-			nodePosition = NodeInPath();
-		}
-
-		const float steer = glm::dot(directionToNode, right);
-
-		const float maxAcceleration = ACCELERATION + myData->diffuculty / MAX_DIFFUCULTY * (1 - ACCELERATION);
-
-		float forwardPower = maxAcceleration;
-		float backwardPower = 0.0f;
-		
-		//stopping rage control
-		if (mode == AiMode_Attack) {
-			float stoppingDistance = STOPING_DISTANCE * myData->diffuculty;
-			if( (distanceToTarget < stoppingDistance) && lineOfSight) {
-				backwardPower = distanceToTarget / stoppingDistance * maxAcceleration;
-				forwardPower = backwardPower;
-				startedStuck = Time(-1); // dont become stuck
-			}
-		}
-		
-		glm::vec3 boostDir = glm::vec3(0);
-		// try to unstick yourself
-		if (stuck) {
-			backwardPower = abs(std::cos(GetStuckDuration().GetSeconds() / M_PI / STUCK_CONTROL)) * maxAcceleration;
-			forwardPower = (maxAcceleration - backwardPower);
-			if (GetStuckDuration().GetSeconds() > 4 * STUCK_CONTROL ) {
-				boostDir = -myTransform.GetUp() * ((float)rand() / RAND_MAX) + myTransform.GetRight() * ((float)rand()/RAND_MAX - .5f);
-			}
-		}
-
-		bool reverse = backwardPower > forwardPower;
-
-		if (vehicle->GetTimeSinceBoost().GetSeconds() > 5.f && boostDir != glm::vec3()) {
-			vehicle->Boost(boostDir, 10.f);
-		}
-
-		vehicle->Steer(reverse ? -steer : steer);
-		vehicle->HandleAcceleration(forwardPower, backwardPower);
-
-		if (FinishedPath()) {
-			UpdatePath();
-		}
-		SetMode();
 	}
+
+	//find powerup
+	if (mode == AiMode_GetPowerup) {
+		std::vector<Component*> powerupComponents = EntityManager::GetComponents(ComponentType_Vehicle); // find powerup spawn locations
+		float bestDistance = INFINITY;
+		for (Component* powerup : powerupComponents) {
+			if (powerup->GetEntity()->GetId() != GetEntity()->GetId()) {
+				if (1) { /*is something there */
+					float distance = glm::length(powerup->GetEntity()->transform.GetGlobalPosition() - GetEntity()->transform.GetGlobalPosition());
+					if (distance < bestDistance) {
+						bestDistance = distance;
+						targetEntity = powerup->GetEntity();
+					}
+				}
+			}
+		}
+		if (bestDistance == INFINITY) {
+			UpdateMode(AiMode_Attack);
+		}
+		else {
+			foundTarget = true;
+		}
+	}
+	return foundTarget;
+}
+
+
+void AiComponent::Shoot() {
+	// Shooting stuff
+	if (mode == AiMode_Attack) {
+		AiData* myData = static_cast<AiData*>(Game::GetPlayerFromEntity(GetEntity()));
+		glm::vec3 targetPosition = targetEntity->transform.GetGlobalPosition();
+		WeaponComponent* weapon = GetEntity()->GetComponent<WeaponComponent>();
+		if (weapon) {
+			if (distanceToTarget < LOCKON_RANGE * myData->diffuculty) {
+				if (!charged) {
+					weapon->Charge();
+					charged = true;
+				}
+
+				float randomHorizontalAngle = (float)rand() / (float)RAND_MAX * M_PI * 2.f;
+				float randomVerticalAngle = (float)rand() / (float)RAND_MAX * M_PI;
+
+				// pick a random point on a sphere for spray
+				glm::vec3 randomOffset = (glm::vec3(cos(randomHorizontalAngle) * sin(randomVerticalAngle),
+					cos(randomVerticalAngle),
+					sin(randomHorizontalAngle) * sin(randomVerticalAngle)) - glm::vec3(.5f)) * (SPRAY / std::max(myData->diffuculty, .1f));
+
+				glm::vec3 hitLocation = targetPosition + randomOffset;
+				weapon->Shoot(hitLocation);
+			}
+			else {
+				LostTargetTime();
+			}
+		}
+		if (lineOfSight && distanceToTarget < TARGETING_RANGE * myData->diffuculty) lostTarget = Time(-1);
+	}
+}
+
+void AiComponent::Update() {
+	AiData* myData = static_cast<AiData*>(Game::GetPlayerFromEntity(GetEntity()));
+	if (!enabled || !myData->alive) return;
+
+	glm::vec3 localPosition = myData->vehicleEntity->transform.GetGlobalPosition();
+	for (size_t i = 0; i < 2 && !FindTarget(); ++i); // try finding a target 2x
+	if (targetEntity) {
+		glm::vec3 targetPostion = targetEntity->transform.GetGlobalPosition();
+		distanceToTarget = glm::length(targetPostion - localPosition);
+		lineOfSight = GetLineOfSight(targetPostion);
+		Shoot();
+		Drive();
+	}
+	SetMode();
 }
 
 void AiComponent::TakeDamage(WeaponComponent* damager, float damage) {
 	if (Game::GetPlayerFromEntity(damager->GetEntity())->teamIndex != Game::GetPlayerFromEntity(GetEntity())->teamIndex) {
 		mode = AiMode_Attack;
 		UpdateMode(AiMode_Attack);
-		startedStuck = Time(-1);
 		SetTargetEntity(damager->GetEntity());
 	}
 }

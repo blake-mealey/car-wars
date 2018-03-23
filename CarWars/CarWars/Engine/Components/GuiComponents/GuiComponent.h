@@ -106,6 +106,11 @@ public:
     bool IsMaskInverted() const;
     bool IsClipEnabled() const;
     Transform& GetMask();
+    Texture* GetMaskTexture();
+    void SetMaskTexture(Texture* texture);
+
+    void SetEmissiveness(float _emissiveness);
+    float GetEmissiveness();
 
 private:
     bool selected;
@@ -133,6 +138,9 @@ private:
     bool maskInverted;
     Transform mask;
     bool clipEnabled;
+    Texture* maskTexture;
 
     std::unordered_set<GuiEffect*> effects;
+
+    float emissiveness;
 };

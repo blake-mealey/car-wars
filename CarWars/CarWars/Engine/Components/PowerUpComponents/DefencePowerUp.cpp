@@ -36,7 +36,7 @@ void DefencePowerUp::Collect(Entity* car) {
         Entity* guiRoot = player->camera->GetGuiRoot();
         Entity* guiEntity = EntityManager::FindFirstChild(guiRoot, "DefencePowerUp");
         GuiComponent* gui = guiEntity->GetComponent<GuiComponent>();
-        auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.25);
+        auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.25, StateManager::gameTime);
         tween->SetUpdateCallback([gui](float &value) mutable {
             gui->SetTextureOpacity(value);
             gui->transform.SetScale(glm::mix(glm::vec3(100.f, 100.f, 0.f), glm::vec3(0.f, 0.f, 0.f), value));

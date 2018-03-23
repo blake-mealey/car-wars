@@ -8,20 +8,16 @@
 		    "Scale": [400, 50, 1],
 		    "AnchorPoint": [0.5, 0.5],
 		    "Font": "Starjedi.ttf",
-		    "FontColor": "Yellow",
-		    "SelectedFontColor": "Yellow",
+		    "FontColor": "White",
 		    "FontSize": 36,
             "Text": "option name"
 	    },
 	    {
 		    "Type": "GUI",
+            "Prefab": "GUIs/MenuButton.json",
 		    "ScaledPosition": [0.5, 0.5],
             "Position": [250, 0, 0],
-		    "Scale": [400, 50, 1],
 		    "AnchorPoint": [0.5, 0.5],
-		    "Font": "Starjedi.ttf",
-		    "FontColor": "Yellow",
-		    "SelectedFontColor": "Red",
 		    "FontSize": 36,
 		    "Text": "option value"
 	    },
@@ -29,20 +25,20 @@
 			"Type": "GUI",
 			"ScaledPosition": [ 0.5, 0.5 ],
 			"AnchorPoint": [ 1, 0.5 ],
-			"Position": [ 50, 0, 0 ],
+			"Position": [ 40, 0, 0 ],
 			"Scale": [ 15, 25, 1 ],
-			"TextureColor": "Yellow",
-			"SelectedTextureColor": "Red",
+			"TextureColor": "White",
+			"SelectedTextureColor": "LightBlue",
 			"Texture": "Menu/Arrow-Left.png"
 		},
 		{
 			"Type": "GUI",
 			"ScaledPosition": [ 0.5, 0.5 ],
 			"AnchorPoint": [ 0, 0.5 ],
-			"Position": [ 450, 0, 0 ],
+			"Position": [ 460, 0, 0 ],
 			"Scale": [ 15, 25, 1 ],
-			"TextureColor": "Yellow",
-			"SelectedTextureColor": "Red",
+			"TextureColor": "White",
+			"SelectedTextureColor": "LightBlue",
 			"Texture": "Menu/Arrow-Right.png"
 		}
     ]

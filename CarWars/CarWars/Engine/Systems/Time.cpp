@@ -75,3 +75,7 @@ Time Time::operator*(const Time other) const {
 void Time::operator+=(const Time other) {
     timeSeconds += other.GetSeconds();
 }
+
+void Time::operator-=(const Time other) {
+    timeSeconds -= other.GetSeconds();
+}

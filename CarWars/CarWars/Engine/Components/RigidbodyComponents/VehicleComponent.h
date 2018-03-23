@@ -59,14 +59,19 @@ public:
 
 	size_t GetRaycastGroup() const;
 
-	void Boost(glm::vec3 boostDir, float amount);
+	void Boost(glm::vec3 boostDir);
 	void HandleAcceleration( float forwardPower, float backwardPower);
 	void Steer( float amount);
 	void Handbrake( float amount);
 
 	Time GetTimeSinceBoost();
+
 private:
 	Time lastBoost;
+	Time boostCooldown;
+
+	float boostPower;
+
     MeshComponent* wheelMeshPrefab;
     std::vector<MeshComponent*> wheelMeshes;
     std::vector<Collider*> wheelColliders;
