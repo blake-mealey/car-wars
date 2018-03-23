@@ -619,8 +619,6 @@ void InputManager::HandleKeyboard() {
 		float handbrake = 0;
 		if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
 			handbrake = 1;
-            Audio::Instance().PlayAudio("Content/Sounds/jump.mp3");
-            // TODO: this sounds needs to be improved
 		}
 
 		vehicle->Boost(boostDir);
@@ -731,8 +729,6 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 
 		if (heldButtons & XINPUT_GAMEPAD_DPAD_UP) {
 			boostDir = boostDir - player.vehicleEntity->transform.GetUp();
-            //Audio::Instance().PlayAudio("Content/Sounds/jump.mp3");
-            // TODO: This may not be in the right place...
 		}
 
 		if (heldButtons & XINPUT_GAMEPAD_DPAD_DOWN) {

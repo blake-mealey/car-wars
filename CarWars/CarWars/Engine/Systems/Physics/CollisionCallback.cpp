@@ -1,6 +1,5 @@
 #include "CollisionCallback.h"
 #include "../Physics.h"
-#include "../../Components/PowerUpComponents/PowerUp.h"
 #include "../../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../Engine/Components/WeaponComponents/MissileComponent.h"
 #include "../../Components/WeaponComponents/RocketLauncherComponent.h"

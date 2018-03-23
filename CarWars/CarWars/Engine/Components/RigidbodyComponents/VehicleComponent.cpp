@@ -623,6 +623,8 @@ void VehicleComponent::Boost(glm::vec3 boostDir) {
 		pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(glm::normalize(boostDir) * boostPower * GetChassisMass()), PxForceMode::eIMPULSE, true);
 		lastBoost = StateManager::gameTime;
 
+        Audio::Instance().PlayAudio("Content/Sounds/jump.mp3");
+
 		HumanData* player = Game::GetHumanFromEntity(GetEntity());
 		if (player) {
 			Entity* bar = EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "BoostBar");
