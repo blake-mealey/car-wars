@@ -102,7 +102,7 @@ struct AiData : PlayerData {
 
 struct GameData {
 	GameData() : map(0), gameMode(0), humanCount(0), aiCount(1),
-		numberOfLives(3), killLimit(10), timeLimitMinutes(10), aiDifficulty(1) {}
+		numberOfLives(3), killLimit(10), timeLimitMinutes(10), aiDifficulty(5) {}
 
     size_t map;
     size_t gameMode;
