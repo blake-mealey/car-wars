@@ -238,9 +238,6 @@ void AiComponent::Drive() {
 
 	const float maxAcceleration = ACCELERATION + myData->difficulty / MAX_DIFFICULTY * (1 - ACCELERATION);
 
-
-	std::cout << distanceToNode << std::endl;
-
 	float forwardPower = maxAcceleration;
 	float backwardPower = 0.0f;
 
