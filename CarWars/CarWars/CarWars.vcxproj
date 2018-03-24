@@ -311,6 +311,7 @@
     <ClInclude Include="Engine\Components\GuiEffects\OpacityEffect.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Content\HeightMaps\Test.json" />
     <None Include="Content\Materials\CyanShiny.json" />
     <None Include="Content\Materials\PinkShiny.json" />
     <None Include="Content\Materials\YellowShiny.json" />

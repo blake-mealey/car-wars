@@ -13,7 +13,6 @@ struct Texture;
 
 class ContentManager {
 public:
-	static HeightMap* heightmap;
 	static const std::string CONTENT_DIR_PATH;
 
 	static const std::string MESH_DIR_PATH;
@@ -21,6 +20,7 @@ public:
 	static const std::string MATERIAL_DIR_PATH;
 	static const std::string PX_MATERIAL_DIR_PATH;
 	static const std::string SCENE_DIR_PATH;
+    static const std::string HEIGHT_MAP_DIR_PATH;
 
 	static const std::string SKYBOX_DIR_PATH;
 	static const std::string SKYBOX_FACE_NAMES[6];
@@ -37,6 +37,8 @@ public:
 	static Texture* GetTexture(std::string filePath);
 	static Material* GetMaterial(nlohmann::json data);
 	static physx::PxMaterial* GetPxMaterial(std::string filePath);
+
+    static HeightMap* GetHeightMap(std::string filePath);
 
     static std::string GetTextureName(Texture* texture);
 
@@ -67,13 +69,15 @@ public:
 
     template <class T>
     static T* LoadComponent(nlohmann::json data);
-	static Component* LoadComponent(nlohmann::json data, Mesh* heightmap = nullptr);
+	static Component* LoadComponent(nlohmann::json data);
 	static Entity* LoadEntity(nlohmann::json data, Entity *parent=nullptr);
 
 private:
     static std::map<std::string, nlohmann::json> scenePrefabs;
     static std::map<std::string, nlohmann::json> entityPrefabs;
     static std::map<std::string, nlohmann::json> componentPrefabs;
+
+    static std::map<std::string, HeightMap*> heightMaps;
 
 	static std::map<std::string, Mesh*> meshes;
 	static std::map<std::string, Texture*> textures;

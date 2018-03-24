@@ -17,11 +17,13 @@ MeshCollider::MeshCollider(std::string _collisionGroup, physx::PxMaterial *_mate
     InitializeGeometry(_mesh);
 }
 
-MeshCollider::MeshCollider(nlohmann::json data, Mesh* heightmap) : Collider(data) {
-	if(heightmap == nullptr)
-		InitializeGeometry(ContentManager::GetMesh(data["Mesh"]));
-	else
-		InitializeGeometry(heightmap);
+MeshCollider::MeshCollider(nlohmann::json data) : Collider(data) {
+    if (data["HeightMap"].is_string()) {
+        HeightMap* map = ContentManager::GetHeightMap(data["HeightMap"]);
+        InitializeGeometry(map->GetMesh());
+    } else {
+        InitializeGeometry(ContentManager::GetMesh(data["Mesh"]));
+    }
 }
 
 ColliderType MeshCollider::GetType() const {

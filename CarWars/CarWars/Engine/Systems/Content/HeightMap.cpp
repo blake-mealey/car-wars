@@ -5,7 +5,7 @@
 
 using glm::vec3;
 
-HeightMap::HeightMap(Picture& image, const int height, const int width, const int length) {
+/*HeightMap::HeightMap(Picture& image, const int height, const int width, const int length) {
 	if (image.Height() < 2 || image.Width() < 2) {
 		cout << "Cannot create a 3D map from your 1D Drawing. Draw a Proper Map, Not A Trail. I'm Not That Kind of Terrain Generator.";
 	}
@@ -38,7 +38,7 @@ HeightMap::HeightMap(Picture& image, const int height, const int width, const in
 		}
 		r += w;
 	}
-}
+}*/
 
 HeightMap::HeightMap(nlohmann::json data) {
 	const unsigned int maxHeight = ContentManager::GetFromJson<unsigned int>(data["MaxHeight"], 20);
@@ -56,7 +56,7 @@ HeightMap::HeightMap(nlohmann::json data) {
 	//strcpy(file, fileString.c_str());
 	const char* file = fileString.c_str();
 
-	Picture* image = new Picture(file);
+	/*Picture* image = new Picture(file);
 	const int length = maxLength / image->Height();
 	const int width = maxWidth / image->Width();
 
@@ -118,13 +118,13 @@ HeightMap::HeightMap(nlohmann::json data) {
 		}
 		y += uvstepy;
 	}
-	delete image;
+	delete image;*/
 }
 
-HeightMap::HeightMap(char* file, const int height, const int width, const int length) : HeightMap(Picture(file), height, width, length) { }
+/*HeightMap::HeightMap(const char* file, const int height, const int width, const int length) : HeightMap(Picture(file), height, width, length) { }
 
 //This is the one we will be using
-HeightMap::HeightMap(char* file, const int maxHeight, const int maxWidth, const int maxLength, const float uvstep) {
+HeightMap::HeightMap(const char* file, const int maxHeight, const int maxWidth, const int maxLength, const float uvstep) {
 	Picture image = Picture(file);
 	const int length = maxLength / image.Height();
 	const int width = maxWidth / image.Width();
@@ -188,7 +188,7 @@ HeightMap::HeightMap(char* file, const int maxHeight, const int maxWidth, const 
 		y += uvstepy;
 	}
 	
-}
+}*/
 
 float HeightMap::GetHeight(glm::vec3 coords) {
 	return 1;
@@ -206,6 +206,11 @@ vector<glm::vec2> HeightMap::UVS() {
 	return uvs;
 }
 
+Mesh* HeightMap::GetMesh() {
+    if (!mesh) CreateMesh();
+    return mesh;
+}
+
 void HeightMap::PrintVertices() {
 	for (int i = 0; i < vertices.size(); i ++) {
 		cout << vertices[i].x << ", " << vertices[i].y << ", " << vertices[i].z << std::endl;
@@ -220,13 +225,12 @@ void HeightMap::PrintElements() {
 	cout << std::endl << std::endl;
 }
 
-Mesh* HeightMap::CreateMesh() {
-	Mesh* m = new Mesh(triangles.size(), vertices.size(), &triangles[0], &vertices[0], &uvs[0]);
-	//ContentManager::StoreMesh(fileString, m);
-	return m;
+void HeightMap::CreateMesh() {
+    mesh = ContentManager::GetMesh("CircleMap.obj");
+//	mesh = new Mesh(triangles.size(), vertices.size(), &triangles[0], &vertices[0], &uvs[0]);
 }
 
-Mesh* HeightMap::CreateMesh(nlohmann::json data) {
+/*Mesh* HeightMap::CreateMesh(nlohmann::json data) {
 	const unsigned int maxHeight = ContentManager::GetFromJson<unsigned int>(data["MaxHeight"], 20);
 	const unsigned int maxWidth = ContentManager::GetFromJson<unsigned int>(data["MaxWidth"], 20);
 	const unsigned int maxLength = ContentManager::GetFromJson<unsigned int>(data["MaxLength"], 20);
@@ -247,7 +251,7 @@ Mesh* HeightMap::CreateMesh(nlohmann::json data) {
 	Mesh* m = new Mesh(triangles.size(), vertices.size(), &triangles[0], &vertices[0], &uvs[0]);
 	//ContentManager::StoreMesh(fileString, m);
 	return m;
-}
+}*/
 
 /*vector<Triangle>& HeightMap::Triangles() {
 	vector<Triangle> triangles;

@@ -18,7 +18,7 @@ public:
 	void HandleEvent(Event* event) override;
 	
     ~MeshComponent() = default;
-	MeshComponent(nlohmann::json data, Mesh* heightmap = nullptr);
+	MeshComponent(nlohmann::json data);
 	MeshComponent(std::string meshPath, std::string materialPath);
 	MeshComponent(std::string meshPath, Material *_material);
 	MeshComponent(std::string meshPath, std::string materialPath, std::string texturePath);

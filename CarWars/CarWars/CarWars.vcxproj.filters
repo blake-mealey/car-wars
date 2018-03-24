@@ -260,5 +260,6 @@
     <None Include="Content\Prefabs\Components\DefencePowerUpMesh.json" />
     <None Include="Content\Prefabs\Entities\Controls\GamepadX.json" />
     <None Include="Content\Scenes\Maps\HeightMap.json" />
+    <None Include="Content\HeightMaps\Test.json" />
   </ItemGroup>
 </Project>

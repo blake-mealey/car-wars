@@ -9,7 +9,7 @@ class RigidbodyComponent : public Component {
 public:
     ~RigidbodyComponent() override;
     RigidbodyComponent();
-    RigidbodyComponent(nlohmann::json data, Mesh* heightmap = nullptr);
+    RigidbodyComponent(nlohmann::json data);
 
     void AddCollider(Collider *collider);
 

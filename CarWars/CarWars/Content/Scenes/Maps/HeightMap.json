@@ -1,21 +1,12 @@
 [
   {
     "Tag": "Floor",
-    "Position": [ 0, 0, 0 ],
     "Scale": [50, 30, 50],
-	"HeightMap": true,
-	"MaxHeight": 5,
-	"MaxWidth": 20,
-	"MaxLength": 20,
-	"Map": "arena.png",
-	"UVStep": 0.5,
     "Components": [
       {
         "Type": "Mesh",
-        "Mesh": "CircleMap.obj",
-        "Texture": "CircleMapTexture1.png",
-        "Material": "Basic.json",
-        "UvScale": [1, 1]
+        "HeightMap": "Test.json",
+        "Material": "Basic.json"
       },
       {
         "Type": "RigidStatic",
@@ -24,7 +15,7 @@
           {
             "Type": "Mesh",
             "CollisionGroup": "Ground",
-            "Mesh": "CircleMap.obj"
+            "HeightMap": "Test.json"
           }
         ]
       }
