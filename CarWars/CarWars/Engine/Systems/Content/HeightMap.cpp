@@ -12,45 +12,70 @@ HeightMap::HeightMap(nlohmann::json data) {
 	
     const std::string filePath = ContentManager::HEIGHT_MAP_DIR_PATH + data["Map"].get<std::string>();
 	Picture* image = new Picture(filePath);
-	
-    zSpacing = maxLength / static_cast<float>(image->Height());
-	xSpacing = maxWidth / static_cast<float>(image->Width());
 
-	if (image->Height() < 2 || image->Width() < 2) {
-		std::cerr << "Cannot create a 3D map from your 1D Drawing. Draw a Proper Map, Not A Trail. I'm Not That Kind of Terrain Generator.";
-	}
+    rowCount = image->Height();
+    colCount = image->Width();
+
+    if (rowCount < 2 || colCount < 2) {
+        std::cerr << "Cannot create a 3D map from your 1D Drawing. Draw a Proper Map, Not A Trail. I'm Not That Kind of Terrain Generator.";
+    }
+	
+    zSpacing = maxLength / static_cast<float>(rowCount);
+	xSpacing = maxWidth / static_cast<float>(colCount);
+    
+    heights = new float*[rowCount];
+
+    const size_t vertexCount = rowCount * colCount;
+    const size_t triangleCount = (rowCount - 1) * (colCount - 1) * 2;
+    vec3* vertices = new vec3[vertexCount];
+    vec2* uvs = new vec2[vertexCount];
+    Triangle* triangles = new Triangle[triangleCount];
 	
     const vec3 offset = -vec3(maxWidth, 0.f, maxLength) * 0.5f;
     float* pixels = image->Pixels();
 	float z = 0.f;
-	for (unsigned int i = 0; i < image->Height(); i++) {
+    int v = 0;
+	for (unsigned int i = 0; i < rowCount; i++) {
 		float x = 0.f;
-		for (unsigned int j = 0; j < image->Width(); j++) {
+        heights[i] = new float[colCount];
+		
+	    for (unsigned int j = 0; j < colCount; j++) {
             const float y = (1.f - (pixels[0] + pixels[1] + pixels[2]) / 3.f) * maxHeight;
-			vertices.push_back(vec3(x, y, z) + offset);
-            uvs.push_back(vec2(x / static_cast<float>(image->Width()), z / static_cast<float>(image->Height())));
-			pixels += image->Channels();
+            heights[i][j] = y;
+            
+		    vertices[v] = vec3(x, y, z) + offset;
+            uvs[v] = vec2(x / static_cast<float>(colCount), z / static_cast<float>(rowCount));
+            v++;
+			
+		    pixels += image->Channels();
 			x += xSpacing;
 		}
 		z += zSpacing;
 	}
 	
     unsigned int r = 0;
-	unsigned int w = image->Width();
-	for (unsigned int i = 0; i < image->Height() - 1; i++) {
-		for (unsigned int j = 0; j < image->Width() - 1; j++) {
-			triangles.push_back(Triangle((r + j), (r + j + w), (r + j + 1)));
-			triangles.push_back(Triangle((r + j + 1), (r + j + w), (r + j + w + 1)));
+	const unsigned int w = colCount;
+    int t = 0;
+	for (unsigned int i = 0; i < rowCount - 1; i++) {
+		for (unsigned int j = 0; j < colCount - 1; j++) {
+            triangles[t++] = Triangle((r + j), (r + j + w), (r + j + 1));
+            triangles[t++] = Triangle((r + j + 1), (r + j + w), (r + j + w + 1));
 		}
 		r += w;
 	}
+
+    mesh = new Mesh(triangleCount, vertexCount, triangles, vertices, uvs);
 
 	delete image;
 }
 
 float HeightMap::GetHeight(vec3 coords) const {
+    const int row = (coords.z + GetLength()*0.5f) / zSpacing;
+    const int col = (coords.x + GetWidth()*0.5f) / xSpacing;
 
-	return 1;
+    if (row < 0 || row > rowCount - 1 || col < 0 || col > colCount - 1) return -5.f;
+
+    return heights[row][col];
 }
 
 float HeightMap::GetWidth() const {
@@ -70,24 +95,5 @@ float HeightMap::GetZSpacing() const {
 }
 
 Mesh* HeightMap::GetMesh() {
-    if (!mesh) CreateMesh();
     return mesh;
-}
-
-void HeightMap::PrintVertices() {
-	for (int i = 0; i < vertices.size(); i ++) {
-		cout << vertices[i].x << ", " << vertices[i].y << ", " << vertices[i].z << std::endl;
-	}
-	cout << std::endl << std::endl;
-}
-
-void HeightMap::PrintElements() {
-	for (int i = 0; i < triangles.size(); i ++) {
-		cout << triangles[i].vertexIndex0 << ", " << triangles[i].vertexIndex1 << ", " << triangles[i].vertexIndex2 << std::endl;
-	}
-	cout << std::endl << std::endl;
-}
-
-void HeightMap::CreateMesh() {
-    mesh = new Mesh(triangles.size(), vertices.size(), triangles.data(), vertices.data(), uvs.data());
 }

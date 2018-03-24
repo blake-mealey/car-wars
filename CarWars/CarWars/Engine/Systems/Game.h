@@ -1,9 +1,7 @@
 #pragma once
 #include "System.h"
 #include <vector>
-#include <PxRigidDynamic.h>
 #include "Content/NavigationMesh.h"
-#include "../Components/Tweens/Tween.h"
 #include "../Components/PowerUpComponents/PowerUp.h"
 #include "Content/HeightMap.h"
 
@@ -150,7 +148,7 @@ public:
 	void Initialize();
 	void Update() override;
 
-	void SpawnVehicle(PlayerData& vehicle);
+	void SpawnVehicle(PlayerData& vehicle) const;
 	void SpawnAi(AiData& ai);
     void InitializeGame();
     void ResetGame();

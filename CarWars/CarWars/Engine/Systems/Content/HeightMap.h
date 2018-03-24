@@ -21,13 +21,11 @@ public:
     float GetZSpacing() const;
     Mesh* GetMesh();
 private:
-    void CreateMesh();
-
     Mesh* mesh = nullptr;
 
-    vector<glm::vec3> vertices;
-    vector<glm::vec2> uvs;
-    vector<Triangle> triangles;
+    int rowCount;
+    int colCount;
+    float** heights;
 
     float maxHeight;
     float maxWidth;

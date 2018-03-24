@@ -79,10 +79,10 @@ void Game::Initialize() {
     StateManager::SetState(GameState_Menu);
 }
 
-void Game::SpawnVehicle(PlayerData& player) {
-	std::vector<Entity*> spawns = EntityManager::FindEntities("SpawnLocation");
+void Game::SpawnVehicle(PlayerData& player) const {
+	vector<Entity*> spawns = EntityManager::FindEntities("SpawnLocation");
 	Entity* spawn = spawns[rand() % spawns.size()];
-	glm::vec3 position = spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f);
+	const glm::vec3 position = spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f);
 
 	// Initialize their vehicle
 	player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
@@ -190,9 +190,9 @@ void Game::InitializeGame() {
     if (navigationMesh) delete navigationMesh;
     if (heightMap) {
         navigationMesh = new NavigationMesh({
-            { "ColumnCount", heightMap->GetLength() },
-            { "RowCount", heightMap->GetWidth() },
-            { "Spacing", heightMap->GetXSpacing() }
+            { "ColumnCount", heightMap->GetLength() / 2.5f },
+            { "RowCount", heightMap->GetWidth() / 2.5f },
+            { "Spacing", 2.5f }
         });
     } else {
         navigationMesh = new NavigationMesh({
@@ -250,9 +250,9 @@ void Game::Update() {
 		}
 
         // Update sun direction
-		const float t = glm::radians(45.5) + StateManager::gameTime.GetSeconds() / 10;
+		/*const float t = glm::radians(45.5) + StateManager::gameTime.GetSeconds() / 10;
         const glm::vec3 sunPosition = glm::vec3(cos(t), 0.5f, sin(t));
-        EntityManager::FindEntities("Sun")[0]->GetComponent<DirectionLightComponent>()->SetDirection(-sunPosition);
+        EntityManager::FindEntities("Sun")[0]->GetComponent<DirectionLightComponent>()->SetDirection(-sunPosition);*/
 		
         // Update cameras
         for (int i = 0; i < gameData.humanCount; ++i) {

@@ -2,7 +2,6 @@
 
 #include "ContentManager.h"
 
-#include <iostream>
 #include "../../Entities/EntityManager.h"
 #include "../../Components/RigidbodyComponents/RigidbodyComponent.h"
 #include "../Game.h"
@@ -38,7 +37,7 @@ void NavigationMesh::Initialize() {
             );
 
             HeightMap* map = Game::Instance().GetHeightMap();
-            if (map) position.y = map->GetHeight(position);
+            if (map) position.y += map->GetHeight(position);
 
             vertices[index].position = position;
 		}
@@ -54,7 +53,7 @@ void NavigationMesh::UpdateMesh() {
     UpdateMesh(EntityManager::GetComponents(ComponentType_Vehicle));
 }
 
-void NavigationMesh::UpdateMesh(std::vector<Component*> rigidbodies) {
+void NavigationMesh::UpdateMesh(vector<Component*> rigidbodies) {
     // Check if covered vertices became uncovered
     for (auto it = coveredVertices.begin(); it != coveredVertices.end(); ) {
         const size_t index = *it;
@@ -87,7 +86,7 @@ void NavigationMesh::UpdateMesh(std::vector<Component*> rigidbodies) {
 
         // Find all the vertices this body covers
         const physx::PxBounds3 bounds = rigidbody->pxRigid->getWorldBounds(1.f);
-        std::vector<size_t> contained = FindAllContainedBy(bounds);
+        vector<size_t> contained = FindAllContainedBy(bounds);
 
         // Add this body to any vertices that it covers and mark them as covered
         for (size_t index : contained) {
