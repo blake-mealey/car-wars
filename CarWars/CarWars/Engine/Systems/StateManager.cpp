@@ -62,8 +62,6 @@ void StateManager::SetState(GameState state) {
     }
 
     // TODO: Fire event
-
-    std::cout << "Game State: " << GameStateToString() << std::endl;
 }
 
 bool StateManager::IsState(GameState state) {

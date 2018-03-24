@@ -33,7 +33,7 @@ HeightMap::HeightMap(nlohmann::json data) {
 	}
 
 	if (image->Height() < 2 || image->Width() < 2) {
-		cout << "Cannot create a 3D map from your 1D Drawing. Draw a Proper Map, Not A Trail. I'm Not That Kind of Terrain Generator.";
+		std::cerr << "Cannot create a 3D map from your 1D Drawing. Draw a Proper Map, Not A Trail. I'm Not That Kind of Terrain Generator.";
 	}
 	
     float* pixels = image->Pixels();

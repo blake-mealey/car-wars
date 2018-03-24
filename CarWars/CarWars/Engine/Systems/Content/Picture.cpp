@@ -9,7 +9,7 @@ Picture::Picture(std::string filePath) {
 	stbi_set_flip_vertically_on_load(false);
 	pixels = stbi_loadf(filePath.c_str(), &width, &height, &channels, 0);
 	if (pixels == nullptr) {
-		cout << "Failed to Load Height Map\n";
+		std::cerr << "Failed to Load Height Map\n";
 	}
 }
 

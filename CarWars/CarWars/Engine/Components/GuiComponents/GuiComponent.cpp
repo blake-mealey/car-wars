@@ -131,7 +131,7 @@ Texture* GuiComponent::GetTexture() const {
 void GuiComponent::SetFont(std::string fontName) {
 	font = new FTGLPixmapFont(("./Content/Fonts/" + fontName).c_str());
 	if (font->Error())
-		std::cout << "WARNING: Font " << fontName << " failed to loat with FT_Error: " << font->Error() << std::endl;
+		std::cerr << "WARNING: Font " << fontName << " failed to load with FT_Error: " << font->Error() << std::endl;
 }
 
 void GuiComponent::SetFontSize(int fontSize) {

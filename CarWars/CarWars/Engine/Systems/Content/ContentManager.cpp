@@ -96,7 +96,7 @@ Mesh* ContentManager::GetMesh(const string filePath, unsigned pFlags) {
     );
 
 	if (scene == nullptr) {
-		cout << "WARNING: Failed to load mesh: " << filePath << endl;
+		cerr << "WARNING: Failed to load mesh: " << filePath << endl;
 		return nullptr;
 	}
 
@@ -317,7 +317,7 @@ Component* ContentManager::LoadComponent(json data) {
 	else if (type == "Line") component = new LineComponent(data);
 	else if (type == "PowerUpSpawner") component = new PowerUpSpawnerComponent(data);
     else {
-        cout << "Unsupported component type: " << type << endl;
+        cerr << "Unsupported component type: " << type << endl;
         supportedType = false;
     }
     if (supportedType) {
@@ -499,7 +499,7 @@ void ContentManager::LoadSkybox(string directoryPath) {
         if (data) {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         } else {
-            cout << "ERROR: Failed to load cubemap texture: " << filePath << endl;
+            cerr << "ERROR: Failed to load cubemap texture: " << filePath << endl;
         }
         stbi_image_free(data);
     }
@@ -526,7 +526,7 @@ GLuint ContentManager::LoadShader(string filePath, const GLenum shaderType) {
 			back_inserter(source));
 		input.close();
 	} else {
-		cout << "ERROR: Could not load shader source from file " << filePath << endl;
+		cerr << "ERROR: Could not load shader source from file " << filePath << endl;
 	}
 
 	// Create a shader and get it's ID
@@ -545,7 +545,7 @@ GLuint ContentManager::LoadShader(string filePath, const GLenum shaderType) {
 		glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &length);
 		string info(length, ' ');
 		glGetShaderInfoLog(shaderId, info.length(), &length, &info[0]);
-		cout << "ERROR Compiling Shader:" << endl << endl << source << endl << info << endl;
+		cerr << "ERROR Compiling Shader:" << endl << endl << source << endl << info << endl;
 	}
 
 	// Return the shader's ID

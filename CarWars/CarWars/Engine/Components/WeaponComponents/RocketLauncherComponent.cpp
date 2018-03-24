@@ -12,7 +12,6 @@ void RocketLauncherComponent::Shoot(glm::vec3 position) {
 
 		//Calculate Next Shooting Time
 		nextShotTime = StateManager::gameTime.GetSeconds() + timeBetweenShots.GetSeconds();
-		std::cout << "Rocket Shot" << damage << std::endl;
 
 		//Play Shooting Sound
 		Audio& audioManager = Audio::Instance();
@@ -24,7 +23,6 @@ void RocketLauncherComponent::Shoot(glm::vec3 position) {
 
         TweenChargeIndicator();
 	} else {
-		std::cout << "Between Shots" << std::endl;
 	}
 }
 
