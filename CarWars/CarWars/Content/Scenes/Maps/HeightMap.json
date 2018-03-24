@@ -1,12 +1,15 @@
 [
   {
     "Tag": "Floor",
-    "Scale": [50, 10, 50],
+    "Scale": [25, 5, 25],
+    "Position": [-150, 0, -150],
     "Components": [
       {
         "Type": "Mesh",
         "HeightMap": "Test.json",
-        "Material": "Basic.json"
+        "Material": "Basic.json",
+        "Texture": "Boulder.jpg",
+        "UvScale": [0.1, 0.1]
       },
       {
         "Type": "RigidStatic",

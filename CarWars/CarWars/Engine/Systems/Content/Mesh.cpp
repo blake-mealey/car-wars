@@ -12,7 +12,7 @@ Mesh::Mesh(size_t _triangleCount, size_t _vertexCount, Triangle* _triangles, glm
 	// Generate normals if they were not provided
     if (!_normals) {
 		_normals = new glm::vec3[vertexCount];
-        GenerateNormals(_vertices, _normals);
+        GenerateNormals(_triangles, _vertices, _normals);
     }
 
 	// Compute the radius in case this mesh is later attached to the cylinder (?)
@@ -28,21 +28,24 @@ Mesh::~Mesh() {
     glDeleteVertexArrays(VAOs::Count, vaos);
 }
 
-void Mesh::GenerateNormals(glm::vec3 *vertices, glm::vec3 *normals) {
-	for (size_t i = 0; i < vertexCount; i++) {
+void Mesh::GenerateNormals(Triangle* triangles, glm::vec3* vertices, glm::vec3* normals) {
+	for (size_t i = 0; i < vertexCount; ++i) {
 		normals[i] = glm::vec3(0.f);;
 	}
 
-	for (size_t i = 0; i < vertexCount - 3; i+=3) {
-		const glm::vec3 v1 = vertices[i];
-		const glm::vec3 triangleNormal = glm::normalize(glm::cross(vertices[i + 1] - v1, vertices[i + 2] - v1));
-		for (size_t j = i; j < i + 3; j++) {
-			normals[j] = normals[j] + triangleNormal;
-		}
-	}
+    for (size_t i = 0; i < triangleCount; ++i) {
+        const Triangle triangle = triangles[i];
+        const glm::vec3 v0 = vertices[triangle.vertexIndex0];
+        const glm::vec3 v1 = vertices[triangle.vertexIndex1];
+        const glm::vec3 v2 = vertices[triangle.vertexIndex2];
+        const glm::vec3 triangleNormal = normalize(cross(v1 - v0, v2 - v0));
+        normals[triangle.vertexIndex0] += triangleNormal;
+        normals[triangle.vertexIndex1] += triangleNormal;
+        normals[triangle.vertexIndex2] += triangleNormal;
+    }
 
 	for (size_t i = 0; i < vertexCount; i++) {
-		normals[i] = glm::normalize(normals[i]);
+		normals[i] = normalize(normals[i]);
 	}
 }
 
