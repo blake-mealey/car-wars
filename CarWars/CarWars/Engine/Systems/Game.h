@@ -129,9 +129,9 @@ struct GameData {
     static constexpr size_t MIN_TIME_LIMIT_MINUTES = 1;
     static constexpr size_t MAX_TIME_LIMIT_MINUTES = 60;
 
-	float aiDifficulty;
-	static constexpr float MIN_AI_DIFFICULTY = 1;
-	static constexpr float MAX_AI_DIFFICULTY = 10.f;
+	size_t aiDifficulty;
+	static constexpr size_t MIN_AI_DIFFICULTY = 1;
+	static constexpr size_t MAX_AI_DIFFICULTY = 10.f;
 
 	Time respawnTime = 1.0;
 
