@@ -59,9 +59,29 @@ void InputManager::HandleMouse() {
 		if (Mouse::ButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
 			weapon->Charge();
 		} else if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
-			PxQueryFilterData filterData;
-			filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
-			glm::vec3 cameraHit = cameraC->CastRay(rayLength, filterData);
+			PxScene* scene = &Physics::Instance().GetScene();
+			glm::vec3 cameraDirection = glm::normalize(cameraC->GetTarget() - cameraC->GetPosition());
+			PxSweepBuffer sweepBuffer;
+			PxGeometry sphereGeometry = PxSphereGeometry(5.0f);
+			PxTransform initialPosition = PxTransform(Transform::ToPx(cameraC->GetTarget()));
+			PxQueryFilterData sweepFilterData;
+			sweepFilterData.data.word0 = 0;
+			for (Component* component : EntityManager::GetComponents(ComponentType_Vehicle)) {
+				VehicleComponent* vehicleComponent = static_cast<VehicleComponent*>(component);
+				Entity* vehicleEntity = vehicleComponent->GetEntity();
+				if ((vehicleEntity->GetId() != vehicle->GetEntity()->GetId()) && (Game::GetPlayerFromEntity(vehicleEntity)->teamIndex != Game::GetPlayerFromEntity(vehicle->GetEntity())->teamIndex)) {
+					sweepFilterData.data.word0 |= RaycastGroups::GetGroupsMask(vehicleComponent->GetRaycastGroup());
+				}
+			}
+			glm::vec3 cameraHit;
+			sweepFilterData.data.word0 = ~sweepFilterData.data.word0;
+			if (scene->sweep(sphereGeometry, initialPosition, Transform::ToPx(cameraDirection), 20.0f, sweepBuffer, PxHitFlag::eDEFAULT, sweepFilterData)) {
+				cameraHit = Transform::FromPx(sweepBuffer.block.position);
+			} else {
+				PxQueryFilterData filterData;
+				filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
+				cameraHit = cameraC->CastRay(rayLength, filterData);
+			}
 			weapon->Shoot(cameraHit);
 		} else if (Mouse::ButtonReleased(GLFW_MOUSE_BUTTON_LEFT)) {
 			if(weapon->GetType() == ComponentType_RailGun)
