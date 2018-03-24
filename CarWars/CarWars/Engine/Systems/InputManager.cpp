@@ -125,13 +125,14 @@ void CreateStartMenuOption(Entity* container, std::string optionName, std::strin
 
 void CreateStartMenu() {
     Entity* optionsContainer = EntityManager::FindEntities("StartMenu_Options")[0];
-    const size_t optionsCount = 6;
+    const size_t optionsCount = 7;
     CreateStartMenuOption(optionsContainer, "number of lives", to_string(Game::gameData.numberOfLives), 0, optionsCount);
     CreateStartMenuOption(optionsContainer, "number of ai", to_string(Game::gameData.aiCount), 1, optionsCount);
-    CreateStartMenuOption(optionsContainer, "map", MapType::displayNames[Game::gameData.map], 2, optionsCount);
-    CreateStartMenuOption(optionsContainer, "time limit", to_string(Game::gameData.timeLimitMinutes) + " minutes", 3, optionsCount);
-    CreateStartMenuOption(optionsContainer, "kill limit", to_string(Game::gameData.killLimit), 4, optionsCount);
-    CreateStartMenuOption(optionsContainer, "game mode", GameModeType::displayNames[Game::gameData.gameMode], 5, optionsCount);
+	CreateStartMenuOption(optionsContainer, "ai difficulty", to_string(Game::gameData.aiDifficulty), 2, optionsCount);
+    CreateStartMenuOption(optionsContainer, "map", MapType::displayNames[Game::gameData.map], 3, optionsCount);
+    CreateStartMenuOption(optionsContainer, "time limit", to_string(Game::gameData.timeLimitMinutes) + " minutes", 4, optionsCount);
+    CreateStartMenuOption(optionsContainer, "kill limit", to_string(Game::gameData.killLimit), 5, optionsCount);
+    CreateStartMenuOption(optionsContainer, "game mode", GameModeType::displayNames[Game::gameData.gameMode], 6, optionsCount);
 }
 
 void NextNumberOption(Entity* option, int dir, size_t &value, size_t min, size_t max, std::string unit = "") {
@@ -328,7 +329,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
             Entity* selected = GuiHelper::GetSelectedEntity("StartMenu_Options");
             if (GuiHelper::FirstGuiContainsText(selected, "lives")) {
                 NextNumberOption(selected, navData.horizDir, Game::gameData.numberOfLives, GameData::MIN_NUMBER_OF_LIVES, GameData::MAX_NUMBER_OF_LIVES);
-            } else if (GuiHelper::FirstGuiContainsText(selected, "ai")) {
+            } else if (GuiHelper::FirstGuiContainsText(selected, "number of ai")) {
                 NextNumberOption(selected, navData.horizDir, Game::gameData.aiCount, GameData::MIN_AI_COUNT, GameData::MAX_AI_COUNT);
             } else if (GuiHelper::FirstGuiContainsText(selected, "map")) {
                 NextEnumOption(selected, navData.horizDir, Game::gameData.map, MapType::Count, MapType::displayNames);
@@ -338,7 +339,9 @@ void InputManager::NavigateGuis(GuiNavData navData) {
                 NextNumberOption(selected, navData.horizDir, Game::gameData.killLimit, GameData::MIN_KILL_LIMIT, GameData::MAX_KILL_LIMIT);
             } else if (GuiHelper::FirstGuiContainsText(selected, "game")) {
                 NextEnumOption(selected, navData.horizDir, Game::gameData.gameMode, GameModeType::Count, GameModeType::displayNames);
-            }
+			} else if (GuiHelper::FirstGuiContainsText(selected, "ai difficulty")) {
+				NextNumberOption(selected, navData.horizDir, Game::gameData.aiDifficulty, GameData::MIN_AI_DIFFICULTY, GameData::MAX_AI_DIFFICULTY);
+			}
         } else if (gameState == GameState_Menu_Start_CharacterSelect) {
             if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle", navData.playerIndex)) {
                 player.vehicleType = (player.vehicleType + navData.horizDir) % VehicleType::Count;
