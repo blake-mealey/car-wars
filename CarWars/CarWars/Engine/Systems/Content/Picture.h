@@ -10,7 +10,7 @@ class Picture {
 	int channels;
 public:
 	~Picture();
-	Picture(const char* file);
+	Picture(std::string filePath);
 	Picture(float* _pixels, int& _width, int& _height, int& _channels);
 	float* Pixels() { return pixels; }
 	int Width() { return width;	}

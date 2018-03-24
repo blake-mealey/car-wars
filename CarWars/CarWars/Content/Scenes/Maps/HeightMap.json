@@ -1,7 +1,7 @@
 [
   {
     "Tag": "Floor",
-    "Scale": [50, 30, 50],
+    "Scale": [50, 10, 50],
     "Components": [
       {
         "Type": "Mesh",
