@@ -168,7 +168,8 @@ void Game::InitializeGame() {
     for (size_t i = 0; i < gameData.aiCount; ++i) {
         // Create the AI
         // TODO: Choose vehicle and weapon type somehow
-        ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun, AiComponent::MAX_DIFFUCULTY));
+
+        ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun, gameData.aiDifficulty));
         AiData& ai = ais[i];
 		ai.name = "Computer " + to_string(i + 1);
 
@@ -188,11 +189,6 @@ void Game::InitializeGame() {
         { "RowCount", 100 },
         { "Spacing", 2.5f }
     });
-
-	std::vector<AiComponent*> ais = EntityManager::GetComponents<AiComponent>(ComponentType_AI);
-    for (AiComponent* ai : ais) {
-		ai->SetMode();
-    }
 }
 
 void ResetPlayerData(PlayerData& player) {

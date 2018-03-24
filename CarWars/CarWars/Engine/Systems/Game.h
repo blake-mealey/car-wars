@@ -94,16 +94,16 @@ struct HumanData : PlayerData {
 };
 
 struct AiData : PlayerData {
-    AiData(int _vehicleType, int _weaponType, float _diffuculty) : PlayerData(_vehicleType, _weaponType), brain(nullptr), diffuculty(_diffuculty){}
+    AiData(int _vehicleType, int _weaponType, float _difficulty) : PlayerData(_vehicleType, _weaponType), brain(nullptr), difficulty(_difficulty){}
 
     // Game state
+	float difficulty;
     AiComponent* brain;
-	float diffuculty;
 };
 
 struct GameData {
-    GameData() : map(0), gameMode(0), humanCount(0), aiCount(1),
-        numberOfLives(3), killLimit(10), timeLimitMinutes(10) {}
+	GameData() : map(0), gameMode(0), humanCount(0), aiCount(1),
+		numberOfLives(3), killLimit(10), timeLimitMinutes(10), aiDifficulty(1) {}
 
     size_t map;
     size_t gameMode;
@@ -128,6 +128,10 @@ struct GameData {
     Time timeLimit;
     static constexpr size_t MIN_TIME_LIMIT_MINUTES = 1;
     static constexpr size_t MAX_TIME_LIMIT_MINUTES = 60;
+
+	float aiDifficulty;
+	static constexpr float MIN_AI_DIFFICULTY = 1;
+	static constexpr float MAX_AI_DIFFICULTY = 10.f;
 
 	Time respawnTime = 1.0;
 
