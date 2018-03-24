@@ -31,7 +31,7 @@ public:
     AiMode GetMode() const;
 	void SetMode();
 
-    void UpdatePath();
+    void UpdatePath(glm::vec3 _position);
     void NextNodeInPath();
     glm::vec3 NodeInPath() const;
     bool FinishedPath() const;

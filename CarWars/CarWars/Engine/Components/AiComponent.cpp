@@ -81,26 +81,22 @@ AiMode AiComponent::GetMode() const {
     return mode;
 }
 
-void AiComponent::UpdatePath() {
+void AiComponent::UpdatePath(glm::vec3 _targetPosition) {
     if (!FinishedPath() && StateManager::gameTime - lastPathUpdate < 0.01) return;
     lastPathUpdate = StateManager::gameTime;
 
-	PlayerData* enemyData = Game::GetPlayerFromEntity(targetEntity);
+	const glm::vec3 currentPosition = GetEntity()->transform.GetGlobalPosition();
+	const glm::vec3 targetPosition = _targetPosition;
+	const glm::vec3 offsetDirection = normalize(-GetEntity()->transform.GetForward() * 1.f + normalize(targetPosition - currentPosition));
+	//    const glm::vec3 offsetDirection = -GetEntity()->transform.GetForward();
+	auto newPath = Pathfinder::FindPath(
+		Game::Instance().GetNavigationMesh(),
+		currentPosition + offsetDirection * Game::Instance().GetNavigationMesh()->GetSpacing() * 2.f,
+		targetPosition);
 
-	if (GetTargetEntity() && enemyData && enemyData->alive) {
-		const glm::vec3 currentPosition = GetEntity()->transform.GetGlobalPosition();
-		const glm::vec3 targetPosition = GetTargetEntity()->transform.GetGlobalPosition();
-		const glm::vec3 offsetDirection = normalize(-GetEntity()->transform.GetForward() * 1.f + normalize(targetPosition - currentPosition));
-		//    const glm::vec3 offsetDirection = -GetEntity()->transform.GetForward();
-		auto newPath = Pathfinder::FindPath(
-			Game::Instance().GetNavigationMesh(),
-			currentPosition + offsetDirection * Game::Instance().GetNavigationMesh()->GetSpacing() * 2.f,
-			targetPosition);
-
-		if (!newPath.empty() || FinishedPath()) {
-			path = newPath;
-			UpdateRenderBuffers();
-		}
+	if (!newPath.empty() || FinishedPath()) {
+		path = newPath;
+		UpdateRenderBuffers();
 	}
 }
 
@@ -222,7 +218,10 @@ void AiComponent::Drive() {
 	const glm::vec3 forward = myTransform.GetForward();
 	const glm::vec3 right = myTransform.GetRight();
 
-	UpdatePath(); // Will only update every x seconds
+	PlayerData* enemyData = Game::GetPlayerFromEntity(targetEntity);
+	glm::vec3 driveTo;
+	if (enemyData && enemyData->alive) driveTo = targetEntity->transform.GetGlobalPosition();
+	UpdatePath(driveTo); // Will only update every x seconds
 
 	glm::vec3 nodePosition = NodeInPath();
 	glm::vec3 directionToNode = nodePosition - position;
@@ -238,6 +237,9 @@ void AiComponent::Drive() {
 	const float steer = glm::dot(directionToNode, right);
 
 	const float maxAcceleration = ACCELERATION + myData->difficulty / MAX_DIFFICULTY * (1 - ACCELERATION);
+
+
+	std::cout << distanceToNode << std::endl;
 
 	float forwardPower = maxAcceleration;
 	float backwardPower = 0.0f;
@@ -268,7 +270,7 @@ void AiComponent::Drive() {
 	vehicle->HandleAcceleration(forwardPower, backwardPower);
 
 	if (FinishedPath()) {
-		UpdatePath();
+		UpdatePath(driveTo);
 	}
 }
 
