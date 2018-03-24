@@ -8,7 +8,7 @@
   "StuckControl": 1.5,
   "TargetingRange": 500,
   "LockonRange": 400,
-  "LostTime": 1,
+  "LostTime": 5,
   "Spray": 1.5,
   "StoppingDistance": 100
 }
