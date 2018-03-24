@@ -5,13 +5,41 @@
 #include "../../Entities/EntityManager.h"
 #include "../../Components/RigidbodyComponents/RigidbodyComponent.h"
 #include "../Game.h"
+#include "Picture.h"
 
-NavigationMesh::NavigationMesh(nlohmann::json data) {
+NavigationMesh::NavigationMesh(nlohmann::json data) : heightMap(nullptr), defaults(nullptr) {
 	columnCount = ContentManager::GetFromJson<size_t>(data["ColumnCount"], 100);
 	rowCount = ContentManager::GetFromJson<size_t>(data["RowCount"], 100);
 	spacing = ContentManager::GetFromJson<float>(data["Spacing"], 2.f);
 
 	Initialize();
+}
+
+NavigationMesh::NavigationMesh(std::string dirPath) {
+    // Load spacing and columns/rows from height map
+    heightMap = ContentManager::GetHeightMap(dirPath);
+    spacing = 5.f;
+    columnCount = heightMap->GetLength() / spacing;
+    rowCount = heightMap->GetWidth() / spacing;
+
+    // Load defaults from image
+    Picture* image = new Picture(ContentManager::MAP_DIR_PATH + dirPath + "Nav.png");
+    
+    defaults = new float[GetVertexCount()];
+
+    size_t index = 0;
+    for (unsigned int row = 0; row < rowCount; ++row) {
+        for (unsigned int col = 0; col < columnCount; ++col) {
+            const float y = 0.01f + image->Sample(row / static_cast<float>(rowCount), col / static_cast<float>(columnCount)) * 0.7f;
+            defaults[index++] = y;
+        }
+    }
+
+    delete image;
+
+
+
+    Initialize();
 }
 
 size_t NavigationMesh::GetVertexCount() const {
@@ -36,10 +64,10 @@ void NavigationMesh::Initialize() {
                 (spacing + columnCount) * -0.5f*spacing + col*spacing
             );
 
-            HeightMap* map = Game::Instance().GetHeightMap();
-            if (map) position.y += map->GetHeight(position);
+            if (heightMap) position.y += heightMap->GetHeight(position);
 
             vertices[index].position = position;
+            vertices[index].score = GetDefault(index);
 		}
 	}
 
@@ -72,7 +100,7 @@ void NavigationMesh::UpdateMesh(vector<Component*> rigidbodies) {
 
         // If this vertex is no longer covered, remove it from the set of covered bodies
         if (vertexCoveringBodies.empty()) {
-            vertex.score = 0.5f;
+            vertex.score = GetDefault(index);
             it = coveredVertices.erase(it);
         } else {
             ++it;
@@ -121,7 +149,7 @@ void NavigationMesh::RemoveRigidbody(RigidbodyComponent *rigidbody) {
 
 		// If this vertex is no longer covered, remove it from the set of covered bodies
 		if (vertexCoveringBodies.empty()) {
-			vertex.score = 0.5f;
+            vertex.score = GetDefault(index);
 			it = coveredVertices.erase(it);
 		} else {
 			++it;
@@ -130,8 +158,24 @@ void NavigationMesh::RemoveRigidbody(RigidbodyComponent *rigidbody) {
 }
 
 size_t NavigationMesh::FindClosestVertex(glm::vec3 worldPosition) const {
+    // Initial mapping
+    int row = (worldPosition.x + static_cast<float>(rowCount + spacing)*0.5f*spacing) / spacing;
+    int column = (worldPosition.z + static_cast<float>(columnCount + spacing)*0.5f*spacing) / spacing;
+
     // Bounds-check rows
-    size_t row = 0;
+    if (row < 0) row = 0;
+    else if (row > rowCount - 1) row = rowCount - 1;
+
+    // Bounds check columns
+    if (column < 0) column = 0;
+    else if (column > columnCount - 1) column = columnCount - 1;
+
+    // Return index
+    return row * columnCount + column;
+
+
+    // Bounds-check rows
+    /*size_t row = 0;
     if (worldPosition.x < GetPosition(0, 0).x) {
         row = 0;
     } else if (worldPosition.x > GetPosition(rowCount - 1, 0).x) {
@@ -198,7 +242,7 @@ size_t NavigationMesh::FindClosestVertex(glm::vec3 worldPosition) const {
         }
     }
 
-    return row * columnCount + column;
+    return row * columnCount + column;*/
 }
 
 glm::vec3 NavigationMesh::GetPosition(size_t index) const {
@@ -219,6 +263,10 @@ glm::vec3 NavigationMesh::GetPosition(size_t row, size_t col) const {
 
 float NavigationMesh::GetScore(size_t row, size_t col) const {
     return GetVertex(row, col).score;
+}
+
+NavigationVertex NavigationMesh::GetVertex(size_t index) const {
+    return vertices[index];
 }
 
 std::vector<size_t> NavigationMesh::GetNeighbours(size_t index) {
@@ -249,10 +297,6 @@ std::vector<size_t> NavigationMesh::GetNeighbours(size_t index) {
     if (backward != -1) neighbours.push_back(backward);
 
     return neighbours;
-}
-
-NavigationVertex NavigationMesh::GetVertex(size_t index) const {
-    return vertices[index];
 }
 
 // TODO: Make less ugly (split into sub-functions)
@@ -334,6 +378,11 @@ int NavigationMesh::GetLeft(size_t index) const {
 int NavigationMesh::GetRight(size_t index) const {
     const int right = index + 1;
     return right % columnCount != 0 ? right : -1;
+}
+
+float NavigationMesh::GetDefault(size_t index) const {
+    if (!defaults) return 0.5f;
+    return defaults[index];
 }
 
 void NavigationMesh::InitializeRenderBuffers() {

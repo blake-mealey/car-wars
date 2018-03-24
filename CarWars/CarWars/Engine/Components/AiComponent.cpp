@@ -2,17 +2,13 @@
 #include "../Systems/Content/ContentManager.h"
 #include "../Systems/Pathfinder.h"
 #include "../Systems/Game.h"
-#include <iostream>
 #include "../Systems/StateManager.h"
-#include "../Components/RigidbodyComponents/RigidDynamicComponent.h"
 #include "../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../Components/WeaponComponents/WeaponComponent.h"
 #include "../Components/RigidbodyComponents/PowerUpSpawnerComponent.h"
 
 #include "../Systems/Physics.h"
-#include "../Systems/Physics/RaycastGroups.h"
 
-#include <iostream>
 #include "../Entities/EntityManager.h"
 
 float AiComponent::MAX_DIFFICULTY;
@@ -82,7 +78,7 @@ AiMode AiComponent::GetMode() const {
 }
 
 void AiComponent::UpdatePath(glm::vec3 _targetPosition) {
-    if (!FinishedPath() && StateManager::gameTime - lastPathUpdate < 0.01) return;
+    if (!FinishedPath() && StateManager::gameTime - lastPathUpdate < 0.05) return;
     lastPathUpdate = StateManager::gameTime;
 
 	const glm::vec3 currentPosition = GetEntity()->transform.GetGlobalPosition();

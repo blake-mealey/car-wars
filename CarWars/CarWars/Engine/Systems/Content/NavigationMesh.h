@@ -3,9 +3,12 @@
 #include "json/json.hpp"
 #include "../../Components/RigidbodyComponents/RigidbodyComponent.h"
 #include <unordered_set>
+#include "Picture.h"
+
+class HeightMap;
 
 struct NavigationVertex {
-    NavigationVertex() : score(0.5f), position(glm::vec3(0.f)) {}
+    NavigationVertex() : position(glm::vec3(0.f)) {}
 
     float score;
 	glm::vec3 position;
@@ -13,7 +16,8 @@ struct NavigationVertex {
 
 class NavigationMesh {
 public:
-	NavigationMesh(nlohmann::json data);
+    explicit NavigationMesh(nlohmann::json data);
+	explicit NavigationMesh(std::string dirPath);
     
     size_t GetVertexCount() const;
     float GetSpacing() const;
@@ -43,6 +47,8 @@ public:
     int GetLeft(size_t index) const;
     int GetRight(size_t index) const;
 
+    float GetDefault(size_t index) const;
+
 private:
 	void Initialize();
     void InitializeRenderBuffers();
@@ -51,6 +57,9 @@ private:
 
     bool IsContainedBy(size_t index, physx::PxBounds3 bounds);
     std::vector<size_t> FindAllContainedBy(physx::PxBounds3 bounds);
+
+    HeightMap* heightMap;
+    float* defaults;
 
     float spacing;
 	size_t columnCount;

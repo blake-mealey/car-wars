@@ -77,6 +77,7 @@
     <ClCompile Include="Engine\Components\GuiEffects\OpacityEffect.cpp" />
     <ClCompile Include="Engine\Systems\Content\HeightMap.cpp" />
     <ClCompile Include="Engine\Systems\Content\Picture.cpp" />
+    <ClCompile Include="Engine\Systems\Content\Map.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -167,6 +168,7 @@
     <ClInclude Include="Engine\Components\GuiEffects\OpacityEffect.h" />
     <ClInclude Include="Engine\Systems\Content\HeightMap.h" />
     <ClInclude Include="Engine\Systems\Content\Picture.h" />
+    <ClInclude Include="Engine\Systems\Content\Map.h" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="Content\Sounds\powerup.mp3" />
@@ -176,7 +178,6 @@
     <Image Include="Content\Textures\HUD\shield-vignette-blue.png" />
     <Image Include="Content\Textures\HUD\shield-vignette.png" />
     <Image Include="Content\Textures\HUD\speed-vingette.png" />
-    <Image Include="Content\HeightMaps\arena.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\Materials\CyanShiny.json" />
@@ -259,7 +260,6 @@
     <None Include="Content\Prefabs\Components\DamagePowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\DefencePowerUpMesh.json" />
     <None Include="Content\Scenes\Maps\HeightMap.json" />
-    <None Include="Content\HeightMaps\Test.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadA.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadB.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadX.json" />
@@ -269,5 +269,7 @@
     <None Include="Content\Prefabs\Entities\Controls\GamepadContinue.json" />
     <None Include="Content\Prefabs\Entities\Controls\GamepadSelect.json" />
     <None Include="Content\Prefabs\Entities\Controls\GamepadJoin.json" />
+    <None Include="Content\Maps\Arena\Data.json" />
+    <None Include="Content\Prefabs\Entities\Game\Floor.json" />
   </ItemGroup>
 </Project>

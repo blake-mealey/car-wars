@@ -18,4 +18,6 @@ public:
 	int Channels() { return channels; }
 	int Count() { return width*height*channels; }
 	void PrintPixels();
+
+    float Sample(float row, float col);
 };

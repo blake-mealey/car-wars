@@ -30,3 +30,10 @@ void Picture::PrintPixels() {
 
 	cout << std::endl << std::endl;
 }
+
+float Picture::Sample(float row, float col) {
+    const int realRow = row * static_cast<float>(height);
+    const int realCol = col * static_cast<float>(width);
+    const int index = (realRow * width + realCol) * channels;
+    return (pixels[index] + pixels[index + 1] + pixels[index + 2]) / 3.f;
+}

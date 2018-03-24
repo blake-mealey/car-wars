@@ -26,8 +26,8 @@ using namespace std;
 
 const string GameModeType::displayNames[Count] = { "Team", "Free for All" };
 
-const string MapType::displayNames[Count] = { "Circle" };
-const string MapType::scenePaths[Count] = { "Maps/HeightMap.json" };
+const string MapType::displayNames[Count] = { "Arena" };
+const string MapType::mapDirPaths[Count] = { "Arena/" };
 
 const string VehicleType::displayNames[Count] = { "Heavy", "Medium", "Light" };
 const string VehicleType::prefabPaths[Count] = { "Vehicles/Sewage.json", "Vehicles/Hearse.json", "Vehicles/Flatbed.json" };
@@ -62,7 +62,7 @@ vector<AiData> Game::ais;
 Time gameTime(0);
 
 // Singleton
-Game::Game(): heightMap(nullptr), navigationMesh(nullptr) {}
+Game::Game() : map(nullptr) {}
 
 Game &Game::Instance() {
 	static Game instance;
@@ -114,9 +114,8 @@ void Game::SpawnAi(AiData& ai) {
 
 void Game::InitializeGame() {
     // Initialize the map
-    ContentManager::ResetLastAccessedHeightMap();
-    ContentManager::DestroySceneAndLoadScene(MapType::scenePaths[gameData.map]);
-    heightMap = ContentManager::GetLastAccessedHeightMap();
+    if (map) delete map;
+    map = new Map(MapType::mapDirPaths[gameData.map]);
 
     // Initialize game stuff
     gameData.timeLimit = Time::FromMinutes(gameData.timeLimitMinutes);
@@ -185,21 +184,6 @@ void Game::InitializeGame() {
         }
 
 		SpawnAi(ai);
-    }
-
-    if (navigationMesh) delete navigationMesh;
-    if (heightMap) {
-        navigationMesh = new NavigationMesh({
-            { "ColumnCount", heightMap->GetLength() / 2.5f },
-            { "RowCount", heightMap->GetWidth() / 2.5f },
-            { "Spacing", 2.5f }
-        });
-    } else {
-        navigationMesh = new NavigationMesh({
-            { "ColumnCount", 100 },
-            { "RowCount", 100 },
-            { "Spacing", 2.5f }
-        });
     }
 }
 
@@ -359,11 +343,13 @@ void Game::Update() {
 }
 
 NavigationMesh* Game::GetNavigationMesh() const {
-    return navigationMesh;
+    if (!map) return nullptr;
+    return map->navigationMesh;
 }
 
 HeightMap* Game::GetHeightMap() const {
-    return heightMap;
+    if (!map) return nullptr;
+    return map->heightMap;
 }
 
 PlayerData* Game::GetPlayerFromEntity(Entity* vehicle) {
