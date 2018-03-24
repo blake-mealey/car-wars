@@ -22,6 +22,7 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 
 	if (StateManager::gameTime.GetSeconds() >= nextShotTime.GetSeconds()) {
         playingChargeSound = false;
+        Audio::Instance().StopSound(soundIndex);
         Audio::Instance().PlayAudio2D("Content/Sounds/railgun-shoot.mp3");
 
 		//Get Vehicle
@@ -84,8 +85,9 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 			tweenOut->Start();
 		}
 	} else if (StateManager::gameTime > nextChargeTime && StateManager::gameTime < nextShotTime) {
+        //Play Charging Sound
         if (!playingChargeSound) {
-            Audio::Instance().PlayAudio2D("Content/Sounds/railgun-charge.mp3");
+            soundIndex = Audio::Instance().PlaySound("Content/Sounds/railgun-charge.mp3");
             playingChargeSound = true;
         }
 
@@ -103,8 +105,7 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 void RailGunComponent::Charge() {
 	if (StateManager::gameTime.GetSeconds() >= nextChargeTime.GetSeconds()) { // charging
 		nextShotTime = StateManager::gameTime + chargeTime;
-		//Play Charging Sound
-
+		
 
 		HumanData* player = Game::Instance().GetHumanFromEntity(GetEntity());
 		if (player) {
@@ -140,6 +141,8 @@ void RailGunComponent::RenderDebugGui() {
 
 void RailGunComponent::ChargeRelease() {
 	HumanData* player = Game::Instance().GetHumanFromEntity(GetEntity());
+    playingChargeSound = false;
+    Audio::Instance().StopSound(soundIndex);
 	if (player) {
 		Tween* outTween = Effects::Instance().FindTween("RailGunChargeOut" + std::to_string(player->id));
 		if (outTween) return;

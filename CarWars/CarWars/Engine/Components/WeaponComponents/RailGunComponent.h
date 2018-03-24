@@ -27,4 +27,5 @@ private:
 	Time chargeTime = 2.0f;
 	Time nextChargeTime = 0.0f;
     bool playingChargeSound = false;
+    int soundIndex;
 };
