@@ -1,7 +1,7 @@
 [
   {
     "Tag": "Floor",
-    "Scale": [25, 5, 25],
+    "Scale": [25, 1, 25],
     "Position": [-150, 0, -150],
     "Components": [
       {

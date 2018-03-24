@@ -39,6 +39,8 @@ public:
 	static physx::PxMaterial* GetPxMaterial(std::string filePath);
 
     static HeightMap* GetHeightMap(std::string filePath);
+    static HeightMap* GetLastAccessedHeightMap();
+    static void ResetLastAccessedHeightMap();
 
     static std::string GetTextureName(Texture* texture);
 
@@ -78,6 +80,7 @@ private:
     static std::map<std::string, nlohmann::json> componentPrefabs;
 
     static std::map<std::string, HeightMap*> heightMaps;
+    static HeightMap* lastAccessedHeightMap;
 
 	static std::map<std::string, Mesh*> meshes;
 	static std::map<std::string, Texture*> textures;

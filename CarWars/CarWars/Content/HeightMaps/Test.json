@@ -1,5 +1,5 @@
 {
-	"MaxHeight": 5,
+	"MaxHeight": 25,
 	"MaxWidth": 20,
 	"MaxLength": 20,
 	"Map": "arena.png",

@@ -10,27 +10,11 @@ HeightMap::HeightMap(nlohmann::json data) {
 	const unsigned int maxWidth = ContentManager::GetFromJson<unsigned int>(data["MaxWidth"], 20);
 	const unsigned int maxLength = ContentManager::GetFromJson<unsigned int>(data["MaxLength"], 20);
 	const float uvstep = ContentManager::GetFromJson<float>(data["UVStep"], 0.5f);
-	const std::string filePath = ContentManager::SCENE_DIR_PATH + "Maps/" + data["Map"].get<std::string>();
+	const std::string filePath = ContentManager::HEIGHT_MAP_DIR_PATH + data["Map"].get<std::string>();
 
 	Picture* image = new Picture(filePath);
 	const int length = maxLength / image->Height();
 	const int width = maxWidth / image->Width();
-
-	float uvstepx;
-	float uvstepy;
-
-	float ratio;
-
-	if (width > length) {
-		ratio = static_cast<float>(length) / static_cast<float>(width);
-		uvstepy = uvstep * ratio;
-		uvstepx = uvstep * (1 - ratio);
-	}
-	else {
-		ratio = static_cast<float>(width) / static_cast<float>(length);
-		uvstepx = uvstep * ratio;
-		uvstepy = uvstep * (1.f - ratio);
-	}
 
 	if (image->Height() < 2 || image->Width() < 2) {
 		std::cerr << "Cannot create a 3D map from your 1D Drawing. Draw a Proper Map, Not A Trail. I'm Not That Kind of Terrain Generator.";

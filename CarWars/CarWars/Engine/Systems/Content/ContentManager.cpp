@@ -27,9 +27,6 @@
 #include "../../Components/RigidbodyComponents/RigidDynamicComponent.h"
 #include "../../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../../Components/AiComponent.h"
-#include "../../Components/PowerUpComponents/SpeedPowerUp.h"
-#include "../../Components/PowerUpComponents/DefencePowerUp.h"
-#include "../../Components/PowerUpComponents/DamagePowerUp.h"
 #include "../../Components/GuiComponents/GuiComponent.h"
 #include "../../Components/LineComponent.h"
 #include "../Effects.h"
@@ -49,6 +46,7 @@ map<string, Texture*> ContentManager::textures;
 map<string, Material*> ContentManager::materials;
 map<string, PxMaterial*> ContentManager::pxMaterials;
 map<string, HeightMap*> ContentManager::heightMaps;
+HeightMap* ContentManager::lastAccessedHeightMap = nullptr;
 GLuint ContentManager::skyboxCubemap;
 
 const string ContentManager::CONTENT_DIR_PATH = "./Content/";
@@ -208,7 +206,10 @@ PxMaterial* ContentManager::GetPxMaterial(string filePath) {
 
 HeightMap* ContentManager::GetHeightMap(std::string filePath) {
     HeightMap* map = heightMaps[filePath];
-    if (map) return map;
+    if (map) {
+        lastAccessedHeightMap = map;
+        return map;
+    }
 
     json data = LoadJson(HEIGHT_MAP_DIR_PATH + filePath);
     
@@ -221,7 +222,16 @@ HeightMap* ContentManager::GetHeightMap(std::string filePath) {
     map = new HeightMap(data);
 
     heightMaps[filePath] = map;
+    lastAccessedHeightMap = map;
     return map;
+}
+
+HeightMap* ContentManager::GetLastAccessedHeightMap() {
+    return lastAccessedHeightMap;
+}
+
+void ContentManager::ResetLastAccessedHeightMap() {
+    lastAccessedHeightMap = nullptr;
 }
 
 std::string ContentManager::GetTextureName(Texture* texture) {

@@ -5,6 +5,7 @@
 #include "Content/NavigationMesh.h"
 #include "../Components/Tweens/Tween.h"
 #include "../Components/PowerUpComponents/PowerUp.h"
+#include "Content/HeightMap.h"
 
 class CameraComponent;
 class AiComponent;
@@ -161,6 +162,7 @@ public:
     static std::vector<AiData> ais;
 
     NavigationMesh *GetNavigationMesh() const;
+    HeightMap* GetHeightMap() const;
 
     static PlayerData* GetPlayerFromEntity(Entity* vehicle);
     static HumanData* GetHumanFromEntity(Entity* vehicle);
@@ -170,5 +172,6 @@ private:
 	Game(const Game&) = delete;
 	Game& operator= (const Game&) = delete;
 
+    HeightMap* heightMap;
     NavigationMesh *navigationMesh;
 };

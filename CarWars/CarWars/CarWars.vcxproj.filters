@@ -176,7 +176,7 @@
     <Image Include="Content\Textures\HUD\shield-vignette-blue.png" />
     <Image Include="Content\Textures\HUD\shield-vignette.png" />
     <Image Include="Content\Textures\HUD\speed-vingette.png" />
-    <Image Include="Content\Scenes\Maps\arena.png" />
+    <Image Include="Content\HeightMaps\arena.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\Materials\CyanShiny.json" />
