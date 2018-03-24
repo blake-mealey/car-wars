@@ -22,6 +22,7 @@ void Audio::Initialize() {
     soundSystem->set3DSettings(1.0f, 1.0f, 1.0f); 
     soundSystem->set3DNumListeners(Game::gameData.humanCount);
 
+    for (int i = 0; i < 100; i++) { availableSound[i] = true; }
 
     prevGameState = StateManager::GetState();
     // main screen intro music
@@ -44,6 +45,26 @@ void Audio::PlayAudio(const char *filename) {
     //}
 
     PlayAudio(filename, 1.f);
+}
+
+int Audio::PlaySound(const char *filename) {
+    int index=0;
+    for (auto s : availableSound) {
+        if (s) break;
+        index++;
+    }
+    availableSound[index] = false;
+    soundSystem->createSound(filename, FMOD_3D | FMOD_LOOP_OFF, 0, &soundArray[index]);
+    soundSystem->playSound(soundArray[index], 0, false, &channelArray[index]);
+    channelArray[index]->setVolume(1.f);
+    channelArray[index]->setPaused(false);
+
+    return index;
+}
+
+void Audio::StopSound(int index) {
+    availableSound[index] = true;
+    soundArray[index]->release();
 }
 
 void Audio::PlayAudio(const char *filename, float volume) {

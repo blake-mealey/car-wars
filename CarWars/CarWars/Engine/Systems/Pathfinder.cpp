@@ -46,6 +46,7 @@ std::vector<glm::vec3> Pathfinder::FindPath(NavigationMesh* navigationMesh, glm:
     std::unordered_map<size_t, float> fScore;
     fScore[startIndex] = HeuristicCostEstimate(navigationMesh, startIndex, goalIndex);
 
+    int iterationsLeft = 5000;
     while (!openSet.empty()) {
         size_t current = GetCurrent(openSet, fScore);
 
@@ -65,7 +66,7 @@ std::vector<glm::vec3> Pathfinder::FindPath(NavigationMesh* navigationMesh, glm:
             }
 
             const float score = navigationMesh->GetScore(current);
-            const float cost = score == 0.f ? INFINITY : (1.f - score) * HeuristicCostEstimate(navigationMesh, current, neighbour);
+            const float cost = score == 0.f ? INFINITY : (1.f - score) * HeuristicCostEstimate(navigationMesh, current, neighbour) * 1000.f;
             const float tentativeGScore = GetScore(gScore, current) + cost;
 
             if (tentativeGScore >= GetScore(gScore, neighbour))
@@ -75,6 +76,8 @@ std::vector<glm::vec3> Pathfinder::FindPath(NavigationMesh* navigationMesh, glm:
             gScore[neighbour] = tentativeGScore;
             fScore[neighbour] = tentativeGScore + HeuristicCostEstimate(navigationMesh, neighbour, goalIndex);
         }
+
+        if (--iterationsLeft == 0) break;
     }
 
     return {};
@@ -121,13 +124,9 @@ std::vector<glm::vec3> Pathfinder::ReconstructPath(NavigationMesh *navigationMes
     }
 
     SimplifyPath(totalPath);
-    SmoothPath(totalPath, 3);
+    SmoothPath(totalPath, 1);
 
     return totalPath;
-}
-
-glm::vec3 Pathfinder::CatmullRom(float t, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
-    return 0.5f * ((2.f * p1) + (-p0 + p2)*t + (2.f * p0 - 5.f*p1 + 4.f*p2 - p3)*t*t + (-p0 + 3.f*p1 - 3.f*p2 + p3)*t*t*t);
 }
 
 void Pathfinder::SimplifyPath(std::vector<glm::vec3>& path) {
@@ -145,6 +144,10 @@ void Pathfinder::SimplifyPath(std::vector<glm::vec3>& path) {
             ++it;
         }
     }
+}
+
+glm::vec3 Pathfinder::CatmullRom(float t, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
+    return 0.5f * ((2.f * p1) + (-p0 + p2)*t + (2.f * p0 - 5.f*p1 + 4.f*p2 - p3)*t*t + (-p0 + 3.f*p1 - 3.f*p2 + p3)*t*t*t);
 }
 
 void Pathfinder::SmoothPath(std::vector<glm::vec3>& path, size_t iterations) {

@@ -4,6 +4,7 @@
 #include "Content/NavigationMesh.h"
 #include "../Components/PowerUpComponents/PowerUp.h"
 #include "Content/HeightMap.h"
+#include "Content/Map.h"
 
 class CameraComponent;
 class AiComponent;
@@ -16,7 +17,7 @@ struct GameModeType {
 struct MapType {
     enum { Cylinder = 0, Count };
     static const std::string displayNames[Count];
-    static const std::string scenePaths[Count];
+    static const std::string mapDirPaths[Count];
 };
 
 // TODO: DriverType?
@@ -170,6 +171,5 @@ private:
 	Game(const Game&) = delete;
 	Game& operator= (const Game&) = delete;
 
-    HeightMap* heightMap;
-    NavigationMesh *navigationMesh;
+    Map* map;
 };

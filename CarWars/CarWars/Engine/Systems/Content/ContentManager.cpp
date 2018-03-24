@@ -46,7 +46,7 @@ map<string, Texture*> ContentManager::textures;
 map<string, Material*> ContentManager::materials;
 map<string, PxMaterial*> ContentManager::pxMaterials;
 map<string, HeightMap*> ContentManager::heightMaps;
-HeightMap* ContentManager::lastAccessedHeightMap = nullptr;
+std::map<string, NavigationMesh*> ContentManager::navigationMeshes;
 GLuint ContentManager::skyboxCubemap;
 
 const string ContentManager::CONTENT_DIR_PATH = "./Content/";
@@ -56,7 +56,7 @@ const string ContentManager::TEXTURE_DIR_PATH = CONTENT_DIR_PATH + "Textures/";
 const string ContentManager::MATERIAL_DIR_PATH = CONTENT_DIR_PATH + "Materials/";
 const string ContentManager::PX_MATERIAL_DIR_PATH = CONTENT_DIR_PATH + "PhysicsMaterials/";
 const string ContentManager::SCENE_DIR_PATH = CONTENT_DIR_PATH + "Scenes/";
-const string ContentManager::HEIGHT_MAP_DIR_PATH = CONTENT_DIR_PATH + "HeightMaps/";
+const string ContentManager::MAP_DIR_PATH = CONTENT_DIR_PATH + "Maps/";
 
 const string ContentManager::SKYBOX_DIR_PATH = CONTENT_DIR_PATH + "Skyboxes/";
 const string ContentManager::SKYBOX_FACE_NAMES[6] = {"right", "left", "top", "bottom", "front", "back"};
@@ -204,34 +204,24 @@ PxMaterial* ContentManager::GetPxMaterial(string filePath) {
     return material;
 }
 
-HeightMap* ContentManager::GetHeightMap(std::string filePath) {
-    HeightMap* map = heightMaps[filePath];
-    if (map) {
-        lastAccessedHeightMap = map;
-        return map;
-    }
+HeightMap* ContentManager::GetHeightMap(std::string dirPath) {
+    HeightMap* map = heightMaps[dirPath];
+    if (map) return map;
 
-    json data = LoadJson(HEIGHT_MAP_DIR_PATH + filePath);
-    
-    /*const int maxHeight = GetFromJson<int>(data["MaxHeight"], 5);
-    const int maxWidth = GetFromJson<int>(data["MaxWidth"], 20);
-    const int maxLength = GetFromJson<int>(data["MaxLength"], 20);
-    const string imageName = GetFromJson<string>(data["Map"], "arena.png");
-    const float uvStep = GetFromJson<float>(data["UvStep"], 0.5f);
-    map = new HeightMap(imageName.c_str(), maxHeight, maxWidth, maxLength, uvStep);*/
-    map = new HeightMap(data);
+    map = new HeightMap(dirPath);
 
-    heightMaps[filePath] = map;
-    lastAccessedHeightMap = map;
+    heightMaps[dirPath] = map;
     return map;
 }
 
-HeightMap* ContentManager::GetLastAccessedHeightMap() {
-    return lastAccessedHeightMap;
-}
+NavigationMesh* ContentManager::GetNavigationMesh(std::string dirPath) {
+    NavigationMesh* navMesh = navigationMeshes[dirPath];
+    if (navMesh) return navMesh;
 
-void ContentManager::ResetLastAccessedHeightMap() {
-    lastAccessedHeightMap = nullptr;
+    navMesh = new NavigationMesh(dirPath);
+
+    navigationMeshes[dirPath] = navMesh;
+    return navMesh;
 }
 
 std::string ContentManager::GetTextureName(Texture* texture) {
