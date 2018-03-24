@@ -1,5 +1,5 @@
 {
-	"MaxHeight": 20,
+	"MaxHeight": 30,
 	"MaxWidth": 300,
 	"MaxLength": 300,
     "Scene": "Maps/Arena.json"

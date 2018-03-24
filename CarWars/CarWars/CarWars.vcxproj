@@ -314,6 +314,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\Maps\Arena\Data.json" />
+    <None Include="Content\Maps\Tiers\Data.json" />
     <None Include="Content\Materials\CyanShiny.json" />
     <None Include="Content\Materials\PinkShiny.json" />
     <None Include="Content\Materials\YellowShiny.json" />

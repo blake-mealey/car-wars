@@ -46,7 +46,7 @@ std::vector<glm::vec3> Pathfinder::FindPath(NavigationMesh* navigationMesh, glm:
     std::unordered_map<size_t, float> fScore;
     fScore[startIndex] = HeuristicCostEstimate(navigationMesh, startIndex, goalIndex);
 
-    int iterationsLeft = 5000;
+    int iterationsLeft = 2500;
     while (!openSet.empty()) {
         size_t current = GetCurrent(openSet, fScore);
 

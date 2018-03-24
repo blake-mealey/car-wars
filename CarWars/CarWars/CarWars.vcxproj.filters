@@ -271,5 +271,6 @@
     <None Include="Content\Prefabs\Entities\Controls\GamepadJoin.json" />
     <None Include="Content\Maps\Arena\Data.json" />
     <None Include="Content\Prefabs\Entities\Game\Floor.json" />
+    <None Include="Content\Maps\Tiers\Data.json" />
   </ItemGroup>
 </Project>
