@@ -232,7 +232,7 @@ void AiComponent::Drive() {
 	NavigationMesh* navigationMesh = Game::Instance().GetNavigationMesh();
 
 	if (distanceToNode <= navigationMesh->GetSpacing() * 2.f) {
-		nodePosition = NodeInPath();
+		NextNodeInPath();
 	}
 
 	const float steer = glm::dot(directionToNode, right);
