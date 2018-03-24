@@ -7,6 +7,9 @@
 #include "../Systems/StateManager.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include "../Systems/Physics/RaycastGroups.h"
+#include "../Systems/Game.h"
+#include "../Components/RigidbodyComponents/VehicleComponent.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -208,7 +211,7 @@ glm::vec3 CameraComponent::CastRay(float rayLength, PxQueryFilterData filterData
 	if (scene->raycast(Transform::ToPx(GetTarget()), Transform::ToPx(cameraDirection), rayLength, cameraHit, PxHitFlag::eDEFAULT, filterData)) {
 		//cameraHit has hit something
 		cameraHitPosition = Transform::FromPx(cameraHit.block.position);
-		EntityManager::FindEntity(cameraHit.block.actor);
+		//EntityManager::FindEntity(cameraHit.block.actor);
 	} else {
 		//cameraHit has not hit anything
 		cameraHitPosition = GetPosition() + (cameraDirection * rayLength);

@@ -49,6 +49,9 @@ public:
     void PlayAudio2D(const char *filename);
     void PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity);
 
+    int PlaySound(const char* filename);
+    void StopSound(int index);
+
 private:
     const char *musicPlaylist[6] = {
         "Content/Music/hello.mp3",
@@ -62,6 +65,10 @@ private:
     FMOD::System *soundSystem;
     GameState prevGameState;
     bool carsStarted = false;
+    
+    FMOD::Sound* soundArray[100];
+    FMOD::Channel* channelArray[100];
+    bool availableSound[100];
 
     //std::vector<FMOD::Sound*> sounds2D;
     //std::vector<FMOD::Sound*> sounds3D;
