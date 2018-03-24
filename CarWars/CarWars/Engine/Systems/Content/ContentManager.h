@@ -7,6 +7,7 @@
 #include "Material.h"
 #include "json/json.hpp"
 #include "../../Entities/Entity.h"
+#include "../Content/HeightMap.h"
 
 struct Texture;
 
@@ -19,6 +20,7 @@ public:
 	static const std::string MATERIAL_DIR_PATH;
 	static const std::string PX_MATERIAL_DIR_PATH;
 	static const std::string SCENE_DIR_PATH;
+    static const std::string HEIGHT_MAP_DIR_PATH;
 
 	static const std::string SKYBOX_DIR_PATH;
 	static const std::string SKYBOX_FACE_NAMES[6];
@@ -35,6 +37,8 @@ public:
 	static Texture* GetTexture(std::string filePath);
 	static Material* GetMaterial(nlohmann::json data);
 	static physx::PxMaterial* GetPxMaterial(std::string filePath);
+
+    static HeightMap* GetHeightMap(std::string filePath);
 
     static std::string GetTextureName(Texture* texture);
 
@@ -72,6 +76,8 @@ private:
     static std::map<std::string, nlohmann::json> scenePrefabs;
     static std::map<std::string, nlohmann::json> entityPrefabs;
     static std::map<std::string, nlohmann::json> componentPrefabs;
+
+    static std::map<std::string, HeightMap*> heightMaps;
 
 	static std::map<std::string, Mesh*> meshes;
 	static std::map<std::string, Texture*> textures;

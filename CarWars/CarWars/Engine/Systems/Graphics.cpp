@@ -735,6 +735,7 @@ void Graphics::Update() {
 
                     // Load the color to the GPU
                     guiProgram->LoadUniform(UniformName::DiffuseColor, glm::vec4(1.f));
+                    guiProgram->LoadUniform(UniformName::IsSprite, false);
 
                     if (gui->IsClipEnabled()) {
                         // Send the UV scale and texture color to the GPU
@@ -813,6 +814,13 @@ void Graphics::Update() {
                     guiProgram->LoadUniform(UniformName::DiffuseColor, gui->GetTextureColor());
                     guiProgram->LoadUniform(UniformName::DiffuseTextureEnabled, true);
                     guiProgram->LoadUniform(UniformName::MaterialEmissiveness, gui->GetEmissiveness());
+
+                    guiProgram->LoadUniform(UniformName::IsSprite, gui->IsSprite());
+                    if (gui->IsSprite()) {
+                        guiProgram->LoadUniform(UniformName::TextureSize, glm::vec2(frameTexture->width, frameTexture->height));
+                        guiProgram->LoadUniform(UniformName::SpriteSize, gui->GetSpriteSize());
+                        guiProgram->LoadUniform(UniformName::SpriteOffset, gui->GetSpriteOffset());
+                    }
 
                     // Send the transform to the GPU
                     const glm::mat4 modelMatrix = gui->transform.GetGuiTransformationMatrix(

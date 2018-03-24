@@ -401,7 +401,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 			}
 		}
 		else if (gameState == GameState_Menu_Start_CharacterSelect) {
-			GuiComponent *selected = GuiHelper::GetSelectedGui("CharacterMenu_Buttons", navData.playerIndex);
+			GuiComponent *selected = GuiHelper::GetSecondGui("GamepadJoinControl", navData.playerIndex);
 			if (selected->ContainsText("join")) {
                 Game::gameData.humanCount++;
 
@@ -415,7 +415,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 
                 UpdateVehicleStats(navData.playerIndex);
 
-				selected->SetText("a to continue");
+				selected->SetText("continue");
 			} else {
                 if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle", navData.playerIndex)) {
                     GuiHelper::SetFirstGuiText("CharacterMenu_Title", "weapon selection", navData.playerIndex);
@@ -489,7 +489,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 			StateManager::SetState(GameState_Menu);
 		}
 		else if (gameState == GameState_Menu_Start_CharacterSelect) {
-            GuiComponent *selected = GuiHelper::GetSelectedGui("CharacterMenu_Buttons", navData.playerIndex);
+			GuiComponent *selected = GuiHelper::GetSecondGui("GamepadJoinControl", navData.playerIndex);
             if (selected->ContainsText("join")) {
                 StateManager::SetState(GameState_Menu_Start);
                 CreateStartMenu();
@@ -507,7 +507,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
                     EntityManager::DestroyChildren(stats);
 
                     Game::gameData.humanCount--;
-                    selected->SetText("a to join");
+                    selected->SetText("join");
                 } else if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "weapon", navData.playerIndex)) {
                     GuiHelper::SetFirstGuiText("CharacterMenu_Title", "vehicle selection", navData.playerIndex);
                     GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", VehicleType::displayNames[player.vehicleType], navData.playerIndex);
@@ -522,7 +522,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 					GuiHelper::SetGuisEnabled("CharacterMenu_Stats", true, navData.playerIndex);
                     GuiHelper::SetFirstGuiText("CharacterMenu_Title", "weapon selection", navData.playerIndex);
                     GuiHelper::SetFirstGuiText("CharacterMenu_SubTitle", WeaponType::displayNames[player.weaponType], navData.playerIndex);
-                    selected->SetText("a to continue");
+                    selected->SetText("continue");
 
                     UpdateWeaponStats(navData.playerIndex);
 

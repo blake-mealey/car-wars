@@ -112,6 +112,14 @@ public:
     void SetEmissiveness(float _emissiveness);
     float GetEmissiveness();
 
+    void SetSpriteOffset(glm::vec2 _spriteOffset);
+    glm::vec2 GetSpriteOffset() const;
+    void SetSpriteSize(glm::vec2 _spriteSize);
+    glm::vec2 GetSpriteSize() const;
+
+    void SetSprite(bool _isSprite);
+    bool IsSprite() const;
+
 private:
     bool selected;
 
@@ -143,4 +151,8 @@ private:
     std::unordered_set<GuiEffect*> effects;
 
     float emissiveness;
+
+    glm::vec2 spriteOffset;
+    glm::vec2 spriteSize;
+    bool isSprite;
 };

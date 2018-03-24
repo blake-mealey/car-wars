@@ -38,6 +38,11 @@ const char* UniformName::BlurOffset = "offset";
 
 const char* UniformName::BloomScale = "bloomScale";
 
+const char* UniformName::IsSprite = "isSprite";
+const char* UniformName::SpriteSize = "spriteSize";
+const char* UniformName::SpriteOffset = "spriteOffset";
+const char* UniformName::TextureSize = "textureSize";
+
 ShaderProgram::ShaderProgram() {}
 ShaderProgram::ShaderProgram(GLuint id) : programId(id) {}
 

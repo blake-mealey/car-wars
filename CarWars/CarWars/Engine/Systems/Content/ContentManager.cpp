@@ -48,6 +48,7 @@ map<string, Mesh*> ContentManager::meshes;
 map<string, Texture*> ContentManager::textures;
 map<string, Material*> ContentManager::materials;
 map<string, PxMaterial*> ContentManager::pxMaterials;
+map<string, HeightMap*> ContentManager::heightMaps;
 GLuint ContentManager::skyboxCubemap;
 
 const string ContentManager::CONTENT_DIR_PATH = "./Content/";
@@ -57,6 +58,7 @@ const string ContentManager::TEXTURE_DIR_PATH = CONTENT_DIR_PATH + "Textures/";
 const string ContentManager::MATERIAL_DIR_PATH = CONTENT_DIR_PATH + "Materials/";
 const string ContentManager::PX_MATERIAL_DIR_PATH = CONTENT_DIR_PATH + "PhysicsMaterials/";
 const string ContentManager::SCENE_DIR_PATH = CONTENT_DIR_PATH + "Scenes/";
+const string ContentManager::HEIGHT_MAP_DIR_PATH = CONTENT_DIR_PATH + "HeightMaps/";
 
 const string ContentManager::SKYBOX_DIR_PATH = CONTENT_DIR_PATH + "Skyboxes/";
 const string ContentManager::SKYBOX_FACE_NAMES[6] = {"right", "left", "top", "bottom", "front", "back"};
@@ -204,6 +206,24 @@ PxMaterial* ContentManager::GetPxMaterial(string filePath) {
     return material;
 }
 
+HeightMap* ContentManager::GetHeightMap(std::string filePath) {
+    HeightMap* map = heightMaps[filePath];
+    if (map) return map;
+
+    json data = LoadJson(HEIGHT_MAP_DIR_PATH + filePath);
+    
+    /*const int maxHeight = GetFromJson<int>(data["MaxHeight"], 5);
+    const int maxWidth = GetFromJson<int>(data["MaxWidth"], 20);
+    const int maxLength = GetFromJson<int>(data["MaxLength"], 20);
+    const string imageName = GetFromJson<string>(data["Map"], "arena.png");
+    const float uvStep = GetFromJson<float>(data["UvStep"], 0.5f);
+    map = new HeightMap(imageName.c_str(), maxHeight, maxWidth, maxLength, uvStep);*/
+    map = new HeightMap(data);
+
+    heightMaps[filePath] = map;
+    return map;
+}
+
 std::string ContentManager::GetTextureName(Texture* texture) {
     std::string name;
 
@@ -346,13 +366,12 @@ Entity* ContentManager::LoadEntity(json data, Entity *parent) {
     if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);
     entity->transform = Transform(data);
     if (parent) entity->transform.parent = &parent->transform;
-
-    for (const auto componentData : data["Components"]) {
-        Component *component = LoadComponent(componentData);
-        if (component != nullptr) {
-            EntityManager::AddComponent(entity, component);
-        }
-    }
+	for (const auto componentData : data["Components"]) {
+		Component *component = LoadComponent(componentData);
+		if (component != nullptr) {
+			EntityManager::AddComponent(entity, component);
+		}
+	}
 
     json children = data["Children"];
     if (children.is_array()) {

@@ -42,6 +42,11 @@ const struct UniformName {
     static const char* BlurOffset;
     
     static const char* BloomScale;
+    
+    static const char* IsSprite;
+    static const char* SpriteSize;
+    static const char* SpriteOffset;
+    static const char* TextureSize;
 };
 
 class ShaderProgram {

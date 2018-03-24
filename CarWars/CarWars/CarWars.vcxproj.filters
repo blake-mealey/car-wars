@@ -75,6 +75,8 @@
     <ClCompile Include="Engine\Systems\Time.cpp" />
     <ClCompile Include="HelloWorld.cpp" />
     <ClCompile Include="Engine\Components\GuiEffects\OpacityEffect.cpp" />
+    <ClCompile Include="Engine\Systems\Content\HeightMap.cpp" />
+    <ClCompile Include="Engine\Systems\Content\Picture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -163,6 +165,8 @@
     <ClInclude Include="Engine\Systems\System.h" />
     <ClInclude Include="Engine\Systems\Time.h" />
     <ClInclude Include="Engine\Components\GuiEffects\OpacityEffect.h" />
+    <ClInclude Include="Engine\Systems\Content\HeightMap.h" />
+    <ClInclude Include="Engine\Systems\Content\Picture.h" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="Content\Sounds\powerup.mp3" />
@@ -172,6 +176,7 @@
     <Image Include="Content\Textures\HUD\shield-vignette-blue.png" />
     <Image Include="Content\Textures\HUD\shield-vignette.png" />
     <Image Include="Content\Textures\HUD\speed-vingette.png" />
+    <Image Include="Content\Scenes\Maps\arena.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\Materials\CyanShiny.json" />
@@ -253,5 +258,16 @@
     <None Include="Content\Prefabs\Components\PowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\DamagePowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\DefencePowerUpMesh.json" />
+    <None Include="Content\Scenes\Maps\HeightMap.json" />
+    <None Include="Content\HeightMaps\Test.json" />
+    <None Include="Content\Prefabs\Components\Controls\GamepadA.json" />
+    <None Include="Content\Prefabs\Components\Controls\GamepadB.json" />
+    <None Include="Content\Prefabs\Components\Controls\GamepadX.json" />
+    <None Include="Content\Prefabs\Components\Controls\GamepadY.json" />
+    <None Include="Content\Prefabs\Components\Controls\GamepadControl.json" />
+    <None Include="Content\Prefabs\Entities\Controls\GamepadBack.json" />
+    <None Include="Content\Prefabs\Entities\Controls\GamepadContinue.json" />
+    <None Include="Content\Prefabs\Entities\Controls\GamepadSelect.json" />
+    <None Include="Content\Prefabs\Entities\Controls\GamepadJoin.json" />
   </ItemGroup>
 </Project>
