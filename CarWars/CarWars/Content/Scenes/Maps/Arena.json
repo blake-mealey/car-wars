@@ -1,0 +1,187 @@
+[
+ {
+        "Prefab": "Game/PowerUpSpawner.json",
+	    "Position": [ -50, 2, -20 ]
+    }, {
+        "Prefab": "Game/PowerUpSpawner.json",
+	    "Position": [ -40, 2, -10 ]
+    },{
+        "Prefab": "Game/PowerUpSpawner.json",
+	    "Position": [ -60, 2, -30 ]
+    },
+    {
+        "Prefab": "Waypoint.json",
+	    "Position": [ -50, 2, 20 ]
+    },
+    {
+        "Prefab": "Waypoint.json",
+	    "Position": [ 50, 2, 20 ]
+    },
+    {
+        "Prefab": "Waypoint.json",
+	    "Position": [ 50, 2, -20 ]
+    },
+    "Jump.json",
+    {
+        "Prefab": "Jump.json",
+        "Position": [ 14.8, -2.4, 20 ],
+      "Rotate": [ 0, 0, -20 ],
+      "scale": [10,10,10]
+    },
+	{
+		"Tag": "Dome",
+		"Position": [ 0, 0, -30 ],
+		"Scale": [ 15, 15, 15 ],
+		"Components": [
+			{
+				"Type": "Mesh",
+				"Mesh": "Sphere.obj",
+				"Material": {
+					"DiffuseColor": "RedAlpha",
+					"SpecularColor": "RedAlpha",
+					"Specularity": 1,
+					"Emissiveness": 1
+				}
+			}
+		]
+	},
+  {
+    "Tag": "Wall",
+    "Position": [ -20, 5, -15 ],
+    "Rotate": [ 20, 0, 0 ],
+    "Scale": [ 10, 10, 80 ],
+    "Components": [
+      {
+        "Type": "Mesh",
+        "Mesh": "Cube.obj",
+        "Texture": "DiamondPlate.jpg",
+        "Material": "Basic.json",
+        "UvScale": [ 10, 10 ],
+        "Scale": [ 0.5, 0.5, 0.5 ]
+      },
+      {
+        "Type": "RigidStatic",
+        "Colliders": [
+          {
+            "Type": "Box",
+            "CollisionGroup": "DrivableObstacles"
+          }
+        ]
+      }
+    ]
+  },
+   {
+        "Tag": "Cylinder",
+        "Position": [ 20, 5, -15 ],
+        "Rotate": [ -20, 0, 0 ],
+        "Scale": [5, 5, 80],
+        "Components": [
+            {
+                "Type": "Mesh",
+                "Mesh": "Cylinder.obj",
+                "Texture": "DiamondPlate.jpg",
+                "Material": "Basic.json",
+                "UvScale": [10, 10],
+                "Scale": [1, 1, 1]
+            },
+            {
+                "Type": "RigidStatic",
+                "Colliders": [
+                    {
+                      "Type": "ConvexMesh",
+                      "Mesh": "Cylinder.obj",
+                        "CollisionGroup": "DrivableObstacles"
+                    }
+                ]
+            }
+        ]
+    },
+  	{
+		"Tag": "Light",
+		"Position": [ -10, 2, 10 ],
+		"Components": [
+			{
+				"Type": "Mesh",
+				"Mesh": "Cube.obj",
+				"Material": "BlueShiny.json"
+			},
+			{
+				"Type": "PointLight",
+				"Color": "Blue",
+				"Power": 50
+			},
+            {
+                "Type": "RigidDynamic",
+                "Colliders": [
+                    {
+                        "Type": "Box",
+                        "CollisionGroup": "DrivableObstacles",
+                        "Scale": [2, 2, 2]
+                    }
+                ]
+            }
+		]
+	},
+    {
+		"Tag": "Ball",
+		"Position": [ -10, 10, 10 ],
+		"Components": [
+			{
+				"Type": "Mesh",
+                "Scale": [2, 2, 2],
+				"Mesh": "Boulder.obj",
+				"Material": "Basic.json",
+                "Texture": "Boulder.jpg"
+			},
+            {
+                "Type": "RigidDynamic",
+                "Mass": 500,
+                "Colliders": [
+                    {
+                        "Type": "ConvexMesh",
+                        "Mesh": "Boulder.obj",
+                        "CollisionGroup": "DrivableObstacles",
+                        "Scale": [2, 2, 2]
+                    }
+                ]
+            }
+		]
+	},
+  "Sun.json",
+  {
+    "Tag": "SpawnLocation",
+    "Position": [ 0, 20, 0 ]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [ 0, 20, 50 ]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [ 0, 20, -50 ]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [50, 20, 0]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [-50, 20, 0]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [50, 20, 50]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [-50, 20, 50]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [50, 20, -50]
+  },
+  {
+    "Tag": "SpawnLocation",
+    "Position": [-50, 20, -50]
+  }
+]

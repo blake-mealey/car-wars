@@ -11,9 +11,8 @@ struct Triangle;
 
 class HeightMap {
 public:
-	HeightMap(nlohmann::json data);
-	void PrintVertices();
-	void PrintElements();
+    HeightMap(std::string dirPath);
+
 	float GetHeight(glm::vec3 coords) const;
     float GetWidth() const;
     float GetLength() const;
@@ -21,6 +20,8 @@ public:
     float GetZSpacing() const;
     Mesh* GetMesh();
 private:
+    void Initialize(std::string filePath);
+
     Mesh* mesh = nullptr;
 
     int rowCount;

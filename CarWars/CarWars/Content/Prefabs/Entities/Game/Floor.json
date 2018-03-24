@@ -1,0 +1,9 @@
+{
+	"Tag": "Floor",
+	"Components": [
+		{
+			"Type": "RigidStatic",
+			"BlocksNavMesh": false
+		}
+	]
+}
