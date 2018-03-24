@@ -5,6 +5,7 @@
 #include <iostream>
 #include "../../Entities/EntityManager.h"
 #include "../../Components/RigidbodyComponents/RigidbodyComponent.h"
+#include "../Game.h"
 
 NavigationMesh::NavigationMesh(nlohmann::json data) {
 	columnCount = ContentManager::GetFromJson<size_t>(data["ColumnCount"], 100);
@@ -26,17 +27,20 @@ void NavigationMesh::Initialize() {
     vertices = new NavigationVertex[GetVertexCount()];
     coveringBodies = new std::unordered_set<RigidbodyComponent*>[GetVertexCount()];
 
-    const float radius = 0;
-
 	for (size_t row = 0; row < rowCount; ++row) {
         for (size_t col = 0; col < columnCount; ++col) {
             const size_t index = row*columnCount + col;
 
-			vertices[index].position = glm::vec3(
+            glm::vec3 position = glm::vec3(
                 (spacing + rowCount) * -0.5f*spacing + row*spacing,
                 1.f,
                 (spacing + columnCount) * -0.5f*spacing + col*spacing
             );
+
+            HeightMap* map = Game::Instance().GetHeightMap();
+            if (map) position.y = map->GetHeight(position);
+
+            vertices[index].position = position;
 		}
 	}
 

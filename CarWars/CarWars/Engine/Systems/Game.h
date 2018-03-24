@@ -5,6 +5,7 @@
 #include "Content/NavigationMesh.h"
 #include "../Components/Tweens/Tween.h"
 #include "../Components/PowerUpComponents/PowerUp.h"
+#include "Content/HeightMap.h"
 
 class CameraComponent;
 class AiComponent;
@@ -94,16 +95,16 @@ struct HumanData : PlayerData {
 };
 
 struct AiData : PlayerData {
-    AiData(int _vehicleType, int _weaponType, float _diffuculty) : PlayerData(_vehicleType, _weaponType), brain(nullptr), diffuculty(_diffuculty){}
+    AiData(int _vehicleType, int _weaponType, float _difficulty) : PlayerData(_vehicleType, _weaponType), brain(nullptr), difficulty(_difficulty){}
 
     // Game state
+	float difficulty;
     AiComponent* brain;
-	float diffuculty;
 };
 
 struct GameData {
-    GameData() : map(0), gameMode(0), humanCount(0), aiCount(1),
-        numberOfLives(3), killLimit(10), timeLimitMinutes(10) {}
+	GameData() : map(0), gameMode(0), humanCount(0), aiCount(1),
+		numberOfLives(3), killLimit(10), timeLimitMinutes(10), aiDifficulty(1) {}
 
     size_t map;
     size_t gameMode;
@@ -128,6 +129,10 @@ struct GameData {
     Time timeLimit;
     static constexpr size_t MIN_TIME_LIMIT_MINUTES = 1;
     static constexpr size_t MAX_TIME_LIMIT_MINUTES = 60;
+
+	size_t aiDifficulty;
+	static constexpr size_t MIN_AI_DIFFICULTY = 1;
+	static constexpr size_t MAX_AI_DIFFICULTY = 10.f;
 
 	Time respawnTime = 1.0;
 
@@ -157,6 +162,7 @@ public:
     static std::vector<AiData> ais;
 
     NavigationMesh *GetNavigationMesh() const;
+    HeightMap* GetHeightMap() const;
 
     static PlayerData* GetPlayerFromEntity(Entity* vehicle);
     static HumanData* GetHumanFromEntity(Entity* vehicle);
@@ -166,5 +172,6 @@ private:
 	Game(const Game&) = delete;
 	Game& operator= (const Game&) = delete;
 
+    HeightMap* heightMap;
     NavigationMesh *navigationMesh;
 };

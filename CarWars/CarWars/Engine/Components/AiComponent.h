@@ -8,14 +8,8 @@
 #include <GL/glew.h>
 
 enum AiMode {
-	AiMode_Stuck,
 	AiMode_GetPowerup,
-	AiMode_Attack,
-	AiMode_Damaged,
-	AiMode_Hide,
-
-    AiMode_Waypoints,
-    AiMode_Chase
+	AiMode_Attack
 };
 
 class AiComponent : public Component {
@@ -37,7 +31,7 @@ public:
     AiMode GetMode() const;
 	void SetMode();
 
-    void UpdatePath();
+    void UpdatePath(glm::vec3 _position);
     void NextNodeInPath();
     glm::vec3 NodeInPath() const;
     bool FinishedPath() const;
@@ -52,7 +46,7 @@ public:
 
 	void TakeDamage(WeaponComponent* damager, float _damage) override;
 
-	static float MAX_DIFFUCULTY;	 // this is the max AI diffuculty
+	static float MAX_DIFFICULTY;	 // this is the max AI difficulty
 
 private:
 	static float STUCK_TIME;		// how long before the AI is stuck
@@ -65,7 +59,7 @@ private:
 	static float STUCK_CONTROL;		// controls the cycles of reverse and accelerate for the AI (better AI has smaller cycles)
 	static float ACCELERATION;		// bottom end of vehicle acceleration
 
-	void Shoot();
+	void Act();
 	void Drive();
 	bool FindTarget();
 

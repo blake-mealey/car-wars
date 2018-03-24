@@ -27,9 +27,6 @@
 #include "../../Components/RigidbodyComponents/RigidDynamicComponent.h"
 #include "../../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../../Components/AiComponent.h"
-#include "../../Components/PowerUpComponents/SpeedPowerUp.h"
-#include "../../Components/PowerUpComponents/DefencePowerUp.h"
-#include "../../Components/PowerUpComponents/DamagePowerUp.h"
 #include "../../Components/GuiComponents/GuiComponent.h"
 #include "../../Components/LineComponent.h"
 #include "../Effects.h"
@@ -48,6 +45,8 @@ map<string, Mesh*> ContentManager::meshes;
 map<string, Texture*> ContentManager::textures;
 map<string, Material*> ContentManager::materials;
 map<string, PxMaterial*> ContentManager::pxMaterials;
+map<string, HeightMap*> ContentManager::heightMaps;
+HeightMap* ContentManager::lastAccessedHeightMap = nullptr;
 GLuint ContentManager::skyboxCubemap;
 
 const string ContentManager::CONTENT_DIR_PATH = "./Content/";
@@ -57,6 +56,7 @@ const string ContentManager::TEXTURE_DIR_PATH = CONTENT_DIR_PATH + "Textures/";
 const string ContentManager::MATERIAL_DIR_PATH = CONTENT_DIR_PATH + "Materials/";
 const string ContentManager::PX_MATERIAL_DIR_PATH = CONTENT_DIR_PATH + "PhysicsMaterials/";
 const string ContentManager::SCENE_DIR_PATH = CONTENT_DIR_PATH + "Scenes/";
+const string ContentManager::HEIGHT_MAP_DIR_PATH = CONTENT_DIR_PATH + "HeightMaps/";
 
 const string ContentManager::SKYBOX_DIR_PATH = CONTENT_DIR_PATH + "Skyboxes/";
 const string ContentManager::SKYBOX_FACE_NAMES[6] = {"right", "left", "top", "bottom", "front", "back"};
@@ -94,7 +94,7 @@ Mesh* ContentManager::GetMesh(const string filePath, unsigned pFlags) {
     );
 
 	if (scene == nullptr) {
-		cout << "WARNING: Failed to load mesh: " << filePath << endl;
+		cerr << "WARNING: Failed to load mesh: " << filePath << endl;
 		return nullptr;
 	}
 
@@ -204,6 +204,36 @@ PxMaterial* ContentManager::GetPxMaterial(string filePath) {
     return material;
 }
 
+HeightMap* ContentManager::GetHeightMap(std::string filePath) {
+    HeightMap* map = heightMaps[filePath];
+    if (map) {
+        lastAccessedHeightMap = map;
+        return map;
+    }
+
+    json data = LoadJson(HEIGHT_MAP_DIR_PATH + filePath);
+    
+    /*const int maxHeight = GetFromJson<int>(data["MaxHeight"], 5);
+    const int maxWidth = GetFromJson<int>(data["MaxWidth"], 20);
+    const int maxLength = GetFromJson<int>(data["MaxLength"], 20);
+    const string imageName = GetFromJson<string>(data["Map"], "arena.png");
+    const float uvStep = GetFromJson<float>(data["UvStep"], 0.5f);
+    map = new HeightMap(imageName.c_str(), maxHeight, maxWidth, maxLength, uvStep);*/
+    map = new HeightMap(data);
+
+    heightMaps[filePath] = map;
+    lastAccessedHeightMap = map;
+    return map;
+}
+
+HeightMap* ContentManager::GetLastAccessedHeightMap() {
+    return lastAccessedHeightMap;
+}
+
+void ContentManager::ResetLastAccessedHeightMap() {
+    lastAccessedHeightMap = nullptr;
+}
+
 std::string ContentManager::GetTextureName(Texture* texture) {
     std::string name;
 
@@ -297,7 +327,7 @@ Component* ContentManager::LoadComponent(json data) {
 	else if (type == "Line") component = new LineComponent(data);
 	else if (type == "PowerUpSpawner") component = new PowerUpSpawnerComponent(data);
     else {
-        cout << "Unsupported component type: " << type << endl;
+        cerr << "Unsupported component type: " << type << endl;
         supportedType = false;
     }
     if (supportedType) {
@@ -346,13 +376,12 @@ Entity* ContentManager::LoadEntity(json data, Entity *parent) {
     if (!data["Tag"].is_null()) EntityManager::SetTag(entity, data["Tag"]);
     entity->transform = Transform(data);
     if (parent) entity->transform.parent = &parent->transform;
-
-    for (const auto componentData : data["Components"]) {
-        Component *component = LoadComponent(componentData);
-        if (component != nullptr) {
-            EntityManager::AddComponent(entity, component);
-        }
-    }
+	for (const auto componentData : data["Components"]) {
+		Component *component = LoadComponent(componentData);
+		if (component != nullptr) {
+			EntityManager::AddComponent(entity, component);
+		}
+	}
 
     json children = data["Children"];
     if (children.is_array()) {
@@ -480,7 +509,7 @@ void ContentManager::LoadSkybox(string directoryPath) {
         if (data) {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         } else {
-            cout << "ERROR: Failed to load cubemap texture: " << filePath << endl;
+            cerr << "ERROR: Failed to load cubemap texture: " << filePath << endl;
         }
         stbi_image_free(data);
     }
@@ -507,7 +536,7 @@ GLuint ContentManager::LoadShader(string filePath, const GLenum shaderType) {
 			back_inserter(source));
 		input.close();
 	} else {
-		cout << "ERROR: Could not load shader source from file " << filePath << endl;
+		cerr << "ERROR: Could not load shader source from file " << filePath << endl;
 	}
 
 	// Create a shader and get it's ID
@@ -526,7 +555,7 @@ GLuint ContentManager::LoadShader(string filePath, const GLenum shaderType) {
 		glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &length);
 		string info(length, ' ');
 		glGetShaderInfoLog(shaderId, info.length(), &length, &info[0]);
-		cout << "ERROR Compiling Shader:" << endl << endl << source << endl << info << endl;
+		cerr << "ERROR Compiling Shader:" << endl << endl << source << endl << info << endl;
 	}
 
 	// Return the shader's ID

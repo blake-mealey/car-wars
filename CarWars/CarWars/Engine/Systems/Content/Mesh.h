@@ -31,7 +31,7 @@ public:
 private:
 	float radius;
 
-	void GenerateNormals(glm::vec3 *vertices, glm::vec3 *normals);
+	void GenerateNormals(Triangle* triangles, glm::vec3* vertices, glm::vec3* normals);
 	void CalculateRadius(glm::vec3 *vertices);
     
 	void InitializeBuffers(Triangle *triangles, glm::vec3 *vertices, glm::vec2 *uvs, glm::vec3 *normals);

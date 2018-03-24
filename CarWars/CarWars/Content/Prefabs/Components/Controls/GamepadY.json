@@ -1,0 +1,5 @@
+{
+  "Prefab": "Controls/GamepadControl.json",
+  "Texture": "Controls/lineLight37.png",
+  "TextureColor": "Yellow"
+}

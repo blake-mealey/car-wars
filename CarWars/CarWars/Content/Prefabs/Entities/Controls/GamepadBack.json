@@ -1,0 +1,19 @@
+{
+  "Tag": "GamdpadBackControl",
+  "Components": [
+    {
+      "Prefab": "Controls/GamepadB.json",
+      "AnchorPoint": [ 1, 0.5 ],
+      "ScaledPosition": [ 1, 1 ],
+      "Position": [ -10, -80, 0 ]
+    },
+    {
+      "Prefab": "GUIs/StarjediFont.json",
+      "Text": "back",
+      "TextXAlignment": "Right",
+      "AnchorPoint": [ 1, 0.5 ],
+      "ScaledPosition": [ 1, 1 ],
+      "Position": [ -70, -80, 0 ]
+    }
+  ]
+}

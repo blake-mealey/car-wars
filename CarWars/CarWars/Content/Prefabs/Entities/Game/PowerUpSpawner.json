@@ -3,6 +3,7 @@
     "Components": [
 	    {
 		    "Type": "PowerUpSpawner",
+		    "BlocksNavMesh": false,
             "Colliders": [
 	            {
 		            "Type": "Box",

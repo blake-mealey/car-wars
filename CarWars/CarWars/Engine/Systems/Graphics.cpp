@@ -90,7 +90,7 @@ void KeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 bool Graphics::Initialize(char* windowTitle) {
 	if (!glfwInit()) {
-		std::cout << "Error Initializing GLFW" << std::endl;
+		std::cerr << "Error Initializing GLFW" << std::endl;
 		return false;
 	}
 
@@ -103,7 +103,7 @@ bool Graphics::Initialize(char* windowTitle) {
     glfwWindowHint(GLFW_STENCIL_BITS, 8);
 	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, windowTitle, NULL, NULL);
 	if (window == NULL) {
-		std::cout << "Error Creating Window terminate" << std::endl;
+		std::cerr << "Error Creating Window terminate" << std::endl;
 		return false;
 	}
 
@@ -735,6 +735,7 @@ void Graphics::Update() {
 
                     // Load the color to the GPU
                     guiProgram->LoadUniform(UniformName::DiffuseColor, glm::vec4(1.f));
+                    guiProgram->LoadUniform(UniformName::IsSprite, false);
 
                     if (gui->IsClipEnabled()) {
                         // Send the UV scale and texture color to the GPU
@@ -813,6 +814,13 @@ void Graphics::Update() {
                     guiProgram->LoadUniform(UniformName::DiffuseColor, gui->GetTextureColor());
                     guiProgram->LoadUniform(UniformName::DiffuseTextureEnabled, true);
                     guiProgram->LoadUniform(UniformName::MaterialEmissiveness, gui->GetEmissiveness());
+
+                    guiProgram->LoadUniform(UniformName::IsSprite, gui->IsSprite());
+                    if (gui->IsSprite()) {
+                        guiProgram->LoadUniform(UniformName::TextureSize, glm::vec2(frameTexture->width, frameTexture->height));
+                        guiProgram->LoadUniform(UniformName::SpriteSize, gui->GetSpriteSize());
+                        guiProgram->LoadUniform(UniformName::SpriteOffset, gui->GetSpriteOffset());
+                    }
 
                     // Send the transform to the GPU
                     const glm::mat4 modelMatrix = gui->transform.GetGuiTransformationMatrix(
@@ -1268,7 +1276,7 @@ void Graphics::InitializeScreenFramebuffer() {
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboIds[RBOs::Depth]);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        std::cout << "ERROR: Screen framebuffer incomplete!" << std::endl;
+        std::cerr << "ERROR: Screen framebuffer incomplete!" << std::endl;
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
@@ -1294,7 +1302,7 @@ void Graphics::InitializeShadowMapFramebuffer() {
 	glReadBuffer(GL_NONE);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR: Shadow map framebuffer incomplete!" << std::endl;
+		std::cerr << "ERROR: Shadow map framebuffer incomplete!" << std::endl;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -1318,7 +1326,7 @@ ShaderProgram* Graphics::LoadShaderProgram(std::string vertexShaderFile, std::st
 		glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &length);
 		std::string info(length, ' ');
 		glGetProgramInfoLog(programId, info.length(), &length, &info[0]);
-		std::cout << "ERROR linking shader program:" << std::endl << info << std::endl;
+		std::cerr << "ERROR linking shader program:" << std::endl << info << std::endl;
 	}
 
 	glDeleteShader(vertexId);
@@ -1350,7 +1358,7 @@ ShaderProgram* Graphics::LoadShaderProgram(std::string vertexShaderFile, std::st
         glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &length);
         std::string info(length, ' ');
         glGetProgramInfoLog(programId, info.length(), &length, &info[0]);
-        std::cout << "ERROR linking shader program:" << std::endl << info << std::endl;
+        std::cerr << "ERROR linking shader program:" << std::endl << info << std::endl;
     }
 
     glDeleteShader(vertexId);

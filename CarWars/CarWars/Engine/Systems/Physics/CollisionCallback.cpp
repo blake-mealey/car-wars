@@ -14,13 +14,10 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 	if (_actor0->HasTag("Missile")) {
 		Physics& physicsInstance = Physics::Instance();
 		if (_actor1->GetId() == _actor0->GetComponent<MissileComponent>()->GetOwner()->GetId()) {
-			//Dont Explode
-			std::cout << "Missile Inside Owner - Do Not Explode" << std::endl;
 		} else {
 			//Explode
             const char *explosionSound = "Content/Sounds/explosion.mp3";
             glm::vec3 pos = _actor0->transform.GetGlobalPosition();
-            std::cout << to_string(pos) << std::endl;
 			float explosionRadius = _actor0->GetComponent<MissileComponent>()->GetExplosionRadius();
             Audio::Instance().PlayAudio2D(explosionSound); // TODO: is this the best place for this?
             //Audio::Instance().PlayAudio3D(explosionSound, pos, glm::vec3(0.f, 0.f, 0.f));
@@ -48,7 +45,6 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 					//Take Damage Equal to damage / 1 + distanceFromExplosion?
 					float missileDamage = _actor0->GetComponent<MissileComponent>()->GetDamage();
 					float damageToTake = missileDamage - (15.0f * (glm::length(component->GetEntity()->transform.GetGlobalPosition() - _actor0->transform.GetGlobalPosition())));
-					std::cout << damageToTake << std::endl;
 					component->TakeDamage(weapon, damageToTake);
 				}
 			}

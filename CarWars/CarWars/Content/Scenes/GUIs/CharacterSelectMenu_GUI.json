@@ -1,47 +1,34 @@
 [
-	{
-		"Tag": "CharacterMenu_Title",
-		"Components": [
-			{
-				"Type": "GUI",
-				"Position": [0, 40, 0],
-				"ScaledPosition": [0.5, 0],
-				"AnchorPoint": [0.5, 0],
-				"Text": "",
-				"Font": "Starjedi.ttf",
-				"FontColor": "White",
-				"FontSize": 30
-			}
-		]
-	},
-	{
-		"Tag": "CharacterMenu_SubTitle",
-		"Components": [
-			{
-				"Type": "GUI",
-				"Position": [0, 80, 0],
-				"ScaledPosition": [0.5, 0],
-				"AnchorPoint": [0.5, 0],
-				"Text": "",
-				"Font": "Starjedi.ttf",
-				"FontColor": "White",
-				"FontSize": 24
-			}
-		]
-	},
-	{
-		"Tag": "CharacterMenu_Buttons",
-		"Components": [
-			{
-				"Prefab": "GUIs/MenuButton.json",
-				"Text": "a to join",
-				"ScaledPosition": [0.5, 1],
-				"AnchorPoint": [0.5, 1],
-				"Position": [0, -20, 0],
-				"Selected": true
-			}
-		]
-	},
+  {
+    "Tag": "CharacterMenu_Title",
+    "Components": [
+      {
+        "Type": "GUI",
+        "Position": [ 0, 40, 0 ],
+        "ScaledPosition": [ 0.5, 0 ],
+        "AnchorPoint": [ 0.5, 0 ],
+        "Text": "",
+        "Font": "Starjedi.ttf",
+        "FontColor": "White",
+        "FontSize": 30
+      }
+    ]
+  },
+  {
+    "Tag": "CharacterMenu_SubTitle",
+    "Components": [
+      {
+        "Type": "GUI",
+        "Position": [ 0, 80, 0 ],
+        "ScaledPosition": [ 0.5, 0 ],
+        "AnchorPoint": [ 0.5, 0 ],
+        "Text": "",
+        "Font": "Starjedi.ttf",
+        "FontColor": "White",
+        "FontSize": 24
+      }
+    ]
+  },
   {
     "Tag": "CharacterMenu_Arrows",
     "Components": [
@@ -68,30 +55,32 @@
     ]
   },
   {
-	"Tag": "CharacterMenu_Stats",
+    "Tag": "CharacterMenu_Stats",
     "Components": [
-          {
-            "Type": "GUI",
-            "Scale": [40, 120, 0],
-            "ScaledPosition": [ 1, 0.5 ],
-            "AnchorPoint": [ 1, 0.5 ],
-            "ScaledScale": [ 0.2, 0 ],
-            "Texture": "Menu.png",
-            "Enabled": false
-          },
-          {
-            "Type": "GUI",
-            "Position": [ -20, -35, 0 ],
-            "ScaledPosition": [ 1, 0.5 ],
-            "AnchorPoint": [ 1, 0.5 ],
-            "ScaledScale": [ 0.2, 0 ],
-            "Scale": [ 0, 20, 1 ],
-            "Text": "stats",
-            "Font": "Starjedi.ttf",
-            "FontColor": "White",
-            "FontSize": 20,
-            "Enabled": false
-          }
-        ]
-	}
+      {
+        "Type": "GUI",
+        "Scale": [ 40, 120, 0 ],
+        "ScaledPosition": [ 1, 0.5 ],
+        "AnchorPoint": [ 1, 0.5 ],
+        "ScaledScale": [ 0.2, 0 ],
+        "Texture": "Menu.png",
+        "Enabled": false
+      },
+      {
+        "Type": "GUI",
+        "Position": [ -20, -35, 0 ],
+        "ScaledPosition": [ 1, 0.5 ],
+        "AnchorPoint": [ 1, 0.5 ],
+        "ScaledScale": [ 0.2, 0 ],
+        "Scale": [ 0, 20, 1 ],
+        "Text": "stats",
+        "Font": "Starjedi.ttf",
+        "FontColor": "White",
+        "FontSize": 20,
+        "Enabled": false
+      }
+    ]
+  },
+  "Controls/GamepadBack.json",
+  "Controls/GamepadJoin.json"
 ]

@@ -9,8 +9,6 @@
 SpeedPowerUp::SpeedPowerUp() { }
 
 void SpeedPowerUp::Collect(PlayerData* player) {
-    std::cout << "Speed Collected" << std::endl;
-
     PowerUp::Collect(player);
 
     VehicleComponent* vehicle = player->vehicleEntity->GetComponent<VehicleComponent>();

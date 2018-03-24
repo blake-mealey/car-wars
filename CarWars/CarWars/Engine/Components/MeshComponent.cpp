@@ -12,7 +12,12 @@ ComponentType MeshComponent::GetType() {
 void MeshComponent::HandleEvent(Event* event) {}
 
 MeshComponent::MeshComponent(nlohmann::json data) {
-	mesh = ContentManager::GetMesh(data["Mesh"]);
+    if (data["HeightMap"].is_string()) {
+        HeightMap* map = ContentManager::GetHeightMap(data["HeightMap"]);
+        mesh = map->GetMesh();
+    } else {
+        mesh = ContentManager::GetMesh(data["Mesh"]);
+    }
 	material = ContentManager::GetMaterial(data["Material"]);
 	if (!data["Texture"].is_null()) texture = ContentManager::GetTexture(data["Texture"]);
 	else texture = nullptr;

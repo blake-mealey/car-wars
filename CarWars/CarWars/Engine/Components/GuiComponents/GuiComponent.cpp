@@ -57,6 +57,10 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
     if (data["MaskTexture"].is_string()) maskTexture = ContentManager::GetTexture(data["MaskTexture"]);
 
     emissiveness = ContentManager::GetFromJson<float>(data["Emissiveness"], 0.f);
+
+    isSprite = ContentManager::GetFromJson<bool>(data["IsSprite"], false);
+    spriteSize = ContentManager::JsonToVec2(data["SpriteSize"], glm::vec2(0.f));
+    spriteOffset = ContentManager::JsonToVec2(data["SpriteOffset"], glm::vec2(0.f));
 }
 
 ComponentType GuiComponent::GetType() {
@@ -94,6 +98,10 @@ void GuiComponent::RenderDebugGui() {
     }
 
     ImGui::DragFloat("Emissiveness", &emissiveness, 0.1f);
+
+    ImGui::Checkbox("Is Sprite", &isSprite);
+    ImGui::DragFloat2("Sprite Offset", glm::value_ptr(spriteOffset), 1.f);
+    ImGui::DragFloat2("Sprite Size", glm::value_ptr(spriteSize), 1.f);
 }
 
 void GuiComponent::SetText(std::string _text) {
@@ -123,7 +131,7 @@ Texture* GuiComponent::GetTexture() const {
 void GuiComponent::SetFont(std::string fontName) {
 	font = new FTGLPixmapFont(("./Content/Fonts/" + fontName).c_str());
 	if (font->Error())
-		std::cout << "WARNING: Font " << fontName << " failed to loat with FT_Error: " << font->Error() << std::endl;
+		std::cerr << "WARNING: Font " << fontName << " failed to load with FT_Error: " << font->Error() << std::endl;
 }
 
 void GuiComponent::SetFontSize(int fontSize) {
@@ -309,4 +317,28 @@ void GuiComponent::SetEmissiveness(float _emissiveness) {
 
 float GuiComponent::GetEmissiveness() {
     return emissiveness;
+}
+
+void GuiComponent::SetSpriteOffset(glm::vec2 _spriteOffset) {
+    spriteOffset = _spriteOffset;
+}
+
+glm::vec2 GuiComponent::GetSpriteOffset() const {
+    return spriteOffset;
+}
+
+void GuiComponent::SetSpriteSize(glm::vec2 _spriteSize) {
+    spriteSize = _spriteSize;
+}
+
+glm::vec2 GuiComponent::GetSpriteSize() const {
+    return spriteSize;
+}
+
+void GuiComponent::SetSprite(bool _isSprite) {
+    isSprite = _isSprite;
+}
+
+bool GuiComponent::IsSprite() const {
+    return isSprite;
 }
