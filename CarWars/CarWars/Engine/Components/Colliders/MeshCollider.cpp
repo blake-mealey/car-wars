@@ -12,13 +12,14 @@ MeshCollider::~MeshCollider() {
 }
 
 MeshCollider::MeshCollider(std::string _collisionGroup, physx::PxMaterial *_material, physx::PxFilterData _queryFilterData, bool _isTrigger, Mesh *_mesh)
-    : Collider(_collisionGroup, _material, _queryFilterData, _isTrigger) {
+    : Collider(_collisionGroup, _material, _queryFilterData, _isTrigger), fromHeightMap(false) {
     
     InitializeGeometry(_mesh);
 }
 
-MeshCollider::MeshCollider(nlohmann::json data) : Collider(data) {
+MeshCollider::MeshCollider(nlohmann::json data) : Collider(data), fromHeightMap(false) {
     if (data["HeightMap"].is_string()) {
+        fromHeightMap = true;
         HeightMap* map = ContentManager::GetHeightMap(data["HeightMap"]);
         InitializeGeometry(map->GetMesh());
     } else {
@@ -58,6 +59,11 @@ void MeshCollider::InitializeGeometry(Mesh *renderMesh) {
 
 	Physics& physics = Physics::Instance();
 
+    const PxCookingParams originalCookingParams = physics.GetCooking().getParams();
+    PxCookingParams myCookingParams = originalCookingParams;
+    if (fromHeightMap) myCookingParams.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+    physics.GetCooking().setParams(myCookingParams);
+
 	triangleMesh = nullptr;
 	PxDefaultMemoryOutputStream writeBuffer;
 	PxTriangleMeshCookingResult::Enum result;
@@ -65,6 +71,8 @@ void MeshCollider::InitializeGeometry(Mesh *renderMesh) {
 		PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
 		triangleMesh = physics.GetApi().createTriangleMesh(readBuffer);
 	}
+    
+    physics.GetCooking().setParams(originalCookingParams);
 
 	delete[] vertices;
 	delete[] triangles;

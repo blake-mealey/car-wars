@@ -188,11 +188,19 @@ void Game::InitializeGame() {
     }
 
     if (navigationMesh) delete navigationMesh;
-	navigationMesh = new NavigationMesh({
-        { "ColumnCount", 100 },
-        { "RowCount", 100 },
-        { "Spacing", 2.5f }
-    });
+    if (heightMap) {
+        navigationMesh = new NavigationMesh({
+            { "ColumnCount", heightMap->GetLength() },
+            { "RowCount", heightMap->GetWidth() },
+            { "Spacing", heightMap->GetXSpacing() }
+        });
+    } else {
+        navigationMesh = new NavigationMesh({
+            { "ColumnCount", 100 },
+            { "RowCount", 100 },
+            { "Spacing", 2.5f }
+        });
+    }
 }
 
 void ResetPlayerData(PlayerData& player) {

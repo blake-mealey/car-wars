@@ -21,6 +21,7 @@ protected:
 private:
 	physx::PxTriangleMesh *triangleMesh;
 	Mesh *mesh;
+    bool fromHeightMap;
 	
     void InitializeGeometry(Mesh *renderMesh);
 };
