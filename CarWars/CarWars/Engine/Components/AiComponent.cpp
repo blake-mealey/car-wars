@@ -448,7 +448,6 @@ void AiComponent::Update() {
 		Drive();
 	}
 	SetMode();
-	std::cout << "AI difficulty = " << myData->difficulty << std::endl;
 }
 
 void AiComponent::TakeDamage(WeaponComponent* damager, float damage) {
