@@ -15,6 +15,10 @@ public:
 	void PrintVertices();
 	void PrintElements();
 	float GetHeight(glm::vec3 coords) const;
+    float GetWidth() const;
+    float GetLength() const;
+    float GetXSpacing() const;
+    float GetZSpacing() const;
     Mesh* GetMesh();
 private:
     void CreateMesh();
@@ -24,4 +28,11 @@ private:
     vector<glm::vec3> vertices;
     vector<glm::vec2> uvs;
     vector<Triangle> triangles;
+
+    float maxHeight;
+    float maxWidth;
+    float maxLength;
+
+    float xSpacing;
+    float zSpacing;
 };

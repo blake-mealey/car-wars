@@ -1,7 +1,6 @@
 {
-	"MaxHeight": 25,
-	"MaxWidth": 20,
-	"MaxLength": 20,
-	"Map": "arena.png",
-	"UVStep": 0.5
+	"MaxHeight": 30,
+	"MaxWidth": 25,
+	"MaxLength": 25,
+	"Map": "arena2.png"
 }
