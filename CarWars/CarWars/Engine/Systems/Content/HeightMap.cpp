@@ -37,18 +37,20 @@ HeightMap::HeightMap(nlohmann::json data) {
 	}
 	
     float* pixels = image->Pixels();
-	float x, z = 0.0f;
+	float z = 0.0f;
 	for (unsigned int i = 0; i < image->Height(); i++) {
-		x = 0.f;
+		float x = 0.f;
 		for (unsigned int j = 0; j < image->Width(); j++) {
             const float y = (1.f - (pixels[0] + pixels[1] + pixels[2]) / 3.f)*static_cast<float>(maxHeight);
 			vertices.push_back(vec3(x, y, z));
+            uvs.push_back(vec2(x / static_cast<float>(image->Width()), z / static_cast<float>(image->Height())));
 			pixels += image->Channels();
 			x += width;
 		}
 		z += length;
 	}
-	unsigned int r = 0;
+	
+    unsigned int r = 0;
 	unsigned int w = image->Width();
 	for (unsigned int i = 0; i < image->Height() - 1; i++) {
 		for (unsigned int j = 0; j < image->Width() - 1; j++) {
@@ -58,32 +60,11 @@ HeightMap::HeightMap(nlohmann::json data) {
 		r += w;
 	}
 
-	float y = 0.0f;
-	for (unsigned int i = 0; i < image->Height(); i++) {
-		x = 0.0f;
-		for (unsigned int j = 0; j < image->Width(); j++) {
-			uvs.push_back(glm::vec2(x, y));
-			x += uvstepx;
-		}
-		y += uvstepy;
-	}
 	delete image;
 }
 
-float HeightMap::GetHeight(glm::vec3 coords) {
+float HeightMap::GetHeight(glm::vec3 coords) const {
 	return 1;
-}
-
-vector<glm::vec3> HeightMap::Vertices() {
-	return vertices;
-}
-
-vector<Triangle> HeightMap::Triangles() {
-	return triangles;
-}
-
-vector<glm::vec2> HeightMap::UVS() {
-	return uvs;
 }
 
 Mesh* HeightMap::GetMesh() {

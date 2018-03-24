@@ -14,10 +14,7 @@ public:
 	HeightMap(nlohmann::json data);
 	void PrintVertices();
 	void PrintElements();
-	float GetHeight(glm::vec3 coords);
-	vector<glm::vec3> Vertices();
-	vector<Triangle> Triangles();
-	vector<glm::vec2> UVS();
+	float GetHeight(glm::vec3 coords) const;
     Mesh* GetMesh();
 private:
     void CreateMesh();

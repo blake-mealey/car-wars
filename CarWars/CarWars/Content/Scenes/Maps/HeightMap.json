@@ -9,7 +9,7 @@
         "HeightMap": "Test.json",
         "Material": "Basic.json",
         "Texture": "Boulder.jpg",
-        "UvScale": [0.1, 0.1]
+        "UvScale": [10, 10]
       },
       {
         "Type": "RigidStatic",
