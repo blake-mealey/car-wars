@@ -41,7 +41,7 @@ AiComponent::AiComponent(nlohmann::json data) : targetEntity(nullptr), lastPathU
 	STUCK_CONTROL = ContentManager::GetFromJson<float>(data["StuckControl"], 1.5f);
 	TARGETING_RANGE = ContentManager::GetFromJson<float>(data["TargetingRange"], 500.f) / MAX_DIFFICULTY;
 	LOCKON_RANGE = ContentManager::GetFromJson<float>(data["LockonRange"], 400.f) / MAX_DIFFICULTY;
-	LOST_TIME = ContentManager::GetFromJson<float>(data["LostTime"], 1.f) / MAX_DIFFICULTY;
+	LOST_TIME = ContentManager::GetFromJson<float>(data["LostTime"], 5.f) / MAX_DIFFICULTY;
 	SPRAY = ContentManager::GetFromJson<float>(data[ "Spray"], 1.5f) * MAX_DIFFICULTY;
 	STOPING_DISTANCE = ContentManager::GetFromJson<float>(data[	"StoppingDistance"], 100.f) / MAX_DIFFICULTY;
 
@@ -82,7 +82,7 @@ AiMode AiComponent::GetMode() const {
 }
 
 void AiComponent::UpdatePath(glm::vec3 _targetPosition) {
-    if (!FinishedPath() && StateManager::gameTime - lastPathUpdate < 0.01) return;
+    if (!FinishedPath() && (StateManager::gameTime - lastPathUpdate) < 0.01) return;
     lastPathUpdate = StateManager::gameTime;
 
 	const glm::vec3 currentPosition = GetEntity()->transform.GetGlobalPosition();
@@ -154,6 +154,7 @@ void AiComponent::LostTargetTime() {
 }
 
 Time AiComponent::LostTargetDuration() {
+	if (lostTarget.GetSeconds() < 0) return -1;
 	return StateManager::gameTime - lostTarget;
 }
 
@@ -230,7 +231,7 @@ void AiComponent::Drive() {
 
 	NavigationMesh* navigationMesh = Game::Instance().GetNavigationMesh();
 
-	if (distanceToNode <= navigationMesh->GetSpacing() * 2.f) {
+	if (distanceToNode <= (navigationMesh->GetSpacing() * 2.f)) {
 		NextNodeInPath();
 	}
 
@@ -333,7 +334,7 @@ bool AiComponent::FindTarget() {
 					&& enemyPlayer->alive) {							 // are alive
 					glm::vec3 enemyPosition = enemyPlayer->vehicleEntity->transform.GetGlobalPosition();
 					float distanceToEnemy = glm::length(enemyPosition - localPosition);
-					if (distanceToEnemy < myData->difficulty * TARGETING_RANGE) { //see if they are in targeting range
+					if (distanceToEnemy < (myData->difficulty * TARGETING_RANGE)) { //see if they are in targeting range
 						//set target to entity and check line of sight
 						targetEntity = enemyPlayer->vehicleEntity;
 						bool sightOnTarget = GetLineOfSight(enemyPosition);
@@ -352,6 +353,7 @@ bool AiComponent::FindTarget() {
 			if (bestRating == INFINITY) { // couldn't find a target
 				UpdateMode(AiMode_GetPowerup);
 				lineOfSight = false;
+
 			}
 			else {
 				targetEntity = bestTarget;
@@ -410,8 +412,11 @@ void AiComponent::Act() {
 		lineOfSight = GetLineOfSight(targetPosition);
 		WeaponComponent* weapon = GetEntity()->GetComponent<WeaponComponent>();
 
+		if (lineOfSight && distanceToTarget < (TARGETING_RANGE * myData->difficulty)) lostTarget = Time(-1);
+		if (!lineOfSight) LostTargetTime();
+
 		if (weapon) {
-			if (distanceToTarget < LOCKON_RANGE * myData->difficulty) {
+			if (distanceToTarget < (LOCKON_RANGE * myData->difficulty)) {
 				if (!charged) {
 					weapon->Charge();
 					charged = true;
@@ -432,7 +437,9 @@ void AiComponent::Act() {
 				LostTargetTime();
 			}
 		}
-		if (lineOfSight && distanceToTarget < TARGETING_RANGE * myData->difficulty) lostTarget = Time(-1);
+		if (LostTargetDuration().GetSeconds() > (LOST_TIME * myData->difficulty)) {
+			UpdateMode(AiMode_GetPowerup);
+		}
 	}
 }
 
