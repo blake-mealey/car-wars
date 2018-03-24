@@ -1,18 +1,20 @@
 [
-	{
-		"Tag": "StartMenu_Options",
-        "Children": [
-	        {
-                "Tag": "BackButton",
-		        "Components": [
-			        {
-				        "Prefab": "GUIs/MenuButton.json",
-				        "Text": "back",
-				        "Position": [0, 245, 0],
-				        "Enabled": true
-			        }
-                ]
-	        }
+  {
+    "Tag": "StartMenu_Options",
+    "Children": [
+      {
+        "Tag": "BackButton",
+        "Components": [
+          {
+            "Prefab": "GUIs/MenuButton.json",
+            "Text": "back",
+            "Position": [ 0, 245, 0 ],
+            "Enabled": true
+          }
         ]
-	}
+      }
+    ]
+  },
+  "Controls/GamepadBack.json",
+  "Controls/GamepadContinue.json"
 ]

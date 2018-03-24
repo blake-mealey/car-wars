@@ -1,43 +1,41 @@
 [
-	{
-		"Tag": "Title",
-		"Components": [
-			{
-				"Type": "GUI",
-				"Position": [0, 40, 0],
-        "ScaledPosition": [0.5, 0],
-				"Scale": [0, 120, 1],
-        "ScaledScale": [0.5, 0],
-        "AnchorPoint": [0.5, 0],
-				"Text": "cAR wARS",
-				"Font": "Starjedi.ttf",
-				"FontColor": "White",
-				"FontSize": 128
-			}
-		]
-	},
-	{
-		"Tag": "MainMenu_Buttons",
-        "Components": [
-	        {
-		        "Prefab": "GUIs/MainMenuButton.json",
-		        "Text": "start",
-		        "Position": [0, -70, 0],
-                "Selected": true
-	        },
-	        {
-		        "Prefab": "GUIs/MainMenuButton.json",
-		        "Text": "options",
-		        "Position": [0, 0, 0]
-	        },
-	        {
-		        "Prefab": "GUIs/MainMenuButton.json",
-		        "Text": "exit",
-		        "Position": [0, 70, 0]
-	        }
-        ]
-	},
-	{
-		"Prefab": "Controls/GamepadX.json"
-	}
+  {
+    "Tag": "Title",
+    "Components": [
+      {
+        "Type": "GUI",
+        "Position": [ 0, 40, 0 ],
+        "ScaledPosition": [ 0.5, 0 ],
+        "Scale": [ 0, 120, 1 ],
+        "ScaledScale": [ 0.5, 0 ],
+        "AnchorPoint": [ 0.5, 0 ],
+        "Text": "cAR wARS",
+        "Font": "Starjedi.ttf",
+        "FontColor": "White",
+        "FontSize": 128
+      }
+    ]
+  },
+  {
+    "Tag": "MainMenu_Buttons",
+    "Components": [
+      {
+        "Prefab": "GUIs/MainMenuButton.json",
+        "Text": "start",
+        "Position": [ 0, -70, 0 ],
+        "Selected": true
+      },
+      {
+        "Prefab": "GUIs/MainMenuButton.json",
+        "Text": "options",
+        "Position": [ 0, 0, 0 ]
+      },
+      {
+        "Prefab": "GUIs/MainMenuButton.json",
+        "Text": "exit",
+        "Position": [ 0, 70, 0 ]
+      }
+    ]
+  },
+  "Controls/GamepadSelect.json"
 ]
