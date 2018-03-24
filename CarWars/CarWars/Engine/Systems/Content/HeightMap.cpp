@@ -52,7 +52,7 @@ HeightMap::HeightMap(nlohmann::json data) {
 	unsigned int w = image->Width();
 	for (unsigned int i = 0; i < image->Height() - 1; i++) {
 		for (unsigned int j = 0; j < image->Width() - 1; j++) {
-			triangles.push_back(Triangle((r + j), (r + j + 1), (r + j + w)));
+			triangles.push_back(Triangle((r + j), (r + j + w), (r + j + 1)));
 			triangles.push_back(Triangle((r + j + 1), (r + j + w), (r + j + w + 1)));
 		}
 		r += w;

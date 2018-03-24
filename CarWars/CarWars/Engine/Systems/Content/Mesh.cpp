@@ -30,10 +30,10 @@ Mesh::~Mesh() {
 
 void Mesh::GenerateNormals(glm::vec3 *vertices, glm::vec3 *normals) {
 	for (size_t i = 0; i < vertexCount; i++) {
-		normals[i] = glm::vec3(0, 1.f, 0);;
+		normals[i] = glm::vec3(0.f);;
 	}
 
-	/*for (size_t i = 0; i < vertexCount; i+=3) {
+	for (size_t i = 0; i < vertexCount - 3; i+=3) {
 		const glm::vec3 v1 = vertices[i];
 		const glm::vec3 triangleNormal = glm::normalize(glm::cross(vertices[i + 1] - v1, vertices[i + 2] - v1));
 		for (size_t j = i; j < i + 3; j++) {
@@ -43,7 +43,7 @@ void Mesh::GenerateNormals(glm::vec3 *vertices, glm::vec3 *normals) {
 
 	for (size_t i = 0; i < vertexCount; i++) {
 		normals[i] = glm::normalize(normals[i]);
-	}*/
+	}
 }
 
 float Mesh::GetRadius() const {
