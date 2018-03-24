@@ -465,6 +465,12 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
     PlayerData* attacker = Game::GetPlayerFromEntity(damager->GetEntity());
     PlayerData* me = Game::GetPlayerFromEntity(GetEntity());
 
+    if (damager->GetType() == ComponentType_MachineGun) {
+        Audio::Instance().PlayAudio2D("Content/Sounds/railgun-hit.mp3");
+    } else if (damager->GetType() == ComponentType_MachineGun) {
+        Audio::Instance().PlayAudio2D("Content/Sounds/bullet-hit.mp3");
+    }
+
     if (attacker->teamIndex == me->teamIndex) return;
     health -= _damage * (1.f-resistance*defenceMultiplier);
 
