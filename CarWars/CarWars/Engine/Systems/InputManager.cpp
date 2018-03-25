@@ -62,9 +62,10 @@ void InputManager::HandleMouse() {
 			PxScene* scene = &Physics::Instance().GetScene();
 			glm::vec3 cameraDirection = glm::normalize(cameraC->GetTarget() - cameraC->GetPosition());
 			PxSweepBuffer sweepBuffer;
-			PxGeometry sphereGeometry = PxSphereGeometry(10.0f);
+			PxGeometry sphereGeometry = PxSphereGeometry(40.0f);
 			PxTransform initialPosition = PxTransform(Transform::ToPx(cameraC->GetTarget()));
 			PxQueryFilterData sweepFilterData;
+			/*
 			size_t mask = 0;
 			for (Component* component : EntityManager::GetComponents(ComponentType_Vehicle)) {
 				VehicleComponent* vehicleComponent = static_cast<VehicleComponent*>(component);
@@ -73,10 +74,12 @@ void InputManager::HandleMouse() {
 					mask |= vehicleComponent->GetRaycastGroup();
 				}
 			}
+			*/
 			glm::vec3 cameraHit;
-			sweepFilterData.data.word0 = ~RaycastGroups::GetGroupsMask(mask);
+			//sweepFilterData.data.word0 = ~RaycastGroups::GetGroupsMask(mask);
+			sweepFilterData.data.word0 = RaycastGroups::GetGroupsMask() ^ (RaycastGroups::GetDefaultGroup() | vehicle->GetRaycastGroup());
 			std::cout << sweepFilterData.data.word0 << std::endl;
-			if (scene->sweep(sphereGeometry, initialPosition, Transform::ToPx(cameraDirection), 40.0f, sweepBuffer, PxHitFlag::eDEFAULT, sweepFilterData)) {
+			if (scene->sweep(sphereGeometry, initialPosition, -Transform::ToPx(cameraDirection), 40.0f, sweepBuffer, PxHitFlag::eDEFAULT, sweepFilterData)) {
 				cameraHit = Transform::FromPx(sweepBuffer.block.position);
 			} else {
 				PxQueryFilterData filterData;
