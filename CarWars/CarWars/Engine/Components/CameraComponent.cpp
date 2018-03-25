@@ -211,7 +211,6 @@ glm::vec3 CameraComponent::CastRay(float rayLength, PxQueryFilterData filterData
 	if (scene->raycast(Transform::ToPx(GetTarget()), Transform::ToPx(cameraDirection), rayLength, cameraHit, PxHitFlag::eDEFAULT, filterData)) {
 		//cameraHit has hit something
 		cameraHitPosition = Transform::FromPx(cameraHit.block.position);
-		//EntityManager::FindEntity(cameraHit.block.actor);
 	} else {
 		//cameraHit has not hit anything
 		cameraHitPosition = GetPosition() + (cameraDirection * rayLength);
