@@ -79,13 +79,17 @@ void InputManager::HandleMouse() {
 			glm::vec3 cameraHit;
 			//sweepFilterData.data.word0 = ~RaycastGroups::GetGroupsMask(mask);
 			sweepFilterData.data.word0 = RaycastGroups::GetGroupsMask() ^ (RaycastGroups::GetDefaultGroup() | vehicle->GetRaycastGroup());
-			std::cout << std::endl;
-			std::cout << bitset<8>(RaycastGroups::GetGroupsMask()) << std::endl;
-			std::cout << bitset<8>(RaycastGroups::GetDefaultGroup()) << std::endl;
-			std::cout << bitset<8>(vehicle->GetRaycastGroup()) << std::endl;
-			std::cout << bitset<8>(sweepFilterData.data.word0) << std::endl;
-			if (scene->sweep(sphereGeometry, initialPosition, Transform::ToPx(cameraDirection), 40.0f, sweepBuffer, PxHitFlag::eDEFAULT, sweepFilterData)) {
-				cameraHit = Transform::FromPx(sweepBuffer.block.position);
+			//std::cout << std::endl;
+			//std::cout << bitset<8>(RaycastGroups::GetGroupsMask()) << std::endl;
+			//std::cout << bitset<8>(RaycastGroups::GetDefaultGroup()) << std::endl;
+			//std::cout << bitset<8>(vehicle->GetRaycastGroup()) << std::endl;
+			//std::cout << bitset<8>(sweepFilterData.data.word0) << std::endl;
+			//scene->sweep(sphereGeometry, initialPosition, Transform::ToPx(cameraDirection), 40.0f, sweepBuffer, PxHitFlag::eDEFAULT, sweepFilterData)
+			PxRaycastBuffer hitBuffer;
+			if (scene->raycast(Transform::ToPx(cameraC->GetTarget()), Transform::ToPx(cameraDirection), 40.0f, hitBuffer, PxHitFlag::eDEFAULT, sweepFilterData)) {
+				//cameraHit = Transform::FromPx(sweepBuffer.block.position);
+				cameraHit = Transform::FromPx(hitBuffer.block.position);
+				std::cout << "Hit Car" << std::endl;
 			} else {
 				PxQueryFilterData filterData;
 				filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
