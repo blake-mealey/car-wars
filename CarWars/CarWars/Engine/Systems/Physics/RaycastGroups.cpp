@@ -15,8 +15,8 @@ size_t RaycastGroups::GetDefaultGroup() {
 }
 
 size_t RaycastGroups::AddVehicleGroup() {
-	static size_t lastGroup = 1;
-	size_t vehicleGroup = 1 << ++lastGroup;
+	static size_t lastGroup = 0;
+	const size_t vehicleGroup = 1 << ++lastGroup;
 	allGroups |= vehicleGroup;
 	return vehicleGroup;
 }

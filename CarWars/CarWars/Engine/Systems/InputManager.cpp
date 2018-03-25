@@ -23,6 +23,7 @@
 #include "PennerEasing/Circ.h"
 #include "PennerEasing/Expo.h"
 #include "PennerEasing/Back.h"
+#include <bitset>
 
 vector<XboxController*> InputManager::xboxControllers;
 
@@ -78,7 +79,11 @@ void InputManager::HandleMouse() {
 			glm::vec3 cameraHit;
 			//sweepFilterData.data.word0 = ~RaycastGroups::GetGroupsMask(mask);
 			sweepFilterData.data.word0 = RaycastGroups::GetGroupsMask() ^ (RaycastGroups::GetDefaultGroup() | vehicle->GetRaycastGroup());
-			std::cout << sweepFilterData.data.word0 << std::endl;
+			std::cout << std::endl;
+			std::cout << bitset<8>(RaycastGroups::GetGroupsMask()) << std::endl;
+			std::cout << bitset<8>(RaycastGroups::GetDefaultGroup()) << std::endl;
+			std::cout << bitset<8>(vehicle->GetRaycastGroup()) << std::endl;
+			std::cout << bitset<8>(sweepFilterData.data.word0) << std::endl;
 			if (scene->sweep(sphereGeometry, initialPosition, -Transform::ToPx(cameraDirection), 40.0f, sweepBuffer, PxHitFlag::eDEFAULT, sweepFilterData)) {
 				cameraHit = Transform::FromPx(sweepBuffer.block.position);
 			} else {
