@@ -1,0 +1,11 @@
+{
+	"Tag": "SpawnLocation",
+	"Components": [
+		{
+			"Type": "Mesh",
+			"Mesh": "Sphere.obj",
+			"Material": "Basic.json",
+			"Enabled": false
+		}
+	]
+}

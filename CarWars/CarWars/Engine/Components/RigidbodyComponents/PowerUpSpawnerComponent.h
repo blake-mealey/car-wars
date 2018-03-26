@@ -9,6 +9,7 @@ enum PowerUpType {
     Speed=0,
     Damage,
     Defence,
+    Random,
     Count
 };
 
@@ -25,6 +26,8 @@ public:
 
     void Respawn();
     void Collect(VehicleComponent* vehicle);
+
+    void SetPowerUpType(PowerUpType type);
 private:
     Time respawnDuration;
     Time lastPickupTime;
@@ -32,5 +35,5 @@ private:
     PowerUp* activePowerUp;
     MeshComponent* powerUpMesh;
 
-    int powerUpType;
+    PowerUpType powerUpType;
 };

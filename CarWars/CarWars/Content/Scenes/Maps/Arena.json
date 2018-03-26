@@ -1,26 +1,4 @@
 [
- {
-        "Prefab": "Game/PowerUpSpawner.json",
-	    "Position": [ -50, 2, -20 ]
-    }, {
-        "Prefab": "Game/PowerUpSpawner.json",
-	    "Position": [ -40, 2, -10 ]
-    },{
-        "Prefab": "Game/PowerUpSpawner.json",
-	    "Position": [ -60, 2, -30 ]
-    },
-    {
-        "Prefab": "Waypoint.json",
-	    "Position": [ -50, 2, 20 ]
-    },
-    {
-        "Prefab": "Waypoint.json",
-	    "Position": [ 50, 2, 20 ]
-    },
-    {
-        "Prefab": "Waypoint.json",
-	    "Position": [ 50, 2, -20 ]
-    },
     "Jump.json",
     {
         "Prefab": "Jump.json",
@@ -28,23 +6,6 @@
       "Rotate": [ 0, 0, -20 ],
       "scale": [10,10,10]
     },
-	{
-		"Tag": "Dome",
-		"Position": [ 0, 0, -30 ],
-		"Scale": [ 15, 15, 15 ],
-		"Components": [
-			{
-				"Type": "Mesh",
-				"Mesh": "Sphere.obj",
-				"Material": {
-					"DiffuseColor": "RedAlpha",
-					"SpecularColor": "RedAlpha",
-					"Specularity": 1,
-					"Emissiveness": 1
-				}
-			}
-		]
-	},
   {
     "Tag": "Wall",
     "Position": [ -20, 5, -15 ],
@@ -147,41 +108,5 @@
             }
 		]
 	},
-  "Sun.json",
-  {
-    "Tag": "SpawnLocation",
-    "Position": [ 0, 20, 0 ]
-  },
-  {
-    "Tag": "SpawnLocation",
-    "Position": [ 0, 20, 50 ]
-  },
-  {
-    "Tag": "SpawnLocation",
-    "Position": [ 0, 20, -50 ]
-  },
-  {
-    "Tag": "SpawnLocation",
-    "Position": [50, 20, 0]
-  },
-  {
-    "Tag": "SpawnLocation",
-    "Position": [-50, 20, 0]
-  },
-  {
-    "Tag": "SpawnLocation",
-    "Position": [50, 20, 50]
-  },
-  {
-    "Tag": "SpawnLocation",
-    "Position": [-50, 20, 50]
-  },
-  {
-    "Tag": "SpawnLocation",
-    "Position": [50, 20, -50]
-  },
-  {
-    "Tag": "SpawnLocation",
-    "Position": [-50, 20, -50]
-  }
+  "Sun.json"
 ]

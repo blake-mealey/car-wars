@@ -355,6 +355,7 @@
     <None Include="Content\Prefabs\Entities\Explosion.json" />
     <None Include="Content\Prefabs\Entities\ExplosionEffect.json" />
     <None Include="Content\Prefabs\Entities\Game\Camera.json" />
+    <None Include="Content\Prefabs\Entities\Game\SpawnLocation.json" />
     <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\CharacterMenuStat.json" />
     <None Include="Content\Prefabs\Entities\Menu\KillFeedRow.json" />
@@ -379,6 +380,7 @@
     <None Include="Content\Prefabs\Entities\Weapons\RocketLauncherTurret.json" />
     <None Include="Content\Scenes\CharacterSelectMenu.json" />
     <None Include="Content\Scenes\GUIs\GameEnd_GUI.json" />
+    <None Include="Content\Scenes\Maps\Arena.json" />
     <None Include="Content\Scenes\Maps\CircleMap.json" />
     <None Include="Content\Scenes\GameDemo.json" />
     <None Include="Content\Scenes\GUIs\HUD.json" />

@@ -2,6 +2,7 @@
 
 #include <string>
 
+class Picture;
 class NavigationMesh;
 class HeightMap;
 
@@ -11,4 +12,10 @@ public:
 
     NavigationMesh* navigationMesh;
     HeightMap* heightMap;
+
+private:
+    void LoadObjects(Picture* objectsMap);
+
+    float mapWidth;
+    float mapLength;
 };
