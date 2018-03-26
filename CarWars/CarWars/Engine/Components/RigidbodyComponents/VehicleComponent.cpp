@@ -66,7 +66,7 @@ VehicleComponent::VehicleComponent(nlohmann::json data) : RigidDynamicComponent(
 
 VehicleComponent::VehicleComponent(size_t _wheelCount, bool _inputTypeDigital) : RigidDynamicComponent(),
     inputTypeDigital(_inputTypeDigital), chassisSize(glm::vec3(2.5f, 2.f, 5.f)),
-    wheelMass(20.f), wheelRadius(0.5f), wheelWidth(0.4f), wheelCount(_wheelCount), boostPower(10.f) {
+    wheelMass(20.f), wheelRadius(0.5f), wheelWidth(0.4f), wheelCount(_wheelCount), boostPower(30.f) {
 
 	boostCooldown = Time(5.f);
 	lastBoost = Time(-boostCooldown.GetSeconds());
