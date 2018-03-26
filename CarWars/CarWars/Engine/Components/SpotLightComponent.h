@@ -16,6 +16,8 @@ public:
 	glm::vec3 GetDirection() const;
 	SpotLight GetData() const;
 
+	void SetColor(glm::vec3 color);
+
 	ComponentType GetType() override;
 	void HandleEvent(Event* event) override;
 

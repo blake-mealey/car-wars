@@ -25,3 +25,7 @@ void SpeedPowerUp::RemoveInternal() {
 std::string SpeedPowerUp::GetGuiName() const {
     return "SpeedPowerUp";
 }
+
+glm::vec4 SpeedPowerUp::GetColor() const {
+	return glm::vec4(1.f, 1.f, 0.f, 1.f);
+}

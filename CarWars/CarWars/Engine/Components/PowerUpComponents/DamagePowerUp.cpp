@@ -25,3 +25,7 @@ void DamagePowerUp::RemoveInternal() {
 std::string DamagePowerUp::GetGuiName() const {
     return "DamagePowerUp";
 }
+
+glm::vec4 DamagePowerUp::GetColor() const {
+	return glm::vec4(1.f, 0.f, 0.f, 1.f);
+}

@@ -1,40 +1,24 @@
 {
-	"Components": [
-		{
-			"Type": "Mesh",
-			"Mesh": "Boulder.obj",
-			"Texture": "Boulder.jpg",
-			"Material": "Basic.json"
-		}
-	],
-	"Children": [
-		{
-			"Position": [-0.7, -0.7, 0],
-			"Scale": [0.5, 0.6, 0.7],
-			"Components": [
-				{
-					"Type": "Mesh",
-					"Mesh": "Boulder.obj",
-					"Texture": "Boulder.jpg",
-					"Material": "Basic.json",
-					"UvScale": [0.5, 0.5],
-					"Enabled": true
-				}
-			]
-		},
-		{
-			"Position": [0.7, 0, 0.7],
-			"Scale": [0.7, 0.6, 0.5],
-			"Components": [
-				{
-					"Type": "Mesh",
-					"Mesh": "Boulder.obj",
-					"Texture": "Boulder.jpg",
-					"Material": "Basic.json",
-					"UvScale": [0.5, 0.5],
-					"Enabled": true
-				}
-			]
-		}
-	]
-}
+		"Tag": "Ball",
+		"Components": [
+			{
+				"Type": "Mesh",
+                "Scale": [2, 2, 2],
+				"Mesh": "Boulder.obj",
+				"Material": "Basic.json",
+                "Texture": "Boulder.jpg"
+			},
+            {
+                "Type": "RigidDynamic",
+                "Mass": 500,
+                "Colliders": [
+                    {
+                        "Type": "ConvexMesh",
+                        "Mesh": "Boulder.obj",
+                        "CollisionGroup": "DrivableObstacles",
+                        "Scale": [2, 2, 2]
+                    }
+                ]
+            }
+		]
+	}

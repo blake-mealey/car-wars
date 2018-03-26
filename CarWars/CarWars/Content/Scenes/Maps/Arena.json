@@ -1,112 +1,35 @@
 [
-    "Jump.json",
-    {
-        "Prefab": "Jump.json",
-        "Position": [ 14.8, -2.4, 20 ],
-      "Rotate": [ 0, 0, -20 ],
-      "scale": [10,10,10]
-    },
   {
-    "Tag": "Wall",
-    "Position": [ -20, 5, -15 ],
-    "Rotate": [ 20, 0, 0 ],
-    "Scale": [ 10, 10, 80 ],
-    "Components": [
-      {
-        "Type": "Mesh",
-        "Mesh": "Cube.obj",
-        "Texture": "DiamondPlate.jpg",
-        "Material": "Basic.json",
-        "UvScale": [ 10, 10 ],
-        "Scale": [ 0.5, 0.5, 0.5 ]
-      },
-      {
-        "Type": "RigidStatic",
-        "Colliders": [
-          {
-            "Type": "Box",
-            "CollisionGroup": "DrivableObstacles"
-          }
-        ]
-      }
-    ]
+    "Prefab": "Pillar.json",
+    "Position": [30, -5, 30 ]
   },
-   {
-        "Tag": "Cylinder",
-        "Position": [ 20, 5, -15 ],
-        "Rotate": [ -20, 0, 0 ],
-        "Scale": [5, 5, 80],
-        "Components": [
-            {
-                "Type": "Mesh",
-                "Mesh": "Cylinder.obj",
-                "Texture": "DiamondPlate.jpg",
-                "Material": "Basic.json",
-                "UvScale": [10, 10],
-                "Scale": [1, 1, 1]
-            },
-            {
-                "Type": "RigidStatic",
-                "Colliders": [
-                    {
-                      "Type": "ConvexMesh",
-                      "Mesh": "Cylinder.obj",
-                        "CollisionGroup": "DrivableObstacles"
-                    }
-                ]
-            }
-        ]
-    },
-  	{
-		"Tag": "Light",
-		"Position": [ -10, 2, 10 ],
-		"Components": [
-			{
-				"Type": "Mesh",
-				"Mesh": "Cube.obj",
-				"Material": "BlueShiny.json"
-			},
-			{
-				"Type": "PointLight",
-				"Color": "Blue",
-				"Power": 50
-			},
-            {
-                "Type": "RigidDynamic",
-                "Colliders": [
-                    {
-                        "Type": "Box",
-                        "CollisionGroup": "DrivableObstacles",
-                        "Scale": [2, 2, 2]
-                    }
-                ]
-            }
-		]
-	},
-    {
-		"Tag": "Ball",
-		"Position": [ -10, 10, 10 ],
-		"Components": [
-			{
-				"Type": "Mesh",
-                "Scale": [2, 2, 2],
-				"Mesh": "Boulder.obj",
-				"Material": "Basic.json",
-                "Texture": "Boulder.jpg"
-			},
-            {
-                "Type": "RigidDynamic",
-                "Mass": 500,
-                "Colliders": [
-                    {
-                        "Type": "ConvexMesh",
-                        "Mesh": "Boulder.obj",
-                        "CollisionGroup": "DrivableObstacles",
-                        "Scale": [2, 2, 2]
-                    }
-                ]
-            }
-		]
-	},
+  {
+    "Prefab": "Pillar.json",
+    "Position": [-30, -5, 30 ]
+  },
+  {
+    "Prefab": "Pillar.json",
+    "Position": [30, -5, -30 ]
+  },
+  {
+    "Prefab": "Pillar.json",
+    "Position": [-30, -5, -30 ]
+  },
+  {
+    "Prefab": "Boulder.json",
+    "Position": [ -10, 5, 10]
+  },
+  {
+    "Prefab": "Boulder.json",
+    "Position": [ 10, 5, -10]
+  },
+  {
+    "Prefab": "Boulder.json",
+    "Position": [ -10, 5, -10]
+  },
+  {
+    "Prefab": "Boulder.json",
+    "Position": [ 10, 5, 10]
+  },
   "Sun.json"
 ]

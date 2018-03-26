@@ -8,6 +8,9 @@
 #include "../../Systems/Game.h"
 #include "../PowerUpComponents/DefencePowerUp.h"
 #include "../PowerUpComponents/DamagePowerUp.h"
+#include "../SpotLightComponent.h"
+#include "PennerEasing/Quint.h"
+#include "../../Systems/Effects.h"
 
 PowerUpSpawnerComponent::PowerUpSpawnerComponent(nlohmann::json data): RigidStaticComponent(data) {
     respawnDuration = ContentManager::GetFromJson<double>(data["RespawnDuration"], 5.0);
@@ -44,22 +47,20 @@ void PowerUpSpawnerComponent::Respawn() {
     case Speed:
         activePowerUp = new SpeedPowerUp();
         powerUpMesh = ContentManager::LoadComponent<MeshComponent>("SpeedPowerUpMesh.json");
-        GetEntity()->GetComponent<PointLightComponent>()->SetColor(glm::vec4(1.f, 1.f, 0.f, 1.f));
         break;
     case Damage:
         activePowerUp = new DamagePowerUp();
         powerUpMesh = ContentManager::LoadComponent<MeshComponent>("DamagePowerUpMesh.json");
-        GetEntity()->GetComponent<PointLightComponent>()->SetColor(glm::vec4(1.f, 0.f, 0.f, 1.f));
         break;
     case Defence:
         activePowerUp = new DefencePowerUp();
         powerUpMesh = ContentManager::LoadComponent<MeshComponent>("DefencePowerUpMesh.json");
-        GetEntity()->GetComponent<PointLightComponent>()->SetColor(glm::vec4(0.f, 1.f, 1.f, 1.f));
         break;
     default:
         return;
     }
 
+	GetEntity()->GetComponent<PointLightComponent>()->SetColor(activePowerUp->GetColor());
     EntityManager::AddComponent(GetEntity(), powerUpMesh);
 }
 
@@ -68,6 +69,20 @@ void PowerUpSpawnerComponent::Collect(VehicleComponent* vehicle) {
 
     PlayerData* player = Game::GetPlayerFromEntity(vehicle->GetEntity());
     if (!player || player->activePowerUp) return;
+
+	std::vector<Entity*> headlights = EntityManager::FindChildren(vehicle->GetEntity(), "HeadLamp");
+	for (Entity* entity : headlights) {
+		Effects::Instance().DestroyTween("Headlight" + std::to_string(player->id));
+		SpotLightComponent* light = entity->GetComponent<SpotLightComponent>();
+		const glm::vec3 start = light->GetColor();
+		const glm::vec3 end = activePowerUp->GetColor();
+		auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Quint::easeOut>(start, end, 0.1, StateManager::gameTime);
+		tween->SetTag("Headlight" + std::to_string(player->id));
+		tween->SetUpdateCallback([light](glm::vec3& value) {
+			light->SetColor(value);
+		});
+		tween->Start();
+	}
 
     lastPickupTime = StateManager::gameTime;
     activePowerUp->Collect(player);

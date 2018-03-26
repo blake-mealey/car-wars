@@ -47,3 +47,7 @@ void SpotLightComponent::RenderDebugGui() {
 glm::vec3 SpotLightComponent::GetColor() const {
 	return color;
 }
+
+void SpotLightComponent::SetColor(glm::vec3 _color) {
+	color = _color;
+}

@@ -1,0 +1,23 @@
+{
+    "Tag": "Wall",
+    "Scale": [ 15, 50, 15 ],
+    "Components": [
+      {
+        "Type": "Mesh",
+        "Mesh": "Cube.obj",
+        "Texture": "DiamondPlate.jpg",
+        "Material": "Basic.json",
+        "UvScale": [ 10, 10 ],
+        "Scale": [ 0.5, 0.5, 0.5 ]
+      },
+      {
+        "Type": "RigidStatic",
+        "Colliders": [
+          {
+            "Type": "Box",
+            "CollisionGroup": "DrivableObstacles"
+          }
+        ]
+      }
+    ]
+  }

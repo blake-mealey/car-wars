@@ -276,5 +276,6 @@
     <None Include="Content\Maps\Tiers\Data.json" />
     <None Include="Content\Prefabs\Entities\Game\SpawnLocation.json" />
     <None Include="Content\Scenes\Maps\Arena.json" />
+    <None Include="Content\Prefabs\Entities\Pillar.json" />
   </ItemGroup>
 </Project>

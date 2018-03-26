@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Systems/Time.h"
+#include "glm/glm.hpp"
 
 class GuiComponent;
 struct PlayerData;
@@ -14,6 +15,8 @@ public:
     void TweenVignette() const;
 
     void Remove(bool force);
+
+	virtual glm::vec4 GetColor() const = 0;
 protected:
     virtual void RemoveInternal() = 0;
     virtual std::string GetGuiName() const = 0;

@@ -198,6 +198,8 @@ void Physics::Update() {
     for (Component* component : vehicleComponents) {
         VehicleComponent* vehicle = static_cast<VehicleComponent*>(component);
         vehicle->inAir = vehicle->pxVehicle->getRigidDynamicActor()->isSleeping() ? false : PxVehicleIsInAir(vehicleQueryResults[0]);
+		glm::vec3 force = vehicle->GetEntity()->transform.GetUp() * -9.81f * 10.f;
+		vehicle->actor->addForce(Transform::ToPx(force), PxForceMode::eIMPULSE);
     }
 
     //Scene update.

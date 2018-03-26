@@ -25,3 +25,7 @@ void DefencePowerUp::RemoveInternal() {
 std::string DefencePowerUp::GetGuiName() const {
     return "DefencePowerUp";
 }
+
+glm::vec4 DefencePowerUp::GetColor() const {
+	return glm::vec4(0.f, 1.f, 1.f, 1.f);
+}
