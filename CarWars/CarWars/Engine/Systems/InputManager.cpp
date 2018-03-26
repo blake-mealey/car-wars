@@ -62,11 +62,11 @@ void InputManager::HandleMouse() {
 		} else if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
 			PxScene* scene = &Physics::Instance().GetScene();
 			glm::vec3 cameraDirection = glm::normalize(cameraC->GetTarget() - cameraC->GetPosition());
+			/* Sweep Attempt
 			PxSweepBuffer sweepBuffer;
 			PxGeometry sphereGeometry = PxSphereGeometry(40.0f);
 			PxTransform initialPosition = PxTransform(Transform::ToPx(cameraC->GetTarget()));
 			PxQueryFilterData sweepFilterData;
-			/*
 			size_t mask = 0;
 			for (Component* component : EntityManager::GetComponents(ComponentType_Vehicle)) {
 				VehicleComponent* vehicleComponent = static_cast<VehicleComponent*>(component);
@@ -75,8 +75,6 @@ void InputManager::HandleMouse() {
 					mask |= vehicleComponent->GetRaycastGroup();
 				}
 			}
-			*/
-			glm::vec3 cameraHit;
 			//sweepFilterData.data.word0 = ~RaycastGroups::GetGroupsMask(mask);
 			sweepFilterData.data.word0 = RaycastGroups::GetGroupsMask() ^ (RaycastGroups::GetDefaultGroup() | vehicle->GetRaycastGroup());
 			//std::cout << std::endl;
@@ -90,6 +88,32 @@ void InputManager::HandleMouse() {
 				//cameraHit = Transform::FromPx(sweepBuffer.block.position);
 				cameraHit = Transform::FromPx(hitBuffer.block.position);
 				std::cout << "Hit Car" << std::endl;
+			} else {
+				PxQueryFilterData filterData;
+				filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
+				cameraHit = cameraC->CastRay(rayLength, filterData);
+			}
+			*/
+
+			float lowestDot = 999.0f;
+			Entity* closestAimVehicle = nullptr;
+			glm::vec3 cameraHit;
+			for (Component* component : EntityManager::GetComponents(ComponentType_Vehicle)) {
+				VehicleComponent* vehicleComponent = static_cast<VehicleComponent*>(component);
+				Entity* vehicleEntity = vehicleComponent->GetEntity();
+				if ((vehicleEntity->GetId() != vehicle->GetEntity()->GetId()) && (Game::GetPlayerFromEntity(vehicleEntity)->teamIndex != Game::GetPlayerFromEntity(vehicle->GetEntity())->teamIndex)) {
+					glm::vec3 otherVehiclePos = vehicleEntity->transform.GetGlobalPosition();
+					glm::vec3 dirToOtherVehicle = otherVehiclePos - vehicle->GetEntity()->transform.GetGlobalPosition();
+					if (glm::length(dirToOtherVehicle) < 40.0f) {
+						if (glm::dot(cameraDirection, glm::normalize(dirToOtherVehicle)) < lowestDot) {
+							closestAimVehicle = vehicleEntity;
+							lowestDot = glm::dot(cameraDirection, glm::normalize(dirToOtherVehicle));
+						}
+					}
+				}
+			}
+			if (closestAimVehicle && acos(lowestDot) < (M_PI_4 / 16.0f)) {
+				cameraHit = closestAimVehicle->transform.GetGlobalPosition();
 			} else {
 				PxQueryFilterData filterData;
 				filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
@@ -749,10 +773,10 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 
 		//TODO: use timer and clamps to control speed
 		if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			cameraX += static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f * .6; 
+			cameraX += (static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f) * .4f; 
 		}
 		if (abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			cameraY += static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f * .6f;
+			cameraY += (static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f) * .4f;
 		}
 
 		if (cameraX > M_PI) cameraX -= M_PI * 2;
@@ -796,10 +820,32 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 			weapon->Charge();
 		}
 		if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
-			PxQueryFilterData filterData;
-			float rayLength = 200.0f;
-			filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
-			glm::vec3 cameraHit = cameraC->CastRay(rayLength, filterData);
+			glm::vec3 cameraDirection = glm::normalize(cameraC->GetTarget() - cameraC->GetPosition());
+			float lowestDot = 999.0f;
+			Entity* closestAimVehicle = nullptr;
+			glm::vec3 cameraHit;
+			for (Component* component : EntityManager::GetComponents(ComponentType_Vehicle)) {
+				VehicleComponent* vehicleComponent = static_cast<VehicleComponent*>(component);
+				Entity* vehicleEntity = vehicleComponent->GetEntity();
+				if ((vehicleEntity->GetId() != vehicle->GetEntity()->GetId()) && (Game::GetPlayerFromEntity(vehicleEntity)->teamIndex != Game::GetPlayerFromEntity(vehicle->GetEntity())->teamIndex)) {
+					glm::vec3 otherVehiclePos = vehicleEntity->transform.GetGlobalPosition();
+					glm::vec3 dirToOtherVehicle = otherVehiclePos - vehicle->GetEntity()->transform.GetGlobalPosition();
+					if (glm::length(dirToOtherVehicle) < 40.0f) {
+						if (glm::dot(cameraDirection, glm::normalize(dirToOtherVehicle)) < lowestDot) {
+							closestAimVehicle = vehicleEntity;
+							lowestDot = glm::dot(cameraDirection, glm::normalize(dirToOtherVehicle));
+						}
+					}
+				}
+			}
+			if (closestAimVehicle && acos(lowestDot) < (M_PI_4 / 6.0f)) {
+				cameraHit = closestAimVehicle->transform.GetGlobalPosition();
+			} else {
+				PxQueryFilterData filterData;
+				filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
+				cameraHit = cameraC->CastRay(100.0f, filterData);
+			}
+			weapon->Shoot(cameraHit);
 			vehicle->GetEntity()->GetComponent<WeaponComponent>()->Shoot(cameraHit);
 	 	}
 		if (releasedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
