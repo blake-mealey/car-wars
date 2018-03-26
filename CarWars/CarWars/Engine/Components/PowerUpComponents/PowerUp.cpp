@@ -66,7 +66,8 @@ void PowerUp::Remove(bool force) {
         }
     }
 
-    RemoveInternal();
+	if (!force)
+		RemoveInternal();
 
     player->activePowerUp = nullptr;
     delete this;

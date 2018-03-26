@@ -19,7 +19,7 @@
 RailGunComponent::RailGunComponent() : WeaponComponent(1150.0f) {}
 
 void RailGunComponent::Shoot(glm::vec3 position) {
-
+	turnTurret(position);
 	if (StateManager::gameTime.GetSeconds() >= nextShotTime.GetSeconds()) {
         playingChargeSound = false;
         Audio::Instance().StopSound(soundIndex);

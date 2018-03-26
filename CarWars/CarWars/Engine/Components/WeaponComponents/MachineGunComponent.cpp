@@ -23,6 +23,8 @@ MachineGunComponent::MachineGunComponent() : WeaponComponent(20.0f) {}
 
 void MachineGunComponent::Shoot(glm::vec3 position) {
 	if (StateManager::gameTime.GetSeconds() > nextShotTime.GetSeconds()) {
+		turnTurret(position);
+
 		Entity* vehicle = GetEntity();
 		Entity* mgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
 		const glm::vec3 gunPosition = mgTurret->transform.GetGlobalPosition();
@@ -30,20 +32,6 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		glm::vec3 gunDirection = position - gunPosition;
 		float distanceToTarget = glm::length(gunDirection);
 		gunDirection = glm::normalize(gunDirection);
-
-		//work for clamping guns
-		glm::vec3 up = vehicle->transform.GetUp();
-		glm::vec3 front = -vehicle->transform.GetForward();
-		glm::vec3 right = vehicle->transform.GetRight();
-
-		glm::vec3 directionHorizontalPlane = glm::normalize(gunDirection - (glm::dot(gunDirection, up) * up)); //project to RF plane
-
-		float horizontalAngle = acos(glm::dot(directionHorizontalPlane, front)) * (glm::dot(right, directionHorizontalPlane) > 0 ? 1 : -1);
-
-		if (horizontalAngle) {
-			mgTurret->transform.SetRotation(glm::quat());
-			mgTurret->transform.Rotate(Transform::UP, horizontalAngle);
-		}
 
 		// pick a random point on a sphere for spray
 		float randomHorizontalAngle = (float)rand() / (float)RAND_MAX * M_PI * 2.f;
@@ -54,7 +42,6 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 			sin(randomHorizontalAngle) * sin(randomVerticalAngle)) * SPRAY;
 
 		glm::vec3 shotPosition = glm::normalize(gunDirection)*100.f + randomOffset + gunPosition;
-
 
 		//Calculate Next Shooting Time
 		nextShotTime = StateManager::gameTime + timeBetweenShots;
