@@ -471,7 +471,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
         Audio::Instance().PlayAudio2D("Content/Sounds/bullet-hit.mp3");
     }
 
-    if (attacker->teamIndex == me->teamIndex) return;
+    if (attacker && attacker->teamIndex == me->teamIndex) return;
     health -= _damage * (1.f-resistance*defenceMultiplier);
 
     HumanData* attackerPlayer = Game::GetHumanFromEntity(damager->GetEntity());
@@ -483,7 +483,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
 
     HumanData *myPlayer = Game::GetHumanFromEntity(GetEntity());
     if (myPlayer) {
-		{
+		if (attacker) {
             Entity* entity = EntityManager::FindFirstChild(myPlayer->camera->GetGuiRoot(), "DamageIndicator");
             GuiComponent* gui = entity->GetComponent<GuiComponent>();
 
@@ -530,8 +530,10 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
     }
 
     if (health <= 0) {
-        attacker->killCount++;
-        Game::gameData.teams[attacker->teamIndex].killCount++;
+		if (attacker) {
+			attacker->killCount++;
+			Game::gameData.teams[attacker->teamIndex].killCount++;
+		}
 
         for (size_t i = 0; i < Game::gameData.humanCount; ++i) {
             HumanData& player = Game::humanPlayers[i];
@@ -559,13 +561,16 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
             case ComponentType_RailGun:
                 weaponTexture = ContentManager::GetTexture("HUD/target.png");
                 break;
+			case ComponentType_SuicideWeapon:
+				weaponTexture = ContentManager::GetTexture("HUD/skull.png");
+				break;
             default:;
             }
             
             weaponGui->SetTexture(weaponTexture);
             weaponGui->transform.Translate(-glm::vec3(fontDims.x + 10.f, 0.f, 0.f));
             
-            player0Gui->SetText(attacker->name);
+            if (attacker) player0Gui->SetText(attacker->name);
             player0Gui->transform.Translate(-glm::vec3(fontDims.x + 50.f, 0.f, 0.f));
 
             constexpr size_t maxCount = 5;

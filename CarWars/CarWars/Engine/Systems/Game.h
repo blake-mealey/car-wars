@@ -8,6 +8,7 @@
 
 class CameraComponent;
 class AiComponent;
+class SuicideWeaponComponent;
 
 struct GameModeType {
     enum { Team = 0, FreeForAll, Count };
@@ -172,4 +173,6 @@ private:
 	Game& operator= (const Game&) = delete;
 
     Map* map;
+
+	SuicideWeaponComponent* suicide;
 };

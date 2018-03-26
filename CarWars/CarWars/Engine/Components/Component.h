@@ -29,7 +29,8 @@ enum ComponentType {
 	ComponentType_Missile,
 	ComponentType_Particle,
 	ComponentType_Line,
-	ComponentType_PowerUpSpawner
+	ComponentType_PowerUpSpawner,
+	ComponentType_SuicideWeapon
 };
 
 class Component {

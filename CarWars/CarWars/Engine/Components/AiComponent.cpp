@@ -435,6 +435,7 @@ void AiComponent::Update() {
 }
 
 void AiComponent::TakeDamage(WeaponComponent* damager, float damage) {
+	if (!damager->GetEntity()) return;
 	if (Game::GetPlayerFromEntity(damager->GetEntity())->teamIndex != Game::GetPlayerFromEntity(GetEntity())->teamIndex && GetModeDuration().GetSeconds() >= UPDATE_TIME) {
 		mode = AiMode_Attack;
 		UpdateMode(AiMode_Attack);

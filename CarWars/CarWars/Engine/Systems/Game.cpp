@@ -16,6 +16,7 @@
 #include "../Components/DirectionLightComponent.h"
 #include "../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../Components/WeaponComponents/WeaponComponent.h"
+#include "../Components/WeaponComponents/SuicideWeaponComponent.h"
 #include "Physics.h"
 #include "../Components/AiComponent.h"
 #include "Pathfinder.h"
@@ -78,6 +79,8 @@ void Game::Initialize() {
     ContentManager::LoadSkybox("PurpleNebula/");
     
     StateManager::SetState(GameState_Menu);
+
+	suicide = new SuicideWeaponComponent();
 }
 
 void Game::SpawnVehicle(PlayerData& player) const {
@@ -278,11 +281,19 @@ void Game::Update() {
                 });
                 tween->Start();
 			}
+
+			if (player.alive && player.vehicleEntity->transform.GetGlobalPosition().y < -20.f) {
+				player.vehicleEntity->TakeDamage(suicide, suicide->GetDamage());
+			}
 		}
 
 		for (AiData& player : ais) {
 			if (!player.alive && StateManager::gameTime >= player.diedTime + gameData.respawnTime && player.deathCount < gameData.numberOfLives) {
 				SpawnAi(player);
+			}
+
+			if (player.alive && player.vehicleEntity->transform.GetGlobalPosition().y < -20.f) {
+				player.vehicleEntity->TakeDamage(suicide, suicide->GetDamage());
 			}
 		}
 

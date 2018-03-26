@@ -172,6 +172,7 @@
     <ClCompile Include="Engine\Components\LineComponent.cpp" />
     <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.cpp" />
+    <ClCompile Include="Engine\Components\WeaponComponents\SuicideWeaponComponent.cpp" />
     <ClCompile Include="Engine\Systems\Content\HeightMap.cpp" />
     <ClCompile Include="Engine\Systems\Content\Map.cpp" />
     <ClCompile Include="Engine\Systems\Content\Picture.cpp" />
@@ -256,6 +257,7 @@
     <ClInclude Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.h" />
     <ClInclude Include="Engine\Components\Tweens\TTween.h" />
     <ClInclude Include="Engine\Components\Tweens\Tween.h" />
+    <ClInclude Include="Engine\Components\WeaponComponents\SuicideWeaponComponent.h" />
     <ClInclude Include="Engine\Systems\Content\HeightMap.h" />
     <ClInclude Include="Engine\Systems\Content\Map.h" />
     <ClInclude Include="Engine\Systems\Content\Picture.h" />
