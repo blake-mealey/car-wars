@@ -34,6 +34,8 @@ public:
 	Time timeBetweenShots;
 protected:
 
+	void turnTurret(glm::vec3 location);
+
 	float targetHorizontalAngle;
 	float targetVerticalAngle;
 

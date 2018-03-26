@@ -6,6 +6,7 @@
 RocketLauncherComponent::RocketLauncherComponent() : WeaponComponent(500.f) {}
 
 void RocketLauncherComponent::Shoot(glm::vec3 position) {
+	turnTurret(position);
 	if (StateManager::gameTime.GetSeconds() > nextShotTime.GetSeconds()) {
 		//Get Vehicle
 		Entity* vehicle = GetEntity();

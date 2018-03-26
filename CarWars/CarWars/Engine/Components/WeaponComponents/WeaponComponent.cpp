@@ -57,3 +57,27 @@ void WeaponComponent::HandleEvent(Event *event) {
 void WeaponComponent::RenderDebugGui() {
     Component::RenderDebugGui();
 }
+
+void WeaponComponent::turnTurret(glm::vec3 position) {
+	Entity* vehicle = GetEntity();
+	Entity* mgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
+	const glm::vec3 gunPosition = mgTurret->transform.GetGlobalPosition();
+
+	glm::vec3 gunDirection = position - gunPosition;
+	float distanceToTarget = glm::length(gunDirection);
+	gunDirection = glm::normalize(gunDirection);
+
+	//work for clamping guns
+	glm::vec3 up = vehicle->transform.GetUp();
+	glm::vec3 front = -vehicle->transform.GetForward();
+	glm::vec3 right = vehicle->transform.GetRight();
+
+	glm::vec3 directionHorizontalPlane = glm::normalize(gunDirection - (glm::dot(gunDirection, up) * up)); //project to RF plane
+
+	float horizontalAngle = acos(glm::dot(directionHorizontalPlane, front)) * (glm::dot(right, directionHorizontalPlane) > 0 ? 1 : -1);
+
+	if (horizontalAngle) {
+		mgTurret->transform.SetRotation(glm::quat());
+		mgTurret->transform.Rotate(Transform::UP, horizontalAngle);
+	}
+}
