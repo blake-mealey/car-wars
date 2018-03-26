@@ -830,7 +830,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 				if ((vehicleEntity->GetId() != vehicle->GetEntity()->GetId()) && (Game::GetPlayerFromEntity(vehicleEntity)->teamIndex != Game::GetPlayerFromEntity(vehicle->GetEntity())->teamIndex)) {
 					glm::vec3 otherVehiclePos = vehicleEntity->transform.GetGlobalPosition();
 					glm::vec3 dirToOtherVehicle = otherVehiclePos - vehicle->GetEntity()->transform.GetGlobalPosition();
-					if (glm::length(dirToOtherVehicle) < 40.0f) {
+					if (glm::length(dirToOtherVehicle) < 150.0f) {
 						if (glm::dot(cameraDirection, glm::normalize(dirToOtherVehicle)) < lowestDot) {
 							closestAimVehicle = vehicleEntity;
 							lowestDot = glm::dot(cameraDirection, glm::normalize(dirToOtherVehicle));
@@ -838,7 +838,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 					}
 				}
 			}
-			if (closestAimVehicle && acos(lowestDot) < (M_PI_4 / 6.0f)) {
+			if (closestAimVehicle && acos(lowestDot) < (6.0f / glm::length(closestAimVehicle->transform.GetGlobalPosition() - vehicle->GetEntity()->transform.GetGlobalPosition()))) {
 				cameraHit = closestAimVehicle->transform.GetGlobalPosition();
 			} else {
 				PxQueryFilterData filterData;
