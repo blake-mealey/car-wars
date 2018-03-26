@@ -32,19 +32,23 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		gunDirection = glm::normalize(gunDirection);
 
 		//work for clamping guns
-		glm::vec3 up = mgTurret->transform.GetUp();
-		glm::vec3 front = mgTurret->transform.GetForward();
-		glm::vec3 right = mgTurret->transform.GetRight();
+		glm::vec3 up = vehicle->transform.GetUp();
+		glm::vec3 front = -vehicle->transform.GetForward();
+		glm::vec3 right = vehicle->transform.GetRight();
 
-		glm::vec3 directionRFplane = glm::normalize(gunDirection - (glm::dot(gunDirection, up) * up)); //project to RF plane
-		glm::vec3 directionFUplane = glm::normalize(gunDirection - (glm::dot(gunDirection, right) * right)); //project to the FU plane
+		glm::vec3 directionHorizontalPlane = glm::normalize(gunDirection - (glm::dot(gunDirection, up) * up)); //project to RF plane
 
-		
+		float horizontalAngle = acos(glm::dot(directionHorizontalPlane, front)) * (glm::dot(right, directionHorizontalPlane) > 0 ? 1 : -1);
 
-		float randomHorizontalAngle = (float)rand() / (float)RAND_MAX * M_PI * 2.f;
-		float randomVerticalAngle = (float)rand() / (float)RAND_MAX * M_PI;
+		if (horizontalAngle) {
+			mgTurret->transform.SetRotation(glm::quat());
+			mgTurret->transform.Rotate(Transform::UP, horizontalAngle);
+		}
 
 		// pick a random point on a sphere for spray
+		float randomHorizontalAngle = (float)rand() / (float)RAND_MAX * M_PI * 2.f;
+		float randomVerticalAngle = (float)rand() / (float)RAND_MAX * M_PI;
+		
 		glm::vec3 randomOffset = glm::vec3(cos(randomHorizontalAngle) * sin(randomVerticalAngle),
 			cos(randomVerticalAngle),
 			sin(randomHorizontalAngle) * sin(randomVerticalAngle)) * SPRAY;
