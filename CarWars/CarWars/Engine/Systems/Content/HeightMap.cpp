@@ -2,9 +2,16 @@
 #include "Picture.h"
 #include "Mesh.h"
 #include "../Engine/Systems/Content/ContentManager.h"
+#include <math.h>
 
 using namespace glm;
 
+#define wallVertexThick 5
+#define wallHeight 10.0f
+#define wallThick 2.0f
+#define inclineExp 0.0f
+#define heightVar 0.0f
+#define overhangVar 0.0f
 HeightMap::HeightMap(std::string dirPath) {
     nlohmann::json data = ContentManager::LoadJson(ContentManager::MAP_DIR_PATH + dirPath + "Data.json");
     maxHeight = ContentManager::GetFromJson<float>(data["MaxHeight"], 25.f);
@@ -25,44 +32,156 @@ void HeightMap::Initialize(std::string filePath) {
         std::cerr << "Cannot create a 3D map from your 1D Drawing. Draw a Proper Map, Not A Trail. I'm Not That Kind of Terrain Generator.";
     }
 
-    zSpacing = maxLength / static_cast<float>(rowCount);
-    xSpacing = maxWidth / static_cast<float>(colCount);
+	float totalRowCount = rowCount + wallVertexThick * 2;
+	float totalColCount = colCount + wallVertexThick * 2;
 
-    heights = new float*[rowCount];
+    zSpacing = maxLength / static_cast<float>(totalRowCount);
+    xSpacing = maxWidth / static_cast<float>(totalColCount);
 
-    const size_t vertexCount = rowCount * colCount;
-    const size_t triangleCount = (rowCount - 1) * (colCount - 1) * 2;
+	int v = 0;
+    heights = new float*[totalRowCount];
+
+    const size_t vertexCount = (totalRowCount) * (totalColCount);
+    const size_t triangleCount = (totalRowCount - 1) * (totalColCount - 1) * 2;
     vec3* vertices = new vec3[vertexCount];
     vec2* uvs = new vec2[vertexCount];
     Triangle* triangles = new Triangle[triangleCount];
 
-    const vec3 offset = -vec3(maxWidth, 0.f, maxLength) * 0.5f;
+	const vec3 offset = -vec3(maxWidth, 0.f, maxLength) * 0.5f;
+
+	for (unsigned int i = 0; i < totalRowCount; i++) {
+		heights[i] = new float[totalColCount];
+		for (unsigned int j = 0; j < totalColCount; j++) {
+			heights[i][j] = wallHeight + maxHeight;
+			vertices[v] = glm::vec3(xSpacing*j, wallHeight + maxHeight, zSpacing*i) + offset;
+			uvs[v] = vec2(xSpacing*j / static_cast<float>(totalColCount), zSpacing*i / static_cast<float>(totalRowCount));
+			v++;
+		}
+	}
+
     float* pixels = image->Pixels();
     float z = 0.f;
-    int v = 0;
-    for (unsigned int i = 0; i < rowCount; i++) {
-        float x = 0.f;
-        heights[i] = new float[colCount];
+    v = 0;
 
-        for (unsigned int j = 0; j < colCount; j++) {
+	float wallHPV = wallThick / wallVertexThick;
+	float wallZspace = 0.0f;
+	float wallXspace = 0.0f;
+	float inclineRate = inclineExp;
+	if(inclineRate != 0)
+		inclineRate = wallVertexThick / wallHeight;
+	else
+		inclineRate = pow(wallVertexThick / wallHeight, pow(1 / inclineRate, wallVertexThick));
+	float currIncline;
+
+	z = zSpacing * wallVertexThick;
+	v = wallVertexThick*(totalColCount)+wallVertexThick;
+    for (unsigned int i = wallVertexThick; i < rowCount + wallVertexThick; i++) {
+        float x = xSpacing*wallVertexThick;
+
+        for (unsigned int j = wallVertexThick; j < colCount + wallVertexThick; j++) {
             const float y = (1.f - (pixels[0] + pixels[1] + pixels[2]) / 3.f) * maxHeight;
             heights[i][j] = y;
 
             vertices[v] = vec3(x, y, z) + offset;
-            uvs[v] = vec2(x / static_cast<float>(colCount), z / static_cast<float>(rowCount));
+            uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
             v++;
 
             pixels += image->Channels();
             x += xSpacing;
         }
+		v += wallVertexThick * 2;
+
         z += zSpacing;
     }
 
+	//Add walls to the left side based on the heights closest to the wall
+	v = wallVertexThick*(totalColCount) + wallVertexThick;
+	z = zSpacing*wallVertexThick;
+	for (unsigned int i = wallVertexThick; i < rowCount + wallVertexThick; i++) {
+		currIncline = inclineRate;
+		float x = xSpacing*wallVertexThick;
+		for (int j = wallVertexThick - 1; j >= 0; j--) {
+			const float y = heights[i][j + 1] + currIncline;
+			heights[i][j] = y;
+
+			vertices[v] = vec3(x, y, z) + offset;
+			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
+			v--;
+			currIncline = pow(currIncline, inclineExp);
+			x -= xSpacing;
+		}
+		z += zSpacing;
+		v += colCount + wallVertexThick*3;
+	}
+
+	/*//Add walls to the right side based on the heights closest to the wall
+	currIncline = inclineRate;
+	v = wallVertexThick*(totalColCount) + wallVertexThick + colCount;
+	z = zSpacing*wallVertexThick;
+	for (unsigned int i = wallVertexThick; i < rowCount + wallVertexThick; i++) {
+		float x = xSpacing*(wallVertexThick + colCount);
+		for (unsigned int j = colCount + wallVertexThick; j < totalColCount; j++) {
+			const float y = heights[i][j - 1] + currIncline;
+			heights[i][j] = y;
+
+			vertices[v] = vec3(x, y, z) + offset;
+			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
+			v++;
+			currIncline = pow(currIncline, inclineExp);
+			x += xSpacing;
+		}
+		z += zSpacing;
+		v += wallVertexThick + colCount;
+	}
+
+	//Add walls to the Top based on the heights closest to the wall
+	currIncline = inclineRate;
+	z = zSpacing*wallVertexThick;
+	v = (wallVertexThick-1)*(totalColCount);
+	for (int i = wallVertexThick - 1; i >= 0 ; i--) {
+		float x = 0.0f;
+		for (unsigned int j = 0; j < totalColCount; j++) {
+			const float y = heights[i + 1][j] + currIncline;
+			heights[i][j] = y;
+
+			cout << std::endl;
+			vertices[v] = vec3(x, y, z) + offset;
+			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
+			v++;
+			currIncline = pow(currIncline, inclineExp);
+
+			x += xSpacing;
+		}
+		v -= totalColCount * 2;
+		z -= zSpacing;
+	}
+
+	//Add walls to the Bottom based on the heights closest to the wall
+	currIncline = inclineRate;
+	z = zSpacing * (rowCount + wallVertexThick);
+	v = (wallVertexThick + rowCount)*(totalColCount);
+	for (unsigned int i = rowCount; i < rowCount + wallVertexThick; i++) {
+		float x = 0.f;
+		for (unsigned int j = 0; j < totalColCount; j++) {
+			const float y = heights[i - 1][j] + currIncline;
+			heights[i][j] = y;
+
+			vertices[v] = vec3(x, y, z) + offset;
+			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
+			v++;
+			currIncline = pow(currIncline, inclineExp);
+
+			x += xSpacing;
+		}
+		z += zSpacing;
+	}*/
+
+
     unsigned int r = 0;
-    const unsigned int w = colCount;
+    const unsigned int w = totalColCount;
     int t = 0;
-    for (unsigned int i = 0; i < rowCount - 1; i++) {
-        for (unsigned int j = 0; j < colCount - 1; j++) {
+    for (unsigned int i = 0; i < totalRowCount - 1; i++) {
+        for (unsigned int j = 0; j < totalColCount - 1; j++) {
             triangles[t++] = Triangle((r + j), (r + j + w), (r + j + 1));
             triangles[t++] = Triangle((r + j + 1), (r + j + w), (r + j + w + 1));
         }
