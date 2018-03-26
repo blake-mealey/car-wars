@@ -61,7 +61,7 @@ private:
 
 	void Act();
 	void Drive();
-	bool FindTarget();
+	void FindTargets();
 
 	void LostTargetTime();
 	Time LostTargetDuration();
@@ -73,7 +73,8 @@ private:
     AiMode mode;
 	AiMode previousMode;
 
-    Entity *targetEntity;
+    Entity* vehicleEntity;
+	Entity* powerupEntity;
 
 	Time modeStart;
 	Time lostTarget;
