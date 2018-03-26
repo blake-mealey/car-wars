@@ -121,6 +121,7 @@ void Audio::UpdateListeners() {
         for (int i = 0; i < Game::gameData.humanCount; i++) {
             FMOD_VECTOR velocity, forward, up, position;
             auto player = Game::humanPlayers[i];
+			if (!player.alive) return;
             auto carForward = player.vehicleEntity->transform.GetForward();
             auto carUp = player.vehicleEntity->transform.GetUp();
             auto carPosition = player.vehicleEntity->transform.GetGlobalPosition();
