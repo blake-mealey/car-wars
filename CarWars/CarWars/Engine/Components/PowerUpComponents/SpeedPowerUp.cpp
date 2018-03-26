@@ -14,10 +14,14 @@ void SpeedPowerUp::Collect(PlayerData* player) {
     VehicleComponent* vehicle = player->vehicleEntity->GetComponent<VehicleComponent>();
     vehicle->speedMultiplier += multiplier;
     
-    TweenVignette("SpeedPowerUp");
+    TweenVignette();
 }
 
 void SpeedPowerUp::RemoveInternal() {
     VehicleComponent* vehicle = player->vehicleEntity->GetComponent<VehicleComponent>();
     vehicle->speedMultiplier -= multiplier;
+}
+
+std::string SpeedPowerUp::GetGuiName() const {
+    return "SpeedPowerUp";
 }

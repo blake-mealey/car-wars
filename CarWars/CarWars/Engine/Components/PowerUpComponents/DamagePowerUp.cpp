@@ -14,10 +14,14 @@ void DamagePowerUp::Collect(PlayerData* player) {
     WeaponComponent* weapon = player->vehicleEntity->GetComponent<WeaponComponent>();
     weapon->damageMultiplier = 1.25f;
 
-    TweenVignette("DamagePowerUp");
+    TweenVignette();
 }
 
 void DamagePowerUp::RemoveInternal() {
     WeaponComponent* weapon = player->vehicleEntity->GetComponent<WeaponComponent>();
     weapon->damageMultiplier = 1.f;
+}
+
+std::string DamagePowerUp::GetGuiName() const {
+    return "DamagePowerUp";
 }

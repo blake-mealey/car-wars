@@ -11,11 +11,12 @@ public:
 
     virtual void Collect(PlayerData* player);
 
-    void TweenVignette(std::string guiName) const;
+    void TweenVignette() const;
 
-    void Remove();
+    void Remove(bool force);
 protected:
     virtual void RemoveInternal() = 0;
+    virtual std::string GetGuiName() const = 0;
 
     float multiplier;
 

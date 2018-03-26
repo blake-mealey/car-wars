@@ -14,10 +14,14 @@ void DefencePowerUp::Collect(PlayerData* player) {
     VehicleComponent* vehicle = player->vehicleEntity->GetComponent<VehicleComponent>();
     vehicle->defenceMultiplier = 1.25f;
     
-    TweenVignette("DefencePowerUp");
+    TweenVignette();
 }
 
 void DefencePowerUp::RemoveInternal() {
     VehicleComponent* vehicle = player->vehicleEntity->GetComponent<VehicleComponent>();
     vehicle->defenceMultiplier = 1.f;
+}
+
+std::string DefencePowerUp::GetGuiName() const {
+    return "DefencePowerUp";
 }
