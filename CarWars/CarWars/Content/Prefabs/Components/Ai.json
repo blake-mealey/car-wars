@@ -3,12 +3,12 @@
   "Enabled": true,
   "MaxDiffuculty": 10,
   "Acceleration": 0.5,
-  "StuckTime": 2,
-  "UpdateTime": 2,
-  "StuckControl": 1.5,
+  "StuckTime": 0.3,
+  "UpdateTime": 1,
+  "StuckControl": 1,
   "TargetingRange": 500,
   "LockonRange": 400,
   "LostTime": 5,
-  "Spray": 1.5,
-  "StoppingDistance": 100
+  "Spray": 1,
+  "StoppingDistance": 200
 }

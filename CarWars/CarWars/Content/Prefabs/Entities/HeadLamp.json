@@ -10,8 +10,8 @@
 		{
 			"Type": "SpotLight",
 			"Power": 10,
-            "Angle": 30,
-            "Direction": [0, -1, 3]
+            "Angle": 60,
+            "Direction": [0, -1, 20]
 		}
 	]
 }

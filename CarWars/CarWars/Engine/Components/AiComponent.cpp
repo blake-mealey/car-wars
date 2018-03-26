@@ -172,7 +172,7 @@ void AiComponent::SetMode() {
 	float speed = vehicle->pxVehicle->computeForwardSpeed();
 
 	//detect being stuck
-	if (abs(speed) <= 1.f) {
+	if (abs(speed) <= 1.f && !vehicle->inAir) {
 		StartStuckTime();
 	}
 
@@ -352,27 +352,22 @@ void AiComponent::FindTargets() {
 
 	//find powerup
 	//TODO: pick a better one that is on your way to the vehicle target
-	if (!myData->activePowerUp) {
-		std::vector<Component*> powerupComponents = EntityManager::GetComponents(ComponentType_PowerUpSpawner);
-		float bestDistance = INFINITY;
-		for (Component* component : powerupComponents) {
-			PowerUpSpawnerComponent* powerup = static_cast<PowerUpSpawnerComponent*>(component);
-			if (powerup->GetEntity()->GetId() != GetEntity()->GetId()) {
-				if (powerup->enabled) {
-					float distance = glm::length(powerup->GetEntity()->transform.GetGlobalPosition() - GetEntity()->transform.GetGlobalPosition());
-					if (distance < bestDistance) {
-						bestDistance = distance;
-						powerupEntity = powerup->GetEntity();
-					}
+	std::vector<Component*> powerupComponents = EntityManager::GetComponents(ComponentType_PowerUpSpawner);
+	float bestDistance = INFINITY;
+	for (Component* component : powerupComponents) {
+		PowerUpSpawnerComponent* powerup = static_cast<PowerUpSpawnerComponent*>(component);
+		if (powerup->GetEntity()->GetId() != GetEntity()->GetId()) {
+			if (powerup->enabled && powerup->HasActivePowerup()) {
+				float distance = glm::length(powerup->GetEntity()->transform.GetGlobalPosition() - GetEntity()->transform.GetGlobalPosition());
+				if (distance < bestDistance) {
+					bestDistance = distance;
+					powerupEntity = powerup->GetEntity();
 				}
 			}
 		}
-		if (bestDistance == INFINITY) {
-			UpdateMode(AiMode_Attack);
-			powerupEntity = nullptr;
-		}
 	}
-	else {
+	if (bestDistance == INFINITY) {
+		UpdateMode(AiMode_Attack);
 		powerupEntity = nullptr;
 	}
 }
