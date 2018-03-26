@@ -80,3 +80,7 @@ void PowerUpSpawnerComponent::Collect(VehicleComponent* vehicle) {
 void PowerUpSpawnerComponent::SetPowerUpType(PowerUpType type) {
     powerUpType = type;
 }
+
+bool PowerUpSpawnerComponent::HasActivePowerup() const{
+	return activePowerUp;
+}

@@ -28,6 +28,9 @@ public:
     void Collect(VehicleComponent* vehicle);
 
     void SetPowerUpType(PowerUpType type);
+
+	bool HasActivePowerup() const;
+
 private:
     Time respawnDuration;
     Time lastPickupTime;
