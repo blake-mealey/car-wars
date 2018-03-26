@@ -162,7 +162,7 @@ void CreateStartMenu() {
     CreateStartMenuOption(optionsContainer, "game mode", GameModeType::displayNames[Game::gameData.gameMode], 6, optionsCount);
 }
 
-void NextNumberOption(Entity* option, int dir, size_t &value, size_t min, size_t max, std::string unit = "") {
+void NextNumberOption(Entity* option, int dir, int &value, size_t min, size_t max, std::string unit = "") {
     if (!dir) return;
     dir = dir == 0 ? 0 : dir < 0 ? -1 : 1;
     if (value == min && dir < 0) value = max;
@@ -172,6 +172,17 @@ void NextNumberOption(Entity* option, int dir, size_t &value, size_t min, size_t
 
     GuiComponent* arrow = dir < 0 ? GuiHelper::GetThirdGui(option) : GuiHelper::GetFourthGui(option);
     GuiHelper::OpacityEffect(arrow, 0.2, 0.5f, 0.1, 0.1);
+}
+void NextNumberOption(Entity* option, int dir, size_t &value, size_t min, size_t max, std::string unit = "") {
+	if (!dir) return;
+	dir = dir == 0 ? 0 : dir < 0 ? -1 : 1;
+	if (value == min && dir < 0) value = max;
+	else if (value == max && dir > 0) value = min;
+	else value += dir;
+	GuiHelper::SetSecondGuiText(option, to_string(value) + unit);
+
+	GuiComponent* arrow = dir < 0 ? GuiHelper::GetThirdGui(option) : GuiHelper::GetFourthGui(option);
+	GuiHelper::OpacityEffect(arrow, 0.2, 0.5f, 0.1, 0.1);
 }
 
 void NextEnumOption(Entity* option, int dir, size_t &value, size_t count, const std::string* displayNames) {

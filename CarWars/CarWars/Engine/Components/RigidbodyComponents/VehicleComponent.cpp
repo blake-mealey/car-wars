@@ -611,8 +611,12 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
 
             tween->Start();
         }
-
+		if (!attacker) {
+			me->killCount--;
+			Game::gameData.teams[me->teamIndex].killCount--;
+		}
         me->deathCount++;
+		Game::gameData.teams[me->teamIndex].deathCount++;
         me->alive = false;
 		me->diedTime = StateManager::gameTime;
 

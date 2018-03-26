@@ -136,6 +136,28 @@ void Game::InitializeGame() {
         gameData.teams.push_back(team);
     }
 
+	// Initialize the AI
+	for (size_t i = 0; i < gameData.aiCount; ++i) {
+		// Create the AI
+		// TODO: Choose vehicle and weapon type somehow
+		ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun, gameData.aiDifficulty));
+		AiData& ai = ais[i];
+		ai.name = "Computer " + to_string(i + 1);
+
+		// Set their team
+		if (gameData.gameMode == GameModeType::FreeForAll) {
+			ai.teamIndex = gameData.humanCount + i;
+			gameData.teams[ai.teamIndex].name = ai.name;
+			gameData.teams[ai.teamIndex].size++;
+		}
+		else if (gameData.gameMode == GameModeType::Team) {
+			ai.teamIndex = (gameData.humanCount + i) % 2;
+			gameData.teams[ai.teamIndex].size++;
+		}
+
+		SpawnAi(ai);
+	}
+
     // Initialize the humanPlayers
 	for (int i = 0; i < gameData.humanCount; ++i) {
         HumanData& player = humanPlayers[i];
@@ -145,8 +167,10 @@ void Game::InitializeGame() {
         if (gameData.gameMode == GameModeType::FreeForAll) {
             player.teamIndex = i;
             gameData.teams[player.teamIndex].name = player.name;
-        } else if (gameData.gameMode == GameModeType::Team) {
+			gameData.teams[player.teamIndex].size ++;
+		} else if (gameData.gameMode == GameModeType::Team) {
             player.teamIndex = i % 2;
+			gameData.teams[player.teamIndex].size++;
         }
 
 		SpawnVehicle(player);
@@ -169,26 +193,6 @@ void Game::InitializeGame() {
 		// Initialize their UI
         ContentManager::LoadScene("GUIs/HUD.json", player.camera->GetGuiRoot());
 	}
-
-    // Initialize the AI
-    for (size_t i = 0; i < gameData.aiCount; ++i) {
-        // Create the AI
-        // TODO: Choose vehicle and weapon type somehow
-
-        ais.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun, gameData.aiDifficulty));
-        AiData& ai = ais[i];
-		ai.name = "Computer " + to_string(i + 1);
-
-        // Set their team
-        if (gameData.gameMode == GameModeType::FreeForAll) {
-            ai.teamIndex = gameData.humanCount + i;
-            gameData.teams[ai.teamIndex].name = ai.name;
-        } else if (gameData.gameMode == GameModeType::Team) {
-            ai.teamIndex = (gameData.humanCount + i) % 2;
-        }
-
-		SpawnAi(ai);
-    }
 }
 
 void ResetPlayerData(PlayerData& player) {
@@ -317,13 +321,19 @@ void Game::Update() {
 
         // Update clock and score UIs
         size_t highestTeamKillCount = 0;
+		size_t deadForeverCount = 0;
         for (TeamData& team : gameData.teams) {
             if (team.killCount > highestTeamKillCount) highestTeamKillCount = team.killCount;
 			if (team.killCount >= gameData.killLimit) {
 				FinishGame();
 				return;
 			}
+			if (team.deathCount >= team.size * gameData.numberOfLives) deadForeverCount++;
         }
+		if (deadForeverCount >= gameData.teams.size() - 1) {
+			FinishGame(); 
+			return;
+		}
 
         for (size_t i = 0; i < gameData.humanCount; ++i) {
             HumanData& player = humanPlayers[i];
@@ -342,22 +352,6 @@ void Game::Update() {
         // Time limit
         if (StateManager::gameTime >= gameData.timeLimit) FinishGame();
 
-        // Kill limit
-        for (TeamData& team : gameData.teams) {
-            if (team.killCount >= gameData.killLimit) FinishGame();
-        }
-
-        // Max lives
-        size_t deadForeverCount = 0;
-        for (size_t i = 0; i < gameData.humanCount; ++i) {
-            PlayerData& player = humanPlayers[i];
-            if (player.deathCount >= gameData.numberOfLives) deadForeverCount++;
-        }
-		for (size_t i = 0; i < gameData.aiCount; ++i) {
-			PlayerData& player = ais[i];
-			if (player.deathCount >= gameData.numberOfLives) deadForeverCount++;
-		}
-        if (deadForeverCount == gameData.aiCount + gameData.humanCount - 1) FinishGame();
 	} else if (StateManager::GetState() == GameState_Paused) {
         // PAUSED
 	}

@@ -44,9 +44,11 @@ struct WeaponType {
 };
 
 struct TeamData {
-    TeamData() : killCount(0) {}
+    TeamData() : killCount(0), deathCount(0), size(0) {}
 
-    size_t killCount;
+    int killCount;
+	int deathCount;
+	size_t size;
     std::string name;
 };
 
@@ -74,8 +76,8 @@ struct PlayerData {
     // Gamemode state
 	std::string name;
     size_t teamIndex;
-    size_t killCount;
-    size_t deathCount;
+    int killCount;
+    int deathCount;
     PowerUp* activePowerUp;
 
 	// For leaderboard sorting
@@ -117,11 +119,11 @@ struct GameData {
     static constexpr size_t MIN_AI_COUNT = 0;
     static constexpr size_t MAX_AI_COUNT = 20;
 
-    size_t numberOfLives;
+    int numberOfLives;
     static constexpr size_t MIN_NUMBER_OF_LIVES = 1;
     static constexpr size_t MAX_NUMBER_OF_LIVES = 100;
 
-    size_t killLimit;
+    int killLimit;
     static constexpr size_t MIN_KILL_LIMIT = 1;
     static constexpr size_t MAX_KILL_LIMIT = 100;
 
