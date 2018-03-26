@@ -11,7 +11,7 @@
 
 PowerUpSpawnerComponent::PowerUpSpawnerComponent(nlohmann::json data): RigidStaticComponent(data) {
     respawnDuration = ContentManager::GetFromJson<double>(data["RespawnDuration"], 5.0);
-    powerUpType = ContentManager::GetFromJson<int>(data["PowerUpType"], -1);
+    powerUpType = ContentManager::GetFromJson<PowerUpType>(data["PowerUpType"], Random);
     activePowerUp = nullptr;
     powerUpMesh = nullptr;
     lastPickupTime = -respawnDuration;
@@ -39,7 +39,7 @@ void PowerUpSpawnerComponent::Respawn() {
     if (StateManager::gameTime < lastPickupTime + respawnDuration) return;
 
     int type = powerUpType;
-    if (type < 0) type = rand() % Count;
+    if (type == Random) type = rand() % Count;
     switch (type) {
     case Speed:
         activePowerUp = new SpeedPowerUp();
@@ -75,4 +75,8 @@ void PowerUpSpawnerComponent::Collect(VehicleComponent* vehicle) {
     EntityManager::DestroyComponent(powerUpMesh);
 
     GetEntity()->GetComponent<PointLightComponent>()->SetColor(glm::vec4(1.f));
+}
+
+void PowerUpSpawnerComponent::SetPowerUpType(PowerUpType type) {
+    powerUpType = type;
 }
