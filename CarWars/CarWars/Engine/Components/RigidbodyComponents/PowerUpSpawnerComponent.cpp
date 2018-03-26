@@ -74,14 +74,8 @@ void PowerUpSpawnerComponent::Collect(VehicleComponent* vehicle) {
 	for (Entity* entity : headlights) {
 		Effects::Instance().DestroyTween("Headlight" + std::to_string(player->id));
 		SpotLightComponent* light = entity->GetComponent<SpotLightComponent>();
-		const glm::vec3 start = light->GetColor();
-		const glm::vec3 end = activePowerUp->GetColor();
-		auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Quint::easeOut>(start, end, 0.1, StateManager::gameTime);
-		tween->SetTag("Headlight" + std::to_string(player->id));
-		tween->SetUpdateCallback([light](glm::vec3& value) {
-			light->SetColor(value);
-		});
-		tween->Start();
+		light->SetColor(activePowerUp->GetColor());
+
 	}
 
     lastPickupTime = StateManager::gameTime;
