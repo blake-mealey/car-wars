@@ -76,8 +76,7 @@ void WeaponComponent::turnTurret(glm::vec3 position) {
 
 	float horizontalAngle = acos(glm::dot(directionHorizontalPlane, front)) * (glm::dot(right, directionHorizontalPlane) > 0 ? 1 : -1);
 
-	if (horizontalAngle) {
-		mgTurret->transform.SetRotation(glm::quat());
-		mgTurret->transform.Rotate(Transform::UP, horizontalAngle);
+	if (horizontalAngle == horizontalAngle) {
+		mgTurret->transform.SetRotationAxisAngles(Transform::UP, horizontalAngle);
 	}
 }
