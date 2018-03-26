@@ -72,7 +72,6 @@ void NavigationMesh::Initialize() {
 	}
 
     InitializeRenderBuffers();
-    UpdateMesh();
 }
 
 void NavigationMesh::UpdateMesh() {
@@ -129,6 +128,15 @@ void NavigationMesh::UpdateMesh(vector<Component*> rigidbodies) {
     }
 
     UpdateRenderBuffers();
+}
+
+void NavigationMesh::ResetMesh() {
+    coveredVertices.clear();
+    for (size_t i = 0; i < GetVertexCount(); ++i) {
+        coveringBodies[i].clear();
+        vertices[i].score = defaults[i];
+    }
+    UpdateMesh();
 }
 
 void NavigationMesh::RemoveRigidbody(RigidbodyComponent *rigidbody) {

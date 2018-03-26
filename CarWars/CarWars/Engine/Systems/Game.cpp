@@ -22,6 +22,7 @@
 #include "../Components/GuiComponents/GuiHelper.h"
 #include "Effects.h"
 #include "../Components/RigidbodyComponents/PowerUpSpawnerComponent.h"
+#include "PennerEasing/Quint.h"
 using namespace std;
 
 const string GameModeType::displayNames[Count] = { "Team", "Free for All" };
@@ -265,8 +266,17 @@ void Game::Update() {
 			HumanData& player = humanPlayers[i];
 			if (!player.alive && StateManager::gameTime >= player.diedTime + gameData.respawnTime && player.deathCount < gameData.numberOfLives) {
 				SpawnVehicle(player);
-                GuiComponent* gui = GuiHelper::GetSecondGui("HealthBar", i);
-				gui->GetMask().SetScale(gui->transform.GetLocalScale());
+                
+			    GuiComponent* gui = GuiHelper::GetSecondGui("HealthBar", i);
+                Transform& mask = gui->GetMask();
+                const glm::vec3 start = mask.GetLocalScale();
+                const glm::vec3 end = gui->transform.GetLocalScale();
+                auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Quint::easeOut>(start, end, 0.25, StateManager::gameTime);
+                tween->SetTag("HealthBar" + std::to_string(player.id));
+                tween->SetUpdateCallback([&mask](glm::vec3& value) mutable {
+                    mask.SetScale(value);
+                });
+                tween->Start();
 			}
 		}
 
@@ -286,9 +296,9 @@ void Game::Update() {
         // Remove powerups from players
         for (size_t i = 0; i < gameData.humanCount; ++i) {
             HumanData& player = humanPlayers[i];
-            if (player.activePowerUp) player.activePowerUp->Remove();
+            if (player.activePowerUp) player.activePowerUp->Remove(!player.alive);
         }
-        for (AiData& player : ais) if (player.activePowerUp) player.activePowerUp->Remove();
+        for (AiData& player : ais) if (player.activePowerUp) player.activePowerUp->Remove(!player.alive);
 
         // ---------------
         // Gamemode update

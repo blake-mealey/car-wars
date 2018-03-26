@@ -28,6 +28,8 @@ public:
     void UpdateMesh();
     void UpdateMesh(std::vector<Component*> rigidbodies);
 
+    void ResetMesh();
+
 	void RemoveRigidbody(RigidbodyComponent *rigidbody);
 
     size_t FindClosestVertex(glm::vec3 worldPosition) const;

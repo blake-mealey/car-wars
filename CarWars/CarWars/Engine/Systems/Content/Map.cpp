@@ -33,8 +33,6 @@ Map::Map(std::string dirPath) {
     // Load the map's scene
     ContentManager::DestroySceneAndLoadScene(data["Scene"]);
 
-    navigationMesh->UpdateMesh(EntityManager::GetComponents(ComponentType_RigidStatic));
-
     // TODO: Initialize powerups and spawners from image
     Picture* objectsMap = new Picture(ContentManager::MAP_DIR_PATH + dirPath + "Objects.png");
     if (objectsMap->Pixels()) {
@@ -64,6 +62,8 @@ Map::Map(std::string dirPath) {
             { "UvScale",{ 10, 10 } }
         }));
     }
+
+    navigationMesh->ResetMesh();
 }
 
 void Map::LoadObjects(Picture* objectsMap) {

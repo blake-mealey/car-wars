@@ -49,6 +49,7 @@ void InputManager::HandleMouse() {
 	Graphics& graphicsInstance = Graphics::Instance();
 
 	if (StateManager::GetState() == GameState_Playing) {
+		glfwSetInputMode(graphicsInstance.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		HumanData& player = Game::humanPlayers[0];
 		if (!player.alive) return;
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
@@ -62,38 +63,6 @@ void InputManager::HandleMouse() {
 		} else if (Mouse::ButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
 			PxScene* scene = &Physics::Instance().GetScene();
 			glm::vec3 cameraDirection = glm::normalize(cameraC->GetTarget() - cameraC->GetPosition());
-			/* Sweep Attempt
-			PxSweepBuffer sweepBuffer;
-			PxGeometry sphereGeometry = PxSphereGeometry(40.0f);
-			PxTransform initialPosition = PxTransform(Transform::ToPx(cameraC->GetTarget()));
-			PxQueryFilterData sweepFilterData;
-			size_t mask = 0;
-			for (Component* component : EntityManager::GetComponents(ComponentType_Vehicle)) {
-				VehicleComponent* vehicleComponent = static_cast<VehicleComponent*>(component);
-				Entity* vehicleEntity = vehicleComponent->GetEntity();
-				if ((vehicleEntity->GetId() != vehicle->GetEntity()->GetId()) && (Game::GetPlayerFromEntity(vehicleEntity)->teamIndex != Game::GetPlayerFromEntity(vehicle->GetEntity())->teamIndex)) {
-					mask |= vehicleComponent->GetRaycastGroup();
-				}
-			}
-			//sweepFilterData.data.word0 = ~RaycastGroups::GetGroupsMask(mask);
-			sweepFilterData.data.word0 = RaycastGroups::GetGroupsMask() ^ (RaycastGroups::GetDefaultGroup() | vehicle->GetRaycastGroup());
-			//std::cout << std::endl;
-			//std::cout << bitset<8>(RaycastGroups::GetGroupsMask()) << std::endl;
-			//std::cout << bitset<8>(RaycastGroups::GetDefaultGroup()) << std::endl;
-			//std::cout << bitset<8>(vehicle->GetRaycastGroup()) << std::endl;
-			//std::cout << bitset<8>(sweepFilterData.data.word0) << std::endl;
-			//scene->sweep(sphereGeometry, initialPosition, Transform::ToPx(cameraDirection), 40.0f, sweepBuffer, PxHitFlag::eDEFAULT, sweepFilterData)
-			PxRaycastBuffer hitBuffer;
-			if (scene->raycast(Transform::ToPx(cameraC->GetTarget()), Transform::ToPx(cameraDirection), 40.0f, hitBuffer, PxHitFlag::eDEFAULT, sweepFilterData)) {
-				//cameraHit = Transform::FromPx(sweepBuffer.block.position);
-				cameraHit = Transform::FromPx(hitBuffer.block.position);
-				std::cout << "Hit Car" << std::endl;
-			} else {
-				PxQueryFilterData filterData;
-				filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
-				cameraHit = cameraC->CastRay(rayLength, filterData);
-			}
-			*/
 
 			float lowestDot = 999.0f;
 			Entity* closestAimVehicle = nullptr;
@@ -130,7 +99,8 @@ void InputManager::HandleMouse() {
 		}
 
 		//Cursor Inputs
-		glfwSetInputMode(graphicsInstance.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		//glfwSetInputMode(graphicsInstance.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		//glfwSetInputMode(graphicsInstance.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		glm::vec2 windowSize = graphicsInstance.GetWindowSize();
 		double xPos, yPos;
 		Mouse::GetCursorPosition(graphicsInstance.GetWindow(), &xPos, &yPos);
