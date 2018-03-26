@@ -118,7 +118,10 @@ void Game::SpawnAi(AiData& ai) {
 
 void Game::InitializeGame() {
     // Initialize the map
-    if (map) delete map;
+    if (map) {
+        delete map;
+        map = nullptr;
+    }
     map = new Map(MapType::mapDirPaths[gameData.map]);
 
     // Initialize game stuff
@@ -215,6 +218,9 @@ void Game::ResetGame() {
 }
 
 void Game::FinishGame() {
+    if (GetNavigationMesh()) {
+        GetNavigationMesh()->ResetMesh();
+    }
     StateManager::SetState(GameState_Menu_GameEnd);
 }
 
