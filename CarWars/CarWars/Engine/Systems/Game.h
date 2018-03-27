@@ -159,7 +159,7 @@ public:
 	//Game Creation Variables
     static GameData gameData;
     static HumanData humanPlayers[4];
-    static std::vector<AiData> ais;
+    static vector<AiData> aiPlayers;
 
     NavigationMesh *GetNavigationMesh() const;
     HeightMap* GetHeightMap() const;

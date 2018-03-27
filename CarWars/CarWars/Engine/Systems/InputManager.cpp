@@ -51,7 +51,7 @@ void InputManager::HandleMouse() {
 	if (StateManager::GetState() == GameState_Playing) {
 		glfwSetInputMode(graphicsInstance.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		HumanData& player = Game::humanPlayers[0];
-		if (!player.alive) return;
+		if (!player.ready || !player.alive) return;
 		VehicleComponent* vehicle = player.vehicleEntity->GetComponent<VehicleComponent>();
 		WeaponComponent* weapon = player.vehicleEntity->GetComponent<WeaponComponent>();
 		CameraComponent* cameraC = player.camera;
@@ -190,10 +190,12 @@ void UpdateLeaderboardMenu(Entity* leaderboard, int playerIndex) {
 	Entity* container = EntityManager::FindFirstChild(leaderboard, "LeaderboardRows");
 	std::vector<PlayerData> allPlayers;
 	
-	for (size_t i = 0; i < Game::gameData.humanCount; ++i) {
-		allPlayers.push_back(Game::humanPlayers[i]);
+	for (size_t i = 0; i < 4; ++i) {
+        HumanData& player = Game::humanPlayers[i];
+        if (!player.ready) continue;
+		allPlayers.push_back(player);
 	}
-	for (AiData& ai : Game::ais) {
+	for (AiData& ai : Game::aiPlayers) {
 		allPlayers.push_back(ai);
 	}
 
@@ -315,9 +317,13 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 	// Normalize directional inputs
 	navData.NormalizeInputs();
 
+    // Get the current game state
+    const GameState gameState = StateManager::GetState();
+
     // Get the player for the current controller
     HumanData& player = Game::humanPlayers[navData.playerIndex];
-	const GameState gameState = StateManager::GetState();
+    if (gameState == GameState_Playing && !player.ready) return;
+
 	// Navigate buttons up/down
 	if (navData.vertDir) {
 		std::string buttonGroupName;
@@ -468,13 +474,12 @@ void InputManager::NavigateGuis(GuiNavData navData) {
                     EntityManager::DestroyChildren(stats);
 
                     player.ready = true;
-                    bool allReady = true;
-                    for (int i = 0; i < Game::gameData.humanCount; ++i) {
-                        allReady = Game::humanPlayers[i].ready;
-                        if (!allReady) break;
+                    int readyCount = 0;
+                    for (int i = 0; i < 4; ++i) {
+                        if (Game::humanPlayers[i].ready) readyCount++;
                     }
-                    // TODO: Countdown?
-                    if (allReady) StateManager::SetState(GameState_Playing);
+                    // TODO: Countdown/animations?
+                    if (readyCount == Game::gameData.humanCount) StateManager::SetState(GameState_Playing);
                 }
 			}
 		} else if (gameState == GameState_Paused) {
@@ -523,6 +528,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
             if (selected->ContainsText("join")) {
                 StateManager::SetState(GameState_Menu_Start);
                 CreateStartMenu();
+                Game::gameData.humanCount = 0;
             } else {
                 if (GuiHelper::FirstGuiContainsText("CharacterMenu_Title", "vehicle", navData.playerIndex)) {
                     GuiHelper::SetGuisEnabled("CharacterMenu_Arrows", false, navData.playerIndex);

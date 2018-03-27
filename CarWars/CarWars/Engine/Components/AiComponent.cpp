@@ -302,16 +302,17 @@ void AiComponent::FindTargets() {
 	bool foundTarget = false;
 
 	GameData gameData = Game::Instance().gameData;
-	const int playerCount = gameData.humanCount + gameData.aiCount;
 	std::vector<PlayerData*> players;
 
 	if (previousMode != mode || (GetTargetEntity() && enemyData && !enemyData->alive)) { // dont always scan to look for enemy stay locked on one
 		// get players
-		for (size_t i = 0; i < gameData.humanCount; ++i) {
-			players.push_back(&Game::humanPlayers[i]);
+		for (size_t i = 0; i < 4; ++i) {
+            HumanData& player = Game::humanPlayers[i];
+            if (!player.ready) continue;
+			players.push_back(&player);
 		}
 		for (size_t i = 0; i < gameData.aiCount; ++i) {
-			players.push_back(&Game::ais[i]);
+			players.push_back(&Game::aiPlayers[i]);
 		}
 
 		//find attack target

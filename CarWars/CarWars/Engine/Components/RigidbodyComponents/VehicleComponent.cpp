@@ -535,8 +535,9 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
 			Game::gameData.teams[attacker->teamIndex].killCount++;
 		}
 
-        for (size_t i = 0; i < Game::gameData.humanCount; ++i) {
+        for (size_t i = 0; i < 4; ++i) {
             HumanData& player = Game::humanPlayers[i];
+            if (!player.ready) continue;
             Entity* killFeed = EntityManager::FindFirstChild(player.camera->GetGuiRoot(), "KillFeed");
 
             Entity* row = ContentManager::LoadEntity("Menu/KillFeedRow.json", killFeed);
