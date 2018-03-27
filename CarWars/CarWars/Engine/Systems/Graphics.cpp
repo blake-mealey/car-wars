@@ -232,9 +232,8 @@ void Graphics::Update() {
         // Render to the shadow map framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, fboIds[FBOs::ShadowMap]);
 
-        // Clear the buffer and enable front-face culling
+        // Clear the buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//		glCullFace(GL_FRONT);
 
 		// Use the shadow program
 		ShaderProgram *shadowProgram = shaders[Shaders::ShadowMap];
@@ -260,8 +259,6 @@ void Graphics::Update() {
 			// Render the model
             glDrawElements(GL_TRIANGLES, mesh->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
 		}
-
-//        glCullFace(GL_BACK);
 	}
 
 	// -------------------------------------------------------------------------------------------------------------- //

@@ -82,5 +82,9 @@
     ]
   },
   "Controls/GamepadBack.json",
-  "Controls/GamepadJoin.json"
+  "Controls/GamepadJoin.json",
+    {
+		"Prefab": "Controls/GamepadJoin.json",
+        "Enabled": false
+    }
 ]

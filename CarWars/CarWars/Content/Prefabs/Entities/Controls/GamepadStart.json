@@ -1,0 +1,19 @@
+{
+	"Tag": "GamepadJoinControl",
+	"Components": [
+		{
+			"Prefab": "Controls/GamepadX.json",
+			"AnchorPoint": [ 1, 0.5 ],
+			"ScaledPosition": [ 1, 1 ],
+			"Position": [ -10, -30, 0 ]
+		},
+		{
+			"Prefab": "GUIs/StarjediFont.json",
+			"Text": "start",
+			"TextXAlignment": "Right",
+			"AnchorPoint": [ 1, 0.5 ],
+			"ScaledPosition": [ 1, 1 ],
+			"Position": [ -70, -30, 0 ]
+		}
+	]
+}
