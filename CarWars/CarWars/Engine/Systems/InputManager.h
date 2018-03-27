@@ -54,4 +54,6 @@ private:
 	static vector<XboxController*> xboxControllers;
 
     void HandleVehicleControllerInput(size_t controllerNum, int &leftVibrate, int &rightVibrate);
+
+	static int playerControl;
 };

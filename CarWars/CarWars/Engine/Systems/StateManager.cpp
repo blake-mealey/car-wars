@@ -43,8 +43,8 @@ void StateManager::SetState(GameState state) {
 		if (winner.killCount <= 0) GuiHelper::SetFirstGuiText("WinnerTitle", "game over");
 		else if (tie) GuiHelper::SetFirstGuiText("WinnerTitle", "tie");
         else GuiHelper::SetFirstGuiText("WinnerTitle", winner.name + " won!");
-
 		break;
+
     case GameState_Menu_Start:
         ContentManager::DestroySceneAndLoadScene("Menu.json");
         GuiHelper::LoadGuiSceneToCamera(0, "GUIs/StartMenu_GUI.json");

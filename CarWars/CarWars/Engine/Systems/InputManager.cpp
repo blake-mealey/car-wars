@@ -26,6 +26,8 @@
 #include <bitset>
 
 vector<XboxController*> InputManager::xboxControllers;
+int InputManager::playerControl = 0;
+
 
 InputManager &InputManager::Instance() {
 	for (int i = 0; i < XUSER_MAX_COUNT; i++) {
@@ -313,8 +315,19 @@ void CloseMenu(int playerIndex, std::string menuName) {
 }
 
 void InputManager::NavigateGuis(GuiNavData navData) {
+	switch (StateManager::GetState()) {
+	case GameState_Menu_Start_CharacterSelect:
+	case GameState_Playing:
+		playerControl = -1;
+		break;
+	case GameState_Paused:
+		break;
+	default: 
+		playerControl = 0;
+	}
+
     // If there was no navigation, do nothing
-    if (!navData.Valid()) return;
+    if (!(navData.Valid() && (playerControl == -1 || playerControl == navData.playerIndex))) return;
     
     if (StateManager::GetState() != GameState_Playing)
         if (navData.back)
@@ -585,6 +598,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 
     if (navData.escape) {
         if (gameState == GameState_Playing) {
+			playerControl = navData.playerIndex;
             StateManager::SetState(GameState_Paused);
             OpenMenu(navData.playerIndex, "PauseMenu", "Menu/PauseMenu.json", glm::vec2(580.f, 370.f));
             if (navData.tabHeld) navData.tabReleased = true;
