@@ -136,7 +136,6 @@ void NavigationMesh::ResetMesh() {
         coveringBodies[i].clear();
         vertices[i].score = defaults[i];
     }
-    UpdateMesh();
 }
 
 void NavigationMesh::RemoveRigidbody(RigidbodyComponent *rigidbody) {

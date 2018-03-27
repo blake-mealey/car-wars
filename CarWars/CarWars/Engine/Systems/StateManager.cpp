@@ -21,6 +21,7 @@ void StateManager::SetState(GameState state) {
 	currentState = state;
 	bool tie = false;
     TeamData winner;
+	winner.killCount = -1;
     switch (currentState) {
     case GameState_Exit:
         glfwSetWindowShouldClose(Graphics::Instance().GetWindow(), true);
@@ -32,8 +33,7 @@ void StateManager::SetState(GameState state) {
 	case GameState_Menu_GameEnd:
 		ContentManager::DestroySceneAndLoadScene("Menu.json");
 		GuiHelper::LoadGuiSceneToCamera(0, "GUIs/GameEnd_GUI.json");
-
-
+	
 		for (TeamData& team : Game::gameData.teams) {
 			if (team.killCount >= winner.killCount) {
 				if (team.killCount == winner.killCount) tie = true;

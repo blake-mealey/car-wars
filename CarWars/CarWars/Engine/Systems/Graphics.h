@@ -121,7 +121,7 @@ public:
 	void UpdateViewports(std::vector<Component*> cameraComponents) const;
 
 	glm::vec2 GetWindowSize() const;
-	glm::vec2 GetViewportSize() const;
+	glm::vec2 GetViewportSize(int index) const;
 
 private:
 	// No instantiation or copying

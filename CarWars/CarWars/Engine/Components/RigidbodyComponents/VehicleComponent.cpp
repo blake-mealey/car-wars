@@ -535,8 +535,9 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
 			Game::gameData.teams[attacker->teamIndex].killCount++;
 		}
 
-        for (size_t i = 0; i < Game::gameData.humanCount; ++i) {
+        for (size_t i = 0; i < 4; ++i) {
             HumanData& player = Game::humanPlayers[i];
+            if (!player.ready) continue;
             Entity* killFeed = EntityManager::FindFirstChild(player.camera->GetGuiRoot(), "KillFeed");
 
             Entity* row = ContentManager::LoadEntity("Menu/KillFeedRow.json", killFeed);
@@ -575,7 +576,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
 
             constexpr size_t maxCount = 5;
 
-            const std::string tweenTag = "KillFeed";
+            const std::string tweenTag = "KillFeed" + player.id;
             Tween* oldTween = Effects::Instance().FindTween(tweenTag);
             if (oldTween) Effects::Instance().DestroyTween(oldTween);
 

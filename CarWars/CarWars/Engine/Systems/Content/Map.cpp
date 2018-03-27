@@ -63,7 +63,7 @@ Map::Map(std::string dirPath) {
         }));
     }
 
-    navigationMesh->ResetMesh();
+    navigationMesh->UpdateMesh();
 }
 
 void Map::LoadObjects(Picture* objectsMap) {

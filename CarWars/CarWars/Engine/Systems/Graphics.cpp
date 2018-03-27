@@ -226,7 +226,7 @@ void Graphics::Update() {
 	glm::mat4 depthViewMatrix;
 	if (shadowCaster != nullptr) {
         // Define depth transformation matrices
-		depthProjectionMatrix = glm::ortho<float>(-200, 200, -10, 30, -80, 80);
+		depthProjectionMatrix = glm::ortho<float>(-150, 150, -75, 75, -200, 200);
 		depthViewMatrix = glm::lookAt(-shadowCaster->GetDirection(), glm::vec3(0), glm::vec3(0, 1, 0));
 
         // Render to the shadow map framebuffer
@@ -1039,10 +1039,19 @@ void Graphics::LoadCameras(std::vector<Component*> cameraComponents) {
 
 	// Update the camera's viewports based on the number of cameras
 	const glm::vec2 windowSize = glm::vec2(windowWidth, windowHeight);
-	const glm::vec2 viewportSize = GetViewportSize();
 	for (size_t i = 0; i < count; ++i) {
-		cameras[i].viewportPosition = glm::vec2((i % 2) * 0.5f,
-			i < 2 ? (count < 3 ? 0.f : 0.5f) : 0.f) * windowSize;
+        const glm::vec2 viewportSize = GetViewportSize(i);
+
+        glm::vec2 scale = glm::vec2(0.f);
+        if (count == 2) {
+            scale = glm::vec2(0.f, 0.5f * (1 - i));
+        } else if (count == 3) {
+            scale = i == 0 ? glm::vec2(0.f, 0.5f) : glm::vec2(0.5f * (i % 2), 0.f);
+        } else if (count == 4) {
+            scale = glm::vec2(0.5f * (i % 2), i < 2 ? 0.5f : 0.f);
+        }
+
+		cameras[i].viewportPosition = scale * windowSize;
 		cameras[i].viewportSize = viewportSize;
 	}
 
@@ -1086,10 +1095,11 @@ void Graphics::SetWindowDimensions(size_t width, size_t height) {
 }
 
 void Graphics::UpdateViewports(std::vector<Component*> cameraComponents) const {
-	const glm::vec2 viewportSize = GetViewportSize();
-	const float aspectRatio = viewportSize.x / viewportSize.y;
+    int count = 0;
 	for (Component *component : cameraComponents) {
 		if (component->enabled) {
+            const glm::vec2 viewportSize = GetViewportSize(count++);
+            const float aspectRatio = viewportSize.x / viewportSize.y;
 			CameraComponent *camera = static_cast<CameraComponent*>(component);
 			camera->SetAspectRatio(aspectRatio);
 		}
@@ -1100,9 +1110,19 @@ glm::vec2 Graphics::GetWindowSize() const {
 	return glm::vec2(windowWidth, windowHeight);
 }
 
-glm::vec2 Graphics::GetViewportSize() const {
+glm::vec2 Graphics::GetViewportSize(int index) const {
 	const glm::vec2 windowSize = glm::vec2(windowWidth, windowHeight);
-	return glm::vec2(cameras.size() == 1 ? 1 : 0.5, cameras.size() < 3 ? 1 : 0.5) * windowSize;
+
+    glm::vec2 scale = glm::vec2(1.f);
+    if (cameras.size() == 2) {
+        scale = glm::vec2(1.f, 0.5f);
+    } else if (cameras.size() == 3) {
+        scale = index == 0 ? glm::vec2(1.f, 0.5f) : glm::vec2(0.5f, 0.5f);
+    } else if (cameras.size() == 4) {
+        scale = glm::vec2(0.5f, 0.5f);
+    }
+
+    return windowSize * scale;
 }
 
 void Graphics::LoadLights(std::vector<Component*> _pointLights,
