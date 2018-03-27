@@ -87,9 +87,6 @@ void Game::Initialize() {
 void Game::SpawnVehicle(PlayerData& player) const {
 	vector<Entity*> spawns = EntityManager::FindEntities("SpawnLocation");
 	Entity* spawn = spawns[rand() % spawns.size()];
-	const glm::vec3 position = spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f);
-
-	PxTransform transform = PxTransform(Transform::ToPx(position));
 
 	// pick a random point on a sphere for spray
 	float randomHorizontalAngle = (float)rand() / (float)RAND_MAX * M_PI * 2.f;
@@ -98,6 +95,7 @@ void Game::SpawnVehicle(PlayerData& player) const {
 		sin(randomHorizontalAngle)) * 10.f;
 
 	const glm::vec3 position = spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f) + randomOffset;
+	PxTransform transform = PxTransform(Transform::ToPx(position));
 
 	// Initialize their vehicle
 	player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
