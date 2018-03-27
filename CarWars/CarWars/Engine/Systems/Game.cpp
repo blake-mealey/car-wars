@@ -9,6 +9,7 @@
 #include "../Components/RigidbodyComponents/RigidStaticComponent.h"
 
 #include <glm/gtx/string_cast.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -87,10 +88,13 @@ void Game::SpawnVehicle(PlayerData& player) const {
 	vector<Entity*> spawns = EntityManager::FindEntities("SpawnLocation");
 	Entity* spawn = spawns[rand() % spawns.size()];
 	const glm::vec3 position = spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f);
+	const glm::vec4 direction = glm::vec4(-spawn->transform.GetGlobalPosition(), 1.0f);
+
+	PxTransform transform = PxTransform(Transform::ToPx(position));
 
 	// Initialize their vehicle
 	player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
-	player.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(PxTransform(Transform::ToPx(position)));
+	player.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(transform);
 
     if (gameData.gameMode == GameModeType::Team) {
         MeshComponent* mesh = player.vehicleEntity->GetComponent<MeshComponent>();
