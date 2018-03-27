@@ -421,7 +421,7 @@ void AiComponent::Act() {
 
 void AiComponent::Update() {
 	AiData* myData = static_cast<AiData*>(Game::GetPlayerFromEntity(GetEntity()));
-	if (!enabled || !myData->alive) return;
+	if (!(enabled &&  myData && myData->alive)) return;
 
 	FindTargets();
 	Act();
