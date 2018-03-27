@@ -316,14 +316,10 @@ void CloseMenu(int playerIndex, std::string menuName) {
 
 void InputManager::NavigateGuis(GuiNavData navData) {
 	switch (StateManager::GetState()) {
-	case GameState_Menu_Start_CharacterSelect:
-	case GameState_Playing:
-		playerControl = -1;
-		break;
 	case GameState_Paused:
 		break;
 	default: 
-		playerControl = 0;
+		playerControl = -1;
 	}
 
     // If there was no navigation or you don't have control, do nothing
@@ -503,7 +499,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
                         if (Game::humanPlayers[i].ready) readyCount++;
                     }
                     // TODO: Countdown/animations?
-                    if (readyCount == Game::gameData.humanCount && Game::humanPlayers[0].ready) StateManager::SetState(GameState_Playing);
+                    if (readyCount == Game::gameData.humanCount) StateManager::SetState(GameState_Playing);
                 }
 			}
 		} else if (gameState == GameState_Paused) {

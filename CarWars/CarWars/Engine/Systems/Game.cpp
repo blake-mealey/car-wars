@@ -245,10 +245,10 @@ void Game::Update() {
     } else if (StateManager::GetState() == GameState_Playing) {
 
         // Update AIs
-		std::vector<Component*> aiComponents = EntityManager::GetComponents(ComponentType_AI);
-		for (Component *component : aiComponents) {
-			AiComponent *ai = static_cast<AiComponent*>(component);
-			ai->Update();
+		static size_t aiIndex = 0;
+		for (size_t i = 0; i < glm::min((size_t)4, aiPlayers.size()); ++i) {
+			aiPlayers[aiIndex].brain->Update();
+			aiIndex = (1 + aiIndex) % aiPlayers.size();
 		}
 
         // Update sun direction
