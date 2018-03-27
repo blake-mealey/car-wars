@@ -6,10 +6,10 @@
 
 using namespace glm;
 
-#define wallVertexThick 5
-#define wallHeight 10.0f
+#define wallVertexThick 10
+#define wallHeight 30.0f
 #define wallThick 2.0f
-#define inclineExp 0.0f
+#define inclineExp 1.9f
 #define heightVar 0.0f
 #define overhangVar 0.0f
 HeightMap::HeightMap(std::string dirPath) {
@@ -66,11 +66,7 @@ void HeightMap::Initialize(std::string filePath) {
 	float wallHPV = wallThick / wallVertexThick;
 	float wallZspace = 0.0f;
 	float wallXspace = 0.0f;
-	float inclineRate = inclineExp;
-	if(inclineRate != 0)
-		inclineRate = wallVertexThick / wallHeight;
-	else
-		inclineRate = pow(wallVertexThick / wallHeight, pow(1 / inclineRate, wallVertexThick));
+	float inclineRate = wallHeight / (1 + (pow(inclineExp, wallVertexThick) - inclineExp)*(1 / (inclineExp - 1)));
 	float currIncline;
 
 	z = zSpacing * wallVertexThick;
@@ -100,25 +96,26 @@ void HeightMap::Initialize(std::string filePath) {
 	for (unsigned int i = wallVertexThick; i < rowCount + wallVertexThick; i++) {
 		currIncline = inclineRate;
 		float x = xSpacing*wallVertexThick;
+		//const float yoffset = heights[i][wallVertexThick];
 		for (int j = wallVertexThick - 1; j >= 0; j--) {
-			const float y = heights[i][j + 1] + currIncline;
+			const float y = heights[i][j+1] + currIncline;
 			heights[i][j] = y;
 
 			vertices[v] = vec3(x, y, z) + offset;
 			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
 			v--;
-			currIncline = pow(currIncline, inclineExp);
+			currIncline *= inclineExp;
 			x -= xSpacing;
 		}
 		z += zSpacing;
 		v += colCount + wallVertexThick*3;
 	}
 
-	/*//Add walls to the right side based on the heights closest to the wall
-	currIncline = inclineRate;
+	//Add walls to the right side based on the heights closest to the wall
 	v = wallVertexThick*(totalColCount) + wallVertexThick + colCount;
 	z = zSpacing*wallVertexThick;
 	for (unsigned int i = wallVertexThick; i < rowCount + wallVertexThick; i++) {
+		currIncline = inclineRate;
 		float x = xSpacing*(wallVertexThick + colCount);
 		for (unsigned int j = colCount + wallVertexThick; j < totalColCount; j++) {
 			const float y = heights[i][j - 1] + currIncline;
@@ -127,18 +124,19 @@ void HeightMap::Initialize(std::string filePath) {
 			vertices[v] = vec3(x, y, z) + offset;
 			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
 			v++;
-			currIncline = pow(currIncline, inclineExp);
+			currIncline *= inclineExp;
 			x += xSpacing;
 		}
 		z += zSpacing;
 		v += wallVertexThick + colCount;
 	}
 
-	//Add walls to the Top based on the heights closest to the wall
+	/*//Add walls to the Top based on the heights closest to the wall
 	currIncline = inclineRate;
 	z = zSpacing*wallVertexThick;
 	v = (wallVertexThick-1)*(totalColCount);
 	for (int i = wallVertexThick - 1; i >= 0 ; i--) {
+		currIncline = inclineRate;
 		float x = 0.0f;
 		for (unsigned int j = 0; j < totalColCount; j++) {
 			const float y = heights[i + 1][j] + currIncline;
@@ -148,19 +146,20 @@ void HeightMap::Initialize(std::string filePath) {
 			vertices[v] = vec3(x, y, z) + offset;
 			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
 			v++;
-			currIncline = pow(currIncline, inclineExp);
+			currIncline *= inclineExp;
 
 			x += xSpacing;
 		}
 		v -= totalColCount * 2;
 		z -= zSpacing;
-	}
+	}*/
 
-	//Add walls to the Bottom based on the heights closest to the wall
+	/*//Add walls to the Bottom based on the heights closest to the wall
 	currIncline = inclineRate;
 	z = zSpacing * (rowCount + wallVertexThick);
 	v = (wallVertexThick + rowCount)*(totalColCount);
 	for (unsigned int i = rowCount; i < rowCount + wallVertexThick; i++) {
+		currIncline = inclineRate;
 		float x = 0.f;
 		for (unsigned int j = 0; j < totalColCount; j++) {
 			const float y = heights[i - 1][j] + currIncline;
@@ -169,7 +168,7 @@ void HeightMap::Initialize(std::string filePath) {
 			vertices[v] = vec3(x, y, z) + offset;
 			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
 			v++;
-			currIncline = pow(currIncline, inclineExp);
+			currIncline *= inclineExp;
 
 			x += xSpacing;
 		}
