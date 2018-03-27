@@ -326,7 +326,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
 		playerControl = 0;
 	}
 
-    // If there was no navigation, do nothing
+    // If there was no navigation or you don't have control, do nothing
     if (!(navData.Valid() && (playerControl == -1 || playerControl == navData.playerIndex))) return;
     
     if (StateManager::GetState() != GameState_Playing)
@@ -503,7 +503,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
                         if (Game::humanPlayers[i].ready) readyCount++;
                     }
                     // TODO: Countdown/animations?
-                    if (readyCount == Game::gameData.humanCount) StateManager::SetState(GameState_Playing);
+                    if (readyCount == Game::gameData.humanCount && Game::humanPlayers[0].ready) StateManager::SetState(GameState_Playing);
                 }
 			}
 		} else if (gameState == GameState_Paused) {
