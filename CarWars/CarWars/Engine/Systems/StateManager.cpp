@@ -35,10 +35,8 @@ void StateManager::SetState(GameState state) {
 		GuiHelper::LoadGuiSceneToCamera(0, "GUIs/GameEnd_GUI.json");
 	
 		for (TeamData& team : Game::gameData.teams) {
-			if (team.killCount >= winner.killCount) {
-				if (team.killCount == winner.killCount) tie = true;
-				else winner = team;
-			}
+			if (team.killCount == winner.killCount && team.killCount > 0) tie = true;
+			if (team.killCount > winner.killCount) winner = team;
 		}
 		if (winner.killCount <= 0) GuiHelper::SetFirstGuiText("WinnerTitle", "game over");
 		else if (tie) GuiHelper::SetFirstGuiText("WinnerTitle", "tie");

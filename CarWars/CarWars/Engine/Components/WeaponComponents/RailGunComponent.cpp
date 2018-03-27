@@ -57,12 +57,15 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 		} else {
 			hitPosition = gunPosition + (gunDirection * rayLength);
 		}
+		HumanData* player = Game::Instance().GetHumanFromEntity(GetEntity());
+
 		Entity* bullet = ContentManager::LoadEntity("Bullet.json");
 		LineComponent* line = bullet->GetComponent<LineComponent>();
 		line->SetPoint0(gunPosition);
 		line->SetPoint1(hitPosition);
 		auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(1.f, 0.f, 0.1, StateManager::gameTime);
-		tween->SetUpdateCallback([line, rgTurret](float& value) mutable {
+		tween->SetUpdateCallback([line, rgTurret, player, tween](float& value) mutable {
+			if (!player->alive) return;
 			line->SetColor(glm::vec4(1.f, 0.f, 0.f, value));
 			line->SetPoint0(rgTurret->transform.GetGlobalPosition());
 		});
@@ -71,7 +74,6 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 		});
 		tween->Start();
 
-		HumanData* player = Game::Instance().GetHumanFromEntity(GetEntity());
 		if (player) {
 			GuiComponent* gui = GuiHelper::GetFirstGui(EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "ChargeIndicator"));
 			Transform& mask = gui->GetMask();

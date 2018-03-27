@@ -71,12 +71,15 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 			hitPosition = gunPosition + (shotDirection * rayLength);
 		}
 
+		PlayerData* player = Game::GetPlayerFromEntity(GetEntity());
+
 		Entity* bullet = ContentManager::LoadEntity("Bullet.json");
 		LineComponent* line = bullet->GetComponent<LineComponent>();
 		line->SetPoint0(gunPosition);
 		line->SetPoint1(hitPosition);
 		auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(1.f, 0.f, timeBetweenShots*0.5, StateManager::gameTime);
-		tween->SetUpdateCallback([line, mgTurret](float& value) mutable {
+		tween->SetUpdateCallback([line, player, mgTurret, tween](float& value) mutable {
+			if (!player->alive) return;
 			line->SetColor(glm::vec4(1.0f, .9f, .4f, .3f));
 			line->SetPoint0(mgTurret->transform.GetGlobalPosition());
 		});
