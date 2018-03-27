@@ -698,8 +698,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 
 	XboxController *controller = xboxControllers[controllerNum];
 
-	if (controllerNum > Game::gameData.humanCount - 1) return;
-	//if (!Game::humanPlayers[controllerNum].alive) return;
+	if (controllerNum > 3) return;
 
 	bool active = controller->GetPreviousState().Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||
 		controller->GetPreviousState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||

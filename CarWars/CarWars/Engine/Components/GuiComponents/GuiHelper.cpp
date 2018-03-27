@@ -4,7 +4,6 @@
 #include "../../Systems/Content/ContentManager.h"
 #include "GuiComponent.h"
 #include "../../Systems/Effects.h"
-#include "PennerEasing/Quad.h"
 
 GuiComponent* GuiHelper::GetSelectedGui(Entity* entity) {
     for (GuiComponent* gui : entity->GetComponents<GuiComponent>()) {
