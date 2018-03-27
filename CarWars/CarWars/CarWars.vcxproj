@@ -393,6 +393,7 @@
     <None Include="Content\Scenes\GUIs\OptionsMenu_GUI.json" />
     <None Include="Content\Scenes\GUIs\StartMenu_GUI.json" />
     <None Include="Content\Scenes\MainMenu.json" />
+    <None Include="Content\Scenes\Maps\EmptyArena.json" />
     <None Include="Content\Scenes\Maps\HeightMap.json" />
     <None Include="Content\Scenes\Menu.json" />
     <None Include="Content\Scenes\PhysicsDemo.json" />
