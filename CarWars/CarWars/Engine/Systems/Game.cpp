@@ -161,10 +161,16 @@ void Game::InitializeGame() {
 
 		SpawnAi(ai);
 	}
+
     // Initialize the humanPlayers
 	for (int i = 0; i < 4; ++i) {
         HumanData& player = humanPlayers[i];
-        if (!player.ready) continue;
+        if (!player.ready) {
+            // Create a disabled camera for the unready player so that controller indexing works on cameras
+            Entity* cameraEntity = ContentManager::LoadEntity("Game/Camera.json");
+            cameraEntity->GetComponent<CameraComponent>()->enabled = false;
+            continue;
+        }
 		player.name = "Player " + to_string(i + 1);
 
         // Set their team
