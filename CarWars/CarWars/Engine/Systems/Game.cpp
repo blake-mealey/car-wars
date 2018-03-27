@@ -8,6 +8,7 @@
 #include "../Components/GuiComponents/GuiComponent.h"
 #include "../Components/RigidbodyComponents/RigidStaticComponent.h"
 
+#include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -86,15 +87,26 @@ void Game::Initialize() {
 
 void Game::SpawnVehicle(PlayerData& player) const {
 	vector<Entity*> spawns = EntityManager::FindEntities("SpawnLocation");
-	Entity* spawn = spawns[rand() % spawns.size()];
+	Entity* spawn;
+	bool cantSpawn;
+	do {
+		cantSpawn = false;
+		spawn = spawns[rand() % spawns.size()];
+		for (Entity* vehicle : EntityManager::FindEntities("Vehicle")) {
+			if (glm::distance(spawn->transform.GetGlobalPosition(), vehicle->transform.GetGlobalPosition()) < 3.0f) {
+				cantSpawn = true;
+			}
+		}
+	} while (cantSpawn);
 
 	// pick a random point on a sphere for spray
-	float randomHorizontalAngle = (float)rand() / (float)RAND_MAX * M_PI * 2.f;
-	glm::vec3 randomOffset = glm::vec3(cos(randomHorizontalAngle),
-		0.f,
-		sin(randomHorizontalAngle)) * 10.f;
+	//float randomHorizontalAngle = (float)rand() / (float)RAND_MAX * M_PI * 2.f;
+	//glm::vec3 randomOffset = glm::vec3(cos(randomHorizontalAngle),
+	//	0.f,
+	//	sin(randomHorizontalAngle)) * 10.f;
 
-	const glm::vec3 position = spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f) + randomOffset;
+	//const glm::vec3 position = spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f) + randomOffset;
+	const glm::vec3 position = spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f);
 	PxTransform transform = PxTransform(Transform::ToPx(position));
 
 	// Initialize their vehicle
