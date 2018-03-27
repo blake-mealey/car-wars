@@ -333,6 +333,7 @@
     <None Include="Content\Prefabs\Components\Controls\GamepadY.json" />
     <None Include="Content\Prefabs\Entities\Controls\GamepadJoin.json" />
     <None Include="Content\Prefabs\Entities\Controls\GamepadSelect.json" />
+    <None Include="Content\Prefabs\Entities\Controls\GamepadStart.json" />
     <None Include="Content\Prefabs\Entities\Game\Floor.json" />
     <None Include="Content\Prefabs\Entities\Game\PowerUpSpawner.json" />
     <None Include="Content\CollisionGroups\Vehicles.json" />

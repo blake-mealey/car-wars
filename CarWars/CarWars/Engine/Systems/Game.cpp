@@ -163,6 +163,7 @@ void Game::InitializeGame() {
 	}
 
     // Initialize the humanPlayers
+    int readyIndex = 0;
 	for (int i = 0; i < 4; ++i) {
         HumanData& player = humanPlayers[i];
         if (!player.ready) {
@@ -171,15 +172,15 @@ void Game::InitializeGame() {
             cameraEntity->GetComponent<CameraComponent>()->enabled = false;
             continue;
         }
-		player.name = "Player " + to_string(i + 1);
+		player.name = "Player " + to_string(readyIndex + 1);
 
         // Set their team
         if (gameData.gameMode == GameModeType::FreeForAll) {
-            player.teamIndex = i;
+            player.teamIndex = readyIndex;
             gameData.teams[player.teamIndex].name = player.name;
 			gameData.teams[player.teamIndex].size ++;
 		} else if (gameData.gameMode == GameModeType::Team) {
-            player.teamIndex = i % 2;
+            player.teamIndex = readyIndex % 2;
 			gameData.teams[player.teamIndex].size++;
         }
 
@@ -202,6 +203,8 @@ void Game::InitializeGame() {
 		
 		// Initialize their UI
         ContentManager::LoadScene("GUIs/HUD.json", player.camera->GetGuiRoot());
+
+        readyIndex++;
 	}
 
 }

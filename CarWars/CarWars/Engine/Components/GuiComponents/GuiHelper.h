@@ -114,6 +114,8 @@ public:
 	static void SetOpacityRecursive(Entity* parent, float goalOpacity);
 
 	static std::vector<GuiComponent*> GetGuisRecursive(Entity* parent, std::unordered_set<GuiComponent*> ignoreList = {});
+
+    static Entity* GetGuiEntity(std::string entityTag, int playerIndex = 0);
 private:
 	static void GetGuisRecursive(Entity* parent, std::vector<GuiComponent*>& guis, std::unordered_set<GuiComponent*> ignoreList = {});
 };

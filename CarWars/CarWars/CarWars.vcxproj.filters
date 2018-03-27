@@ -277,5 +277,6 @@
     <None Include="Content\Prefabs\Entities\Game\SpawnLocation.json" />
     <None Include="Content\Scenes\Maps\Arena.json" />
     <None Include="Content\Prefabs\Entities\Pillar.json" />
+    <None Include="Content\Prefabs\Entities\Controls\GamepadStart.json" />
   </ItemGroup>
 </Project>
