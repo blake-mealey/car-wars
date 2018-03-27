@@ -308,8 +308,9 @@ std::vector<GuiComponent*> GuiHelper::GetGuisRecursive(Entity* parent, std::unor
 }
 
 Entity* GuiHelper::GetGuiEntity(std::string entityTag, int playerIndex) {
-    Entity* root = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[playerIndex])->GetGuiRoot();
-    return EntityManager::FindFirstChild(root, entityTag);
+	return EntityManager::FindEntities(entityTag)[playerIndex];
+    //Entity* root = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[playerIndex])->GetGuiRoot();
+    //return EntityManager::FindFirstChild(root, entityTag);
 }
 
 void GuiHelper::GetGuisRecursive(Entity* parent, std::vector<GuiComponent*>& guis, std::unordered_set<GuiComponent*> ignoreList) {

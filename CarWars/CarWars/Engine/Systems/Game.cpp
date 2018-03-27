@@ -169,7 +169,9 @@ void Game::InitializeGame() {
         if (!player.ready) {
             // Create a disabled camera for the unready player so that controller indexing works on cameras
             Entity* cameraEntity = ContentManager::LoadEntity("Game/Camera.json");
-            cameraEntity->GetComponent<CameraComponent>()->enabled = false;
+			CameraComponent* camera = cameraEntity->GetComponent<CameraComponent>();
+            camera->enabled = false;
+			ContentManager::LoadScene("GUIs/HUD.json", camera->GetGuiRoot());
             continue;
         }
 		player.name = "Player " + to_string(readyIndex + 1);

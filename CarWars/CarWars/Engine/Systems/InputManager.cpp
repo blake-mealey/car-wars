@@ -503,7 +503,7 @@ void InputManager::NavigateGuis(GuiNavData navData) {
                 }
 			}
 		} else if (gameState == GameState_Paused) {
-            GuiComponent* selected = GuiHelper::GetSelectedGui("PauseMenuButtons", navData.playerIndex);
+            GuiComponent* selected = GuiHelper::GetSelectedGui("PauseMenuButtons");
             if (selected->ContainsText("resume")) {
                 StateManager::SetState(GameState_Playing);
                 CloseMenu(navData.playerIndex, "PauseMenu");
