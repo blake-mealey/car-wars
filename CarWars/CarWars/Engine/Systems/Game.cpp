@@ -86,7 +86,14 @@ void Game::Initialize() {
 void Game::SpawnVehicle(PlayerData& player) const {
 	vector<Entity*> spawns = EntityManager::FindEntities("SpawnLocation");
 	Entity* spawn = spawns[rand() % spawns.size()];
-	const glm::vec3 position = spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f);
+
+	// pick a random point on a sphere for spray
+	float randomHorizontalAngle = (float)rand() / (float)RAND_MAX * M_PI * 2.f;
+	glm::vec3 randomOffset = glm::vec3(cos(randomHorizontalAngle),
+		0.f,
+		sin(randomHorizontalAngle)) * 10.f;
+
+	const glm::vec3 position = spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f) + randomOffset;
 
 	// Initialize their vehicle
 	player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
@@ -252,8 +259,10 @@ void Game::Update() {
         // Update AIs
 		static size_t aiIndex = 0;
 		for (size_t i = 0; i < glm::min((size_t)4, aiPlayers.size()); ++i) {
-			aiPlayers[aiIndex].brain->Update();
 			aiIndex = (1 + aiIndex) % aiPlayers.size();
+			if (aiPlayers[aiIndex].alive) {
+				aiPlayers[aiIndex].brain->Update();
+			}
 		}
 
         // Update sun direction
@@ -337,7 +346,7 @@ void Game::Update() {
         // ---------------
 
         // Update clock and score UIs
-        size_t highestTeamKillCount = 0;
+        int highestTeamKillCount = 0;
 		size_t deadForeverCount = 0;
         for (TeamData& team : gameData.teams) {
             if (team.killCount > highestTeamKillCount) highestTeamKillCount = team.killCount;
