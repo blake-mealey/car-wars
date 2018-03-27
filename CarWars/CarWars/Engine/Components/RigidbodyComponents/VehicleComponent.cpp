@@ -575,7 +575,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
 
             constexpr size_t maxCount = 5;
 
-            const std::string tweenTag = "KillFeed";
+            const std::string tweenTag = "KillFeed" + player.id;
             Tween* oldTween = Effects::Instance().FindTween(tweenTag);
             if (oldTween) Effects::Instance().DestroyTween(oldTween);
 
