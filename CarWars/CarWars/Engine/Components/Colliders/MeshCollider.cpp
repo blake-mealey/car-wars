@@ -21,7 +21,8 @@ MeshCollider::MeshCollider(nlohmann::json data) : Collider(data), fromHeightMap(
     if (data["HeightMap"].is_string()) {
         fromHeightMap = true;
         HeightMap* map = ContentManager::GetHeightMap(data["HeightMap"]);
-        InitializeGeometry(map->GetMesh());
+
+		InitializeGeometry(map->GetMesh());
     } else {
         InitializeGeometry(ContentManager::GetMesh(data["Mesh"]));
     }

@@ -6,7 +6,7 @@
 
 using namespace glm;
 
-#define wallVertexThick 10
+#define wallVertexThick 9
 #define wallHeight 30.0f
 #define wallThick 2.0f
 #define inclineExp 1.9f
@@ -49,9 +49,9 @@ void HeightMap::Initialize(std::string filePath) {
 
 	const vec3 offset = -vec3(maxWidth, 0.f, maxLength) * 0.5f;
 
-	for (unsigned int i = 0; i < totalRowCount; i++) {
+	for (unsigned long i = 0; i < totalRowCount; i++) {
 		heights[i] = new float[totalColCount];
-		for (unsigned int j = 0; j < totalColCount; j++) {
+		for (unsigned long j = 0; j < totalColCount; j++) {
 			heights[i][j] = wallHeight + maxHeight;
 			vertices[v] = glm::vec3(xSpacing*j, wallHeight + maxHeight, zSpacing*i) + offset;
 			uvs[v] = vec2(xSpacing*j / static_cast<float>(totalColCount), zSpacing*i / static_cast<float>(totalRowCount));
@@ -71,10 +71,10 @@ void HeightMap::Initialize(std::string filePath) {
 
 	z = zSpacing * wallVertexThick;
 	v = wallVertexThick*(totalColCount)+wallVertexThick;
-    for (unsigned int i = wallVertexThick; i < rowCount + wallVertexThick; i++) {
+    for (unsigned long i = wallVertexThick; i < rowCount + wallVertexThick; i++) {
         float x = xSpacing*wallVertexThick;
 
-        for (unsigned int j = wallVertexThick; j < colCount + wallVertexThick; j++) {
+        for (unsigned long j = wallVertexThick; j < colCount + wallVertexThick; j++) {
             const float y = (1.f - (pixels[0] + pixels[1] + pixels[2]) / 3.f) * maxHeight;
             heights[i][j] = y;
 
@@ -93,7 +93,7 @@ void HeightMap::Initialize(std::string filePath) {
 	//Add walls to the left side based on the heights closest to the wall
 	v = wallVertexThick*(totalColCount) + wallVertexThick;
 	z = zSpacing*wallVertexThick;
-	for (unsigned int i = wallVertexThick; i < rowCount + wallVertexThick; i++) {
+	for (unsigned long i = wallVertexThick; i < rowCount + wallVertexThick; i++) {
 		currIncline = inclineRate;
 		float x = xSpacing*wallVertexThick;
 		//const float yoffset = heights[i][wallVertexThick];
@@ -114,10 +114,10 @@ void HeightMap::Initialize(std::string filePath) {
 	//Add walls to the right side based on the heights closest to the wall
 	v = wallVertexThick*(totalColCount) + wallVertexThick + colCount;
 	z = zSpacing*wallVertexThick;
-	for (unsigned int i = wallVertexThick; i < rowCount + wallVertexThick; i++) {
+	for (unsigned long i = wallVertexThick; i < rowCount + wallVertexThick; i++) {
 		currIncline = inclineRate;
 		float x = xSpacing*(wallVertexThick + colCount);
-		for (unsigned int j = colCount + wallVertexThick; j < totalColCount; j++) {
+		for (unsigned long j = colCount + wallVertexThick; j < totalColCount; j++) {
 			const float y = heights[i][j - 1] + currIncline;
 			heights[i][j] = y;
 
@@ -131,14 +131,13 @@ void HeightMap::Initialize(std::string filePath) {
 		v += wallVertexThick + colCount;
 	}
 
-	/*//Add walls to the Top based on the heights closest to the wall
+	//Add walls to the Top based on the heights closest to the wall
 	currIncline = inclineRate;
 	z = zSpacing*wallVertexThick;
 	v = (wallVertexThick-1)*(totalColCount);
 	for (int i = wallVertexThick - 1; i >= 0 ; i--) {
-		currIncline = inclineRate;
 		float x = 0.0f;
-		for (unsigned int j = 0; j < totalColCount; j++) {
+		for (unsigned long j = 0; j < totalColCount; j++) {
 			const float y = heights[i + 1][j] + currIncline;
 			heights[i][j] = y;
 
@@ -146,41 +145,47 @@ void HeightMap::Initialize(std::string filePath) {
 			vertices[v] = vec3(x, y, z) + offset;
 			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
 			v++;
-			currIncline *= inclineExp;
 
 			x += xSpacing;
 		}
+		currIncline *= inclineExp;
 		v -= totalColCount * 2;
 		z -= zSpacing;
-	}*/
+	}
 
-	/*//Add walls to the Bottom based on the heights closest to the wall
+	//Add walls to the Bottom based on the heights closest to the wall
 	currIncline = inclineRate;
 	z = zSpacing * (rowCount + wallVertexThick);
 	v = (wallVertexThick + rowCount)*(totalColCount);
-	for (unsigned int i = rowCount; i < rowCount + wallVertexThick; i++) {
-		currIncline = inclineRate;
+	for (unsigned long i = rowCount; i < rowCount + wallVertexThick; i++) {
 		float x = 0.f;
-		for (unsigned int j = 0; j < totalColCount; j++) {
+		for (unsigned long j = 0; j < totalColCount; j++) {
 			const float y = heights[i - 1][j] + currIncline;
 			heights[i][j] = y;
 
 			vertices[v] = vec3(x, y, z) + offset;
 			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
 			v++;
-			currIncline *= inclineExp;
 
 			x += xSpacing;
 		}
+		currIncline *= inclineExp;
 		z += zSpacing;
-	}*/
+	}
+
+	//Fix the Corners
+	/*v = 0;
+	unsigned long i = 0;
+	unsigned long j = 0;
+	heights[i][j] = heights[i + 1][j];
+	vertices[v].y *= 0.5;*/
 
 
-    unsigned int r = 0;
-    const unsigned int w = totalColCount;
+    unsigned long r = 0;
+    const unsigned long w = totalColCount;
     int t = 0;
-    for (unsigned int i = 0; i < totalRowCount - 1; i++) {
-        for (unsigned int j = 0; j < totalColCount - 1; j++) {
+    for (unsigned long i = 0; i < totalRowCount - 1; i++) {
+        for (unsigned long j = 0; j < totalColCount - 1; j++) {
             triangles[t++] = Triangle((r + j), (r + j + w), (r + j + 1));
             triangles[t++] = Triangle((r + j + 1), (r + j + w), (r + j + w + 1));
         }
