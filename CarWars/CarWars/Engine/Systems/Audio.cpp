@@ -113,6 +113,19 @@ void Audio::PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velo
     PlayAudio(filename, position, velocity);
 }
 
+void Audio::PauseSounds() {
+	for (auto c : channelArray3D) c->setPaused(false);
+	for (auto c : channelArray) c->setPaused(false);
+	channel->setPaused(false);
+	channel2->setPaused(false);
+}
+void Audio::ResumeSounds() {
+	for (auto c : channelArray3D) c->setPaused(true);
+	for (auto c : channelArray) c->setPaused(true);
+	channel->setPaused(true);
+	channel2->setPaused(true);
+}
+
 void Audio::PlayMusic(const char *filename) {
     result = soundSystem->createStream(filename, FMOD_LOOP_NORMAL | FMOD_2D, 0, &music);
     result = soundSystem->playSound(music, 0, false, &musicChannel);
@@ -123,11 +136,13 @@ void Audio::MenuMusicControl() {
     auto currGameState = StateManager::GetState();
     if (currGameState != prevGameState) {
         if (currGameState == GameState_Playing) {
+			ResumeSounds();
             music->release();
             prevGameState = currGameState;
             PlayMusic(musicPlaylist[currentMusicIndex]);
             musicChannel->setPosition(gameMusicPosition, FMOD_TIMEUNIT_MS);
         } else if (currGameState == GameState_Paused) {
+			PauseSounds();
             musicChannel->getPosition(&gameMusicPosition, FMOD_TIMEUNIT_MS);
             music->release();
             prevGameState = currGameState;
