@@ -240,6 +240,7 @@ void Game::ResetGame() {
         player.alive = false;
         player.killCount = 0;
         player.deathCount = 0;
+		player.activePowerUp = nullptr;
     }
 
     // Reset ais
