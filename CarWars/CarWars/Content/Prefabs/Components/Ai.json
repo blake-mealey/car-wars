@@ -9,6 +9,6 @@
   "TargetingRange": 500,
   "LockonRange": 400,
   "LostTime": 5,
-  "Spray": 1,
+  "Spray": 1.1,
   "StoppingDistance": 200
 }

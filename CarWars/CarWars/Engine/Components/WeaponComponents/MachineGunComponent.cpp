@@ -65,7 +65,7 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 			hitPosition = Transform::FromPx(gunHit.block.position);
 			Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
             if (thingHit) {
-				thingHit->TakeDamage(this, this->damage);
+				thingHit->TakeDamage(this, GetDamage());
             }
 		} else {
 			hitPosition = gunPosition + (shotDirection * rayLength);

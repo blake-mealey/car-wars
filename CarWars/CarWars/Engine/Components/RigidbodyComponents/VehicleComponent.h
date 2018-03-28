@@ -68,6 +68,8 @@ public:
 
 	Time GetTimeSinceBoost();
 
+	void SetResistance(float _resistance);
+
     void OnContact(RigidbodyComponent* body) override;
     void OnTrigger(RigidbodyComponent* body) override;
 

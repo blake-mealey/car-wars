@@ -52,9 +52,9 @@ const string WeaponType::prefabPaths[Count] = { "Weapons/MachineGun.json", "Weap
 const string WeaponType::turretPrefabPaths[Count] = { "Weapons/MachineGunTurret.json", "Weapons/RocketLauncherTurret.json", "Weapons/RailGunTurret.json" };
 const string WeaponType::statDisplayNames[STAT_COUNT] = {"rof", "Damage", "Type"};
 const string WeaponType::statValues[Count][STAT_COUNT] = {
-	{ "100", "1", "bullet" },      // Machine Gun
-	{ "50", "50", "rocket" },      // Rocket Launcher
-	{ "1", "100", "charge" }       // Rail Gun
+	{ "2000", "20", "bullet" },      // Machine Gun
+	{ "75", "500", "rocket" },      // Rocket Launcher
+	{ "33", "1150", "charge" }       // Rail Gun
 };
 
 const unsigned int Game::MAX_VEHICLE_COUNT = 20;
@@ -93,7 +93,7 @@ void Game::SpawnVehicle(PlayerData& player) const {
 		cantSpawn = false;
 		spawn = spawns[rand() % spawns.size()];
 		for (Entity* vehicle : EntityManager::FindEntities("Vehicle")) {
-			if (glm::distance(spawn->transform.GetGlobalPosition(), vehicle->transform.GetGlobalPosition()) < 5.0f) {
+			if (glm::distance(spawn->transform.GetGlobalPosition(), vehicle->transform.GetGlobalPosition()) < 10.0f) {
 				cantSpawn = true;
 			}
 		}
@@ -111,7 +111,19 @@ void Game::SpawnVehicle(PlayerData& player) const {
 
 	// Initialize their vehicle
 	player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
-	player.vehicleEntity->GetComponent<VehicleComponent>()->pxRigid->setGlobalPose(transform);
+	VehicleComponent* vehicleComponent = player.vehicleEntity->GetComponent<VehicleComponent>();
+	vehicleComponent->pxRigid->setGlobalPose(transform);
+	switch (player.vehicleType) {
+	case VehicleType::Heavy:
+		vehicleComponent->SetResistance(0.65f);
+		break;
+	case VehicleType::Medium:
+		vehicleComponent->SetResistance(0.5f);
+		break;
+	case VehicleType::Light:
+		vehicleComponent->SetResistance(0.20f);
+		break;
+	}
 
     if (gameData.gameMode == GameModeType::Team) {
         MeshComponent* mesh = player.vehicleEntity->GetComponent<MeshComponent>();
@@ -165,7 +177,7 @@ void Game::InitializeGame() {
 		// Create the AI
 		// TODO: Choose vehicle and weapon type somehow
 
-		aiPlayers.push_back(AiData(VehicleType::Heavy, WeaponType::MachineGun, gameData.aiDifficulty));
+		aiPlayers.push_back(AiData(VehicleType::Light, WeaponType::MachineGun, gameData.aiDifficulty));
 		AiData& ai = aiPlayers[i];
 		ai.name = "Computer " + to_string(i + 1);
 
