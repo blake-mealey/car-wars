@@ -26,6 +26,9 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		turnTurret(position);
 
 		Entity* vehicle = GetEntity();
+		Audio::Instance().PlayAudio3D("Content/Sounds/machine_gun_shot.mp3", vehicle->transform.GetGlobalPosition()- glm::vec3(0.f, 0.f, -1.5f), glm::vec3(0.f, 0.f, 0.f));
+		//Audio::Instance().PlayAudio2D("Content/Sounds/machine_gun_shot.mp3");
+
 		Entity* mgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
 		const glm::vec3 gunPosition = mgTurret->transform.GetGlobalPosition();
 
@@ -45,10 +48,6 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 
 		//Calculate Next Shooting Time
 		nextShotTime = StateManager::gameTime + timeBetweenShots;
-
-		//Play Shooting Sound
-		Audio& audioManager = Audio::Instance();
-		audioManager.PlayAudio("Content/Sounds/machine_gun_shot.mp3");
 
 		//Variables Needed
 		const glm::vec3 shotDirection = glm::normalize(shotPosition - gunPosition);

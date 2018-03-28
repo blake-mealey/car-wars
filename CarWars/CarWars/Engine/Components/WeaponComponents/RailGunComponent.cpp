@@ -22,11 +22,13 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 	turnTurret(position);
 	if (StateManager::gameTime.GetSeconds() >= nextShotTime.GetSeconds()) {
         playingChargeSound = false;
-        Audio::Instance().StopSound(soundIndex);
-        Audio::Instance().PlayAudio2D("Content/Sounds/railgun-shoot.mp3");
+		Audio::Instance().StopSound(soundIndex);
+		//Audio::Instance().PlayAudio2D("Content/Sounds/railgun-shoot.mp3");
 
 		//Get Vehicle
 		Entity* vehicle = GetEntity();
+		Audio::Instance().PlayAudio3D("Content/Sounds/railgun-shoot.mp3", vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f));
+
 		Entity* rgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
 
 		//Calculate Next Shooting Time

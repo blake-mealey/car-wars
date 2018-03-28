@@ -22,7 +22,8 @@ void Audio::Initialize() {
     soundSystem->set3DSettings(1.0f, 1.0f, 1.0f); 
     soundSystem->set3DNumListeners(Game::gameData.humanCount);
 
-    for (int i = 0; i < 100; i++) { availableSound[i] = true; }
+	for (int i = 0; i < 100; i++) { availableSound[i] = true; }
+	for (int i = 0; i < 100; i++) { availableSound3D[i] = true; }
 
     prevGameState = StateManager::GetState();
     // main screen intro music
@@ -32,7 +33,7 @@ void Audio::Initialize() {
 void Audio::PlayAudio2D(const char *filename) {
     //soundSystem->createStream(filename, FMOD_LOOP_NORMAL | FMOD_2D, 0, &sound);
     //soundSystem->playSound(sound, 0, false, &channel);
-    PlayAudio(filename, 0.55f);
+    PlayAudio(filename, 0.35f);
 }
 
 void Audio::PlayAudio(const char *filename) {
@@ -45,6 +46,28 @@ void Audio::PlayAudio(const char *filename) {
     //}
 
     PlayAudio(filename, 1.f);
+}
+
+int Audio::PlaySound3D(const char *filename, glm::vec3 position, glm::vec3 velocity, float volume) {
+	FMOD_VECTOR pos = { position.x, position.y, position.z };
+	FMOD_VECTOR vel = { velocity.x, velocity.y, velocity.z };
+	int index = 0;
+	for (auto s : availableSound3D) {
+		if (s) break;
+		index++;
+	}
+	availableSound3D[index] = false;
+	soundSystem->createSound(filename, FMOD_3D | FMOD_LOOP_OFF, 0, &soundArray[index]);
+	soundSystem->playSound(soundArray[index], 0, false, &channelArray[index]);
+	channelArray3D[index]->setVolume(volume);
+	channelArray3D[index]->set3DAttributes(&pos, &vel);
+	channelArray3D[index]->setPaused(false);
+	return index;
+}
+
+void Audio::StopSound3D(int index) {
+	availableSound3D[index] = true;
+	soundArray3D[index]->release();
 }
 
 int Audio::PlaySound(const char *filename) {
@@ -64,7 +87,7 @@ int Audio::PlaySound(const char *filename) {
 
 void Audio::StopSound(int index) {
     availableSound[index] = true;
-    soundArray[index]->release();
+	soundArray[index]->release();
 }
 
 void Audio::PlayAudio(const char *filename, float volume) {
@@ -76,14 +99,14 @@ void Audio::PlayAudio(const char *filename, float volume) {
 void Audio::PlayAudio(const char *filename, glm::vec3 position, glm::vec3 velocity) {
     FMOD_VECTOR pos = { position.x, position.y, position.z };
     FMOD_VECTOR vel = { velocity.x, velocity.y, velocity.z };
-    sound1->release();
+    //sound1->release();
     soundSystem->createSound(filename, FMOD_3D, 0, &sound1);
     sound1->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
     sound1->setMode(FMOD_LOOP_OFF);
     soundSystem->playSound(sound1, 0, true, &channel2);
     channel2->set3DAttributes(&pos, &vel);
     channel2->setPaused(false);
-    channel2->setVolume(5.f);
+    channel2->setVolume(1.f);
 }
 
 void Audio::PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity) {

@@ -639,7 +639,9 @@ void VehicleComponent::Boost(glm::vec3 boostDir) {
 		pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(glm::normalize(boostDir) * boostPower * GetChassisMass()), PxForceMode::eIMPULSE, true);
 		lastBoost = StateManager::gameTime;
 
-        Audio::Instance().PlayAudio("Content/Sounds/jump.mp3");
+		//Audio::Instance().PlayAudio("Content/Sounds/jump.mp3");
+		Audio::Instance().PlayAudio3D("Content/Sounds/jump.mp3", GetEntity()->transform.GetGlobalPosition() , glm::vec3(0.f, 0.f, 0.f));
+
 
 		HumanData* player = Game::GetHumanFromEntity(GetEntity());
 		if (player) {
@@ -728,10 +730,13 @@ void VehicleComponent::SetResistance(float _resistance) {
 
 void VehicleComponent::OnContact(RigidbodyComponent* body) {
     VehicleComponent* otherVehicle = body->GetEntity()->GetComponent<VehicleComponent>();
+	Entity* vehicle = body->GetEntity();
     if (otherVehicle) {
-        Audio::Instance().PlayAudio("Content/Sounds/car-on-car2.mp3");
+		Audio::Instance().PlayAudio3D("Content/Sounds/car-on-car2.mp3", vehicle->transform.GetGlobalPosition() + glm::vec3(0.f, 0.f, -2.5f), glm::vec3(0.f, 0.f, 0.f));
+        //Audio::Instance().PlayAudio("Content/Sounds/car-on-car2.mp3");
     } else {
-        Audio::Instance().PlayAudio("Content/Sounds/car-on-car.mp3");
+		Audio::Instance().PlayAudio3D("Content/Sounds/car-on-car.mp3", vehicle->transform.GetGlobalPosition() + glm::vec3(0.f, 0.f, -2.5f), glm::vec3(0.f, 0.f, 0.f));
+		//Audio::Instance().PlayAudio("Content/Sounds/car-on-car.mp3");
     }
 }
 

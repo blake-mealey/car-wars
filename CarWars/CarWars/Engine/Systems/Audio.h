@@ -14,7 +14,7 @@
 
 #define MAX_DISTANCE 5000.0
 #define MIN_DISTANCE 0.15
-#define MAX_CHANNELS 100
+#define MAX_CHANNELS 200
 
 typedef FMOD::Sound* SoundClass;
 
@@ -33,9 +33,9 @@ struct CarSound {
 
 class Audio : public System {
 public:
-    float musicVolume = 0.11f;
-    float aiSoundVolume = 0.25f;
-    float playerSoundVolume = 0.11f;
+    float musicVolume = 0.085f;
+    float aiSoundVolume = 0.35f;
+    float playerSoundVolume = 0.15f;
 
     // Access the singleton instance
     static Audio& Instance();
@@ -53,6 +53,8 @@ public:
 
     int PlaySound(const char* filename);
     void StopSound(int index);
+	int PlaySound3D(const char* filename, glm::vec3 position, glm::vec3 velocity, float volume);
+	void StopSound3D(int index);
 
 private:
     int currentMusicIndex = 0;
@@ -73,6 +75,10 @@ private:
     FMOD::Sound* soundArray[100];
     FMOD::Channel* channelArray[100];
     bool availableSound[100];
+
+	FMOD::Sound* soundArray3D[100];
+	FMOD::Channel* channelArray3D[100];
+	bool availableSound3D[100];
 
     //std::vector<FMOD::Sound*> sounds2D;
     //std::vector<FMOD::Sound*> sounds3D;
