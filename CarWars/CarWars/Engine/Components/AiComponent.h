@@ -26,7 +26,6 @@ public:
 
     void RenderDebugGui() override;
 
-    void SetTargetEntity(Entity* target);
     Entity* GetTargetEntity() const;
     AiMode GetMode() const;
 	void SetMode();
@@ -39,6 +38,7 @@ public:
 	Time GetModeDuration();
 	void StartStuckTime();
 	Time GetStuckDuration();
+	Time GetSearchDuration();
 
 	void Update();
 
@@ -76,10 +76,11 @@ private:
     Entity* vehicleEntity;
 	Entity* powerupEntity;
 
-	Time modeStart;
-	Time lostTarget;
+	Time modeStartTime;
+	Time lostTargetTime;
 	Time lastPathUpdate;
-	Time startedStuck;
+	Time startedStuckTime;
+	Time lastSearchTime;
 
 	bool charged = false;
 	bool stuck = false;

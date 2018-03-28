@@ -44,9 +44,10 @@ AiComponent::AiComponent(nlohmann::json data) : vehicleEntity(nullptr), powerupE
 	mode = AiMode_GetPowerup;
 	UpdateMode(AiMode_Attack);
 
-	startedStuck = Time(-1);
-	lostTarget = Time(-1);
-	modeStart = Time(-UPDATE_TIME);
+	startedStuckTime = Time(-1);
+	lostTargetTime = Time(-1);
+	modeStartTime = Time(-UPDATE_TIME);
+	lastSearchTime = Time(-UPDATE_TIME);
 
     InitializeRenderBuffers();
 }
@@ -76,7 +77,7 @@ AiMode AiComponent::GetMode() const {
 }
 
 void AiComponent::UpdatePath(glm::vec3 _targetPosition) {
-    if (!FinishedPath() && StateManager::gameTime - lastPathUpdate < 0.05) return;
+    if (!FinishedPath() && (StateManager::gameTime - lastPathUpdate).GetSeconds() < UPDATE_TIME) return;
     lastPathUpdate = StateManager::gameTime;
 
 	const glm::vec3 currentPosition = GetEntity()->transform.GetGlobalPosition();
@@ -134,33 +135,33 @@ void AiComponent::UpdateRenderBuffers() {
 }
 
 Time AiComponent::GetModeDuration() {
-	return StateManager::gameTime - modeStart;
+	return StateManager::gameTime - modeStartTime;
 }
 
 void AiComponent::StartStuckTime() {
-	if (startedStuck.GetSeconds() < 0) startedStuck = StateManager::gameTime;
+	if (startedStuckTime.GetSeconds() < 0) startedStuckTime = StateManager::gameTime;
 }
 
 Time AiComponent::GetStuckDuration() {
-	if (startedStuck.GetSeconds() < 0) return -1;
-	return StateManager::gameTime - startedStuck;
+	if (startedStuckTime.GetSeconds() < 0) return -1;
+	return StateManager::gameTime - startedStuckTime;
 }
 
 
 void AiComponent::LostTargetTime() {
-	if (lostTarget.GetSeconds() < 0) lostTarget = StateManager::gameTime;
+	if (lostTargetTime.GetSeconds() < 0) lostTargetTime = StateManager::gameTime;
 }
 
 Time AiComponent::LostTargetDuration() {
-	if (lostTarget.GetSeconds() < 0) return -1;
-	return StateManager::gameTime - lostTarget;
+	if (lostTargetTime.GetSeconds() < 0) return -1;
+	return StateManager::gameTime - lostTargetTime;
 }
 
 
 void AiComponent::UpdateMode(AiMode _mode) {
 	previousMode = mode;
 	mode = _mode;
-	if (mode != previousMode) modeStart = StateManager::gameTime;
+	if (mode != previousMode) modeStartTime = StateManager::gameTime;
 }
 
 
@@ -177,7 +178,7 @@ void AiComponent::SetMode() {
 	}
 
 	else if (speed > 1.f) {
-		startedStuck = Time(-1);
+		startedStuckTime = Time(-1);
 	}
 	// check if stuck
 	if (GetStuckDuration().GetSeconds() > STUCK_TIME) {
@@ -187,7 +188,8 @@ void AiComponent::SetMode() {
 	else {
 		stuck = false;
 	}
-	if (StateManager::gameTime.GetSeconds() > modeStart.GetSeconds() + UPDATE_TIME) {
+
+	if (GetModeDuration().GetSeconds() > UPDATE_TIME) {
 		UpdateMode(AiMode_Attack);
 	}
 
@@ -225,7 +227,7 @@ void AiComponent::Drive() {
 			} else {
 				backwardPower = distanceToTarget / stoppingDistance * maxAcceleration;
 				forwardPower = backwardPower;
-				startedStuck = Time(-1); // dont become stuck
+				startedStuckTime = Time(-1); // dont become stuck
 			}
 		}
 	}
@@ -239,8 +241,8 @@ void AiComponent::Drive() {
 			boostDir = -myTransform.GetUp() * ((float)rand() / RAND_MAX) + myTransform.GetRight() * ((float)rand() / RAND_MAX - .5f);
 		}
 	}
-
 	UpdatePath(driveTo); // Will only update every x seconds
+
 	NavigationMesh* navigationMesh = Game::Instance().GetNavigationMesh();
 	glm::vec3 nodePosition = NodeInPath();
 	glm::vec3 directionToNode = nodePosition - position;
@@ -262,8 +264,6 @@ void AiComponent::Drive() {
 		UpdatePath(driveTo);
 	}
 }
-
-
 
 bool AiComponent::GetLineOfSight(glm::vec3 _position) {
 	AiData* myData = static_cast<AiData*>(Game::GetPlayerFromEntity(GetEntity()));
@@ -292,7 +292,15 @@ bool AiComponent::GetLineOfSight(glm::vec3 _position) {
 	return sight;
 }
 
+Time AiComponent::GetSearchDuration() {
+	if (lastSearchTime.GetSeconds() < 0) return -1;
+	return StateManager::gameTime - lastSearchTime;
+}
+
+
 void AiComponent::FindTargets() {
+	if (GetSearchDuration().GetSeconds() < UPDATE_TIME) return;
+
 	AiData* myData = static_cast<AiData*>(Game::GetPlayerFromEntity(GetEntity()));
 	if (!enabled || !myData->alive) return;
 
@@ -371,6 +379,8 @@ void AiComponent::FindTargets() {
 		UpdateMode(AiMode_Attack);
 		powerupEntity = nullptr;
 	}
+
+	lastSearchTime = StateManager::gameTime;
 }
 
 
@@ -388,7 +398,7 @@ void AiComponent::Act() {
 		lineOfSight = GetLineOfSight(vehicleTargetPosition);
 		WeaponComponent* weapon = GetEntity()->GetComponent<WeaponComponent>();
 
-		if (lineOfSight && distanceToTarget < (TARGETING_RANGE * myData->difficulty)) lostTarget = Time(-1);
+		if (lineOfSight && distanceToTarget < (TARGETING_RANGE * myData->difficulty)) lostTargetTime = Time(-1);
 		if (!lineOfSight) LostTargetTime();
 
 		if (weapon) {
@@ -422,8 +432,8 @@ void AiComponent::Act() {
 void AiComponent::Update() {
 	AiData* myData = static_cast<AiData*>(Game::GetPlayerFromEntity(GetEntity()));
 	if (!(enabled &&  myData && myData->alive)) return;
-
-	FindTargets();
+	
+	FindTargets(); //finds targets every update time
 	Act();
 	Drive();
 
