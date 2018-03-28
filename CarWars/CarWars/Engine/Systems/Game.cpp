@@ -30,8 +30,8 @@ using namespace std;
 
 const string GameModeType::displayNames[Count] = { "Team", "Free for All" };
 
-const string MapType::displayNames[Count] = { "Arena", "Tiers", "Battle Arena", "Battle Dome", "Mansion" };
-const string MapType::mapDirPaths[Count] = { "Arena/", "Tiers/", "BattleArena/", "BattleDome/", "Mansion/" };
+const string MapType::displayNames[Count] = { "Arena", "Tiers", "Battle Arena", "Battle Dome", "Mansion", "Circle Arena" };
+const string MapType::mapDirPaths[Count] = { "Arena/", "Tiers/", "BattleArena/", "BattleDome/", "Mansion/", "CircleArena/" };
 
 const string VehicleType::displayNames[Count] = { "Heavy", "Medium", "Light" };
 const string VehicleType::prefabPaths[Count] = { "Vehicles/Sewage.json", "Vehicles/Hearse.json", "Vehicles/Flatbed.json" };
@@ -99,7 +99,7 @@ void Game::SpawnVehicle(PlayerData& player) const {
 		}
 	} while (cantSpawn);
 
-	// pick a random point on a sphere for spray
+	// pick a random point on a sphere for spawn
 	//float randomHorizontalAngle = (float)rand() / (float)RAND_MAX * M_PI * 2.f;
 	//glm::vec3 randomOffset = glm::vec3(cos(randomHorizontalAngle),
 	//	0.f,

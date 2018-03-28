@@ -16,7 +16,7 @@ struct GameModeType {
 };
 
 struct MapType {
-    enum { Arena = 0, Tiers, BattleArena, BattleDome, Mansion, Count };
+    enum { Arena = 0, Tiers, BattleArena, BattleDome, Mansion, CircleArena, Count };
     static const std::string displayNames[Count];
     static const std::string mapDirPaths[Count];
 };
