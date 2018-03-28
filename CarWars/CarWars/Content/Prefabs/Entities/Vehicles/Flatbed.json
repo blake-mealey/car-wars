@@ -20,7 +20,7 @@
         "UvScale": [ 0.5, 0.5 ],
 		"Scale": [0.275, 0.275, 0.275]
       },
-      "Mass": 1000,
+      "Mass": 500,
       "ChassisSize": [ 1.595, 0.9625, 4.07 ],
       "WheelMass": 20,
       "WheelRadius": 0.33,

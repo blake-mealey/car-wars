@@ -472,7 +472,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
     }
 
     if (attacker && attacker->teamIndex == me->teamIndex) return;
-    health -= _damage * (1.f-resistance*defenceMultiplier);
+    health -= _damage * (1.f - (resistance * defenceMultiplier));
 
     HumanData* attackerPlayer = Game::GetHumanFromEntity(damager->GetEntity());
     if (attackerPlayer) {
@@ -720,6 +720,10 @@ void VehicleComponent::Handbrake( float amount) {
 
 Time VehicleComponent::GetTimeSinceBoost() {
 	return StateManager::gameTime - lastBoost;
+}
+
+void VehicleComponent::SetResistance(float _resistance) {
+	resistance = _resistance;
 }
 
 void VehicleComponent::OnContact(RigidbodyComponent* body) {
