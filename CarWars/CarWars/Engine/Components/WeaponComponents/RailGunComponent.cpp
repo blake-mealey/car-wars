@@ -57,7 +57,7 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 		} else {
 			hitPosition = gunPosition + (gunDirection * rayLength);
 		}
-		HumanData* player = Game::Instance().GetHumanFromEntity(GetEntity());
+		PlayerData* player = Game::Instance().GetPlayerFromEntity(GetEntity());
 
 		Entity* bullet = ContentManager::LoadEntity("Bullet.json");
 		LineComponent* line = bullet->GetComponent<LineComponent>();
@@ -74,8 +74,9 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 		});
 		tween->Start();
 
-		if (player) {
-			GuiComponent* gui = GuiHelper::GetFirstGui(EntityManager::FindFirstChild(player->camera->GetGuiRoot(), "ChargeIndicator"));
+		HumanData* human = Game::Instance().GetHumanFromEntity(GetEntity());
+		if (human) {
+			GuiComponent* gui = GuiHelper::GetFirstGui(EntityManager::FindFirstChild(human->camera->GetGuiRoot(), "ChargeIndicator"));
 			Transform& mask = gui->GetMask();
 
 			auto tweenOut = Effects::Instance().CreateTween<glm::vec3, easing::Sine::easeIn>(
