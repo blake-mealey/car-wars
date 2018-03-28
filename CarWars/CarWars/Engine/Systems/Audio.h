@@ -34,6 +34,8 @@ struct CarSound {
 class Audio : public System {
 public:
     float musicVolume = 0.11f;
+    float aiSoundVolume = 0.25f;
+    float playerSoundVolume = 0.11f;
 
     // Access the singleton instance
     static Audio& Instance();
@@ -53,7 +55,9 @@ public:
     void StopSound(int index);
 
 private:
-    const char *musicPlaylist[6] = {
+    int currentMusicIndex = 0;
+    const char *musicPlaylist[7] = {
+        "Content/Music/unity.mp3",
         "Content/Music/hello.mp3",
         "Content/Music/highscore.mp3",
         "Content/Music/invincible.mp3",
