@@ -834,7 +834,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 					}
 				}
 			}
-			if (closestAimVehicle && acos(lowestDot) < (6.0f / glm::length(closestAimVehicle->transform.GetGlobalPosition() - vehicle->GetEntity()->transform.GetGlobalPosition()))) {
+			if (!(player.weaponType == WeaponType::RocketLauncher) && closestAimVehicle && acos(lowestDot) < (6.0f / glm::length(closestAimVehicle->transform.GetGlobalPosition() - vehicle->GetEntity()->transform.GetGlobalPosition()))) {
 				cameraHit = closestAimVehicle->transform.GetGlobalPosition();
 			} else {
 				PxQueryFilterData filterData;
