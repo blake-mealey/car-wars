@@ -1,6 +1,6 @@
 {
 	"MaxHeight": 30,
-	"MaxWidth": 255,
-	"MaxLength": 255,
+	"MaxWidth": 301,
+	"MaxLength": 301,
     "Scene": "Maps/EmptyArena.json"
 }
