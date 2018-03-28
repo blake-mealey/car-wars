@@ -95,6 +95,8 @@ private:
     unsigned int version;
     int numsubsounds;
 
+	void PauseSounds();
+	void ResumeSounds();
     void MenuMusicControl();
     void UpdateListeners();
     void UpdateRunningCars();
@@ -108,3 +110,10 @@ private:
     Audio(const Audio&) = delete;
     Audio& operator= (const Audio&) = delete;
 };
+
+
+/*
+todo:
+reduce volume on multiple hits
+
+*/
