@@ -32,7 +32,7 @@ void Audio::Initialize() {
 void Audio::PlayAudio2D(const char *filename) {
     //soundSystem->createStream(filename, FMOD_LOOP_NORMAL | FMOD_2D, 0, &sound);
     //soundSystem->playSound(sound, 0, false, &channel);
-    PlayAudio(filename, 1.f);
+    PlayAudio(filename, 0   .55f);
 }
 
 void Audio::PlayAudio(const char *filename) {
@@ -54,11 +54,11 @@ int Audio::PlaySound(const char *filename) {
         index++;
     }
     availableSound[index] = false;
-    soundSystem->createSound(filename, FMOD_3D | FMOD_LOOP_OFF, 0, &soundArray[index]);
+    soundSystem->createSound(filename, FMOD_2D | FMOD_LOOP_OFF, 0, &soundArray[index]); // to ignore positioning for now
+    //soundSystem->createSound(filename, FMOD_3D | FMOD_LOOP_OFF, 0, &soundArray[index]);
     soundSystem->playSound(soundArray[index], 0, false, &channelArray[index]);
-    channelArray[index]->setVolume(1.f);
+    channelArray[index]->setVolume(0.55f);
     channelArray[index]->setPaused(false);
-
     return index;
 }
 
@@ -102,7 +102,7 @@ void Audio::MenuMusicControl() {
         if (currGameState == GameState_Playing) {
             music->release();
             prevGameState = currGameState;
-            PlayMusic("Content/Music/unity.mp3");
+            PlayMusic(musicPlaylist[currentMusicIndex]);
             musicChannel->setPosition(gameMusicPosition, FMOD_TIMEUNIT_MS);
         } else if (currGameState == GameState_Paused) {
             musicChannel->getPosition(&gameMusicPosition, FMOD_TIMEUNIT_MS);
@@ -155,7 +155,7 @@ void Audio::StartCars() {
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
         carSounds[i].channel->set3DAttributes(&pos, &vel);
         carSounds[i].channel->setPaused(false);
-        carSounds[i].channel->setVolume(0.25f);
+        carSounds[i].channel->setVolume(playerSoundVolume);
     }
     size_t offset = Game::gameData.humanCount;
     //ai
@@ -168,7 +168,7 @@ void Audio::StartCars() {
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
         carSounds[i + offset].channel->set3DAttributes(&pos, &vel);
         carSounds[i + offset].channel->setPaused(false);
-        carSounds[i + offset].channel->setVolume(0.5f);
+        carSounds[i + offset].channel->setVolume(aiSoundVolume);
     }
     carsStarted = true;
 }
@@ -220,7 +220,7 @@ void Audio::UpdateCars() {
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
         carSounds[i].channel->set3DAttributes(&pos, &vel);
         //carSounds[i].channel->setPaused(true);
-        carSounds[i].channel->setVolume(1.0f);
+        carSounds[i].channel->setVolume(playerSoundVolume);
     }
     size_t offset = Game::gameData.humanCount;
     //ai
@@ -235,7 +235,7 @@ void Audio::UpdateCars() {
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
         carSounds[i + offset].channel->set3DAttributes(&pos, &vel);
         //carSounds[i + offset].channel->setPaused(false);
-        carSounds[i + offset].channel->setVolume(3.0f);
+        carSounds[i + offset].channel->setVolume(aiSoundVolume);
     }
 }
 
