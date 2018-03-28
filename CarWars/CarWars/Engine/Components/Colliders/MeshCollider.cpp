@@ -39,7 +39,7 @@ void MeshCollider::InitializeGeometry(Mesh *renderMesh) {
 	mesh = renderMesh;
 
 	PxTriangleMeshDesc meshDesc;
-	meshDesc.flags |= PxMeshFlag::e16_BIT_INDICES;
+	//meshDesc.flags |= PxMeshFlag::e16_BIT_INDICES;
 
 	glm::vec3 *vertices = new glm::vec3[mesh->vertexCount];
 	glBindBuffer(GL_ARRAY_BUFFER, mesh->vbos[VBOs::Vertices]);

@@ -257,7 +257,7 @@ void Graphics::Update() {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eabs[EABs::Triangles]);
 
 			// Render the model
-            glDrawElements(GL_TRIANGLES, mesh->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
+            glDrawElements(GL_TRIANGLES, mesh->triangleCount * 3, GL_UNSIGNED_INT, nullptr);
 		}
 	}
 
@@ -320,7 +320,7 @@ void Graphics::Update() {
                 geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
 
                 // Render the model
-                glDrawElements(GL_TRIANGLES, model->GetMesh()->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
+                glDrawElements(GL_TRIANGLES, model->GetMesh()->triangleCount * 3, GL_UNSIGNED_INT, nullptr);
             }
         }
 
@@ -401,7 +401,7 @@ void Graphics::Update() {
                         geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
 
                         // Render the model
-                        glDrawElements(GL_TRIANGLES, renderMesh->triangleCount * 3, GL_UNSIGNED_SHORT, static_cast<void*>(nullptr));
+                        glDrawElements(GL_TRIANGLES, renderMesh->triangleCount * 3, GL_UNSIGNED_INT, static_cast<void*>(nullptr));
                     }
                 }
             }
@@ -441,7 +441,7 @@ void Graphics::Update() {
                     geometryProgram->LoadUniform(UniformName::ModelViewProjectionMatrix, modelViewProjectionMatrix);
 
                     // Render the model
-                    glDrawElements(GL_TRIANGLES, cubeMesh->triangleCount * 3, GL_UNSIGNED_SHORT, static_cast<void*>(nullptr));
+                    glDrawElements(GL_TRIANGLES, cubeMesh->triangleCount * 3, GL_UNSIGNED_INT, static_cast<void*>(nullptr));
                 }
             }
         }
@@ -564,7 +564,7 @@ void Graphics::Update() {
         skyboxProgram->LoadUniform(UniformName::ViewProjectionMatrix, viewProjectionMatrix);
 
         // Render the skybox
-        glDrawElements(GL_TRIANGLES, skyboxCube->triangleCount * 3, GL_UNSIGNED_SHORT, nullptr);
+        glDrawElements(GL_TRIANGLES, skyboxCube->triangleCount * 3, GL_UNSIGNED_INT, nullptr);
     }
     glEnable(GL_CULL_FACE);
 

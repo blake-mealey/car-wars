@@ -9,10 +9,10 @@ class Transform;
 
 struct Triangle {
     Triangle();
-    Triangle(unsigned short _v0, unsigned short _v1, unsigned short _v2);
-    unsigned short vertexIndex0;
-    unsigned short vertexIndex1;
-    unsigned short vertexIndex2;
+    Triangle(unsigned int _v0, unsigned int _v1, unsigned int _v2);
+    unsigned int vertexIndex0;
+    unsigned int vertexIndex1;
+    unsigned int vertexIndex2;
 };
 
 class Mesh {
