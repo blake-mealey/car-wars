@@ -32,7 +32,7 @@ void Audio::Initialize() {
 void Audio::PlayAudio2D(const char *filename) {
     //soundSystem->createStream(filename, FMOD_LOOP_NORMAL | FMOD_2D, 0, &sound);
     //soundSystem->playSound(sound, 0, false, &channel);
-    PlayAudio(filename, 0   .55f);
+    PlayAudio(filename, 0.55f);
 }
 
 void Audio::PlayAudio(const char *filename) {
