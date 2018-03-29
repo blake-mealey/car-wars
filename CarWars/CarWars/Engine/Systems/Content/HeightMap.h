@@ -16,6 +16,8 @@ public:
 	float GetHeight(glm::vec3 coords) const;
     float GetWidth() const;
     float GetLength() const;
+	float GetMaxHeight() const;
+	float GetWallHeight() const;
     float GetXSpacing() const;
     float GetZSpacing() const;
     Mesh* GetMesh();
@@ -31,6 +33,9 @@ private:
     float maxHeight;
     float maxWidth;
     float maxLength;
+	unsigned int wallVertices;
+	float wallHeight;
+	float wallInclineRate;
 
     float xSpacing;
     float zSpacing;

@@ -5,15 +5,16 @@
 
 using namespace glm;
 
-#define wallVertexT 30
-#define wallHeight 30.0f
-#define inclineExp 1.1f
-
 HeightMap::HeightMap(std::string dirPath) {
     nlohmann::json data = ContentManager::LoadJson(ContentManager::MAP_DIR_PATH + dirPath + "Data.json");
     maxHeight = ContentManager::GetFromJson<float>(data["MaxHeight"], 25.f);
     maxWidth = ContentManager::GetFromJson<float>(data["MaxWidth"], 20.f);
     maxLength = ContentManager::GetFromJson<float>(data["MaxLength"], 20.f);
+	wallVertices = ContentManager::GetFromJson<unsigned int>(data["WallVertices"], 0);
+	wallHeight = ContentManager::GetFromJson<float>(data["WallHeight"], 0.0f);
+	wallInclineRate = ContentManager::GetFromJson<float>(data["WallIncline"], 1.0f);
+
+
     const std::string filePath = ContentManager::MAP_DIR_PATH + dirPath + "Map.png";
 
     Initialize(filePath);
@@ -28,13 +29,11 @@ void HeightMap::Initialize(std::string filePath) {
 	if (rowCount < 2 || colCount < 2) {
 		std::cerr << "Cannot create a 3D map from your 1D Drawing. Draw a Proper Map, Not A Trail. I'm Not That Kind of Terrain Generator.";
 	}
-	unsigned int wallVertexThick = wallVertexT - 1;
+	unsigned int  totalRowCount = rowCount + wallVertices * 2;
+	unsigned int totalColCount = colCount + wallVertices * 2;
 
-	unsigned int  totalRowCount = rowCount + wallVertexThick * 2;
-	unsigned int totalColCount = colCount + wallVertexThick * 2;
-
-	zSpacing = maxLength / static_cast<float>(totalRowCount);
-	xSpacing = maxWidth / static_cast<float>(totalColCount);
+	zSpacing = maxLength / static_cast<float>(rowCount);
+	xSpacing = maxWidth / static_cast<float>(colCount);
 
 	int v = 0;
 	heights = new float*[totalRowCount];
@@ -63,16 +62,16 @@ void HeightMap::Initialize(std::string filePath) {
 
 	float inclineRate = 0.0f;
 
-	if (wallVertexThick != 0)
-		inclineRate = wallHeight / (1 + (pow(inclineExp, wallVertexThick) - inclineExp)*(1 / (inclineExp - 1)));
+	if (wallVertices != 0)
+		inclineRate = wallHeight / (1 + (pow(wallInclineRate, wallVertices) - wallInclineRate)*(1 / (wallInclineRate - 1)));
 	float currIncline;
 
-	z = zSpacing * wallVertexThick;
-	v = wallVertexThick*(totalColCount)+wallVertexThick;
-	for (unsigned long i = wallVertexThick; i < rowCount + wallVertexThick; i++) {
-		float x = xSpacing*wallVertexThick;
+	z = zSpacing * wallVertices;
+	v = wallVertices*(totalColCount)+wallVertices;
+	for (unsigned long i = wallVertices; i < rowCount + wallVertices; i++) {
+		float x = xSpacing*wallVertices;
 
-		for (unsigned long j = wallVertexThick; j < colCount + wallVertexThick; j++) {
+		for (unsigned long j = wallVertices; j < colCount + wallVertices; j++) {
 			const float y = (1.f - (pixels[0] + pixels[1] + pixels[2]) / 3.f) * maxHeight;
 			heights[i][j] = y;
 
@@ -83,57 +82,57 @@ void HeightMap::Initialize(std::string filePath) {
 			pixels += image->Channels();
 			x += xSpacing;
 		}
-		v += wallVertexThick * 2;
+		v += wallVertices * 2;
 
 		z += zSpacing;
 	}
 
 	//Add walls to the left side based on the heights closest to the wall
-	v = wallVertexThick*(totalColCount)+wallVertexThick;
-	z = zSpacing*wallVertexThick;
-	for (unsigned long i = wallVertexThick; i < rowCount + wallVertexThick; i++) {
+	v = wallVertices*(totalColCount)+wallVertices;
+	z = zSpacing*wallVertices;
+	for (unsigned long i = wallVertices; i < rowCount + wallVertices; i++) {
 		currIncline = inclineRate;
-		float x = xSpacing*(wallVertexThick - 1);
-		//const float yoffset = heights[i][wallVertexThick];
-		for (int j = wallVertexThick - 1; j >= 0; j--) {
+		float x = xSpacing*(wallVertices - 1);
+		//const float yoffset = heights[i][wallVertices];
+		for (int j = wallVertices - 1; j >= 0; j--) {
 			const float y = heights[i][j + 1] + currIncline;
 			heights[i][j] = y;
 
 			vertices[v] = vec3(x, y, z) + offset;
 			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
 			v--;
-			currIncline *= inclineExp;
+			currIncline *= wallInclineRate;
 			x -= xSpacing;
 		}
 		z += zSpacing;
-		v += colCount + wallVertexThick * 3;
+		v += colCount + wallVertices * 3;
 	}
 
 	//Add walls to the right side based on the heights closest to the wall
-	v = wallVertexThick*(totalColCount)+wallVertexThick + colCount;
-	z = zSpacing*wallVertexThick;
-	for (unsigned long i = wallVertexThick; i < rowCount + wallVertexThick; i++) {
+	v = wallVertices*(totalColCount)+wallVertices + colCount;
+	z = zSpacing*wallVertices;
+	for (unsigned long i = wallVertices; i < rowCount + wallVertices; i++) {
 		currIncline = inclineRate;
-		float x = xSpacing*(wallVertexThick + colCount);
-		for (unsigned long j = colCount + wallVertexThick; j < totalColCount; j++) {
+		float x = xSpacing*(wallVertices + colCount);
+		for (unsigned long j = colCount + wallVertices; j < totalColCount; j++) {
 			const float y = heights[i][j - 1] + currIncline;
 			heights[i][j] = y;
 
 			vertices[v] = vec3(x, y, z) + offset;
 			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
 			v++;
-			currIncline *= inclineExp;
+			currIncline *= wallInclineRate;
 			x += xSpacing;
 		}
 		z += zSpacing;
-		v += wallVertexThick + colCount;
+		v += wallVertices + colCount;
 	}
 
 	//Add walls to the Top based on the heights closest to the wall
 	currIncline = inclineRate;
-	z = zSpacing*(wallVertexThick - 1);
-	v = (wallVertexThick - 1)*(totalColCount);
-	for (int i = wallVertexThick - 1; i >= 0; i--) {
+	z = zSpacing*(wallVertices - 1);
+	v = (wallVertices - 1)*(totalColCount);
+	for (int i = wallVertices - 1; i >= 0; i--) {
 		float x = 0.0f;
 		for (unsigned long j = 0; j < totalColCount; j++) {
 			const float y = heights[i + 1][j] + currIncline;
@@ -146,16 +145,16 @@ void HeightMap::Initialize(std::string filePath) {
 
 			x += xSpacing;
 		}
-		currIncline *= inclineExp;
+		currIncline *= wallInclineRate;
 		v -= totalColCount * 2;
 		z -= zSpacing;
 	}
 
 	//Add walls to the Bottom based on the heights closest to the wall
 	currIncline = inclineRate;
-	z = zSpacing * (wallVertexThick + rowCount);
-	v = (wallVertexThick + rowCount)*(totalColCount);
-	for (unsigned long i = wallVertexThick + rowCount; i < totalRowCount; i++) {
+	z = zSpacing * (wallVertices + rowCount);
+	v = (wallVertices + rowCount)*(totalColCount);
+	for (unsigned long i = wallVertices + rowCount; i < totalRowCount; i++) {
 		float x = 0.f;
 		for (unsigned long j = 0; j < totalColCount; j++) {
 			const float y = heights[i - 1][j] + currIncline;
@@ -167,7 +166,7 @@ void HeightMap::Initialize(std::string filePath) {
 
 			x += xSpacing;
 		}
-		currIncline *= inclineExp;
+		currIncline *= wallInclineRate;
 		z += zSpacing;
 	}
 
@@ -193,8 +192,8 @@ void HeightMap::Initialize(std::string filePath) {
 	mesh = new Mesh(triangleCount, vertexCount, triangles, vertices, uvs);
 
 	delete image;
-	rowCount = totalRowCount;
-	colCount = totalColCount;
+	//rowCount = totalRowCount;
+	//colCount = totalColCount;
 }
 
 
@@ -213,6 +212,14 @@ float HeightMap::GetWidth() const {
 
 float HeightMap::GetLength() const {
     return maxLength;
+}
+
+float HeightMap::GetMaxHeight() const {
+	return maxHeight;
+}
+
+float HeightMap::GetWallHeight() const {
+	return wallHeight;
 }
 
 float HeightMap::GetXSpacing() const {
