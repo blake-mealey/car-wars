@@ -202,6 +202,8 @@ void Physics::Update() {
 			glm::vec3 force = vehicle->GetEntity()->transform.GetUp() * -5.f * abs(vehicle->pxVehicle->computeForwardSpeed());
 			vehicle->actor->addForce(Transform::ToPx(force), PxForceMode::eIMPULSE);
 		}
+		const PxTransform vehicleCOM = vehicle->actor->getCMassLocalPose();
+		vehicle->actor->setCMassLocalPose(PxTransform(vehicleCOM.p.x, glm::clamp((vehicle->GetEntity()->transform.GetGlobalPosition().y - Game::Instance().GetHeightMap()->GetMaxHeight()) / Game::Instance().GetHeightMap()->GetWallHeight(), 0.f, vehicle->GetChassisCenterOfMassOffset().y), vehicleCOM.p.z));
     }
 
     //Scene update.

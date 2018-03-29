@@ -1,0 +1,9 @@
+{
+	"MaxHeight": 10,
+	"MaxWidth": 255,
+	"MaxLength": 255,
+    "Scene": "Maps/EmptyArena.json",
+	"WallVertices": 30,
+	"WallHeight": 30.0,
+	"WallIncline": 1.1
+}

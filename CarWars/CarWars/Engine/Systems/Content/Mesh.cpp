@@ -4,7 +4,7 @@
 #include "../../Entities/Transform.h"
 
 Triangle::Triangle() : vertexIndex0(0), vertexIndex1(0), vertexIndex2(0) {}
-Triangle::Triangle(unsigned short _v0, unsigned short _v1, unsigned short _v2) : vertexIndex0(_v0), vertexIndex1(_v1), vertexIndex2(_v2) { }
+Triangle::Triangle(unsigned int _v0, unsigned int _v1, unsigned int _v2) : vertexIndex0(_v0), vertexIndex1(_v1), vertexIndex2(_v2) { }
 
 Mesh::Mesh(size_t _triangleCount, size_t _vertexCount, Triangle* _triangles, glm::vec3* _vertices, glm::vec2* _uvs,
     glm::vec3* _normals) : triangleCount(_triangleCount), vertexCount(_vertexCount) {

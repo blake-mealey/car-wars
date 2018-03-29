@@ -39,7 +39,7 @@ Mesh* ConvexMeshCollider::GetRenderMesh() {
 
 void ConvexMeshCollider::InitializeGeometry(Mesh *mesh) {
     PxConvexMeshDesc convexDesc;
-    convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX | PxConvexFlag::e16_BIT_INDICES;
+	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX; //| PxConvexFlag::e16_BIT_INDICES;
 
 	glm::vec3 *vertices = new glm::vec3[mesh->vertexCount];
 	glBindBuffer(GL_ARRAY_BUFFER, mesh->vbos[VBOs::Vertices]);

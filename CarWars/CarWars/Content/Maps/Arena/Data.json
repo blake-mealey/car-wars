@@ -2,5 +2,8 @@
 	"MaxHeight": 15,
 	"MaxWidth": 300,
 	"MaxLength": 300,
-    "Scene": "Maps/Arena.json"
+    "Scene": "Maps/Arena.json",
+	"WallVertices": 30,
+	"WallHeight": 30.0,
+	"WallIncline": 1.1
 }
