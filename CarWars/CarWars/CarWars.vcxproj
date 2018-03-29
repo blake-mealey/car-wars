@@ -170,7 +170,7 @@
     <ClCompile Include="Engine\Components\GuiComponents\GuiComponent.cpp" />
     <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
     <ClCompile Include="Engine\Components\LineComponent.cpp" />
-    <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
+    <ClCompile Include="Engine\Components\ParticleSystemComponent.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.cpp" />
     <ClCompile Include="Engine\Components\WeaponComponents\SuicideWeaponComponent.cpp" />
     <ClCompile Include="Engine\Systems\Content\HeightMap.cpp" />
@@ -253,7 +253,7 @@
     <ClInclude Include="Engine\Components\GuiComponents\GuiComponent.h" />
     <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
     <ClInclude Include="Engine\Components\LineComponent.h" />
-    <ClInclude Include="Engine\Components\ParticleComponent.h" />
+    <ClInclude Include="Engine\Components\ParticleSystemComponent.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.h" />
     <ClInclude Include="Engine\Components\Tweens\TTween.h" />
     <ClInclude Include="Engine\Components\Tweens\Tween.h" />
@@ -386,7 +386,6 @@
     <None Include="Content\Scenes\GUIs\GameEnd_GUI.json" />
     <None Include="Content\Scenes\Maps\Arena.json" />
     <None Include="Content\Scenes\Maps\CircleMap.json" />
-    <None Include="Content\Scenes\GameDemo.json" />
     <None Include="Content\Scenes\GUIs\HUD.json" />
     <None Include="Content\Scenes\GUIs\MainMenu_GUI.json" />
     <None Include="Content\Scenes\GUIs\CharacterSelectMenu_GUI.json" />
@@ -396,7 +395,6 @@
     <None Include="Content\Scenes\Maps\EmptyArena.json" />
     <None Include="Content\Scenes\Maps\HeightMap.json" />
     <None Include="Content\Scenes\Menu.json" />
-    <None Include="Content\Scenes\PhysicsDemo.json" />
     <None Include="Content\Shaders\blur.frag" />
     <None Include="Content\Shaders\geometry.frag" />
     <None Include="Content\Shaders\geometry.vert" />

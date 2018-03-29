@@ -36,6 +36,7 @@ const struct UniformName {
     static const char* SunSizeRadians;
     static const char* SunDirection;
     static const char* Time;
+    static const char* DeltaTime;
     
     static const char* ScreenTexture;
     static const char* ImageTexture;
@@ -47,6 +48,9 @@ const struct UniformName {
     static const char* SpriteSize;
     static const char* SpriteOffset;
     static const char* TextureSize;
+    
+    static const char* RandomTexture;
+    static const char* CameraPosition;
 };
 
 class ShaderProgram {

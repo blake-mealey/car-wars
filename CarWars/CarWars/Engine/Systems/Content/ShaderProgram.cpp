@@ -31,6 +31,7 @@ const char* UniformName::SunTexture = "sun";
 const char* UniformName::SunSizeRadians = "sunSizeRadians";
 const char* UniformName::SunDirection = "sunDirection";
 const char* UniformName::Time = "time";
+const char* UniformName::DeltaTime = "deltaTime";
 
 const char* UniformName::ScreenTexture = "screen";
 const char* UniformName::ImageTexture = "image";
@@ -42,6 +43,9 @@ const char* UniformName::IsSprite = "isSprite";
 const char* UniformName::SpriteSize = "spriteSize";
 const char* UniformName::SpriteOffset = "spriteOffset";
 const char* UniformName::TextureSize = "textureSize";
+
+const char* UniformName::RandomTexture = "randomTexture";
+const char* UniformName::CameraPosition = "cameraPosition";
 
 ShaderProgram::ShaderProgram() {}
 ShaderProgram::ShaderProgram(GLuint id) : programId(id) {}
