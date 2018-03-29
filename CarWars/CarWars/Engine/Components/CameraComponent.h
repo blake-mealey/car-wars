@@ -86,13 +86,4 @@ private:
 	float cameraLift = -3.14 / 4;
     float distanceFromCenter;
 	float cameraSpeed = 5.f;
-
-	float accelerationTime = 1.f;
-	float accelerationMultiplier = 2.f;
-	float accelerationResetTime = 0.01f;
-
-	Time GetMovementTime();
-
-	Time movementStartTime;
-	Time lastMovementTime;
 };

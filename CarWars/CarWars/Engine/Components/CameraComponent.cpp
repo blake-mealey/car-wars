@@ -43,18 +43,11 @@ CameraComponent::CameraComponent(nlohmann::json data) : guiRoot(nullptr) {
     targetInLocalSpace = ContentManager::GetFromJson<bool>(data["TargetInLocalSpace"], false);
 	follow = false;
 	UpdateViewMatrix();
-
-	movementStartTime = Time(-1);
-	lastMovementTime = Time(-1);
-
 }
 
 CameraComponent::CameraComponent(glm::vec3 _position, glm::vec3 _target, glm::vec3 _upVector) : targetInLocalSpace(false),
 	position(_position), target(_target), upVector(_upVector), fieldOfView(DEFAULT_FIELD_OF_VIEW), distanceFromCenter(DEFAULT_DISTANCE), guiRoot(nullptr), follow(false) {
 	
-	movementStartTime = Time(-1);
-	lastMovementTime = Time(-1);
-
 	UpdateViewMatrix();
 }
 
@@ -157,18 +150,7 @@ void CameraComponent::RenderDebugGui() {
     if (ImGui::DragFloat3("Target", glm::value_ptr(target), 0.1f)) UpdateViewMatrix();
 }
 
-
-Time CameraComponent::GetMovementTime() {
-	return StateManager::gameTime - movementStartTime;
-}
-
 void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, float _cameraVer) {
-	if (abs(_cameraHor) > 0.01f || abs(_cameraVer > 0.01f)) {
-		(StateManager::gameTime.GetSeconds() - lastMovementTime.GetSeconds()) > accelerationResetTime ? movementStartTime = StateManager::gameTime : 0;
-		lastMovementTime = StateManager::gameTime;
-		std::cout << GetMovementTime().GetSeconds() << std::endl;
-	}
-
 	if (follow) {
 		glm::vec3 vehicleDirection = _vehicle->transform.GetForward();
 		vehicleDirection.y = 0;
@@ -180,8 +162,8 @@ void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, f
 	if (_cameraHor > M_PI) _cameraHor -= M_PI * 2;
 	if (_cameraHor < -M_PI) _cameraHor += M_PI * 2;
 
-	float cameraNewHor = GetCameraHorizontalAngle() + _cameraHor * GetCameraSpeed() * glm::clamp(GetMovementTime().GetSeconds() / accelerationTime, 0.f, accelerationMultiplier) * StateManager::deltaTime.GetSeconds();
-	float cameraNewVer = GetCameraVerticalAngle() + _cameraVer * GetCameraSpeed() * glm::clamp(GetMovementTime().GetSeconds(), 0.f , 2.f) * StateManager::deltaTime.GetSeconds();
+	float cameraNewHor = GetCameraHorizontalAngle() + _cameraHor * GetCameraSpeed() * StateManager::deltaTime.GetSeconds();
+	float cameraNewVer = GetCameraVerticalAngle() + _cameraVer * GetCameraSpeed() * StateManager::deltaTime.GetSeconds();
 
 	cameraNewVer = glm::clamp(cameraNewVer, 0.1f, (float)M_PI - 0.1f);
 
@@ -194,7 +176,6 @@ void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, f
 }
 
 void CameraComponent::UpdatePositionFromAngles() {
-
 	SetPosition(distanceFromCenter * glm::vec3(
         cos(GetCameraHorizontalAngle()) * sin(-GetCameraVerticalAngle()),
         cos(-GetCameraVerticalAngle()),
