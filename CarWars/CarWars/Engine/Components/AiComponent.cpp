@@ -293,13 +293,12 @@ bool AiComponent::GetLineOfSight(glm::vec3 _position) {
 }
 
 Time AiComponent::GetSearchDuration() {
-	if (lastSearchTime.GetSeconds() < 0) return -1;
 	return StateManager::gameTime - lastSearchTime;
 }
 
 
 void AiComponent::FindTargets() {
-	if (GetSearchDuration().GetSeconds() < UPDATE_TIME) return;
+	if (GetSearchDuration().GetSeconds() < UPDATE_TIME * 3 && mode == previousMode) return;
 
 	AiData* myData = static_cast<AiData*>(Game::GetPlayerFromEntity(GetEntity()));
 	if (!enabled || !myData->alive) return;
@@ -416,7 +415,7 @@ void AiComponent::Act() {
 					cos(randomVerticalAngle),
 					sin(randomHorizontalAngle) * sin(randomVerticalAngle)) - glm::vec3(.5f)) * (SPRAY / std::max(myData->difficulty, .1f));
 
-				glm::vec3 hitLocation = vehicleTargetPosition + randomOffset;
+				glm::vec3 hitLocation = vehicleTargetPosition + randomOffset + (myData->weaponType == WeaponType::RocketLauncher ? -vehicleEntity->transform.GetForward() + glm::vec3(0.f, -1.f, 0.f) : glm::vec3(0.f));
 				weapon->Shoot(hitLocation);
 			}
 			else {
@@ -432,7 +431,9 @@ void AiComponent::Act() {
 void AiComponent::Update() {
 	AiData* myData = static_cast<AiData*>(Game::GetPlayerFromEntity(GetEntity()));
 	if (!(enabled &&  myData && myData->alive)) return;
-	
+
+	//std::cout << "target: " << vehicleEntity << "\npowerup: " << powerupEntity << "\nmode: " << mode << "\nline of sight: " << lineOfSight << "\nmode time: " << GetModeDuration().GetSeconds() << "\nstuck time: " << GetStuckDuration().GetSeconds() << "\ntime since search: " << GetSearchDuration().GetSeconds() << std::endl;
+
 	FindTargets(); //finds targets every update time
 	Act();
 	Drive();
@@ -442,7 +443,7 @@ void AiComponent::Update() {
 
 void AiComponent::TakeDamage(WeaponComponent* damager, float damage) {
 	if (!damager->GetEntity()) return;
-	if (Game::GetPlayerFromEntity(damager->GetEntity())->teamIndex != Game::GetPlayerFromEntity(GetEntity())->teamIndex && GetModeDuration().GetSeconds() >= UPDATE_TIME) {
+	if (Game::GetPlayerFromEntity(damager->GetEntity())->teamIndex != Game::GetPlayerFromEntity(GetEntity())->teamIndex) {
 		mode = AiMode_Attack;
 		UpdateMode(AiMode_Attack);
 		vehicleEntity = damager->GetEntity();
