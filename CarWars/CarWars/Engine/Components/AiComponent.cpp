@@ -77,7 +77,7 @@ AiMode AiComponent::GetMode() const {
 }
 
 void AiComponent::UpdatePath(glm::vec3 _targetPosition) {
-    if (!FinishedPath() && (StateManager::gameTime - lastPathUpdate).GetSeconds() < UPDATE_TIME) return;
+    if (!FinishedPath() && (StateManager::gameTime - lastPathUpdate).GetSeconds() < UPDATE_TIME / 5) return;
     lastPathUpdate = StateManager::gameTime;
 
 	const glm::vec3 currentPosition = GetEntity()->transform.GetGlobalPosition();
@@ -298,7 +298,7 @@ Time AiComponent::GetSearchDuration() {
 
 
 void AiComponent::FindTargets() {
-	if (GetSearchDuration().GetSeconds() < UPDATE_TIME * 3 && mode == previousMode) return;
+	if (GetSearchDuration().GetSeconds() < UPDATE_TIME * 3) return;
 
 	AiData* myData = static_cast<AiData*>(Game::GetPlayerFromEntity(GetEntity()));
 	if (!enabled || !myData->alive) return;
@@ -311,7 +311,7 @@ void AiComponent::FindTargets() {
 	GameData gameData = Game::Instance().gameData;
 	std::vector<PlayerData*> players;
 
-	if (previousMode != mode || (GetTargetEntity() && enemyData && !enemyData->alive)) { // dont always scan to look for enemy stay locked on one
+	if (!(GetTargetEntity() && enemyData && enemyData->alive)) { // dont always scan to look for enemy stay locked on one
 		// get players
 		for (size_t i = 0; i < 4; ++i) {
             HumanData& player = Game::humanPlayers[i];
