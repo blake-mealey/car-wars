@@ -4,8 +4,8 @@
 #include "../Engine/Systems/Content/ContentManager.h"
 
 using namespace glm;
-
-#define wallVertexT 30
+//30
+#define wallVertexT 1
 #define wallHeight 30.0f
 #define inclineExp 1.1f
 

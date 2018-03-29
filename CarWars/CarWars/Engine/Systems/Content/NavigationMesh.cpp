@@ -56,13 +56,13 @@ void NavigationMesh::Initialize() {
 
 	for (size_t row = 0; row < rowCount; ++row) {
         for (size_t col = 0; col < columnCount; ++col) {
-            const size_t index = row*columnCount + col;
+            const size_t index = row * columnCount + col;
 
-            glm::vec3 position = glm::vec3(
-                (spacing + rowCount) * -0.5f*spacing + row*spacing,
-                1.f,
-                (spacing + columnCount) * -0.5f*spacing + col*spacing
-            );
+			glm::vec3 position = glm::vec3(
+				(row * spacing) - ((rowCount * spacing) * 0.5f) + (0.5f * spacing),
+				0.0f,
+				(col * spacing) - ((columnCount * spacing) * 0.5f) + (0.5f * spacing)
+			);
 
             if (heightMap) position.y += heightMap->GetHeight(position);
 
