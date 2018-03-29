@@ -4,7 +4,7 @@
   "MaxDiffuculty": 10,
   "Acceleration": 0.5,
   "StuckTime": 0.3,
-  "UpdateTime": 1,
+  "UpdateTime": 2,
   "StuckControl": 1,
   "TargetingRange": 500,
   "LockonRange": 400,
