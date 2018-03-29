@@ -156,7 +156,7 @@ void CameraComponent::UpdateCameraPosition(Entity* _vehicle, float _cameraHor, f
 		vehicleDirection.y = 0;
 		vehicleDirection = glm::normalize(vehicleDirection);
 		_cameraHor += -GetCameraHorizontalAngle() + ((acos(glm::dot(vehicleDirection, Transform::FORWARD)))) * (glm::dot(vehicleDirection, Transform::RIGHT) > 0 ? 1 : -1) + M_PI_2;
-		_cameraVer += -GetCameraVerticalAngle() + M_PI * .45f;
+		_cameraVer += -GetCameraVerticalAngle() + M_PI * .475f;
 	}
 
 	if (_cameraHor > M_PI) _cameraHor -= M_PI * 2;

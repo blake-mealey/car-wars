@@ -33,8 +33,8 @@ void HeightMap::Initialize(std::string filePath) {
 	unsigned int  totalRowCount = rowCount + wallVertexThick * 2;
 	unsigned int totalColCount = colCount + wallVertexThick * 2;
 
-	zSpacing = maxLength / static_cast<float>(rowCount);
-	xSpacing = maxWidth / static_cast<float>(colCount);
+	zSpacing = maxLength / static_cast<float>(totalRowCount);
+	xSpacing = maxWidth / static_cast<float>(totalColCount);
 
 	int v = 0;
 	heights = new float*[totalRowCount];
@@ -93,7 +93,7 @@ void HeightMap::Initialize(std::string filePath) {
 	z = zSpacing*wallVertexThick;
 	for (unsigned long i = wallVertexThick; i < rowCount + wallVertexThick; i++) {
 		currIncline = inclineRate;
-		float x = xSpacing*wallVertexThick;
+		float x = xSpacing*(wallVertexThick - 1);
 		//const float yoffset = heights[i][wallVertexThick];
 		for (int j = wallVertexThick - 1; j >= 0; j--) {
 			const float y = heights[i][j + 1] + currIncline;
@@ -193,6 +193,8 @@ void HeightMap::Initialize(std::string filePath) {
 	mesh = new Mesh(triangleCount, vertexCount, triangles, vertices, uvs);
 
 	delete image;
+	rowCount = totalRowCount;
+	colCount = totalColCount;
 }
 
 
