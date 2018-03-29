@@ -131,7 +131,7 @@ void HeightMap::Initialize(std::string filePath) {
 
 	//Add walls to the Top based on the heights closest to the wall
 	currIncline = inclineRate;
-	z = zSpacing*wallVertexThick;
+	z = zSpacing*(wallVertexThick - 1);
 	v = (wallVertexThick - 1)*(totalColCount);
 	for (int i = wallVertexThick - 1; i >= 0; i--) {
 		float x = 0.0f;
@@ -153,9 +153,9 @@ void HeightMap::Initialize(std::string filePath) {
 
 	//Add walls to the Bottom based on the heights closest to the wall
 	currIncline = inclineRate;
-	z = zSpacing * (rowCount + wallVertexThick);
+	z = zSpacing * (wallVertexThick + rowCount);
 	v = (wallVertexThick + rowCount)*(totalColCount);
-	for (unsigned long i = rowCount; i < rowCount + wallVertexThick; i++) {
+	for (unsigned long i = wallVertexThick + rowCount; i < totalRowCount; i++) {
 		float x = 0.f;
 		for (unsigned long j = 0; j < totalColCount; j++) {
 			const float y = heights[i - 1][j] + currIncline;
