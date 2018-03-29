@@ -89,15 +89,17 @@ void Game::SpawnVehicle(PlayerData& player) const {
 	vector<Entity*> spawns = EntityManager::FindEntities("SpawnLocation");
 	Entity* spawn;
 	bool cantSpawn;
+	size_t i = 0;
 	do {
 		cantSpawn = false;
 		spawn = spawns[rand() % spawns.size()];
 		for (Entity* vehicle : EntityManager::FindEntities("Vehicle")) {
 			if (glm::distance(spawn->transform.GetGlobalPosition(), vehicle->transform.GetGlobalPosition()) < 10.0f) {
 				cantSpawn = true;
+				i++;
 			}
 		}
-	} while (cantSpawn);
+	} while (cantSpawn && i < 5);
 
 	// pick a random point on a sphere for spawn
 	//float randomHorizontalAngle = (float)rand() / (float)RAND_MAX * M_PI * 2.f;
@@ -285,7 +287,7 @@ void Game::Update() {
 
         // Update AIs
 		static size_t aiIndex = 0;
-		for (size_t i = 0; i < glm::min((size_t)4, aiPlayers.size()); ++i) {
+		for (size_t i = 0; i < glm::min((size_t)5, aiPlayers.size()); ++i) {
 			aiIndex = (1 + aiIndex) % aiPlayers.size();
 			if (aiPlayers[aiIndex].alive) {
 				aiPlayers[aiIndex].brain->Update();
