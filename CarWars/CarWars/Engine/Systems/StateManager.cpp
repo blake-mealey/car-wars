@@ -19,7 +19,7 @@ GameState StateManager::GetState() {
 void StateManager::SetState(GameState state) {
     GameState previousState = currentState;
 	currentState = state;
-	bool tie = false;
+	int tie = -1;
     TeamData winner;
 	winner.killCount = -1;
     switch (currentState) {
@@ -35,8 +35,10 @@ void StateManager::SetState(GameState state) {
 		GuiHelper::LoadGuiSceneToCamera(0, "GUIs/GameEnd_GUI.json");
 	
 		for (TeamData& team : Game::gameData.teams) {
-			if (team.killCount == winner.killCount && team.killCount > 0) tie = true;
 			if (team.killCount > winner.killCount) winner = team;
+		}
+		for (TeamData& team : Game::gameData.teams) {
+			if (team.killCount == winner.killCount && team.killCount > 0) tie ++;
 		}
 		if (winner.killCount <= 0) GuiHelper::SetFirstGuiText("WinnerTitle", "game over");
 		else if (tie) GuiHelper::SetFirstGuiText("WinnerTitle", "tie");
