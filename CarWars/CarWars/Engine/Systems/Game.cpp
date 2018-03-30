@@ -30,8 +30,8 @@ using namespace std;
 
 const string GameModeType::displayNames[Count] = { "Team", "Free for All" };
 
-const string MapType::displayNames[Count] = { "Test Arena", "Arena", "Tiers", "Battle Arena", "Battle Dome", "Mansion", "Circle Arena", "Levels" };
-const string MapType::mapDirPaths[Count] = { "TestArena/", "Arena/", "Tiers/", "BattleArena/", "BattleDome/", "Mansion/", "CircleArena/", "Levels/" };
+const string MapType::displayNames[Count] = { "Test Arena", "Moon", "Arena", "Tiers", "Battle Arena", "Battle Dome", "Mansion", "Circle Arena", "Levels" };
+const string MapType::mapDirPaths[Count] = { "TestArena/", "Moon/", "Arena/", "Tiers/", "BattleArena/", "BattleDome/", "Mansion/", "CircleArena/", "Levels/" };
 
 const string VehicleType::displayNames[Count] = { "Heavy", "Medium", "Light" };
 const string VehicleType::prefabPaths[Count] = { "Vehicles/Sewage.json", "Vehicles/Hearse.json", "Vehicles/Flatbed.json" };

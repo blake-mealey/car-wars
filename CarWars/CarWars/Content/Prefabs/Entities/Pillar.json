@@ -1,6 +1,6 @@
 {
     "Tag": "Wall",
-    "Scale": [ 15, 50, 15 ],
+    "Scale": [ 1, 1, 1 ],
     "Components": [
       {
         "Type": "Mesh",

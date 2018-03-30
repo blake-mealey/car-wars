@@ -279,5 +279,6 @@
     <None Include="Content\Prefabs\Entities\Pillar.json" />
     <None Include="Content\Prefabs\Entities\Controls\GamepadStart.json" />
     <None Include="Content\Scenes\Maps\EmptyArena.json" />
+    <None Include="Content\Scenes\Maps\Moon.json" />
   </ItemGroup>
 </Project>
