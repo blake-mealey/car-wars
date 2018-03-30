@@ -15,8 +15,8 @@ void RocketLauncherComponent::Shoot(glm::vec3 position) {
 		nextShotTime = StateManager::gameTime.GetSeconds() + timeBetweenShots.GetSeconds();
 
 		//Play Shooting Sound
-		Audio& audioManager = Audio::Instance();
-		audioManager.PlayAudio("Content/Sounds/rocket-launch.mp3");
+        //Audio::Instance();.PlayAudio("Content/Sounds/rocket-launch.mp3");
+        Audio::Instance().PlayAudio3D("Content/Sounds/rocket-launch.mp3", GetEntity()->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f));
 
 		//Create Missile Entity
 		Entity* missile = ContentManager::LoadEntity("Missile.json");

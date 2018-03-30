@@ -22,13 +22,13 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 	turnTurret(position);
 	if (StateManager::gameTime.GetSeconds() >= nextShotTime.GetSeconds()) {
         playingChargeSound = false;
-		Audio::Instance().StopSound(soundIndex);
-		//Audio::Instance().StopSound3D(soundIndex);
-		Audio::Instance().PlayAudio2D("Content/Sounds/railgun-shoot.mp3");
+		//Audio::Instance().StopSound(soundIndex);
+		Audio::Instance().StopSound3D(soundIndex);
 
 		//Get Vehicle
 		Entity* vehicle = GetEntity();
-		//Audio::Instance().PlayAudio3D("Content/Sounds/railgun-shoot.mp3", vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f));
+		//Audio::Instance().PlayAudio2D("Content/Sounds/railgun-shoot.mp3");
+		Audio::Instance().PlayAudio3D("Content/Sounds/railgun-shoot.mp3", vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f));
 
 		Entity* rgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
 
@@ -93,8 +93,8 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 	} else if (StateManager::gameTime > nextChargeTime && StateManager::gameTime < nextShotTime) {
         //Play Charging Sound
         if (!playingChargeSound) {
-			soundIndex = Audio::Instance().PlaySound("Content/Sounds/railgun-charge.mp3");
-			//soundIndex = Audio::Instance().PlaySound3D("Content/Sounds/railgun-charge.mp3", GetEntity()->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.35f);
+			//soundIndex = Audio::Instance().PlaySound("Content/Sounds/railgun-charge.mp3");
+			soundIndex = Audio::Instance().PlaySound3D("Content/Sounds/railgun-charge.mp3", GetEntity()->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.22f);
             playingChargeSound = true;
         }
 
@@ -149,8 +149,8 @@ void RailGunComponent::RenderDebugGui() {
 void RailGunComponent::ChargeRelease() {
 	HumanData* player = Game::Instance().GetHumanFromEntity(GetEntity());
     playingChargeSound = false;
-	Audio::Instance().StopSound(soundIndex);
-	//Audio::Instance().StopSound3D(soundIndex);
+	//Audio::Instance().StopSound(soundIndex);
+	Audio::Instance().StopSound3D(soundIndex);
 	if (player) {
 		Tween* outTween = Effects::Instance().FindTween("RailGunChargeOut" + std::to_string(player->id));
 		if (outTween) return;

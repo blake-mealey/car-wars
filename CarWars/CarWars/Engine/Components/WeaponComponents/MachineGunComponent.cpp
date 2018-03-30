@@ -26,7 +26,7 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		turnTurret(position);
 
 		Entity* vehicle = GetEntity();
-		Audio::Instance().PlayAudio3D("Content/Sounds/machine_gun_shot.mp3", vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f));
+		Audio::Instance().PlayAudio3D("Content/Sounds/machine_gun_shot.mp3", vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.11f);
 		//Audio::Instance().PlayAudio2D("Content/Sounds/machine_gun_shot.mp3");
 
 		Entity* mgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");

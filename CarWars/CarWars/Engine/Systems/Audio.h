@@ -15,6 +15,7 @@
 #define MAX_DISTANCE 5000.0
 #define MIN_DISTANCE 0.15
 #define MAX_CHANNELS 200
+#define NUM_MUSIC 7
 
 typedef FMOD::Sound* SoundClass;
 
@@ -30,12 +31,44 @@ struct CarSound {
 };
 
 
+//struct HeavySounds {
+//    const char *idle = "Content/Sounds/Truck/idle.mp3";
+//    const char *accelerate = "Content/Sounds/Truck/accelerate.mp3";
+//    const char *reverse = "Content/Sounds/Truck/reverse.mp3";
+//    const char *skid = "Content/Sounds/Truck/reverse.mp3";
+//    const char *spinAccelerate = "";
+//};
+//
+//struct MediumSounds {
+//    const char *idle = "Content/Sounds/Truck/idle.mp3";
+//    const char *accelerate = "Content/Sounds/Truck/accelerate.mp3";
+//    const char *reverse = "Content/Sounds/Truck/reverse.mp3";
+//    const char *skid = "Content/Sounds/Truck/reverse.mp3";
+//    const char *spinAccelerate = "";
+//};
+//
+//struct LightSounds {
+//    const char *idle = "Content/Sounds/Truck/idle.mp3";
+//    const char *accelerate = "Content/Sounds/Truck/accelerate.mp3";
+//    const char *reverse = "Content/Sounds/Truck/reverse.mp3";
+//    const char *skid = "Content/Sounds/Truck/reverse.mp3";
+//    const char *spinAccelerate = "";
+//
+//};
+//
+//struct CarSounds {
+//    HeavySounds heavy;
+//    MediumSounds medium;
+//    LightSounds light;
+//};
+
+
 
 class Audio : public System {
 public:
     float musicVolume = 0.085f;
-    float aiSoundVolume = 0.35f;
-    float playerSoundVolume = 0.15f;
+    float aiSoundVolume = 0.25f;
+    float playerSoundVolume = 0.05f;
 
     // Access the singleton instance
     static Audio& Instance();
@@ -47,9 +80,11 @@ public:
     void PlayAudio(const char *filename);
     void PlayAudio(const char *filename, float volume);
     void PlayAudio(const char *filename, glm::vec3 position, glm::vec3 velocity);
+    void PlayAudio(const char *filename, glm::vec3 position, glm::vec3 velocity, float volume);
     void PlayMusic(const char *filename);
     void PlayAudio2D(const char *filename);
     void PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity);
+    void PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity, float volume);
 
     int PlaySound(const char* filename);
     void StopSound(int index);
@@ -57,8 +92,9 @@ public:
 	void StopSound3D(int index);
 
 private:
+    bool gameStarted = false;
     int currentMusicIndex = 0;
-    const char *musicPlaylist[7] = {
+    const char *musicPlaylist[NUM_MUSIC] = {
         "Content/Music/unity.mp3",
         "Content/Music/hello.mp3",
         "Content/Music/highscore.mp3",
@@ -80,20 +116,17 @@ private:
 	FMOD::Channel* channelArray3D[100];
 	bool availableSound3D[100];
 
-    //std::vector<FMOD::Sound*> sounds2D;
-    //std::vector<FMOD::Sound*> sounds3D;
-    //std::vector<FMOD::Channel> channels3D;
     std::vector<CarSound> carSounds;
     unsigned int gameMusicPosition;
     FMOD::Sound *music;
     FMOD::Channel *musicChannel;
 
-    FMOD::Sound *sound, *soundToPlay;
-    FMOD::Sound *sound1, *sound2;
-    FMOD::Channel *channel = 0, *channel2 = 0;
+    FMOD::Sound *sound, *sound3d, *soundToPlay, *soundToPlay3d;
+    FMOD::Channel *channel = 0, *channel3d = 0;
     FMOD_RESULT result;
     unsigned int version;
     int numsubsounds;
+    int numsubsounds3d;
 
 	void PauseSounds();
 	void ResumeSounds();
@@ -104,6 +137,7 @@ private:
     void PauseCars(bool paused);
     void UpdateCars();
     void StopCars();
+    void ReleaseSounds();
 
     // No instantiation or copying
     Audio();
@@ -115,5 +149,12 @@ private:
 /*
 todo:
 reduce volume on multiple hits
+reduce bullet sound
+increase railgun shoot sound
+solve sound being loud when stopped
+
+missle:
+more uniform launch sound
+louder explosion
 
 */

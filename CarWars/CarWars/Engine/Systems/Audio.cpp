@@ -11,15 +11,29 @@ Audio &Audio::Instance() {
 
 Audio::~Audio() { 
     sound->release();
+    sound3d->release();
+    music->release();
     for (auto s : carSounds) { s.sound->release(); }
+    for (auto s : soundArray) { s->release(); }
+    for (auto s : soundArray3D) { s->release(); }
     soundSystem->close();
     soundSystem->release();
 }
 
+void Audio::ReleaseSounds() {
+    sound->release();
+    sound3d->release();
+    for (auto s : carSounds) { s.sound->release(); }
+    for (auto s : soundArray) { s->release(); }
+    for (auto s : soundArray3D) { s->release(); }
+}
+
 void Audio::Initialize() { 
+    srand(time(NULL));
+    currentMusicIndex = rand() % NUM_MUSIC;
     FMOD::System_Create(&soundSystem);
     soundSystem->init(MAX_CHANNELS, FMOD_INIT_NORMAL, 0);
-    soundSystem->set3DSettings(1.0f, 1.0f, 1.0f); 
+    soundSystem->set3DSettings(1.0f, 1.f, .18f); 
     soundSystem->set3DNumListeners(Game::gameData.humanCount);
 
 	for (int i = 0; i < 100; i++) { availableSound[i] = true; }
@@ -33,17 +47,11 @@ void Audio::Initialize() {
 void Audio::PlayAudio2D(const char *filename) {
     //soundSystem->createStream(filename, FMOD_LOOP_NORMAL | FMOD_2D, 0, &sound);
     //soundSystem->playSound(sound, 0, false, &channel);
-    PlayAudio(filename, 0.35f);
+    PlayAudio(filename, 0.11f);
 }
 
 void Audio::PlayAudio(const char *filename) {
-    //sound->getNumSubSounds(&numsubsounds);
-
-    //if (numsubsounds) {
-    //    sound->getSubSound(0, &soundToPlay);
-    //} else {
-    //    soundToPlay = sound;
-    //}
+    
 
     PlayAudio(filename, 1.f);
 }
@@ -57,8 +65,8 @@ int Audio::PlaySound3D(const char *filename, glm::vec3 position, glm::vec3 veloc
 		index++;
 	}
 	availableSound3D[index] = false;
-	soundSystem->createSound(filename, FMOD_3D | FMOD_LOOP_OFF, 0, &soundArray[index]);
-	soundSystem->playSound(soundArray[index], 0, false, &channelArray[index]);
+	soundSystem->createSound(filename, FMOD_3D | FMOD_LOOP_OFF, 0, &soundArray3D[index]);
+	soundSystem->playSound(soundArray3D[index], 0, false, &channelArray3D[index]);
 	channelArray3D[index]->setVolume(volume);
 	channelArray3D[index]->set3DAttributes(&pos, &vel);
 	channelArray3D[index]->setPaused(false);
@@ -67,6 +75,7 @@ int Audio::PlaySound3D(const char *filename, glm::vec3 position, glm::vec3 veloc
 
 void Audio::StopSound3D(int index) {
 	availableSound3D[index] = true;
+    channelArray3D[index]->setPaused(true);
 	soundArray3D[index]->release();
 }
 
@@ -91,39 +100,62 @@ void Audio::StopSound(int index) {
 }
 
 void Audio::PlayAudio(const char *filename, float volume) {
-    soundSystem->createStream(filename, FMOD_LOOP_OFF | FMOD_3D, 0, &sound);
-    soundSystem->playSound(sound, 0, false, &channel);
+    sound->getNumSubSounds(&numsubsounds);
+
+    if (numsubsounds) {
+        sound->getSubSound(0, &soundToPlay);
+    } else {
+        soundToPlay = sound;
+    }
+
+    soundSystem->createStream(filename, FMOD_LOOP_OFF | FMOD_3D, 0, &soundToPlay);
+    soundSystem->playSound(soundToPlay, 0, false, &channel);
     channel->setVolume(volume);
 }
 
 void Audio::PlayAudio(const char *filename, glm::vec3 position, glm::vec3 velocity) {
+    PlayAudio(filename, position, velocity, 1.f);
+}
+
+void Audio::PlayAudio(const char *filename, glm::vec3 position, glm::vec3 velocity, float volume) {
+    //sound3d->getNumSubSounds(&numsubsounds3d);
+
+    //if (numsubsounds3d) {
+    //    sound3d->getSubSound(0, &soundToPlay3d);
+    //} else {
+        soundToPlay3d = sound3d;
+    //}
+
+
     FMOD_VECTOR pos = { position.x, position.y, position.z };
     FMOD_VECTOR vel = { velocity.x, velocity.y, velocity.z };
-    //sound1->release();
-    soundSystem->createSound(filename, FMOD_3D, 0, &sound1);
-    sound1->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
-    sound1->setMode(FMOD_LOOP_OFF);
-    soundSystem->playSound(sound1, 0, true, &channel2);
-    channel2->set3DAttributes(&pos, &vel);
-    channel2->setPaused(false);
-    channel2->setVolume(1.f);
+    soundSystem->createSound(filename, FMOD_3D, 0, &soundToPlay3d);
+    soundToPlay3d->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
+    soundToPlay3d->setMode(FMOD_LOOP_OFF);
+    soundSystem->playSound(soundToPlay3d, 0, true, &channel3d);
+    channel3d->set3DAttributes(&pos, &vel);
+    channel3d->setPaused(false);
+    channel3d->setVolume(volume);
 }
 
 void Audio::PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity) {
     PlayAudio(filename, position, velocity);
 }
+void Audio::PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity, float volume) {
+    PlayAudio(filename, position, velocity, volume);
+}
 
 void Audio::PauseSounds() {
-	for (auto c : channelArray3D) c->setPaused(false);
-	for (auto c : channelArray) c->setPaused(false);
-	channel->setPaused(false);
-	channel2->setPaused(false);
+    for (auto c : channelArray3D) c->setPaused(true);
+    for (auto c : channelArray) c->setPaused(true);
+    channel->setPaused(true);
+    channel3d->setPaused(true);
 }
 void Audio::ResumeSounds() {
-	for (auto c : channelArray3D) c->setPaused(true);
-	for (auto c : channelArray) c->setPaused(true);
-	channel->setPaused(true);
-	channel2->setPaused(true);
+    for (auto c : channelArray3D) c->setPaused(false);
+    for (auto c : channelArray) c->setPaused(false);
+    channel->setPaused(false);
+    channel3d->setPaused(false);
 }
 
 void Audio::PlayMusic(const char *filename) {
@@ -137,19 +169,30 @@ void Audio::MenuMusicControl() {
     if (currGameState != prevGameState) {
         if (currGameState == GameState_Playing) {
 			ResumeSounds();
-            music->release();
-            prevGameState = currGameState;
-            PlayMusic(musicPlaylist[currentMusicIndex]);
-            musicChannel->setPosition(gameMusicPosition, FMOD_TIMEUNIT_MS);
+            if (!gameStarted) {
+                music->release();
+                PlayMusic(musicPlaylist[currentMusicIndex]);
+                gameStarted = true;
+            }
+            //musicChannel->setPosition(gameMusicPosition, FMOD_TIMEUNIT_MS);
         } else if (currGameState == GameState_Paused) {
 			PauseSounds();
-            musicChannel->getPosition(&gameMusicPosition, FMOD_TIMEUNIT_MS);
-            music->release();
-            prevGameState = currGameState;
-            PlayMusic("Content/Music/imperial-march.mp3");
+            //musicChannel->getPosition(&gameMusicPosition, FMOD_TIMEUNIT_MS);
+            //music->release();
+            //PlayMusic("Content/Music/imperial-march.mp3");
         } else if (currGameState == GameState_Menu) {
-            gameMusicPosition = 0;
+            //gameMusicPosition = 0;
+            srand(time(NULL));
+            currentMusicIndex = rand() % NUM_MUSIC;
+            ReleaseSounds();
+            if (gameStarted) {
+                music->release();
+                PlayMusic("Content/Music/imperial-march.mp3");
+                gameStarted = false;
+            }
         }
+        prevGameState = currGameState;
+
     }
 }
 
