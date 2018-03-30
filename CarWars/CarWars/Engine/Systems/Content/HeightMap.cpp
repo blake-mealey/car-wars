@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "../Engine/Systems/Content/ContentManager.h"
 #include <cstdlib>
+#include <algorithm>
 
 using namespace glm;
 
@@ -97,13 +98,13 @@ void HeightMap::Initialize(std::string filePath) {
 	int moundMax = (int)(((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (1 - wallMoundVariation)) * (wallMoundMaxVertices - wallMoundMinVertices) + wallMoundMinVertices);
 	v = wallVertices*(totalColCount)+wallVertices-1;
 	z = 0.0;
-	float temp = -xSpacing + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation);
+	float temp = std::min(std::max(-xSpacing + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation), -xSpacing*3), xSpacing);
 	for (unsigned long i = wallVertices; i < rowCount + wallVertices; i++) {
 		currIncline = inclineRate;
 		//float x = -xSpacing + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation);
 		float x;
 		if (mound > moundMax) {
-			x = temp + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation);
+			x = std::min(std::max(temp + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation), -xSpacing * 3), xSpacing);
 			temp = x;
 			mound = 0;
 			moundMax = (int)(((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (1 - wallMoundVariation)) * (wallMoundMaxVertices - wallMoundMinVertices) + wallMoundMinVertices);
@@ -130,8 +131,22 @@ void HeightMap::Initialize(std::string filePath) {
 	//Add walls to the right side based on the heights closest to the wall
 	v = wallVertices*(totalColCount)+wallVertices + colCount;
 	z = 0.0;
+	mound = 0;
+	moundMax = (int)(((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (1 - wallMoundVariation)) * (wallMoundMaxVertices - wallMoundMinVertices) + wallMoundMinVertices);
+	temp = std::min(std::max(xSpacing*(colCount) + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation), xSpacing*(colCount) + xSpacing * 2), xSpacing*(colCount) - xSpacing * 2);
+	//temp = xSpacing*(colCount)+ xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation);
 	for (unsigned long i = wallVertices; i < rowCount + wallVertices; i++) {
 		currIncline = inclineRate;
+		/*float x;
+		if (mound > moundMax) {
+			x = std::min(std::max(temp+xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation), xSpacing*(colCount)+xSpacing * 2), xSpacing*(colCount)-xSpacing * 2);
+			temp = x;
+			mound = 0;
+			moundMax = (int)(((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (1 - wallMoundVariation)) * (wallMoundMaxVertices - wallMoundMinVertices) + wallMoundMinVertices);
+		}
+		else {
+			x = temp;
+		}*/
 		float x = xSpacing*(colCount);
 		for (unsigned long j = colCount + wallVertices; j < totalColCount; j++) {
 			const float y = heights[i][j - 1] + currIncline;
@@ -143,6 +158,7 @@ void HeightMap::Initialize(std::string filePath) {
 			currIncline *= wallInclineRate;
 			x += xSpacing;
 		}
+		mound++;
 		z += zSpacing;
 		v += wallVertices + colCount;
 	}
