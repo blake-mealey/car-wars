@@ -16,6 +16,7 @@
 #define MIN_DISTANCE 0.15
 #define MAX_CHANNELS 200
 #define NUM_MUSIC 7
+#define UPDATES_TO_RUN 25
 
 typedef FMOD::Sound* SoundClass;
 
@@ -117,7 +118,7 @@ private:
 	bool availableSound3D[100];
 
     std::vector<CarSound> carSounds;
-    unsigned int gameMusicPosition;
+    unsigned int gameMusicPosition, gameMusicLength;
     FMOD::Sound *music;
     FMOD::Channel *musicChannel;
 
@@ -138,6 +139,7 @@ private:
     void UpdateCars();
     void StopCars();
     void ReleaseSounds();
+    void CheckMusic();
 
     // No instantiation or copying
     Audio();
