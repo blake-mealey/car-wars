@@ -2,6 +2,7 @@
 #include "Picture.h"
 #include "Mesh.h"
 #include "../Engine/Systems/Content/ContentManager.h"
+#include <cstdlib>
 
 using namespace glm;
 
@@ -13,6 +14,10 @@ HeightMap::HeightMap(std::string dirPath) {
 	wallVertices = ContentManager::GetFromJson<unsigned int>(data["WallVertices"], 0);
 	wallHeight = ContentManager::GetFromJson<float>(data["WallHeight"], 0.0f);
 	wallInclineRate = ContentManager::GetFromJson<float>(data["WallIncline"], 1.0f);
+	variation = ContentManager::GetFromJson<float>(data["WallVariation"], 0.0f);
+	wallMoundMaxVertices = ContentManager::GetFromJson<float>(data["WallMoundMaxVertices"], 0.0);
+	wallMoundMinVertices = ContentManager::GetFromJson<float>(data["WallMoundMinVertices"], 0.0);
+	wallMoundVariation = ContentManager::GetFromJson<float>(data["WallMoundVariation"], 0.0);
 
 
     const std::string filePath = ContentManager::MAP_DIR_PATH + dirPath + "Map.png";
@@ -88,11 +93,24 @@ void HeightMap::Initialize(std::string filePath) {
 	}
 
 	//Add walls to the left side based on the heights closest to the wall
+	int mound = 0;
+	int moundMax = (int)(((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (1 - wallMoundVariation)) * (wallMoundMaxVertices - wallMoundMinVertices) + wallMoundMinVertices);
 	v = wallVertices*(totalColCount)+wallVertices-1;
 	z = 0.0;
+	float temp = -xSpacing + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation);
 	for (unsigned long i = wallVertices; i < rowCount + wallVertices; i++) {
 		currIncline = inclineRate;
-		float x = -xSpacing;
+		//float x = -xSpacing + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation);
+		float x;
+		if (mound > moundMax) {
+			x = temp + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation);
+			temp = x;
+			mound = 0;
+			moundMax = (int)(((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (1 - wallMoundVariation)) * (wallMoundMaxVertices - wallMoundMinVertices) + wallMoundMinVertices);
+		}
+		else {
+			x = temp;
+		}
 		//const float yoffset = heights[i][wallVertices];
 		for (int j = wallVertices - 1; j >= 0; j--) {
 			const float y = heights[i][j + 1] + currIncline;
@@ -104,6 +122,7 @@ void HeightMap::Initialize(std::string filePath) {
 			currIncline *= wallInclineRate;
 			x -= xSpacing;
 		}
+		mound++;
 		z += zSpacing;
 		v += colCount + wallVertices * 3;
 	}

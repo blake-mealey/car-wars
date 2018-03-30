@@ -37,6 +37,10 @@ private:
 	unsigned int wallVertices;
 	float wallHeight;
 	float wallInclineRate;
+	float variation;
+	int wallMoundMaxVertices;
+	int wallMoundMinVertices;
+	float wallMoundVariation;
 
     float xSpacing;
     float zSpacing;

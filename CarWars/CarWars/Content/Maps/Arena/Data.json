@@ -5,5 +5,9 @@
     "Scene": "Maps/Arena.json",
 	"WallVertices": 30,
 	"WallHeight": 30.0,
-	"WallIncline": 1.1
+	"WallIncline": 1.1,
+	"WallVariation": 0.5,
+	"WallMoundMaxVertices": 10,
+	"WallMoundMinVertices": 3,
+	"WallMoundVariation": 0.2
 }
