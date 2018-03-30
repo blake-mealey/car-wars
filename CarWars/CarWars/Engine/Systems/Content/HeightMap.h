@@ -17,6 +17,7 @@ public:
     float GetWidth() const;
     float GetLength() const;
 	float GetMaxHeight() const;
+	unsigned int GetWallVertices() const;
 	float GetWallHeight() const;
     float GetXSpacing() const;
     float GetZSpacing() const;

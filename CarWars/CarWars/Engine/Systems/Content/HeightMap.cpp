@@ -48,12 +48,12 @@ void HeightMap::Initialize(std::string filePath) {
 
 	for (unsigned long i = 0; i < totalRowCount; i++) {
 		heights[i] = new float[totalColCount];
-		for (unsigned long j = 0; j < totalColCount; j++) {
+		/*for (unsigned long j = 0; j < totalColCount; j++) {
 			heights[i][j] = wallHeight + maxHeight;
 			vertices[v] = glm::vec3(xSpacing*j, wallHeight + maxHeight, zSpacing*i) + offset;
 			uvs[v] = vec2(xSpacing*j / static_cast<float>(totalColCount), zSpacing*i / static_cast<float>(totalRowCount));
 			v++;
-		}
+		}*/
 	}
 
 	float* pixels = image->Pixels();
@@ -66,10 +66,10 @@ void HeightMap::Initialize(std::string filePath) {
 		inclineRate = wallHeight / (1 + (pow(wallInclineRate, wallVertices) - wallInclineRate)*(1 / (wallInclineRate - 1)));
 	float currIncline;
 
-	z = zSpacing * wallVertices;
+	z = 0.0;
 	v = wallVertices*(totalColCount)+wallVertices;
 	for (unsigned long i = wallVertices; i < rowCount + wallVertices; i++) {
-		float x = xSpacing*wallVertices;
+		float x = 0.0;
 
 		for (unsigned long j = wallVertices; j < colCount + wallVertices; j++) {
 			const float y = (1.f - (pixels[0] + pixels[1] + pixels[2]) / 3.f) * maxHeight;
@@ -88,11 +88,11 @@ void HeightMap::Initialize(std::string filePath) {
 	}
 
 	//Add walls to the left side based on the heights closest to the wall
-	v = wallVertices*(totalColCount)+wallVertices;
-	z = zSpacing*wallVertices;
+	v = wallVertices*(totalColCount)+wallVertices-1;
+	z = 0.0;
 	for (unsigned long i = wallVertices; i < rowCount + wallVertices; i++) {
 		currIncline = inclineRate;
-		float x = xSpacing*(wallVertices - 1);
+		float x = -xSpacing;
 		//const float yoffset = heights[i][wallVertices];
 		for (int j = wallVertices - 1; j >= 0; j--) {
 			const float y = heights[i][j + 1] + currIncline;
@@ -110,10 +110,10 @@ void HeightMap::Initialize(std::string filePath) {
 
 	//Add walls to the right side based on the heights closest to the wall
 	v = wallVertices*(totalColCount)+wallVertices + colCount;
-	z = zSpacing*wallVertices;
+	z = 0.0;
 	for (unsigned long i = wallVertices; i < rowCount + wallVertices; i++) {
 		currIncline = inclineRate;
-		float x = xSpacing*(wallVertices + colCount);
+		float x = xSpacing*(colCount);
 		for (unsigned long j = colCount + wallVertices; j < totalColCount; j++) {
 			const float y = heights[i][j - 1] + currIncline;
 			heights[i][j] = y;
@@ -130,10 +130,10 @@ void HeightMap::Initialize(std::string filePath) {
 
 	//Add walls to the Top based on the heights closest to the wall
 	currIncline = inclineRate;
-	z = zSpacing*(wallVertices - 1);
+	z = -zSpacing;
 	v = (wallVertices - 1)*(totalColCount);
 	for (int i = wallVertices - 1; i >= 0; i--) {
-		float x = 0.0f;
+		float x = -xSpacing*wallVertices;
 		for (unsigned long j = 0; j < totalColCount; j++) {
 			const float y = heights[i + 1][j] + currIncline;
 			heights[i][j] = y;
@@ -152,10 +152,10 @@ void HeightMap::Initialize(std::string filePath) {
 
 	//Add walls to the Bottom based on the heights closest to the wall
 	currIncline = inclineRate;
-	z = zSpacing * (wallVertices + rowCount);
+	z = zSpacing * (rowCount);
 	v = (wallVertices + rowCount)*(totalColCount);
 	for (unsigned long i = wallVertices + rowCount; i < totalRowCount; i++) {
-		float x = 0.f;
+		float x = -xSpacing*wallVertices;
 		for (unsigned long j = 0; j < totalColCount; j++) {
 			const float y = heights[i - 1][j] + currIncline;
 			heights[i][j] = y;
@@ -170,12 +170,12 @@ void HeightMap::Initialize(std::string filePath) {
 		z += zSpacing;
 	}
 
-	//Fix the Corners
-	/*v = 0;
+	/*//Fix the Corners
+	v = 0;
 	unsigned long i = 0;
 	unsigned long j = 0;
-	heights[i][j] = heights[i + 1][j];
-	vertices[v].y *= 0.5;*/
+	heights[i][j] = heights[i][j] - wallHeight;
+	vertices[v].y -= wallHeight;*/
 
 
 	unsigned long r = 0;
@@ -203,7 +203,7 @@ float HeightMap::GetHeight(vec3 coords) const {
 
     if (row < 0 || row > rowCount - 1 || col < 0 || col > colCount - 1) return -5.f;
 
-    return heights[row][col];
+    return heights[row+wallVertices][col+wallVertices];
 }
 
 float HeightMap::GetWidth() const {
@@ -220,6 +220,10 @@ float HeightMap::GetMaxHeight() const {
 
 float HeightMap::GetWallHeight() const {
 	return wallHeight;
+}
+
+unsigned int HeightMap::GetWallVertices() const {
+	return wallVertices;
 }
 
 float HeightMap::GetXSpacing() const {
