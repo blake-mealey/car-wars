@@ -456,6 +456,7 @@ void Graphics::Update() {
 
 
     if (renderNavigationMesh) {
+        glDisable(GL_CULL_FACE);
         Game &game = Game::Instance();
         NavigationMesh *mesh = game.GetNavigationMesh();
         if (mesh) {
@@ -484,6 +485,7 @@ void Graphics::Update() {
                 glDrawArrays(GL_POINTS, 0, mesh->GetVertexCount());
             }
         }
+        glEnable(GL_CULL_FACE);
     }
 
     

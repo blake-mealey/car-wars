@@ -6,6 +6,7 @@
 #include "../../Components/RigidbodyComponents/RigidbodyComponent.h"
 #include "../Game.h"
 #include "Picture.h"
+#include <glm/gtx/string_cast.hpp>
 
 NavigationMesh::NavigationMesh(nlohmann::json data) : heightMap(nullptr), defaults(nullptr) {
 	columnCount = ContentManager::GetFromJson<size_t>(data["ColumnCount"], 100);
@@ -60,7 +61,7 @@ void NavigationMesh::Initialize() {
 
 			glm::vec3 position = glm::vec3(
 				(row * spacing) - ((rowCount * spacing) * 0.5f) + (0.5f * spacing),
-				0.0f,
+				1.f,
 				(col * spacing) - ((columnCount * spacing) * 0.5f) + (0.5f * spacing)
 			);
 
@@ -113,7 +114,10 @@ void NavigationMesh::UpdateMesh(vector<Component*> rigidbodies) {
 
         // Find all the vertices this body covers
         const physx::PxBounds3 bounds = rigidbody->pxRigid->getWorldBounds(1.f);
-        vector<size_t> contained = FindAllContainedBy(bounds);
+        const physx::PxVec3 boundsOffset = physx::PxVec3(spacing);
+        vector<size_t> contained = FindAllContainedBy(physx::PxBounds3(
+            bounds.getCenter() - bounds.getDimensions()*0.5f - boundsOffset*2,
+            bounds.getCenter() + bounds.getDimensions()*0.5f + boundsOffset*2));
 
         // Add this body to any vertices that it covers and mark them as covered
         for (size_t index : contained) {
@@ -166,8 +170,8 @@ void NavigationMesh::RemoveRigidbody(RigidbodyComponent *rigidbody) {
 
 size_t NavigationMesh::FindClosestVertex(glm::vec3 worldPosition) const {
     // Initial mapping
-    int row = (worldPosition.x + static_cast<float>(rowCount + spacing)*0.5f*spacing) / spacing;
-    int column = (worldPosition.z + static_cast<float>(columnCount + spacing)*0.5f*spacing) / spacing;
+    int row = worldPosition.x/spacing + static_cast<float>(rowCount - 1)*0.5f;
+    int column = worldPosition.z/spacing + static_cast<float>(columnCount - 1)*0.5f;
 
     // Bounds-check rows
     if (row < 0) row = 0;
@@ -179,77 +183,6 @@ size_t NavigationMesh::FindClosestVertex(glm::vec3 worldPosition) const {
 
     // Return index
     return row * columnCount + column;
-
-
-    // Bounds-check rows
-    /*size_t row = 0;
-    if (worldPosition.x < GetPosition(0, 0).x) {
-        row = 0;
-    } else if (worldPosition.x > GetPosition(rowCount - 1, 0).x) {
-        row = rowCount - 1;
-    } else {
-        // Binary search over rows
-        size_t left = 0;
-        size_t right = rowCount - 1;
-        glm::vec3 position;
-        while (left < right) {
-            row = (left + right) / 2;
-            position = GetPosition(row, 0);
-            if (position.x < worldPosition.x) {
-                left = row + 1;
-            } else if (position.x > worldPosition.x) {
-                right = row - 1;
-            } else {
-                break;
-            }
-        }
-
-        // Find shortest distance from best guess row
-        float shortestDist = abs(position.x - worldPosition.x);
-        for (size_t r = row - 2; r < row + 2; ++r) {
-            const float dist = abs(GetPosition(r, 0).x - worldPosition.x);
-            if (dist < shortestDist) {
-                shortestDist = dist;
-                row = r;
-            }
-        }
-    }
-
-    // Bounds-check columns
-    size_t column = 0;
-    if (worldPosition.z < GetPosition(row, 0).z) {
-        column = 0;
-    } else if (worldPosition.z > GetPosition(row, columnCount - 1).z) {
-        column = columnCount - 1;
-    } else {
-        // Binary search over columns
-        size_t left = 0;
-        size_t right = columnCount - 1;
-        glm::vec3 position;
-        while (left < right) {
-            column = (left + right) / 2;
-            position = GetPosition(row, column);
-            if (position.z < worldPosition.z) {
-                left = column + 1;
-            } else if (position.z > worldPosition.z) {
-                right = column - 1;
-            } else {
-                break;
-            }
-        }
-
-        // Find shortest distance from best guess column
-        float shortestDist = abs(position.z - worldPosition.z);
-        for (size_t c = column - 2; c < column + 2; ++c) {
-            const float dist = abs(GetPosition(row, c).z - worldPosition.z);
-            if (dist < shortestDist) {
-                shortestDist = dist;
-                column = c;
-            }
-        }
-    }
-
-    return row * columnCount + column;*/
 }
 
 glm::vec3 NavigationMesh::GetPosition(size_t index) const {
@@ -310,58 +243,22 @@ std::vector<size_t> NavigationMesh::GetNeighbours(size_t index) {
 std::vector<size_t> NavigationMesh::FindAllContainedBy(physx::PxBounds3 bounds) {
     std::vector<size_t> contained;
 
-    const size_t closest = FindClosestVertex(Transform::FromPx(bounds.getCenter()));
-    if (!bounds.contains(Transform::ToPx(vertices[closest].position))) return contained;
-    contained.push_back(closest);
+    const size_t bottomLeft = FindClosestVertex(Transform::FromPx(bounds.getCenter() - bounds.getDimensions()*0.5f));
+    const size_t topRight = FindClosestVertex(Transform::FromPx(bounds.getCenter() + bounds.getDimensions()*0.5f));
 
-    int left = closest;
-    while ((left = GetLeft(left)) != -1) {
-        contained.push_back(left);
+    const size_t startRow = bottomLeft / columnCount;
+    const size_t startCol = bottomLeft % columnCount;
 
-        int forward = left;
-        while ((forward = GetForward(forward)) != -1) {
-            contained.push_back(forward);
-            if (!bounds.contains(Transform::ToPx(vertices[forward].position))) break;
+    const size_t endRow = topRight / columnCount;
+    const size_t endCol = topRight % columnCount;
+
+    for (size_t r = startRow; r <= endRow; r++) {
+        for (size_t c = startCol; c <= endCol; c++) {
+            size_t i = r * columnCount + c;
+            if (bounds.contains(Transform::ToPx(vertices[i].position))) {
+                contained.push_back(i);
+            }
         }
-
-        int backward = left;
-        while ((backward = GetBackward(backward)) != -1) {
-            contained.push_back(backward);
-            if (!bounds.contains(Transform::ToPx(vertices[backward].position))) break;
-        }
-
-        if (!bounds.contains(Transform::ToPx(vertices[left].position))) break;
-    }
-
-    int right = closest;
-    while ((right = GetRight(right)) != -1) {
-        contained.push_back(right);
-
-        int forward = right;
-        while ((forward = GetForward(forward)) != -1) {
-            contained.push_back(forward);
-            if (!bounds.contains(Transform::ToPx(vertices[forward].position))) break;
-        }
-
-        int backward = right;
-        while ((backward = GetBackward(backward)) != -1) {
-            contained.push_back(backward);
-            if (!bounds.contains(Transform::ToPx(vertices[backward].position))) break;
-        }
-
-        if (!bounds.contains(Transform::ToPx(vertices[right].position))) break;
-    }
-
-    int forward = closest;
-    while ((forward = GetForward(forward)) != -1) {
-        contained.push_back(forward);
-        if (!bounds.contains(Transform::ToPx(vertices[forward].position))) break;
-    }
-
-    int backward = closest;
-    while ((backward = GetBackward(backward)) != -1) {
-        contained.push_back(backward);
-        if (!bounds.contains(Transform::ToPx(vertices[backward].position))) break;
     }
 
     return contained;
