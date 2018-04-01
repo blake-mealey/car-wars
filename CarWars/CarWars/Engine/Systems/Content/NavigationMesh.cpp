@@ -78,7 +78,7 @@ void NavigationMesh::Initialize() {
 void NavigationMesh::UpdateMesh() {
     UpdateMesh(EntityManager::GetComponents(ComponentType_RigidStatic));
     UpdateMesh(EntityManager::GetComponents(ComponentType_RigidDynamic));
-    UpdateMesh(EntityManager::GetComponents(ComponentType_Vehicle));
+//    UpdateMesh(EntityManager::GetComponents(ComponentType_Vehicle));
 }
 
 void NavigationMesh::UpdateMesh(vector<Component*> rigidbodies) {
@@ -114,10 +114,7 @@ void NavigationMesh::UpdateMesh(vector<Component*> rigidbodies) {
 
         // Find all the vertices this body covers
         const physx::PxBounds3 bounds = rigidbody->pxRigid->getWorldBounds(1.f);
-        const physx::PxVec3 boundsOffset = physx::PxVec3(spacing);
-        vector<size_t> contained = FindAllContainedBy(physx::PxBounds3(
-            bounds.getCenter() - bounds.getDimensions()*0.5f - boundsOffset*2,
-            bounds.getCenter() + bounds.getDimensions()*0.5f + boundsOffset*2));
+        vector<size_t> contained = FindAllContainedBy(bounds);
 
         // Add this body to any vertices that it covers and mark them as covered
         for (size_t index : contained) {
@@ -243,6 +240,9 @@ std::vector<size_t> NavigationMesh::GetNeighbours(size_t index) {
 std::vector<size_t> NavigationMesh::FindAllContainedBy(physx::PxBounds3 bounds) {
     std::vector<size_t> contained;
 
+    const physx::PxVec3 offset = physx::PxVec3(spacing) + bounds.getDimensions()*0.5f;
+    bounds = physx::PxBounds3(bounds.getCenter() - offset, bounds.getCenter() + offset);
+
     const size_t bottomLeft = FindClosestVertex(Transform::FromPx(bounds.getCenter() - bounds.getDimensions()*0.5f));
     const size_t topRight = FindClosestVertex(Transform::FromPx(bounds.getCenter() + bounds.getDimensions()*0.5f));
 
@@ -314,12 +314,8 @@ void NavigationMesh::UpdateRenderBuffers() const {
 }
 
 bool NavigationMesh::IsContainedBy(size_t index, physx::PxBounds3 bounds) {
-    if (bounds.contains(Transform::ToPx(GetPosition(index)))) return true;
-    
-    std::vector<size_t> neighbours = GetNeighbours(index);
-    for (size_t neighbour : neighbours) {
-        if (bounds.contains(Transform::ToPx(GetPosition(neighbour)))) return true;
-    }
+    const physx::PxVec3 offset = physx::PxVec3(spacing) + bounds.getDimensions()*0.5f;
+    bounds = physx::PxBounds3(bounds.getCenter() - offset, bounds.getCenter() + offset);
 
-    return false;
+    return bounds.contains(Transform::ToPx(vertices[index].position));
 }
