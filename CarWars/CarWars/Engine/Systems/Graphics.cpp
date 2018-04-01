@@ -63,6 +63,77 @@ const glm::mat4 Graphics::BIAS_MATRIX = glm::mat4(
 	0.5, 0.5, 0.5, 1.0
 );
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///////////////////////// EXPERIMENTAL /////////////////////////////////////////////
+struct Particle {
+    glm::vec3 pos, speed;
+    unsigned char r, g, b, a; // Color
+    float size, angle, weight;
+    float life; // Remaining life of the particle. if <0 : dead and unused.
+    float cameradistance; // *Squared* distance to the camera. if dead : -1.0f
+
+    bool operator<(const Particle& that) const {
+        // Sort in reverse order : far particles drawn first.
+        return this->cameradistance > that.cameradistance;
+    }
+};
+
+const int MaxParticles = 100000;
+Particle ParticlesContainer[MaxParticles];
+int LastUsedParticle = 0;
+
+void SortParticles() {
+    std::sort(&ParticlesContainer[0], &ParticlesContainer[MaxParticles]);
+}
+
+int FindUnusedParticle() {
+
+    for (int i = LastUsedParticle; i<MaxParticles; i++) {
+        if (ParticlesContainer[i].life < 0) {
+            LastUsedParticle = i;
+            return i;
+        }
+    }
+
+    for (int i = 0; i<LastUsedParticle; i++) {
+        if (ParticlesContainer[i].life < 0) {
+            LastUsedParticle = i;
+            return i;
+        }
+    }
+
+    return 0; // All particles are taken, override the first one
+}
+///////////////////////// EXPERIMENTAL /////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Singleton
 Graphics::Graphics() : framesPerSecond(0.0), lastTime(0.0), frameCount(0), renderMeshes(true),
                        renderGuis(true), renderPhysicsColliders(false), renderPhysicsBoundingBoxes(false),
