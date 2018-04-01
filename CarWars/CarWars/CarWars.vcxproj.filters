@@ -79,6 +79,7 @@
     <ClCompile Include="Engine\Systems\Content\Picture.cpp" />
     <ClCompile Include="Engine\Systems\Content\Map.cpp" />
     <ClCompile Include="Engine\Components\WeaponComponents\SuicideWeaponComponent.cpp" />
+    <ClCompile Include="Engine\Components\BillboardComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -171,6 +172,7 @@
     <ClInclude Include="Engine\Systems\Content\Picture.h" />
     <ClInclude Include="Engine\Systems\Content\Map.h" />
     <ClInclude Include="Engine\Components\WeaponComponents\SuicideWeaponComponent.h" />
+    <ClInclude Include="Engine\Components\BillboardComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="Content\Sounds\powerup.mp3" />
@@ -280,5 +282,7 @@
     <None Include="Content\Prefabs\Entities\Controls\GamepadStart.json" />
     <None Include="Content\Scenes\Maps\EmptyArena.json" />
     <None Include="Content\Scenes\Maps\Moon.json" />
+    <None Include="Content\Shaders\billboard.frag" />
+    <None Include="Content\Shaders\billboard.vert" />
   </ItemGroup>
 </Project>

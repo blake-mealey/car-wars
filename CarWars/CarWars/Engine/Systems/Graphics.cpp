@@ -21,6 +21,7 @@
 #include "Game.h"
 #include "../Components/AiComponent.h"
 #include "../Components/LineComponent.h"
+#include "../Components/BillboardComponent.h"
 
 //#define RENDER_DOC_DEBUG_MODE
 
@@ -47,6 +48,8 @@ const std::string Graphics::PATH_VERTEX_SHADER = "path.vert";
 const std::string Graphics::PATH_FRAGMENT_SHADER = "path.frag";
 const std::string Graphics::GUI_VERTEX_SHADER = SCREEN_VERTEX_SHADER;
 const std::string Graphics::GUI_FRAGMENT_SHADER = "gui.frag";
+const std::string Graphics::BILLBOARD_VERTEX_SHADER = "billboard.vert";
+const std::string Graphics::BILLBOARD_FRAGMENT_SHADER = "billboard.frag";
 
 // Initial Screen Dimensions
 const size_t Graphics::SCREEN_WIDTH = 1024;
@@ -193,6 +196,7 @@ void Graphics::Update() {
 	const std::vector<Component*> cameraComponents = EntityManager::GetComponents(ComponentType_Camera);
 	const std::vector<Component*> aiComponents = EntityManager::GetComponents(ComponentType_AI);
 	const std::vector<Component*> guiComponents = EntityManager::GetComponents(ComponentType_GUI);
+	const std::vector<Component*> billboardComponents = EntityManager::GetComponents(ComponentType_Billboard);
     const std::vector<Component*> rigidbodyComponents = EntityManager::GetComponents({
         ComponentType_RigidDynamic,
         ComponentType_RigidStatic,
@@ -526,6 +530,9 @@ void Graphics::Update() {
     // RENDER SKYBOX
     // -------------------------------------------------------------------------------------------------------------- //
 
+    // Disable face culling for billboards and the skybox
+    glDisable(GL_CULL_FACE);
+
     // Render to the default framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, fboIds[FBOs::Screen]);
 
@@ -556,7 +563,6 @@ void Graphics::Update() {
 
     skyboxProgram->LoadUniform(UniformName::Time, StateManager::globalTime.GetSeconds());
 
-    glDisable(GL_CULL_FACE);
     for (Camera camera : cameras) {
         // Setup the viewport for each camera (split-screen)
         glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
@@ -568,16 +574,57 @@ void Graphics::Update() {
         // Render the skybox
         glDrawElements(GL_TRIANGLES, skyboxCube->triangleCount * 3, GL_UNSIGNED_INT, nullptr);
     }
+
+
+    // Re-enable face culling
     glEnable(GL_CULL_FACE);
-
-
 
 
     // Load the screen geometry (this will be used by all subsequent draw calls)
     glBindVertexArray(screenVao);
 
 
+    // -------------------------------------------------------------------------------------------------------------- //
+    // RENDER BILLBOARDS
+    // -------------------------------------------------------------------------------------------------------------- //
 
+    // Use the geometry shader program
+    ShaderProgram *billboardProgram = shaders[Shaders::Billboard];
+    glUseProgram(billboardProgram->GetId());
+
+    for (Component* component : billboardComponents) {
+        // Get enabled models
+        if (!component->enabled) continue;
+        BillboardComponent* billboard = static_cast<BillboardComponent*>(component);
+
+        // Load the billboard's texture to the GPU
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, billboard->GetTexture()->textureId);
+        billboardProgram->LoadUniform(UniformName::DiffuseTexture, 0);
+
+        // Load the billboard's UV scale to the GPU
+        billboardProgram->LoadUniform(UniformName::UvScale, billboard->GetUvScale());
+
+        // Load the billboard's position and scale to the GPU
+        billboardProgram->LoadUniform(UniformName::BillboardPosition, billboard->transform.GetGlobalPosition());
+        billboardProgram->LoadUniform(UniformName::BillboardScale, billboard->transform.GetLocalScale());
+
+        for (Camera camera : cameras) {
+            // Setup the viewport for each camera (split-screen)
+            glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+
+            // Load the view projection matrix and camera right and up vectors into the GPU
+            const glm::mat4 viewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix;
+            const glm::vec3 cameraRight = glm::vec3(viewProjectionMatrix[0][0], viewProjectionMatrix[1][0], viewProjectionMatrix[2][0]);
+            const glm::vec3 cameraUp = glm::vec3(viewProjectionMatrix[0][1], viewProjectionMatrix[1][1], viewProjectionMatrix[2][1]);
+            billboardProgram->LoadUniform(UniformName::ViewProjectionMatrix, viewProjectionMatrix);
+            billboardProgram->LoadUniform(UniformName::CameraRight, cameraRight);
+            billboardProgram->LoadUniform(UniformName::CameraUp, cameraUp);
+
+            // Render the billboard
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        }
+    }
 
     // -------------------------------------------------------------------------------------------------------------- //
     // RENDER POST-PROCESSING EFFECTS (BLOOM)
@@ -1193,6 +1240,7 @@ void Graphics::GenerateIds() {
 	
     shaders[Shaders::Geometry] = LoadShaderProgram(GEOMETRY_VERTEX_SHADER, GEOMETRY_FRAGMENT_SHADER);
     shaders[Shaders::GUI] = LoadShaderProgram(GUI_VERTEX_SHADER, GUI_FRAGMENT_SHADER);
+    shaders[Shaders::Billboard] = LoadShaderProgram(BILLBOARD_VERTEX_SHADER, BILLBOARD_FRAGMENT_SHADER);
 	shaders[Shaders::ShadowMap] = LoadShaderProgram(SHADOW_MAP_VERTEX_SHADER, SHADOW_MAP_FRAGMENT_SHADER);
 	shaders[Shaders::Skybox] = LoadShaderProgram(SKYBOX_VERTEX_SHADER, SKYBOX_FRAGMENT_SHADER);
 	shaders[Shaders::Screen] = LoadShaderProgram(SCREEN_VERTEX_SHADER, SCREEN_FRAGMENT_SHADER);

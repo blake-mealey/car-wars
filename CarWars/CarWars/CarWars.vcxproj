@@ -159,6 +159,7 @@
     <ClCompile Include="Dependencies\PennerEasing\Quint.cpp" />
     <ClCompile Include="Dependencies\PennerEasing\Sine.cpp" />
     <ClCompile Include="Engine\Components\AiComponent.cpp" />
+    <ClCompile Include="Engine\Components\BillboardComponent.cpp" />
     <ClCompile Include="Engine\Components\Colliders\MeshCollider.cpp" />
     <ClCompile Include="Engine\Components\CameraComponent.cpp" />
     <ClCompile Include="Engine\Components\Colliders\BoxCollider.cpp" />
@@ -242,6 +243,7 @@
     <ClInclude Include="Dependencies\PennerEasing\Quint.h" />
     <ClInclude Include="Dependencies\PennerEasing\Sine.h" />
     <ClInclude Include="Engine\Components\AiComponent.h" />
+    <ClInclude Include="Engine\Components\BillboardComponent.h" />
     <ClInclude Include="Engine\Components\Colliders\MeshCollider.h" />
     <ClInclude Include="Engine\Components\CameraComponent.h" />
     <ClInclude Include="Engine\Components\Colliders\BoxCollider.h" />
@@ -398,6 +400,8 @@
     <None Include="Content\Scenes\Maps\Moon.json" />
     <None Include="Content\Scenes\Menu.json" />
     <None Include="Content\Scenes\PhysicsDemo.json" />
+    <None Include="Content\Shaders\billboard.frag" />
+    <None Include="Content\Shaders\billboard.vert" />
     <None Include="Content\Shaders\blur.frag" />
     <None Include="Content\Shaders\geometry.frag" />
     <None Include="Content\Shaders\geometry.vert" />

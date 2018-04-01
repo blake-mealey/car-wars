@@ -47,6 +47,11 @@ const struct UniformName {
     static const char* SpriteSize;
     static const char* SpriteOffset;
     static const char* TextureSize;
+    
+    static const char* BillboardPosition;
+    static const char* BillboardScale;
+    static const char* CameraRight;
+    static const char* CameraUp;
 };
 
 class ShaderProgram {

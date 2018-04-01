@@ -43,6 +43,11 @@ const char* UniformName::SpriteSize = "spriteSize";
 const char* UniformName::SpriteOffset = "spriteOffset";
 const char* UniformName::TextureSize = "textureSize";
 
+const char* UniformName::BillboardPosition = "billboardPosition";
+const char* UniformName::BillboardScale = "billboardScale";
+const char* UniformName::CameraRight = "cameraRight_world";
+const char* UniformName::CameraUp = "cameraUp_world";
+
 ShaderProgram::ShaderProgram() {}
 ShaderProgram::ShaderProgram(GLuint id) : programId(id) {}
 

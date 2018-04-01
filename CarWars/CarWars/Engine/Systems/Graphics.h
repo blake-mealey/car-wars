@@ -64,7 +64,7 @@ struct Textures {
 };
 
 struct Shaders {
-	enum { Geometry=0, GUI, ShadowMap, Skybox, Screen, Blur, Copy, NavMesh, Path, Count };
+	enum { Geometry=0, Billboard, GUI, ShadowMap, Skybox, Screen, Blur, Copy, NavMesh, Path, Count };
 };
 
 class Graphics : public System {
@@ -92,6 +92,8 @@ public:
     static const std::string PATH_FRAGMENT_SHADER;
     static const std::string GUI_VERTEX_SHADER;
     static const std::string GUI_FRAGMENT_SHADER;
+    static const std::string BILLBOARD_VERTEX_SHADER;
+    static const std::string BILLBOARD_FRAGMENT_SHADER;
 
 	static const size_t MAX_CAMERAS;
 
