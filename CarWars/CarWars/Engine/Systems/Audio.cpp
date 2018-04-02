@@ -30,7 +30,8 @@ void Audio::ReleaseSounds() {
 
 void Audio::Initialize() { 
     srand(time(NULL));
-    currentMusicIndex = rand() % NUM_MUSIC;
+    //currentMusicIndex = rand() % NUM_MUSIC;
+    currentMusicIndex=0;
     FMOD::System_Create(&soundSystem);
     soundSystem->init(MAX_CHANNELS, FMOD_INIT_NORMAL, 0);
     soundSystem->set3DSettings(1.0f, 1.f, .18f); 
@@ -171,7 +172,7 @@ void Audio::MenuMusicControl() {
 			ResumeSounds();
             if (!gameStarted) {
                 music->release();
-                PlayMusic(musicPlaylist[currentMusicIndex]);
+                PlayMusic(musicPlaylist[0]);
                 music->getLength(&gameMusicLength, FMOD_TIMEUNIT_MS);
                 gameStarted = true;
             }
@@ -184,7 +185,7 @@ void Audio::MenuMusicControl() {
         } else if (currGameState == GameState_Menu) {
             //gameMusicPosition = 0;
             srand(time(NULL));
-            currentMusicIndex = rand() % NUM_MUSIC;
+            currentMusicIndex = 0;
             ReleaseSounds();
             if (gameStarted) {
                 music->release();
@@ -353,7 +354,7 @@ void Audio::CheckMusic() {
         music->release();
         srand(time(NULL));
         currentMusicIndex = rand() % NUM_MUSIC;
-        PlayMusic(musicPlaylist[currentMusicIndex]);
+        PlayMusic(musicPlaylist[0]);
         music->getLength(&gameMusicLength, FMOD_TIMEUNIT_MS);
     }
 }

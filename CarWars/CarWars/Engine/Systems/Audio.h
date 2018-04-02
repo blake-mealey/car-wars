@@ -96,12 +96,13 @@ private:
     bool gameStarted = false;
     int currentMusicIndex = 0;
     const char *musicPlaylist[NUM_MUSIC] = {
+        "Content/Music/nyan.mp3",
         "Content/Music/unity.mp3",
         "Content/Music/hello.mp3",
         "Content/Music/highscore.mp3",
         "Content/Music/invincible.mp3",
         "Content/Music/lone-digger.mp3",
-        "Content/Music/monody.mp3",
+        //"Content/Music/monody.mp3",
         "Content/Music/xenogenesis.mp3"
     };
 
