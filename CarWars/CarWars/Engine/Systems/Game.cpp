@@ -26,6 +26,7 @@
 #include "Effects.h"
 #include "../Components/RigidbodyComponents/PowerUpSpawnerComponent.h"
 #include "PennerEasing/Quint.h"
+#include "../Components/ParticleEmitterComponent.h"
 using namespace std;
 
 const string GameModeType::displayNames[Count] = { "Team", "Free for All" };
@@ -274,6 +275,15 @@ void Game::FinishGame() {
 }
 
 void Game::Update() {
+    if (StateManager::GetState() != GameState_Paused) {
+        std::vector<Component*> particleEmitterComponents = EntityManager::GetComponents(ComponentType_ParticleEmitter);
+        for (Component* component : particleEmitterComponents) {
+            if (!component->enabled) continue;
+            ParticleEmitterComponent* emitter = static_cast<ParticleEmitterComponent*>(component);
+            emitter->Update();
+        }
+    }
+
     if (StateManager::GetState() < __GameState_Menu_End) {
         for (Entity* entity : EntityManager::FindEntities("VehicleBox")) {
             entity->transform.Rotate(Transform::UP, 0.005f);

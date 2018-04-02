@@ -94,6 +94,7 @@ public:
     static const std::string GUI_FRAGMENT_SHADER;
     static const std::string BILLBOARD_VERTEX_SHADER;
     static const std::string BILLBOARD_FRAGMENT_SHADER;
+    static const std::string BILLBOARD_GEOMETRY_SHADER;
 
 	static const size_t MAX_CAMERAS;
 
@@ -145,8 +146,12 @@ private:
     Texture *sunTexture;
 
     GLuint screenVao;
+    GLuint billboardVao;
+    
     GLuint screenVbo;
-	GLuint ssboIds[SSBOs::Count];
+    GLuint billboardVbo;
+	
+    GLuint ssboIds[SSBOs::Count];
 	GLuint fboIds[FBOs::Count];
 	GLuint rboIds[RBOs::Count];
 	GLuint textureIds[Textures::Count];
@@ -177,6 +182,9 @@ private:
 
     void InitializeScreenVbo();
 	void InitializeScreenVao();
+
+    void InitializeBillboardVbo();
+    void InitializeBillboardVao();
 
     void InitializeGlowFramebuffer();
     void InitializeScreenFramebuffer();

@@ -39,7 +39,12 @@
               "WheelInset": -0.2
           }
       ]
-    }
+    },
+	  {
+		  "Type": "ParticleEmitter",
+          "Texture": "Particles/Explosion/explosion00.png",
+          "Scale": [3, 3, 1]
+	  }
   ],
   "Children": [
 	  {

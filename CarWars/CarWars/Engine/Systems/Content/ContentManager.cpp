@@ -33,6 +33,7 @@
 #include "imgui/imgui.h"
 #include "../../Components/RigidbodyComponents/PowerUpSpawnerComponent.h"
 #include "../../Components/BillboardComponent.h"
+#include "../../Components/ParticleEmitterComponent.h"
 
 using namespace nlohmann;
 using namespace physx;
@@ -318,6 +319,7 @@ Component* ContentManager::LoadComponent(json data) {
 	else if (type == "Line") component = new LineComponent(data);
 	else if (type == "PowerUpSpawner") component = new PowerUpSpawnerComponent(data);
 	else if (type == "Billboard") component = new BillboardComponent(data);
+	else if (type == "ParticleEmitter") component = new ParticleEmitterComponent(data);
     else {
         cerr << "Unsupported component type: " << type << endl;
         supportedType = false;

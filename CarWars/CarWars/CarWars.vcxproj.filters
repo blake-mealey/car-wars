@@ -28,7 +28,6 @@
     <ClCompile Include="Engine\Components\GuiComponents\GuiComponent.cpp" />
     <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
     <ClCompile Include="Engine\Components\LineComponent.cpp" />
-    <ClCompile Include="Engine\Components\ParticleComponent.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.cpp" />
     <ClCompile Include="Engine\Systems\Effects.cpp" />
     <ClCompile Include="Engine\Components\MeshComponent.cpp" />
@@ -80,6 +79,7 @@
     <ClCompile Include="Engine\Systems\Content\Map.cpp" />
     <ClCompile Include="Engine\Components\WeaponComponents\SuicideWeaponComponent.cpp" />
     <ClCompile Include="Engine\Components\BillboardComponent.cpp" />
+    <ClCompile Include="Engine\Components\ParticleEmitterComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -112,7 +112,6 @@
     <ClInclude Include="Engine\Components\GuiComponents\GuiComponent.h" />
     <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
     <ClInclude Include="Engine\Components\LineComponent.h" />
-    <ClInclude Include="Engine\Components\ParticleComponent.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.h" />
     <ClInclude Include="Engine\Components\Tweens\TTween.h" />
     <ClInclude Include="Engine\Components\Tweens\Tween.h" />
@@ -173,6 +172,7 @@
     <ClInclude Include="Engine\Systems\Content\Map.h" />
     <ClInclude Include="Engine\Components\WeaponComponents\SuicideWeaponComponent.h" />
     <ClInclude Include="Engine\Components\BillboardComponent.h" />
+    <ClInclude Include="Engine\Components\ParticleEmitterComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="Content\Sounds\powerup.mp3" />
@@ -284,5 +284,6 @@
     <None Include="Content\Scenes\Maps\Moon.json" />
     <None Include="Content\Shaders\billboard.frag" />
     <None Include="Content\Shaders\billboard.vert" />
+    <None Include="Content\Shaders\billboard.geom" />
   </ItemGroup>
 </Project>
