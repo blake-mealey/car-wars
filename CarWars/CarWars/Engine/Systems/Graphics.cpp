@@ -99,7 +99,7 @@ struct Particle {
     }
 };
 
-const int MaxParticles = 1000000;
+const int MaxParticles = 10000;
 Particle ParticlesContainer[MaxParticles];
 int LastUsedParticle = 0;
 GLuint billboard_vertex_buffer;
@@ -854,14 +854,15 @@ void Graphics::Update() {
     ////////////////////////////////////////////////////// EXPERIMENTAL /////////////////////////////////////////////////////
 
     if (renderParticles) {
-        auto programID = shaders[Shaders::Particle]->GetId();
+        ShaderProgram* particleProgram = shaders[Shaders::Particle];
+        auto programID = particleProgram->GetId();
         GLuint TextureID = glGetUniformLocation(programID, "myTextureSampler");
         GLuint CameraRight_worldspace_ID = glGetUniformLocation(programID, "CameraRight_worldspace");
         GLuint CameraUp_worldspace_ID = glGetUniformLocation(programID, "CameraUp_worldspace");
         GLuint ViewProjMatrixID = glGetUniformLocation(programID, "VP");
-        GLuint BillboardPosID = glGetUniformLocation(programID, "BillboardPos");
-        GLuint BillboardSizeID = glGetUniformLocation(programID, "BillboardSize");
-        GLuint LifeLevelID = glGetUniformLocation(programID, "LifeLevel");
+        //GLuint BillboardPosID = glGetUniformLocation(programID, "BillboardPos");
+        //GLuint BillboardSizeID = glGetUniformLocation(programID, "BillboardSize");
+        //GLuint LifeLevelID = glGetUniformLocation(programID, "LifeLevel");
         // Clear the screen
         //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -1003,14 +1004,17 @@ void Graphics::Update() {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, loadDDS("Content/particle.DDS"));
         // Set our "myTextureSampler" sampler to use Texture Unit 0
-        glUniform1i(TextureID, 0);
+        //glUniform1i(TextureID, 0);
+        particleProgram->LoadUniform("myTextureSampler", 0);
 
         // Same as the billboards tutorial
-        glUniform3f(CameraRight_worldspace_ID, ViewMatrix[0][0], ViewMatrix[1][0], ViewMatrix[2][0]);
-        glUniform3f(CameraUp_worldspace_ID, ViewMatrix[0][1], ViewMatrix[1][1], ViewMatrix[2][1]);
+        //glUniform3f(CameraRight_worldspace_ID, ViewMatrix[0][0], ViewMatrix[1][0], ViewMatrix[2][0]);
+        particleProgram->LoadUniform("CameraRight_worldspace", glm::vec3(ViewMatrix[0][0], ViewMatrix[1][0], ViewMatrix[2][0]));
+        //glUniform3f(CameraUp_worldspace_ID, ViewMatrix[0][1], ViewMatrix[1][1], ViewMatrix[2][1]);
+        particleProgram->LoadUniform("CameraUp_worldspace", glm::vec3(ViewMatrix[0][1], ViewMatrix[1][1], ViewMatrix[2][1]));
 
         //glUniformMatrix4fv(ViewProjMatrixID, 1, GL_FALSE, &ViewProjectionMatrix[0][0]);
-        glUniformMatrix4fv(ViewProjMatrixID, 1, GL_FALSE, &c.projectionMatrix[0][0]);
+        particleProgram->LoadUniform("VP",ViewProjectionMatrix);
 
         // 1rst attribute buffer : vertices
         glEnableVertexAttribArray(0);
