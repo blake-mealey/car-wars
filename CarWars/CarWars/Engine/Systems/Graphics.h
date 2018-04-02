@@ -1,4 +1,5 @@
 #pragma once
+#define _CRT_SECURE_NO_DEPRECATE
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
