@@ -9,9 +9,21 @@ ParticleEmitterComponent::~ParticleEmitterComponent() {
 
 ParticleEmitterComponent::ParticleEmitterComponent(nlohmann::json data) {
     transform = Transform(data);
-    texture = ContentManager::GetTexture(data["Texture"]);
 
-    AddParticle(glm::vec3(0.f), glm::vec3(0.f, 10.f, 0.f));
+    initialSpeed = ContentManager::GetFromJson<float>(data["InitialSpeed"], 10.f);
+    acceleration = ContentManager::JsonToVec3(data["Acceleration"], glm::vec3(0.f, -9.81f, 0.f));
+
+    initialScale = ContentManager::JsonToVec3(data["InitialScale"], glm::vec3(1.f));
+    finalScale = ContentManager::JsonToVec3(data["FinalScale"], glm::vec3(1.f));
+
+    texture = ContentManager::GetTexture(data["Texture"]);
+    initialColor = ContentManager::GetColorFromJson(data["InitialColor"], glm::vec4(1.f));
+    finalColor = ContentManager::GetColorFromJson(data["FinalColor"], glm::vec4(1.f));
+    emissiveness = ContentManager::GetFromJson<float>(data["Emissiveness"], 0.f);
+
+    lifetime = ContentManager::GetFromJson<double>(data["Lifetime"], 3.0);
+    spawnRate = ContentManager::GetFromJson<double>(data["SpawnRate"], 0.1);
+    nextSpawn = StateManager::globalTime + spawnRate;
 
     InitializeBuffers();
 }
@@ -31,8 +43,11 @@ void ParticleEmitterComponent::InitializeBuffers() {
     glBindVertexArray(vao);
 
     glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), reinterpret_cast<const GLvoid*>(0));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), reinterpret_cast<const GLvoid*>(0));                  // position
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), reinterpret_cast<const GLvoid*>(sizeof(float) * 6));  // lifetime
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -42,38 +57,66 @@ float UnitRand() {
     return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 }
 
+float UnitRandNegative() {
+    return (UnitRand() * 2.f) - 1.f;
+}
+
 void ParticleEmitterComponent::Update() {
     const float delta = StateManager::deltaTime.GetSeconds();
 
     for (auto it = particles.begin(); it != particles.end();) {
         Particle& particle = *it;
-        if (particle.lifetimeSeconds > 2.0) {
+        if (particle.lifetimeSeconds > lifetime.GetSeconds()) {
             it = particles.erase(it);
         } else {
-            const glm::vec3 acc = glm::vec3(0.f, -9.81f, 0.f);
-            particle.velocity = particle.velocity + delta * acc;
+            particle.velocity = particle.velocity + delta * acceleration;
             particle.position = particle.position + delta * particle.velocity;
             particle.lifetimeSeconds += delta;
             ++it;
         }
     }
 
-    if (StateManager::globalTime - lastSpawn > 0.5) {
-        lastSpawn = StateManager::globalTime;
-        AddParticle(glm::vec3(0.f), glm::vec3(UnitRand(), 10.f, UnitRand()));
+    if (StateManager::globalTime >= nextSpawn) {
+        nextSpawn = StateManager::globalTime + spawnRate;
+        const glm::vec3 direction = glm::normalize(glm::vec3(UnitRandNegative(), UnitRand(), UnitRandNegative()));
+        AddParticle(glm::vec3(0.f), direction * initialSpeed);
     }
 }
 
-Texture* ParticleEmitterComponent::GetTexture() {
-    return texture;
-}
-
-GLuint ParticleEmitterComponent::GetVao() {
+GLuint ParticleEmitterComponent::GetVao() const {
     return vao;
 }
 
-size_t ParticleEmitterComponent::GetParticleCount() {
+size_t ParticleEmitterComponent::GetParticleCount() const {
     return particles.size();
+}
+
+glm::vec3 ParticleEmitterComponent::GetInitialScale() const {
+    return initialScale;
+}
+
+glm::vec3 ParticleEmitterComponent::GetFinalScale() const {
+    return finalScale;
+}
+
+Texture* ParticleEmitterComponent::GetTexture() const {
+    return texture;
+}
+
+glm::vec4 ParticleEmitterComponent::GetInitialColor() const {
+    return initialColor;
+}
+
+glm::vec4 ParticleEmitterComponent::GetFinalColor() const {
+    return finalColor;
+}
+
+float ParticleEmitterComponent::GetEmissiveness() const {
+    return emissiveness;
+}
+
+float ParticleEmitterComponent::GetLifetimeSeconds() const {
+    return lifetime.GetSeconds();
 }
 
 void ParticleEmitterComponent::AddParticle(glm::vec3 p, glm::vec3 v) {

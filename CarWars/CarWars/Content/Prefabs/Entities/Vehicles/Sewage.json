@@ -43,7 +43,13 @@
 	  {
 		  "Type": "ParticleEmitter",
           "Texture": "Particles/Explosion/explosion00.png",
-          "Scale": [3, 3, 1]
+		  "InitialScale": [2, 2, 1],
+		  "FinalScale": [3, 3, 1],
+          "FinalColor": "WhiteHalfAlpha",
+          "Emissiveness": 0.5,
+		  "Lifetime": 1,
+          "SpawnRate": 0.1,
+          "Position": [0, 3, 0]
 	  }
   ],
   "Children": [

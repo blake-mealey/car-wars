@@ -588,7 +588,7 @@ void Graphics::Update() {
     glUseProgram(billboardProgram->GetId());
 
     // Load the billboard geometry
-    glBindVertexArray(billboardVao);
+    /*glBindVertexArray(billboardVao);
 
     for (Component* component : billboardComponents) {
         // Get enabled models
@@ -622,7 +622,7 @@ void Graphics::Update() {
             // Render the billboard
             glDrawArrays(GL_POINTS, 0, 1);
         }
-    }
+    }*/
 
     glDepthMask(GL_FALSE);
 
@@ -662,7 +662,15 @@ void Graphics::Update() {
 
             // Load the billboard's position and scale to the GPU
             billboardProgram->LoadUniform(UniformName::BillboardPosition, emitter->transform.GetGlobalPosition());
-            billboardProgram->LoadUniform(UniformName::BillboardScale, emitter->transform.GetLocalScale());
+            
+            billboardProgram->LoadUniform("initialScale", emitter->GetInitialScale());
+            billboardProgram->LoadUniform("finalScale", emitter->GetFinalScale());
+
+            billboardProgram->LoadUniform("lifetimeSeconds", emitter->GetLifetimeSeconds());
+
+            billboardProgram->LoadUniform("initialColor", emitter->GetInitialColor());
+            billboardProgram->LoadUniform("finalColor", emitter->GetFinalColor());
+            billboardProgram->LoadUniform("emissiveness", emitter->GetEmissiveness());
 
             glBindVertexArray(emitter->GetVao());
 

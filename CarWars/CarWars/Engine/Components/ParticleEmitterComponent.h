@@ -31,9 +31,18 @@ public:
     void Update();
     void Sort(glm::vec3 cameraPosition);
 
-    Texture* GetTexture();
-    GLuint GetVao();
-    size_t GetParticleCount();
+    GLuint GetVao() const;
+    size_t GetParticleCount() const;
+
+    glm::vec3 GetInitialScale() const;
+    glm::vec3 GetFinalScale() const;
+
+    Texture* GetTexture() const;
+    glm::vec4 GetInitialColor() const;
+    glm::vec4 GetFinalColor() const;
+    float GetEmissiveness() const;
+
+    float GetLifetimeSeconds() const;
 
     Transform transform;
 
@@ -44,12 +53,23 @@ private:
     void UpdateBuffers();
     void InitializeBuffers();
 
-    Time lastSpawn;
+    glm::vec3 acceleration;
+    float initialSpeed;
+
+    glm::vec3 initialScale;
+    glm::vec3 finalScale;
+
+    Texture* texture;
+    glm::vec4 initialColor;
+    glm::vec4 finalColor;
+    float emissiveness;
+
+    Time lifetime;
+    Time spawnRate;
+    Time nextSpawn;
 
     std::vector<Particle> particles;
 
     GLuint vao;
     GLuint vbo;
-
-    Texture* texture;
 };
