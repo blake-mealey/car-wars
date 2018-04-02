@@ -9,13 +9,13 @@
 
 #define MAX_PARTICLES 100
 
-/*struct Particle {
+struct Particle {
     Particle() : lifetimeSeconds(0.f) {}
 
     glm::vec3 position;
     glm::vec3 velocity;
     float lifetimeSeconds;
-};*/
+};
 
 class ParticleEmitterComponent : public Component {
 public:
@@ -38,11 +38,7 @@ private:
 
     void AddParticle(glm::vec3 p, glm::vec3 v);
 
-    std::vector<glm::vec3> positions;
-    std::vector<glm::vec3> velocities;
-    std::vector<float> lifetimes;
-
-//    std::vector<Particle> particles;
+    std::vector<Particle> particles;
 
     void UpdateBuffers();
     void InitializeBuffers();
