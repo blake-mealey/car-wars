@@ -38,21 +38,30 @@ void ParticleEmitterComponent::InitializeBuffers() {
     glBindVertexArray(0);
 }
 
+float UnitRand() {
+    return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+}
+
 void ParticleEmitterComponent::Update() {
     const float delta = StateManager::deltaTime.GetSeconds();
 
-    for (Particle& particle : particles) {
-        const glm::vec3 acc = glm::vec3(0.f, -9.81f, 0.f);
-        particle.velocity = particle.velocity + delta * acc;
-        particle.position = particle.position + delta * particle.velocity;
-        particle.lifetimeSeconds += delta;
+    for (auto it = particles.begin(); it != particles.end();) {
+        Particle& particle = *it;
+        if (particle.lifetimeSeconds > 2.0) {
+            it = particles.erase(it);
+        } else {
+            const glm::vec3 acc = glm::vec3(0.f, -9.81f, 0.f);
+            particle.velocity = particle.velocity + delta * acc;
+            particle.position = particle.position + delta * particle.velocity;
+            particle.lifetimeSeconds += delta;
+            ++it;
+        }
     }
 
-    if (particles.back().lifetimeSeconds > 0.5) {
-        AddParticle(glm::vec3(0.f), glm::vec3(0.f, 10.f, 0.f));
+    if (StateManager::globalTime - lastSpawn > 0.5) {
+        lastSpawn = StateManager::globalTime;
+        AddParticle(glm::vec3(0.f), glm::vec3(UnitRand(), 10.f, UnitRand()));
     }
-
-    UpdateBuffers();
 }
 
 Texture* ParticleEmitterComponent::GetTexture() {
@@ -73,6 +82,14 @@ void ParticleEmitterComponent::AddParticle(glm::vec3 p, glm::vec3 v) {
     particle.velocity = v;
     particle.lifetimeSeconds = 0.f;
     particles.push_back(particle);
+}
+
+void ParticleEmitterComponent::Sort(glm::vec3 cameraPosition) {
+    glm::vec3 localCameraPosition = glm::inverse(transform.GetTransformationMatrix()) * glm::vec4(cameraPosition, 1.f);
+    std::sort(particles.begin(), particles.end(), [cameraPosition](const Particle& lhs, const Particle& rhs) -> bool {
+        return length(lhs.position - cameraPosition) > length(rhs.position - cameraPosition);
+    });
+    UpdateBuffers();
 }
 
 ComponentType ParticleEmitterComponent::GetType() {

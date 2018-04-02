@@ -180,7 +180,7 @@ void Game::InitializeGame() {
 		// Create the AI
 		// TODO: Choose vehicle and weapon type somehow
 
-		aiPlayers.push_back(AiData(rand() % VehicleType::Count, rand() % WeaponType::Count, gameData.aiDifficulty));
+		aiPlayers.push_back(AiData(VehicleType::Heavy, rand() % WeaponType::Count, gameData.aiDifficulty));
 		AiData& ai = aiPlayers[i];
 		ai.name = "Computer " + to_string(i + 1);
 

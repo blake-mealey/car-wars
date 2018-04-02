@@ -24,7 +24,7 @@
 #include "../Components/BillboardComponent.h"
 #include "../Components/ParticleEmitterComponent.h"
 
-#define RENDER_DOC_DEBUG_MODE
+//#define RENDER_DOC_DEBUG_MODE
 
 // Constants
 const size_t Graphics::MAX_CAMERAS = 4;
@@ -178,36 +178,34 @@ bool Graphics::Initialize(char* windowTitle) {
 	return true;
 }
 
-struct IsMoreOpaque {
-    bool operator() (const Component* lhs, const Component* rhs) {
-        const MeshComponent* lhsMesh = static_cast<const MeshComponent*>(lhs);
-        const MeshComponent* rhsMesh = static_cast<const MeshComponent*>(rhs);
-        return lhsMesh->GetMaterial()->diffuseColor.a > rhsMesh->GetMaterial()->diffuseColor.a;
-    }
-};
+bool IsMoreOpaque(const Component* lhs, const Component* rhs) {
+    const MeshComponent* lhsMesh = static_cast<const MeshComponent*>(lhs);
+    const MeshComponent* rhsMesh = static_cast<const MeshComponent*>(rhs);
+    return lhsMesh->GetMaterial()->diffuseColor.a > rhsMesh->GetMaterial()->diffuseColor.a;
+}
 
 void Graphics::Update() {
 	glfwPollEvents();			// Should this be here or in InputManager?
 
 	// Get components
-	const std::vector<Component*> pointLights = EntityManager::GetComponents(ComponentType_PointLight);
-	const std::vector<Component*> directionLights = EntityManager::GetComponents(ComponentType_DirectionLight);
-	const std::vector<Component*> spotLights = EntityManager::GetComponents(ComponentType_SpotLight);
-	std::vector<Component*> meshes = EntityManager::GetComponents(ComponentType_Mesh);
-	const std::vector<Component*> lines = EntityManager::GetComponents(ComponentType_Line);
-	const std::vector<Component*> cameraComponents = EntityManager::GetComponents(ComponentType_Camera);
-	const std::vector<Component*> aiComponents = EntityManager::GetComponents(ComponentType_AI);
-	const std::vector<Component*> guiComponents = EntityManager::GetComponents(ComponentType_GUI);
-	const std::vector<Component*> billboardComponents = EntityManager::GetComponents(ComponentType_Billboard);
-	const std::vector<Component*> particleEmitterComponents = EntityManager::GetComponents(ComponentType_ParticleEmitter);
-    const std::vector<Component*> rigidbodyComponents = EntityManager::GetComponents({
+	const vector<Component*> pointLights = EntityManager::GetComponents(ComponentType_PointLight);
+	const vector<Component*> directionLights = EntityManager::GetComponents(ComponentType_DirectionLight);
+	const vector<Component*> spotLights = EntityManager::GetComponents(ComponentType_SpotLight);
+	vector<Component*> meshes = EntityManager::GetComponents(ComponentType_Mesh);
+	const vector<Component*> lines = EntityManager::GetComponents(ComponentType_Line);
+	const vector<Component*> cameraComponents = EntityManager::GetComponents(ComponentType_Camera);
+	const vector<Component*> aiComponents = EntityManager::GetComponents(ComponentType_AI);
+	const vector<Component*> guiComponents = EntityManager::GetComponents(ComponentType_GUI);
+	const vector<Component*> billboardComponents = EntityManager::GetComponents(ComponentType_Billboard);
+	vector<Component*> particleEmitterComponents = EntityManager::GetComponents(ComponentType_ParticleEmitter);
+    const vector<Component*> rigidbodyComponents = EntityManager::GetComponents({
         ComponentType_RigidDynamic,
         ComponentType_RigidStatic,
         ComponentType_Vehicle,
         ComponentType_PowerUpSpawner
     });
 
-    sort(meshes.begin(), meshes.end(), IsMoreOpaque());
+    sort(meshes.begin(), meshes.end(), IsMoreOpaque);
 
     // Get the active cameras and setup their viewports
     LoadCameras(cameraComponents);
@@ -578,6 +576,8 @@ void Graphics::Update() {
         glDrawElements(GL_TRIANGLES, skyboxCube->triangleCount * 3, GL_UNSIGNED_INT, nullptr);
     }
 
+    // Re-enable face culling
+    glEnable(GL_CULL_FACE);
 
     // -------------------------------------------------------------------------------------------------------------- //
     // RENDER BILLBOARDS
@@ -624,45 +624,54 @@ void Graphics::Update() {
         }
     }
 
-    for (Component* component : particleEmitterComponents) {
-        if (!component->enabled) continue;
-        ParticleEmitterComponent* emitter = static_cast<ParticleEmitterComponent*>(component);
+    glDepthMask(GL_FALSE);
 
-        // Load the billboard's texture to the GPU
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, emitter->GetTexture()->textureId);
-        billboardProgram->LoadUniform(UniformName::DiffuseTexture, 0);
+    for (Camera camera : cameras) {
+        // Setup the viewport for each camera (split-screen)
+        glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
 
-        // Load the billboard's UV scale to the GPU
-        billboardProgram->LoadUniform(UniformName::UvScale, glm::vec2(1.f));
+        // Load the view projection matrix and camera right and up vectors into the GPU
+        const glm::mat4 viewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix;
+        const glm::vec3 cameraRight = normalize(glm::vec3(viewProjectionMatrix[0][0], viewProjectionMatrix[1][0], viewProjectionMatrix[2][0]));
+        const glm::vec3 cameraUp = normalize(glm::vec3(viewProjectionMatrix[0][1], viewProjectionMatrix[1][1], viewProjectionMatrix[2][1]));
+        billboardProgram->LoadUniform(UniformName::ViewProjectionMatrix, viewProjectionMatrix);
+        billboardProgram->LoadUniform(UniformName::CameraRight, cameraRight);
+        billboardProgram->LoadUniform(UniformName::CameraUp, cameraUp);
 
-        // Load the billboard's position and scale to the GPU
-        billboardProgram->LoadUniform(UniformName::BillboardPosition, emitter->transform.GetGlobalPosition());
-        billboardProgram->LoadUniform(UniformName::BillboardScale, emitter->transform.GetLocalScale());
+        sort(particleEmitterComponents.begin(), particleEmitterComponents.end(), [&camera](const Component* lhs, const Component* rhs) -> bool {
+            const ParticleEmitterComponent* lhsEmitter = static_cast<const ParticleEmitterComponent*>(lhs);
+            const ParticleEmitterComponent* rhsEmitter = static_cast<const ParticleEmitterComponent*>(rhs);
+            const glm::vec3 lhsPosition = lhsEmitter->transform.parent->GetGlobalPosition() + lhsEmitter->transform.GetLocalPosition();
+            const glm::vec3 rhsPosition = rhsEmitter->transform.parent->GetGlobalPosition() + rhsEmitter->transform.GetLocalPosition();
+            return length(lhsPosition - camera.position) > length(rhsPosition - camera.position);
+        });
 
-        glBindVertexArray(emitter->GetVao());
+        for (Component* component : particleEmitterComponents) {
+            if (!component->enabled) continue;
+            ParticleEmitterComponent* emitter = static_cast<ParticleEmitterComponent*>(component);
 
-        for (Camera camera : cameras) {
-            // Setup the viewport for each camera (split-screen)
-            glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+            emitter->Sort(camera.position);
 
-            // Load the view projection matrix and camera right and up vectors into the GPU
-            const glm::mat4 viewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix;
-            const glm::vec3 cameraRight = normalize(glm::vec3(viewProjectionMatrix[0][0], viewProjectionMatrix[1][0], viewProjectionMatrix[2][0]));
-            const glm::vec3 cameraUp = normalize(glm::vec3(viewProjectionMatrix[0][1], viewProjectionMatrix[1][1], viewProjectionMatrix[2][1]));
-            billboardProgram->LoadUniform(UniformName::ViewProjectionMatrix, viewProjectionMatrix);
-            billboardProgram->LoadUniform(UniformName::CameraRight, cameraRight);
-            billboardProgram->LoadUniform(UniformName::CameraUp, cameraUp);
+            // Load the billboard's texture to the GPU
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, emitter->GetTexture()->textureId);
+            billboardProgram->LoadUniform(UniformName::DiffuseTexture, 0);
+
+            // Load the billboard's UV scale to the GPU
+            billboardProgram->LoadUniform(UniformName::UvScale, glm::vec2(1.f));
+
+            // Load the billboard's position and scale to the GPU
+            billboardProgram->LoadUniform(UniformName::BillboardPosition, emitter->transform.GetGlobalPosition());
+            billboardProgram->LoadUniform(UniformName::BillboardScale, emitter->transform.GetLocalScale());
+
+            glBindVertexArray(emitter->GetVao());
 
             // Render the billboard
             glDrawArrays(GL_POINTS, 0, emitter->GetParticleCount());
         }
     }
 
-
-    // Re-enable face culling
-    glEnable(GL_CULL_FACE);
-
+    glDepthMask(GL_TRUE);
 
     // Load the screen geometry (this will be used by all subsequent draw calls)
     glBindVertexArray(screenVao);
@@ -1118,7 +1127,7 @@ void Graphics::LoadCameras(std::vector<Component*> cameraComponents) {
 	for (Component *component: cameraComponents) {
 		if (component->enabled) {
 			CameraComponent *camera = static_cast<CameraComponent*>(component);
-			cameras.push_back(Camera(camera->GetViewMatrix(), camera->GetProjectionMatrix(), camera->GetGuiRoot()));
+			cameras.push_back(Camera(camera->GetPosition(), camera->GetViewMatrix(), camera->GetProjectionMatrix(), camera->GetGuiRoot()));
 			if (cameras.size() == MAX_CAMERAS) break;
 		}
 	}
