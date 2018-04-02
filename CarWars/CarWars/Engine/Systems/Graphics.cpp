@@ -860,9 +860,6 @@ void Graphics::Update() {
         GLuint CameraRight_worldspace_ID = glGetUniformLocation(programID, "CameraRight_worldspace");
         GLuint CameraUp_worldspace_ID = glGetUniformLocation(programID, "CameraUp_worldspace");
         GLuint ViewProjMatrixID = glGetUniformLocation(programID, "VP");
-        //GLuint BillboardPosID = glGetUniformLocation(programID, "BillboardPos");
-        //GLuint BillboardSizeID = glGetUniformLocation(programID, "BillboardSize");
-        //GLuint LifeLevelID = glGetUniformLocation(programID, "LifeLevel");
         // Clear the screen
         //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -982,7 +979,7 @@ void Graphics::Update() {
         // There are much more sophisticated means to stream data from the CPU to the GPU, 
         // but this is outside the scope of this tutorial.
         // http://www.opengl.org/wiki/Buffer_Object_Streaming
-        glBindFramebuffer(GL_FRAMEBUFFER, fboIds[FBOs::Screen]);
+        //glBindFramebuffer(GL_FRAMEBUFFER, fboIds[FBOs::Screen]);
 
 
         glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
