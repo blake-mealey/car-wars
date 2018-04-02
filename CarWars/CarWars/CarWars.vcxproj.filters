@@ -280,5 +280,7 @@
     <None Include="Content\Prefabs\Entities\Controls\GamepadStart.json" />
     <None Include="Content\Scenes\Maps\EmptyArena.json" />
     <None Include="Content\Scenes\Maps\Moon.json" />
+    <None Include="Content\Shaders\particle.frag" />
+    <None Include="Content\Shaders\particle.vert" />
   </ItemGroup>
 </Project>

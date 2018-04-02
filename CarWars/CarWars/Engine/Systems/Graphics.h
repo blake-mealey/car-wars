@@ -65,7 +65,7 @@ struct Textures {
 };
 
 struct Shaders {
-	enum { Geometry=0, GUI, ShadowMap, Skybox, Screen, Blur, Copy, NavMesh, Path, Count };
+	enum { Geometry=0, GUI, ShadowMap, Skybox, Screen, Blur, Copy, NavMesh, Path, Count, Particle };
 };
 
 class Graphics : public System {
@@ -93,6 +93,8 @@ public:
     static const std::string PATH_FRAGMENT_SHADER;
     static const std::string GUI_VERTEX_SHADER;
     static const std::string GUI_FRAGMENT_SHADER;
+    static const std::string PARTICLE_VERTEX_SHADER;
+    static const std::string PARTICLE_FRAGMENT_SHADER;
 
 	static const size_t MAX_CAMERAS;
 
@@ -166,6 +168,7 @@ private:
     bool renderNavigationMesh;
     bool renderNavigationPaths;
     bool bloomEnabled;
+    bool renderParticles = true;
     float bloomScale;
 
 	void LoadLights(std::vector<Component*> _pointLights, std::vector<Component*> _directionLights, std::vector<Component*> _spotLights);

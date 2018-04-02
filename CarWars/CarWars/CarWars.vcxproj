@@ -405,6 +405,8 @@
     <None Include="Content\Shaders\navMesh.frag" />
     <None Include="Content\Shaders\navMesh.geom" />
     <None Include="Content\Shaders\navMesh.vert" />
+    <None Include="Content\Shaders\particle.frag" />
+    <None Include="Content\Shaders\particle.vert" />
     <None Include="Content\Shaders\path.frag" />
     <None Include="Content\Shaders\path.vert" />
     <None Include="Content\Shaders\screen.frag" />
