@@ -285,5 +285,6 @@
     <None Include="Content\Shaders\billboard.frag" />
     <None Include="Content\Shaders\billboard.vert" />
     <None Include="Content\Shaders\billboard.geom" />
+    <None Include="Content\Prefabs\Entities\Particles\Fire.json" />
   </ItemGroup>
 </Project>

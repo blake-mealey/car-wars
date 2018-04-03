@@ -1,0 +1,66 @@
+{
+	"Tag": "FireParticles",
+    "Position": [0, 0, 0],
+    "Components": [
+	    {
+		    "Type": "ParticleEmitter",
+		    "Texture": "Particles/Explosion.png",
+		    "Acceleration": [0, 0, 0],
+		    "Speed": 5,
+		    "InitialScale": [0, 0],
+		    "FinalScale": [10, 10],
+		    "FinalColor": "WhiteHalfAlpha",
+		    "Emissiveness": 0.25,
+		    "Lifetime": 1,
+		    "SpawnRate": 0.05,
+		    "IsSprite": true,
+		    "SpriteSize": [590, 590]
+	    },
+	    {
+		    "Type": "ParticleEmitter",
+		    "Texture": "Particles/Flash.png",
+		    "Acceleration": [0, 0, 0],
+		    "Speed": 5,
+		    "InitialScale": [0, 0],
+		    "FinalScale": [5, 5],
+		    "FinalColor": "WhiteHalfAlpha",
+		    "Emissiveness": 0.5,
+		    "Lifetime": 0.5,
+		    "SpawnRate": 0.05,
+		    "IsSprite": true,
+		    "SpriteSize": [590, 590]
+	    },
+	    {
+		    "Type": "ParticleEmitter",
+		    "Texture": "Particles/BlackSmoke.png",
+		    "InitialSpeed": 5,
+		    "Acceleration": [0, 5, 0],
+		    "InitialScale": [0, 0],
+		    "FinalScale": [15, 15],
+		    "InitialColor": "WhiteHalfAlpha",
+		    "FinalColor": "WhiteAlpha",
+		    "Emissiveness": 0,
+		    "Lifetime": 1.5,
+		    "SpawnRate": 0.1,
+		    "IsSprite": true,
+		    "SpriteSize": [390, 390],
+		    "AnimationCycles": 1
+	    },
+	    {
+		    "Type": "ParticleEmitter",
+		    "Texture": "Particles/WhitePuff.png",
+		    "InitialSpeed": 5,
+		    "Acceleration": [0, 5, 0],
+		    "InitialScale": [0, 0],
+		    "FinalScale": [15, 15],
+		    "InitialColor": "WhiteHalfAlpha",
+		    "FinalColor": "WhiteAlpha",
+		    "Emissiveness": 0,
+		    "Lifetime": 1.5,
+		    "SpawnRate": 0.1,
+		    "IsSprite": true,
+		    "SpriteSize": [390, 390],
+		    "AnimationCycles": 1
+	    }
+    ]
+}

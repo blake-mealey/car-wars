@@ -369,6 +369,7 @@
     <None Include="Content\Prefabs\Entities\Menu\MenuOption.json" />
     <None Include="Content\Prefabs\Entities\Menu\PauseMenu.json" />
     <None Include="Content\Prefabs\Entities\Menu\Pillar.json" />
+    <None Include="Content\Prefabs\Entities\Particles\Fire.json" />
     <None Include="Content\Prefabs\Entities\Pillar.json" />
     <None Include="Content\Prefabs\Entities\Vehicles\Flatbed.json" />
     <None Include="Content\Prefabs\Entities\HeadLamp.json" />
