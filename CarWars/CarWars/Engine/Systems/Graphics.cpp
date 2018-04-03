@@ -653,8 +653,9 @@ void Graphics::Update() {
             emitter->Sort(camera.position);
 
             // Load the billboard's texture to the GPU
+            Texture* texture = emitter->GetTexture();
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, emitter->GetTexture()->textureId);
+            glBindTexture(GL_TEXTURE_2D, texture->textureId);
             billboardProgram->LoadUniform(UniformName::DiffuseTexture, 0);
 
             // Load the billboard's UV scale to the GPU
@@ -671,6 +672,13 @@ void Graphics::Update() {
             billboardProgram->LoadUniform("initialColor", emitter->GetInitialColor());
             billboardProgram->LoadUniform("finalColor", emitter->GetFinalColor());
             billboardProgram->LoadUniform("emissiveness", emitter->GetEmissiveness());
+
+            billboardProgram->LoadUniform(UniformName::IsSprite, emitter->IsSprite());
+            if (emitter->IsSprite()) {
+                billboardProgram->LoadUniform(UniformName::TextureSize, glm::vec2(texture->width, texture->height));
+                billboardProgram->LoadUniform(UniformName::SpriteSize, emitter->GetSpriteSize());
+                billboardProgram->LoadUniform("animationCycles", emitter->GetAnimationCycles());
+            }
 
             glBindVertexArray(emitter->GetVao());
 

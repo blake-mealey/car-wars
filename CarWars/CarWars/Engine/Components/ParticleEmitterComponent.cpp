@@ -13,13 +13,17 @@ ParticleEmitterComponent::ParticleEmitterComponent(nlohmann::json data) {
     initialSpeed = ContentManager::GetFromJson<float>(data["InitialSpeed"], 10.f);
     acceleration = ContentManager::JsonToVec3(data["Acceleration"], glm::vec3(0.f, -9.81f, 0.f));
 
-    initialScale = ContentManager::JsonToVec3(data["InitialScale"], glm::vec3(1.f));
-    finalScale = ContentManager::JsonToVec3(data["FinalScale"], glm::vec3(1.f));
+    initialScale = ContentManager::JsonToVec2(data["InitialScale"], glm::vec2(1.f));
+    finalScale = ContentManager::JsonToVec2(data["FinalScale"], glm::vec2(1.f));
 
     texture = ContentManager::GetTexture(data["Texture"]);
     initialColor = ContentManager::GetColorFromJson(data["InitialColor"], glm::vec4(1.f));
     finalColor = ContentManager::GetColorFromJson(data["FinalColor"], glm::vec4(1.f));
     emissiveness = ContentManager::GetFromJson<float>(data["Emissiveness"], 0.f);
+
+    isSprite = ContentManager::GetFromJson<bool>(data["IsSprite"], false);
+    spriteSize = ContentManager::JsonToVec2(data["SpriteSize"], glm::vec2(10.f));
+    animationCycles = ContentManager::GetFromJson<float>(data["AnimationCycles"], 2.f);
 
     lifetime = ContentManager::GetFromJson<double>(data["Lifetime"], 3.0);
     spawnRate = ContentManager::GetFromJson<double>(data["SpawnRate"], 0.1);
@@ -76,11 +80,33 @@ void ParticleEmitterComponent::Update() {
         }
     }
 
-    if (StateManager::globalTime >= nextSpawn) {
+    if (spawnRate > 0.0 && GetParticleCount() < MAX_PARTICLES && StateManager::globalTime >= nextSpawn) {
         nextSpawn = StateManager::globalTime + spawnRate;
-        const glm::vec3 direction = glm::normalize(glm::vec3(UnitRandNegative(), UnitRand(), UnitRandNegative()));
+        Emit(1);
+    }
+}
+
+void ParticleEmitterComponent::AddParticle(glm::vec3 p, glm::vec3 v) {
+    Particle particle;
+    particle.position = p;
+    particle.velocity = v;
+    particle.lifetimeSeconds = 0.f;
+    particles.push_back(particle);
+}
+
+void ParticleEmitterComponent::Emit(size_t count) {
+    for (size_t i = 0; i < count; ++i) {
+        const glm::vec3 direction = glm::normalize(glm::vec3(UnitRandNegative(), UnitRand()*2.f, UnitRandNegative()));
         AddParticle(glm::vec3(0.f), direction * initialSpeed);
     }
+}
+
+void ParticleEmitterComponent::Sort(glm::vec3 cameraPosition) {
+    glm::vec3 localCameraPosition = glm::inverse(transform.GetTransformationMatrix()) * glm::vec4(cameraPosition, 1.f);
+    std::sort(particles.begin(), particles.end(), [cameraPosition](const Particle& lhs, const Particle& rhs) -> bool {
+        return length(lhs.position - cameraPosition) > length(rhs.position - cameraPosition);
+    });
+    UpdateBuffers();
 }
 
 GLuint ParticleEmitterComponent::GetVao() const {
@@ -91,11 +117,11 @@ size_t ParticleEmitterComponent::GetParticleCount() const {
     return particles.size();
 }
 
-glm::vec3 ParticleEmitterComponent::GetInitialScale() const {
+glm::vec2 ParticleEmitterComponent::GetInitialScale() const {
     return initialScale;
 }
 
-glm::vec3 ParticleEmitterComponent::GetFinalScale() const {
+glm::vec2 ParticleEmitterComponent::GetFinalScale() const {
     return finalScale;
 }
 
@@ -115,24 +141,20 @@ float ParticleEmitterComponent::GetEmissiveness() const {
     return emissiveness;
 }
 
+bool ParticleEmitterComponent::IsSprite() const {
+    return isSprite;
+}
+
+glm::vec2 ParticleEmitterComponent::GetSpriteSize() const {
+    return spriteSize;
+}
+
+float ParticleEmitterComponent::GetAnimationCycles() const {
+    return animationCycles;
+}
+
 float ParticleEmitterComponent::GetLifetimeSeconds() const {
     return lifetime.GetSeconds();
-}
-
-void ParticleEmitterComponent::AddParticle(glm::vec3 p, glm::vec3 v) {
-    Particle particle;
-    particle.position = p;
-    particle.velocity = v;
-    particle.lifetimeSeconds = 0.f;
-    particles.push_back(particle);
-}
-
-void ParticleEmitterComponent::Sort(glm::vec3 cameraPosition) {
-    glm::vec3 localCameraPosition = glm::inverse(transform.GetTransformationMatrix()) * glm::vec4(cameraPosition, 1.f);
-    std::sort(particles.begin(), particles.end(), [cameraPosition](const Particle& lhs, const Particle& rhs) -> bool {
-        return length(lhs.position - cameraPosition) > length(rhs.position - cameraPosition);
-    });
-    UpdateBuffers();
 }
 
 ComponentType ParticleEmitterComponent::GetType() {

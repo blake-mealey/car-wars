@@ -12,8 +12,8 @@ uniform vec3 cameraUp_world;
 uniform mat4 viewProjectionMatrix;
 uniform vec3 billboardPosition;
 
-uniform vec3 initialScale;
-uniform vec3 finalScale;
+uniform vec2 initialScale;
+uniform vec2 finalScale;
 
 out vec2 fragmentUv;
 out float lifetime_particle;
@@ -23,7 +23,7 @@ void main() {
 
 	lifetime_particle = lifetimes_particle[0];
 	float r = lifetime_particle / lifetimeSeconds;
-	vec3 scale = mix(initialScale, finalScale, r);
+	vec2 scale = mix(initialScale, finalScale, r);
 
 	position -= cameraRight_world * scale.x * 0.5;
 	position += cameraUp_world * scale.y * 0.5;
