@@ -4,7 +4,12 @@
 		{
 			"Type": "Mesh",
 			"Mesh": "Sphere.obj",
-			"Material": "LightSource.json",
+            "Material": {
+	            "DiffuseColor": "White",
+	            "SpecularColor": "White",
+	            "Specularity": 1,
+	            "Emissiveness": 1
+            },
             "Scale": [0.5, 0.5, 0.5]
 		},
 		{

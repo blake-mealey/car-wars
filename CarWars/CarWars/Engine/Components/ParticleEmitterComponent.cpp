@@ -10,6 +10,8 @@ ParticleEmitterComponent::~ParticleEmitterComponent() {
 ParticleEmitterComponent::ParticleEmitterComponent(nlohmann::json data) {
     transform = Transform(data);
 
+    lockedToEntity = ContentManager::GetFromJson<bool>(data["LockedToEntity"], false);
+
     initialSpeed = ContentManager::GetFromJson<float>(data["InitialSpeed"], 10.f);
     acceleration = ContentManager::JsonToVec3(data["Acceleration"], glm::vec3(0.f, -9.81f, 0.f));
 
@@ -82,13 +84,13 @@ void ParticleEmitterComponent::Update() {
 
     if (spawnRate > 0.0 && GetParticleCount() < MAX_PARTICLES && StateManager::globalTime >= nextSpawn) {
         nextSpawn = StateManager::globalTime + spawnRate;
-        Emit(1);
+        Emit();
     }
 }
 
 void ParticleEmitterComponent::AddParticle(glm::vec3 p, glm::vec3 v) {
     Particle particle;
-    particle.position = p;
+    particle.position = lockedToEntity ? p : p + transform.GetGlobalPosition();
     particle.velocity = v;
     particle.lifetimeSeconds = 0.f;
     particles.push_back(particle);
@@ -101,10 +103,14 @@ void ParticleEmitterComponent::Emit(size_t count) {
     }
 }
 
+bool ParticleEmitterComponent::IsLockedToEntity() const {
+    return lockedToEntity;
+}
+
 void ParticleEmitterComponent::Sort(glm::vec3 cameraPosition) {
-    glm::vec3 localCameraPosition = glm::inverse(transform.GetTransformationMatrix()) * glm::vec4(cameraPosition, 1.f);
-    std::sort(particles.begin(), particles.end(), [cameraPosition](const Particle& lhs, const Particle& rhs) -> bool {
-        return length(lhs.position - cameraPosition) > length(rhs.position - cameraPosition);
+    glm::vec3 localCameraPosition = lockedToEntity ? glm::inverse(transform.GetTransformationMatrix()) * glm::vec4(cameraPosition, 1.f) : cameraPosition;
+    std::sort(particles.begin(), particles.end(), [localCameraPosition](const Particle& lhs, const Particle& rhs) -> bool {
+        return length(lhs.position - localCameraPosition) > length(rhs.position - localCameraPosition);
     });
     UpdateBuffers();
 }

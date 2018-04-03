@@ -76,13 +76,15 @@ void PowerUp::Remove(bool force) {
 		std::vector<Entity*> headlights = EntityManager::FindChildren(player->vehicleEntity, "HeadLamp");
 		for (Entity* entity : headlights) {
 			SpotLightComponent* light = entity->GetComponent<SpotLightComponent>();
+            MeshComponent* mesh = entity->GetComponent<MeshComponent>();
 			
 			const glm::vec3 start = light->GetColor();
 			const glm::vec3 end = glm::vec3(1.f);
-			auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Quint::easeOut>(start, end, 2, StateManager::gameTime);
+			auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0, 1, 2, StateManager::gameTime);
 			tween->SetTag("Headlight" + std::to_string(player->id));
-			tween->SetUpdateCallback([light](glm::vec3& value) {
-				light->SetColor(value);
+			tween->SetUpdateCallback([start, end, light, mesh](float& value) {
+				light->SetColor(glm::mix(start, end, value));
+                mesh->GetMaterial()->diffuseColor = glm::vec4(glm::mix(glm::mix(start, end, 0.25f), end, value), 1.f);
 			});
 			tween->Start();
 		}

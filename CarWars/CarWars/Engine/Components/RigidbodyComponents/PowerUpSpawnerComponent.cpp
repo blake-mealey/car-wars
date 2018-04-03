@@ -76,6 +76,8 @@ void PowerUpSpawnerComponent::Collect(VehicleComponent* vehicle) {
 		SpotLightComponent* light = entity->GetComponent<SpotLightComponent>();
 		light->SetColor(activePowerUp->GetColor());
 
+        MeshComponent* mesh = entity->GetComponent<MeshComponent>();
+        mesh->GetMaterial()->diffuseColor = glm::mix(activePowerUp->GetColor(), glm::vec4(1.f), 0.25f);
 	}
 
     lastPickupTime = StateManager::gameTime;

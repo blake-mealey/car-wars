@@ -30,10 +30,12 @@ public:
     void Sort(glm::vec3 cameraPosition);
 
     void AddParticle(glm::vec3 p, glm::vec3 v);
-    void Emit(size_t count);
+    void Emit(size_t count = 1);
 
     GLuint GetVao() const;
     size_t GetParticleCount() const;
+
+    bool IsLockedToEntity() const;
 
     glm::vec2 GetInitialScale() const;
     glm::vec2 GetFinalScale() const;
@@ -55,6 +57,8 @@ private:
 
     void UpdateBuffers();
     void InitializeBuffers();
+
+    bool lockedToEntity;
 
     glm::vec3 acceleration;
     float initialSpeed;
