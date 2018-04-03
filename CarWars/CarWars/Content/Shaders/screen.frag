@@ -7,5 +7,5 @@ uniform sampler2D screen;
 out vec4 fragmentColor;
 
 void main() {
-	fragmentColor = texture(screen, fragmentUv);
+	fragmentColor = vec4(texture(screen, fragmentUv).rgb, 1);
 }

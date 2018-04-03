@@ -8,7 +8,7 @@
 #include "../Entities/Transform.h"
 #include "../Systems/Time.h"
 
-#define MAX_PARTICLES 100
+#define MAX_PARTICLES 10000
 
 struct Particle {
     glm::vec3 position;
@@ -46,6 +46,8 @@ public:
     float GetEmissiveness() const;
     
     bool IsSprite() const;
+    int GetSpriteColumns() const;
+    int GetSpriteRows() const;
     glm::vec2 GetSpriteSize() const;
     float GetAnimationCycles() const;
 
@@ -57,6 +59,8 @@ private:
 
     void UpdateBuffers();
     void InitializeBuffers();
+
+    size_t emitOnSpawn;
 
     bool lockedToEntity;
 
@@ -72,6 +76,8 @@ private:
     float emissiveness;
 
     bool isSprite;
+    int spriteColumns;
+    int spriteRows;
     glm::vec2 spriteSize;
     float animationCycles;
 

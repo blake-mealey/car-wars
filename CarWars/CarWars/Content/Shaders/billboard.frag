@@ -10,6 +10,8 @@ uniform vec4 initialColor;
 uniform vec4 finalColor;
 uniform float emissiveness;
 
+uniform int spriteCols;
+uniform int spriteRows;
 uniform bool isSprite;
 uniform vec2 spriteSize;
 uniform vec2 textureSize;
@@ -25,11 +27,13 @@ void main () {
 
 	vec2 uv = fragmentUv;
 	if (isSprite) {
-		vec2 spriteOffset = vec2(floor((r*animationCycles * (textureSize.x - spriteSize.x))/spriteSize.x) * spriteSize.x, 0);
-		uv = (vec2(spriteOffset.x, textureSize.y - spriteOffset.y) + uv*vec2(spriteSize.x, -spriteSize.y)) / textureSize;
+		int spriteIndex = int(float(spriteCols) * float(spriteRows) * (1-r) * animationCycles);
+		vec2 spriteOffset = vec2(spriteIndex % spriteCols, (spriteIndex / spriteCols) + 1) * spriteSize;
+		
+		uv = (vec2(spriteOffset.x, textureSize.y - spriteOffset.y) + uv*vec2(spriteSize.x, spriteSize.y)) / textureSize;
 	}
 
 	vec4 colorMult = mix(initialColor, finalColor, r);
 	color = texture(diffuseTexture, uvScale*vec2(1.f - uv.x, uv.y)) * colorMult;
-	glowColor = color * emissiveness;
+	glowColor = vec4(color.rgb*emissiveness, color.a);
 }

@@ -25,7 +25,7 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
             MeshComponent* mesh = explosionEffect->GetComponent<MeshComponent>();
             Material* mat = mesh->GetMaterial();
             
-            auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.5, StateManager::gameTime);
+            auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 10.0, StateManager::gameTime);
             tween->SetUpdateCallback([mesh, mat, explosionRadius](float& value) mutable {
                 mesh->transform.SetScale(glm::mix(glm::vec3(0.f), glm::vec3(explosionRadius*0.5f), value));
                 mat->diffuseColor = glm::mix(glm::vec4(1.f, 0.f, 0.f, 1.f), glm::vec4(1.f, 0.f, 0.f, 0.f), value);

@@ -591,40 +591,41 @@ void Graphics::Update() {
     /*glBindVertexArray(billboardVao);
 
     for (Component* component : billboardComponents) {
-        // Get enabled models
-        if (!component->enabled) continue;
-        BillboardComponent* billboard = static_cast<BillboardComponent*>(component);
+    // Get enabled models
+    if (!component->enabled) continue;
+    BillboardComponent* billboard = static_cast<BillboardComponent*>(component);
 
-        // Load the billboard's texture to the GPU
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, billboard->GetTexture()->textureId);
-        billboardProgram->LoadUniform(UniformName::DiffuseTexture, 0);
+    // Load the billboard's texture to the GPU
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, billboard->GetTexture()->textureId);
+    billboardProgram->LoadUniform(UniformName::DiffuseTexture, 0);
 
-        // Load the billboard's UV scale to the GPU
-        billboardProgram->LoadUniform(UniformName::UvScale, billboard->GetUvScale());
+    // Load the billboard's UV scale to the GPU
+    billboardProgram->LoadUniform(UniformName::UvScale, billboard->GetUvScale());
 
-        // Load the billboard's position and scale to the GPU
-        billboardProgram->LoadUniform(UniformName::BillboardPosition, billboard->transform.GetGlobalPosition());
-        billboardProgram->LoadUniform(UniformName::BillboardScale, billboard->transform.GetLocalScale());
+    // Load the billboard's position and scale to the GPU
+    billboardProgram->LoadUniform(UniformName::BillboardPosition, billboard->transform.GetGlobalPosition());
+    billboardProgram->LoadUniform(UniformName::BillboardScale, billboard->transform.GetLocalScale());
 
-        for (Camera camera : cameras) {
-            // Setup the viewport for each camera (split-screen)
-            glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
+    for (Camera camera : cameras) {
+    // Setup the viewport for each camera (split-screen)
+    glViewport(camera.viewportPosition.x, camera.viewportPosition.y, camera.viewportSize.x, camera.viewportSize.y);
 
-            // Load the view projection matrix and camera right and up vectors into the GPU
-            const glm::mat4 viewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix;
-            const glm::vec3 cameraRight = normalize(glm::vec3(viewProjectionMatrix[0][0], viewProjectionMatrix[1][0], viewProjectionMatrix[2][0]));
-            const glm::vec3 cameraUp = normalize(glm::vec3(viewProjectionMatrix[0][1], viewProjectionMatrix[1][1], viewProjectionMatrix[2][1]));
-            billboardProgram->LoadUniform(UniformName::ViewProjectionMatrix, viewProjectionMatrix);
-            billboardProgram->LoadUniform(UniformName::CameraRight, cameraRight);
-            billboardProgram->LoadUniform(UniformName::CameraUp, cameraUp);
+    // Load the view projection matrix and camera right and up vectors into the GPU
+    const glm::mat4 viewProjectionMatrix = camera.projectionMatrix * camera.viewMatrix;
+    const glm::vec3 cameraRight = normalize(glm::vec3(viewProjectionMatrix[0][0], viewProjectionMatrix[1][0], viewProjectionMatrix[2][0]));
+    const glm::vec3 cameraUp = normalize(glm::vec3(viewProjectionMatrix[0][1], viewProjectionMatrix[1][1], viewProjectionMatrix[2][1]));
+    billboardProgram->LoadUniform(UniformName::ViewProjectionMatrix, viewProjectionMatrix);
+    billboardProgram->LoadUniform(UniformName::CameraRight, cameraRight);
+    billboardProgram->LoadUniform(UniformName::CameraUp, cameraUp);
 
-            // Render the billboard
-            glDrawArrays(GL_POINTS, 0, 1);
-        }
+    // Render the billboard
+    glDrawArrays(GL_POINTS, 0, 1);
+    }
     }*/
 
     glDepthMask(GL_FALSE);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     for (Camera camera : cameras) {
         // Setup the viewport for each camera (split-screen)
@@ -664,10 +665,11 @@ void Graphics::Update() {
             // Load the billboard's position and scale to the GPU
             if (emitter->IsLockedToEntity()) {
                 billboardProgram->LoadUniform(UniformName::BillboardPosition, emitter->transform.GetGlobalPosition());
-            } else {
+            }
+            else {
                 billboardProgram->LoadUniform(UniformName::BillboardPosition, glm::vec3());
             }
-            
+
             billboardProgram->LoadUniform("initialScale", emitter->GetInitialScale());
             billboardProgram->LoadUniform("finalScale", emitter->GetFinalScale());
 
@@ -680,6 +682,8 @@ void Graphics::Update() {
             billboardProgram->LoadUniform(UniformName::IsSprite, emitter->IsSprite());
             if (emitter->IsSprite()) {
                 billboardProgram->LoadUniform(UniformName::TextureSize, glm::vec2(texture->width, texture->height));
+                billboardProgram->LoadUniform("spriteCols", emitter->GetSpriteColumns());
+                billboardProgram->LoadUniform("spriteRows", emitter->GetSpriteRows());
                 billboardProgram->LoadUniform(UniformName::SpriteSize, emitter->GetSpriteSize());
                 billboardProgram->LoadUniform("animationCycles", emitter->GetAnimationCycles());
             }
@@ -691,6 +695,7 @@ void Graphics::Update() {
         }
     }
 
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(GL_TRUE);
 
     // Load the screen geometry (this will be used by all subsequent draw calls)
@@ -788,8 +793,8 @@ void Graphics::Update() {
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     if (bloomEnabled) {
-        // Disable the depth mask and enable additive blending
         glDepthMask(GL_FALSE);
+        // Disable the depth mask and enable additive blending
         glBlendFunc(GL_ONE, GL_ONE);
 
         // Render each blur level

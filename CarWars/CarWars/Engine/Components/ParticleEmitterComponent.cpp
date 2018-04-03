@@ -10,6 +10,8 @@ ParticleEmitterComponent::~ParticleEmitterComponent() {
 ParticleEmitterComponent::ParticleEmitterComponent(nlohmann::json data) {
     transform = Transform(data);
 
+    emitOnSpawn = ContentManager::GetFromJson<size_t>(data["EmitOnSpawn"], 0);
+
     lockedToEntity = ContentManager::GetFromJson<bool>(data["LockedToEntity"], false);
 
     initialSpeed = ContentManager::GetFromJson<float>(data["InitialSpeed"], 10.f);
@@ -18,12 +20,14 @@ ParticleEmitterComponent::ParticleEmitterComponent(nlohmann::json data) {
     initialScale = ContentManager::JsonToVec2(data["InitialScale"], glm::vec2(1.f));
     finalScale = ContentManager::JsonToVec2(data["FinalScale"], glm::vec2(1.f));
 
-    texture = ContentManager::GetTexture(data["Texture"]);
+    texture = ContentManager::GetTexture(ContentManager::GetFromJson<std::string>(data["Texture"], "Particles/Explosion.png"));
     initialColor = ContentManager::GetColorFromJson(data["InitialColor"], glm::vec4(1.f));
     finalColor = ContentManager::GetColorFromJson(data["FinalColor"], glm::vec4(1.f));
     emissiveness = ContentManager::GetFromJson<float>(data["Emissiveness"], 0.f);
 
     isSprite = ContentManager::GetFromJson<bool>(data["IsSprite"], false);
+    spriteColumns = ContentManager::GetFromJson<int>(data["SpriteColumns"], 1);
+    spriteRows = ContentManager::GetFromJson<int>(data["SpriteRows"], 1);
     spriteSize = ContentManager::JsonToVec2(data["SpriteSize"], glm::vec2(10.f));
     animationCycles = ContentManager::GetFromJson<float>(data["AnimationCycles"], 2.f);
 
@@ -82,13 +86,15 @@ void ParticleEmitterComponent::Update() {
         }
     }
 
-    if (spawnRate > 0.0 && GetParticleCount() < MAX_PARTICLES && StateManager::globalTime >= nextSpawn) {
+    if (spawnRate > 0.0 && StateManager::globalTime >= nextSpawn) {
         nextSpawn = StateManager::globalTime + spawnRate;
         Emit();
     }
 }
 
 void ParticleEmitterComponent::AddParticle(glm::vec3 p, glm::vec3 v) {
+    if (GetParticleCount() >= MAX_PARTICLES) return;
+    
     Particle particle;
     particle.position = lockedToEntity ? p : p + transform.GetGlobalPosition();
     particle.velocity = v;
@@ -151,6 +157,14 @@ bool ParticleEmitterComponent::IsSprite() const {
     return isSprite;
 }
 
+int ParticleEmitterComponent::GetSpriteColumns() const {
+    return spriteColumns;
+}
+
+int ParticleEmitterComponent::GetSpriteRows() const {
+    return spriteRows;
+}
+
 glm::vec2 ParticleEmitterComponent::GetSpriteSize() const {
     return spriteSize;
 }
@@ -172,4 +186,5 @@ void ParticleEmitterComponent::HandleEvent(Event* event) { }
 void ParticleEmitterComponent::SetEntity(Entity* _entity) {
     Component::SetEntity(_entity);
     transform.parent = &_entity->transform;
+    Emit(emitOnSpawn);
 }
