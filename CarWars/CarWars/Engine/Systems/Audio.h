@@ -171,6 +171,8 @@ private:
     void StopCars();
     void ReleaseSounds();
     void CheckMusic();
+    void AddSoundToMemory(const char *filepath, FMOD::Sound* sound);
+
 
     // No instantiation or copying
     Audio();
