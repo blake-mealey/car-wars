@@ -9,6 +9,8 @@
 #include "../Effects.h"
 #include "PennerEasing/Quint.h"
 #include "../../Components/RigidbodyComponents/RigidStaticComponent.h"
+#include "PennerEasing/Linear.h"
+#include "../../Components/ParticleEmitterComponent.h"
 
 void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 	if (_actor0->HasTag("Missile")) {
@@ -22,15 +24,9 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
             Audio::Instance().PlayAudio3D("Content/Sounds/explosion.mp3", pos, glm::vec3(0.f, 0.f, 0.f), 2.f);
             Entity* explosionEffect = ContentManager::LoadEntity("ExplosionEffect.json");
             explosionEffect->transform.SetPosition(_actor0->transform.GetGlobalPosition());
-            MeshComponent* mesh = explosionEffect->GetComponent<MeshComponent>();
-            Material* mat = mesh->GetMaterial();
+            ParticleEmitterComponent* emitter = explosionEffect->GetComponent<ParticleEmitterComponent>();
             
-            auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 10.0, StateManager::gameTime);
-            tween->SetUpdateCallback([mesh, mat, explosionRadius](float& value) mutable {
-                mesh->transform.SetScale(glm::mix(glm::vec3(0.f), glm::vec3(explosionRadius*0.5f), value));
-                mat->diffuseColor = glm::mix(glm::vec4(1.f, 0.f, 0.f, 1.f), glm::vec4(1.f, 0.f, 0.f, 0.f), value);
-                mat->specularColor = glm::mix(glm::vec4(1.f, 0.f, 0.f, 1.f), glm::vec4(1.f, 0.f, 0.f, 0.f), value);
-            });
+            auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeInOut>(0.f, 1.f, emitter->GetLifetimeSeconds(), StateManager::gameTime);
             tween->SetFinishedCallback([explosionEffect](float& value) mutable {
                 EntityManager::DestroyEntity(explosionEffect);
             });

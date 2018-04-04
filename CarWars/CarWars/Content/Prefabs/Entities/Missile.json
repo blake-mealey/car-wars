@@ -20,6 +20,22 @@
 		},
 		{
 			"Type": "Missile"
+		},
+		{
+			"Type": "ParticleEmitter",
+            "Texture": "Particles/BlackSmoke.png",
+            "SpawnRate": 0.02,
+            "InitialSpeed": 0,
+            "Acceleration": [0, 0, 0],
+            "Lifetime": 0.3,
+            "InitialScale": [2, 2],
+            "FinalScale": [10, 10],
+            "InitialColor": "White",
+            "FinalColor": "WhiteAlpha",
+            "IsSprite": true,
+            "SpriteColumns": 25,
+			"SpriteSize": [390, 390],
+            "AnimationCycles": 0.5
 		}
 	]
 }

@@ -1,63 +1,7 @@
 {
 	"Tag": "ExplosionEffect",
     "Components": [
-        {
-            "Type": "Mesh",
-            "Enabled": false,
-            "Mesh": "Sphere.obj",
-            "Scale": [0, 0, 0],
-            "Material": {
-	            "DiffuseColor": "Red",
-                "SpecularColor": "Red",
-                "Specularity": 0.1,
-                "Emissiveness": 0
-            }
-        },
 	    {
-            "Enabled": false,
-		    "Type": "ParticleEmitter",
-		    "Texture": "Particles/Explosion2.png",
-		    "LockedToEntity": true,
-		    "SpawnRate": 0,
-		    "EmitOnSpawn": 1,
-            "InitialSpeed": 0,
-            "Position": [0, 25.7142857143, 0],
-		    "InitialScale": [30, 51.4285714286],
-		    "FinalScale": [30, 51.4285714286],
-		    "InitialColor": [128, 128, 128],
-		    "FinalColor": [128, 128, 128],
-		    "Emissiveness": 0.5,
-		    "Lifetime": 2.1,
-		    "IsSprite": true,
-		    "SpriteColumns": 12,
-		    "SpriteRows": 7,
-		    "SpriteSize": [341.333, 585.143],
-		    "AnimationCycles": 1
-	    },
-	    {
-            "Enabled": false,
-		    "Type": "ParticleEmitter",
-		    "Texture": "Particles/Explosion8.png",
-		    "LockedToEntity": true,
-		    "SpawnRate": 0,
-		    "EmitOnSpawn": 1,
-		    "InitialSpeed": 0,
-            "Acceleration": [0, 0, 0],
-		    "Position": [2, 0, 0],
-		    "InitialScale": [30, 35],
-		    "FinalScale": [30, 35],
-		    "InitialColor": "WhiteHalfAlpha",
-		    "FinalColor": "WhiteAlpha",
-		    "Emissiveness": 0.5,
-		    "Lifetime": 2.1,
-		    "IsSprite": true,
-		    "SpriteColumns": 12,
-		    "SpriteRows": 7,
-		    "SpriteSize": [341.333, 292.571],
-		    "AnimationCycles": 1
-	    },
-	    {
-            "Enabled": true,
 		    "Type": "ParticleEmitter",
 		    "Texture": "Particles/Explosion9.png",
 		    "LockedToEntity": true,
