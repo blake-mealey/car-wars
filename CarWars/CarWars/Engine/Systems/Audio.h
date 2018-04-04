@@ -117,23 +117,16 @@ public:
     void Initialize();
 
     void Update() override;
-    void PlayAudio(const char *filename);
-    void PlayAudio(const char *filename, float volume);
-    void PlayAudio(const char *filename, glm::vec3 position, glm::vec3 velocity);
-    void PlayAudio(const char *filename, glm::vec3 position, glm::vec3 velocity, float volume);
-	void PlayAudio2D(FMOD::Sound* sound, float volume);
     void PlayMusic(const char *filename);
-    void PlayAudio2D(const char *filename);
-    void PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity);
-    void PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity, float volume);
+
+	void PlayAudio2D(FMOD::Sound* sound, float volume);
     void PlayAudio3D(FMOD::Sound *s, glm::vec3 position, glm::vec3 velocity, float volume);
 
-    int PlaySound(const char* filename);
-    void StopSound(int index);
-	int PlaySound3D(const char* filename, glm::vec3 position, glm::vec3 velocity, float volume);
+	int PlaySound3D(FMOD::Sound* sound, glm::vec3 position, glm::vec3 velocity, float volume);
 	void StopSound3D(int index);
 
 private:
+	int updatePosition;
     bool gameStarted = false;
     int currentMusicIndex = 0;
     const char *musicPlaylist[NUM_MUSIC] = {
@@ -149,10 +142,6 @@ private:
     FMOD::System *soundSystem;
     GameState prevGameState;
     bool carsStarted = false;
-    
-    FMOD::Sound* soundArray[100];
-    FMOD::Channel* channelArray[100];
-    bool availableSound[100];
 
 	FMOD::Sound* soundArray3D[100];
 	FMOD::Channel* channelArray3D[100];
@@ -201,5 +190,12 @@ solve sound being loud when stopped
 missle:
 more uniform launch sound
 louder explosion
+
+
+- powerup sound
+- boost sound
+- machine gun sound (I'd prefer a star wars blaster-y sound but that's up for debate)
+- general mixing (some sounds are too quiet others are too loud)
+- in-game music(edited)
 
 */

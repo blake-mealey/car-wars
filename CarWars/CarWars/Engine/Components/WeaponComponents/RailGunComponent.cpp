@@ -93,7 +93,7 @@ void RailGunComponent::Shoot(glm::vec3 position) {
         //Play Charging Sound
         if (!playingChargeSound) {
 			//soundIndex = Audio::Instance().PlaySound("Content/Sounds/railgun-charge.mp3");
-			soundIndex = Audio::Instance().PlaySound3D("Content/Sounds/railgun-charge.mp3", GetEntity()->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.22f);
+			soundIndex = Audio::Instance().PlaySound3D(Audio::Instance().Weapons.railgunCharge, GetEntity()->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.22f);
             playingChargeSound = true;
         }
 

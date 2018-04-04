@@ -1,10 +1,6 @@
 #include "Audio.h"
 #include <iostream>
 
-
-
-
-
 // Singleton
 Audio::Audio() { }
 
@@ -18,7 +14,6 @@ Audio::~Audio() {
     sound3d->release();
     music->release();
     for (auto s : carSounds) { s.sound->release(); }
-    for (auto s : soundArray) { s->release(); }
     for (auto s : soundArray3D) { s->release(); }
     soundSystem->close();
     soundSystem->release();
@@ -28,11 +23,11 @@ void Audio::ReleaseSounds() {
     sound->release();
     sound3d->release();
     for (auto s : carSounds) { s.sound->release(); }
-    for (auto s : soundArray) { s->release(); }
     for (auto s : soundArray3D) { s->release(); }
 }
 
 void Audio::Initialize() { 
+	updatePosition = 0;
     srand(time(NULL));
     currentMusicIndex = rand() % NUM_MUSIC;
     FMOD::System_Create(&soundSystem);
@@ -40,7 +35,6 @@ void Audio::Initialize() {
     soundSystem->set3DSettings(1.0f, 1.f, .18f); 
     soundSystem->set3DNumListeners(Game::gameData.humanCount);
 
-	for (int i = 0; i < 100; i++) { availableSound[i] = true; }
 	for (int i = 0; i < 100; i++) { availableSound3D[i] = true; }
 
     prevGameState = StateManager::GetState();
@@ -48,7 +42,7 @@ void Audio::Initialize() {
     PlayMusic("Content/Music/imperial-march.mp3");
 
 	// weapons sounds
-    AddSoundToMemory("Content/Sounds/rocket-launch.mp3", &Weapons.missleLaunch);
+    AddSoundToMemory("Content/Sounds/rocket-launch.mp3", &Weapons.missleLaunch); 
     AddSoundToMemory("Content/Sounds/explosion.mp3", &Weapons.explosion);
 
     AddSoundToMemory("Content/Sounds/machine_gun_shot.mp3", &Weapons.bulletShoot);
@@ -91,20 +85,7 @@ void Audio::AddSoundToMemory(const char *filepath, FMOD::Sound **sound) {
     }
 }
 
-
-void Audio::PlayAudio2D(const char *filename) {
-    //soundSystem->createStream(filename, FMOD_LOOP_NORMAL | FMOD_2D, 0, &sound);
-    //soundSystem->playSound(sound, 0, false, &channel);
-    PlayAudio(filename, 0.11f);
-}
-
-void Audio::PlayAudio(const char *filename) {
-    
-
-    PlayAudio(filename, 1.f);
-}
-
-int Audio::PlaySound3D(const char *filename, glm::vec3 position, glm::vec3 velocity, float volume) {
+int Audio::PlaySound3D(FMOD::Sound *sound, glm::vec3 position, glm::vec3 velocity, float volume) {
 	FMOD_VECTOR pos = { position.x, position.y, position.z };
 	FMOD_VECTOR vel = { velocity.x, velocity.y, velocity.z };
 	int index = 0;
@@ -112,92 +93,26 @@ int Audio::PlaySound3D(const char *filename, glm::vec3 position, glm::vec3 veloc
 		if (s) break;
 		index++;
 	}
+
 	availableSound3D[index] = false;
-	soundSystem->createSound(filename, FMOD_3D | FMOD_LOOP_OFF, 0, &soundArray3D[index]);
-	soundSystem->playSound(soundArray3D[index], 0, false, &channelArray3D[index]);
+	soundSystem->playSound(sound, 0, false, &channelArray3D[index]);
 	channelArray3D[index]->setVolume(volume);
 	channelArray3D[index]->set3DAttributes(&pos, &vel);
 	channelArray3D[index]->setPaused(false);
+
 	return index;
 }
 
 void Audio::StopSound3D(int index) {
 	availableSound3D[index] = true;
     channelArray3D[index]->setPaused(true);
-	soundArray3D[index]->release();
 }
-
-int Audio::PlaySound(const char *filename) {
-    int index=0;
-    for (auto s : availableSound) {
-        if (s) break;
-        index++;
-    }
-    availableSound[index] = false;
-    soundSystem->createSound(filename, FMOD_2D | FMOD_LOOP_OFF, 0, &soundArray[index]); // to ignore positioning for now
-    //soundSystem->createSound(filename, FMOD_3D | FMOD_LOOP_OFF, 0, &soundArray[index]);
-    soundSystem->playSound(soundArray[index], 0, false, &channelArray[index]);
-    channelArray[index]->setVolume(0.55f);
-    channelArray[index]->setPaused(false);
-    return index;
-}
-
-void Audio::StopSound(int index) {
-    availableSound[index] = true;
-	soundArray[index]->release();
-}
-
 
 void Audio::PlayAudio2D(FMOD::Sound* sound, float volume) {
 	soundSystem->playSound(sound, 0, false, &channel);
 	channel->setVolume(volume);
 }
 
-void Audio::PlayAudio(const char *filename, float volume) {
-    sound->getNumSubSounds(&numsubsounds);
-
-    if (numsubsounds) {
-        sound->getSubSound(0, &soundToPlay);
-    } else {
-        soundToPlay = sound;
-    }
-
-    soundSystem->createStream(filename, FMOD_LOOP_OFF | FMOD_3D, 0, &soundToPlay);
-    soundSystem->playSound(soundToPlay, 0, false, &channel);
-    channel->setVolume(volume);
-}
-
-void Audio::PlayAudio(const char *filename, glm::vec3 position, glm::vec3 velocity) {
-    PlayAudio(filename, position, velocity, 1.f);
-}
-
-void Audio::PlayAudio(const char *filename, glm::vec3 position, glm::vec3 velocity, float volume) {
-    //sound3d->getNumSubSounds(&numsubsounds3d);
-
-    //if (numsubsounds3d) {
-    //    sound3d->getSubSound(0, &soundToPlay3d);
-    //} else {
-        soundToPlay3d = sound3d;
-    //}
-
-
-    FMOD_VECTOR pos = { position.x, position.y, position.z };
-    FMOD_VECTOR vel = { velocity.x, velocity.y, velocity.z };
-    soundSystem->createSound(filename, FMOD_3D, 0, &soundToPlay3d);
-    soundToPlay3d->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
-    soundToPlay3d->setMode(FMOD_LOOP_OFF);
-    soundSystem->playSound(soundToPlay3d, 0, true, &channel3d);
-    channel3d->set3DAttributes(&pos, &vel);
-    channel3d->setPaused(false);
-    channel3d->setVolume(volume);
-}
-
-void Audio::PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity) {
-    PlayAudio(filename, position, velocity);
-}
-void Audio::PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity, float volume) {
-    PlayAudio(filename, position, velocity, volume);
-}
 void Audio::PlayAudio3D(FMOD::Sound *s, glm::vec3 position, glm::vec3 velocity, float volume) {
     FMOD_VECTOR pos = { position.x, position.y, position.z };
     FMOD_VECTOR vel = { velocity.x, velocity.y, velocity.z };
@@ -209,13 +124,11 @@ void Audio::PlayAudio3D(FMOD::Sound *s, glm::vec3 position, glm::vec3 velocity, 
 
 void Audio::PauseSounds() {
     for (auto c : channelArray3D) c->setPaused(true);
-    for (auto c : channelArray) c->setPaused(true);
     channel->setPaused(true);
     channel3d->setPaused(true);
 }
 void Audio::ResumeSounds() {
     for (auto c : channelArray3D) c->setPaused(false);
-    for (auto c : channelArray) c->setPaused(false);
     channel->setPaused(false);
     channel3d->setPaused(false);
 }
@@ -420,11 +333,19 @@ void Audio::CheckMusic() {
     }
 }
 
+int LimitedUpdate(int updatePosition, int updatesAvailable) {
+
+	return updatePosition;
+}
+
 void Audio::Update() { 
-    UpdateRunningCars();
-    MenuMusicControl(); // prevGameState saved
-    UpdateListeners();
-    CheckMusic();
+	UpdateListeners(); // 4 updates
+	
+	UpdateRunningCars(); // 
+
+	MenuMusicControl(); // prevGameState saved
+
+    CheckMusic(); // 1 update
 
     soundSystem->update();
 }
