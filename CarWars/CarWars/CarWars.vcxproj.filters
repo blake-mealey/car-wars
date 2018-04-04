@@ -207,7 +207,6 @@
     <None Include="Content\Prefabs\Components\Weapons\RocketLauncher.json" />
     <None Include="Content\Prefabs\Entities\Boulder.json" />
     <None Include="Content\Prefabs\Entities\Bullet.json" />
-    <None Include="Content\Prefabs\Entities\Explosion.json" />
     <None Include="Content\Prefabs\Entities\ExplosionEffect.json" />
     <None Include="Content\Prefabs\Entities\Game\Camera.json" />
     <None Include="Content\Prefabs\Entities\Menu\Camera.json" />
@@ -288,5 +287,7 @@
     <None Include="Content\Prefabs\Entities\Particles\Fire.json" />
     <None Include="Content\Prefabs\Entities\Vehicles\Vehicle.json" />
     <None Include="Content\Prefabs\Components\Particles\Dust.json" />
+    <None Include="Content\Prefabs\Entities\BulletHitGroundEffect.json" />
+    <None Include="Content\Prefabs\Entities\BulletHitCarEffect.json" />
   </ItemGroup>
 </Project>

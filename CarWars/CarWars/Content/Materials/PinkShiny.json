@@ -1,6 +1,6 @@
 {
 	"DiffuseColor": "Red",
 	"SpecularColor": [102, 102, 102, 0],
-	"Specularity":  0.5,
-	"Emissiveness": 0.3
+	"Specularity":  1,
+	"Emissiveness": 1
 }

@@ -1,0 +1,22 @@
+{
+	"Tag": "ExplosionEffect",
+	"Components": [
+		{
+			"Type": "ParticleEmitter",
+			"Texture": "Particles/Flash.png",
+			"LockedToEntity": true,
+			"SpawnRate": 0,
+			"EmitOnSpawn": 3,
+			"InitialSpeed": 20,
+			"Acceleration": [0, 0, 0],
+			"Lifetime": 0.1,
+			"InitialScale": [0.5, 0.5],
+			"FinalScale": [0.1, 0.1],
+			"Emission": 10,
+			"IsSprite": true,
+			"SpriteColumns": 9,
+			"SpriteSize": [590, 590],
+			"AnimationCycles": 0.5
+		}
+	]
+}

@@ -330,6 +330,8 @@
     <None Include="Content\Prefabs\Components\Controls\GamepadA.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadB.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadControl.json" />
+    <None Include="Content\Prefabs\Entities\BulletHitCarEffect.json" />
+    <None Include="Content\Prefabs\Entities\BulletHitGroundEffect.json" />
     <None Include="Content\Prefabs\Entities\Controls\GamepadContinue.json" />
     <None Include="Content\Prefabs\Entities\Controls\GamepadBack.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadX.json" />
@@ -358,7 +360,6 @@
     <None Include="Content\Prefabs\Components\Weapons\RocketLauncher.json" />
     <None Include="Content\Prefabs\Entities\Boulder.json" />
     <None Include="Content\Prefabs\Entities\Bullet.json" />
-    <None Include="Content\Prefabs\Entities\Explosion.json" />
     <None Include="Content\Prefabs\Entities\ExplosionEffect.json" />
     <None Include="Content\Prefabs\Entities\Game\Camera.json" />
     <None Include="Content\Prefabs\Entities\Game\SpawnLocation.json" />

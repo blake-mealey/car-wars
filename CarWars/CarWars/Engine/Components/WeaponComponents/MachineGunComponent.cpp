@@ -9,6 +9,7 @@
 #include "../../Systems/StateManager.h"
 #include "../../Systems/Physics.h"
 #include "../RigidbodyComponents/VehicleComponent.h"
+#include "../ParticleEmitterComponent.h"
 #include "../LineComponent.h"
 #include "../../Systems/Effects.h"
 #include "PennerEasing/Linear.h"
@@ -66,6 +67,20 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
             if (thingHit) {
 				thingHit->TakeDamage(this, GetDamage());
             }
+
+            Entity* explosionEffect;
+            if (thingHit && thingHit->HasTag("Vehicle")) {
+                explosionEffect = ContentManager::LoadEntity("BulletHitCarEffect.json");
+            } else {
+                explosionEffect = ContentManager::LoadEntity("BulletHitGroundEffect.json");
+            }
+            explosionEffect->transform.SetPosition(hitPosition);
+            ParticleEmitterComponent* emitter = explosionEffect->GetComponent<ParticleEmitterComponent>();
+            auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeInOut>(0.f, 1.f, emitter->GetLifetimeSeconds(), StateManager::gameTime);
+            tween->SetFinishedCallback([explosionEffect](float& value) mutable {
+                EntityManager::DestroyEntity(explosionEffect);
+            });
+            tween->Start();
 		} else {
 			hitPosition = gunPosition + (shotDirection * rayLength);
 		}
