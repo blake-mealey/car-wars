@@ -324,6 +324,7 @@
     <None Include="Content\Materials\YellowShiny.json" />
     <None Include="Content\Prefabs\Components\DamagePowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\DefencePowerUpMesh.json" />
+    <None Include="Content\Prefabs\Components\Particles\Dust.json" />
     <None Include="Content\Prefabs\Components\PowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\SpeedPowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadA.json" />
@@ -380,6 +381,7 @@
     <None Include="Content\Prefabs\Entities\Missile.json" />
     <None Include="Content\Prefabs\Entities\Vehicles\Sewage.json" />
     <None Include="Content\Prefabs\Entities\Sun.json" />
+    <None Include="Content\Prefabs\Entities\Vehicles\Vehicle.json" />
     <None Include="Content\Prefabs\Entities\Waypoint.json" />
     <None Include="Content\Prefabs\Entities\Weapons\GunTurret.json" />
     <None Include="Content\Prefabs\Entities\Weapons\MachineGunTurret.json" />

@@ -1,5 +1,5 @@
 {
-  "Tag": "Vehicle",
+  "Prefab": "Vehicles/Vehicle.json",
   "Components": [
     {
       "Type": "Mesh",

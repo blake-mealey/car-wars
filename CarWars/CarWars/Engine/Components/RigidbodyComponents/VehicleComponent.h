@@ -9,6 +9,7 @@
 #include "../MeshComponent.h"
 
 class WeaponComponent;
+class ParticleEmitterComponent;
 
 struct AxleData {
     AxleData(const float _centerOffset = 0.f, const float _wheelInset = 0.f)
@@ -83,6 +84,7 @@ private:
     MeshComponent* wheelMeshPrefab;
     std::vector<MeshComponent*> wheelMeshes;
     std::vector<Collider*> wheelColliders;
+    std::vector<ParticleEmitterComponent*> wheelEmitters;
 
     physx::PxVehicleDriveSimData4W driveSimData;
     physx::PxVehicleWheelsSimData* wheelsSimData;

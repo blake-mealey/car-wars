@@ -52,6 +52,7 @@ public:
     float GetAnimationCycles() const;
 
     float GetLifetimeSeconds() const;
+    void SetSpawnRate(float _spawnRate);
 
     Transform transform;
 

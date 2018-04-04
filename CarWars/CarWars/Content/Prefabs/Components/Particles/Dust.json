@@ -1,0 +1,15 @@
+{
+	"Type": "ParticleEmitter",
+	"Texture": "Particles/WhitePuff.png",
+	"SpawnRate": 0.1,
+	"InitialSpeed": 5,
+	"Lifetime": 1,
+	"InitialScale": [1, 1],
+	"FinalScale": [2, 2],
+	"InitialColor": [107, 91, 76],
+	"FinalColor": [107, 91, 76, 0],
+	"IsSprite": true,
+	"SpriteColumns": 25,
+	"SpriteSize": [390, 390],
+	"AnimationCycles": 0.5
+}

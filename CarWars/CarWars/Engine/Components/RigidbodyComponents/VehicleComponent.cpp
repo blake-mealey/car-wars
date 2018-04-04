@@ -21,6 +21,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include "PennerEasing/Linear.h"
 #include "../../Systems/Physics/VehicleCreate.h"
+#include "../ParticleEmitterComponent.h"
 
 using namespace physx;
 
@@ -304,18 +305,27 @@ void VehicleComponent::Initialize() {
     for (size_t i = 0; i < wheelCount; ++i) {
         MeshComponent* wheel = new MeshComponent(wheelMeshPrefab);
         wheelMeshes.push_back(wheel);
+        
+        ParticleEmitterComponent* emitter = ContentManager::LoadComponent<ParticleEmitterComponent>("Particles/Dust.json");
+        wheelEmitters.push_back(emitter);
     }
 
     UpdateWheelTransforms();
 }
 
 void VehicleComponent::UpdateWheelTransforms() {
+    const float speed = abs(pxVehicle->computeForwardSpeed());
+    const float spawnRate = inAir || speed <= 5.f ? 0.f : 1.f - glm::clamp(speed / 30.f, 0.5f, 0.9f);
     for (size_t i = 0; i < wheelCount; ++i) {
         MeshComponent* wheel = wheelMeshes[i];
         Transform pose = wheelColliders[i]->GetLocalTransform();
         wheel->transform.SetPosition(pose.GetLocalPosition());
         wheel->transform.SetRotationAxisAngles(Transform::UP, glm::radians(i % 2 == 0 ? 180.f : 0.f));
         wheel->transform.Rotate(pose.GetLocalRotation());
+
+        ParticleEmitterComponent* emitter = wheelEmitters[i];
+        emitter->transform.SetPosition(pose.GetLocalPosition());
+        emitter->SetSpawnRate(spawnRate);
     }
 }
 
@@ -440,11 +450,9 @@ void VehicleComponent::HandleEvent(Event *event) {}
 
 void VehicleComponent::SetEntity(Entity* _entity) {
     RigidbodyComponent::SetEntity(_entity);
-    for (MeshComponent *component : wheelMeshes) {
-        /*if (component->GetEntity() != nullptr) {
-        EntityManager::RemoveComponent(component->GetEntity(), component);
-        }*/
-        EntityManager::AddComponent(GetEntity(), component);
+    for (size_t i = 0; i < wheelCount; ++i) {
+        EntityManager::AddComponent(GetEntity(), wheelMeshes[i]);
+        EntityManager::AddComponent(GetEntity(), wheelEmitters[i]);
     }
 
     //Set the vehicle to rest in first gear.

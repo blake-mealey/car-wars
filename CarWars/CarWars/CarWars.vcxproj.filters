@@ -286,5 +286,7 @@
     <None Include="Content\Shaders\billboard.vert" />
     <None Include="Content\Shaders\billboard.geom" />
     <None Include="Content\Prefabs\Entities\Particles\Fire.json" />
+    <None Include="Content\Prefabs\Entities\Vehicles\Vehicle.json" />
+    <None Include="Content\Prefabs\Components\Particles\Dust.json" />
   </ItemGroup>
 </Project>

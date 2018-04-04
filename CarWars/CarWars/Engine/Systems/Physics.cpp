@@ -195,9 +195,10 @@ void Physics::Update() {
     PxVehicleUpdates(timestep, grav, *pxFrictionPairs, vehicles.size(), vehicles.data(), vehicleQueryResults.data());
 
     //Work out if the vehicle is in the air.
-    for (Component* component : vehicleComponents) {
+    for (size_t i = 0; i < vehicleComponents.size(); ++i) {
+        Component* component = vehicleComponents[i];
         VehicleComponent* vehicle = static_cast<VehicleComponent*>(component);
-        vehicle->inAir = vehicle->pxVehicle->getRigidDynamicActor()->isSleeping() ? false : PxVehicleIsInAir(vehicleQueryResults[0]);
+        vehicle->inAir = vehicle->pxVehicle->getRigidDynamicActor()->isSleeping() ? false : PxVehicleIsInAir(vehicleQueryResults[i]);
 		if (!vehicle->inAir) {
 			glm::vec3 force = vehicle->GetEntity()->transform.GetUp() * -5.f * abs(vehicle->pxVehicle->computeForwardSpeed());
 			vehicle->actor->addForce(Transform::ToPx(force), PxForceMode::eIMPULSE);

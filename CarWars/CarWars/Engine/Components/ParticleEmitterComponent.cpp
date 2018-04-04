@@ -177,6 +177,10 @@ float ParticleEmitterComponent::GetLifetimeSeconds() const {
     return lifetime.GetSeconds();
 }
 
+void ParticleEmitterComponent::SetSpawnRate(float _spawnRate) {
+    spawnRate = _spawnRate;
+}
+
 ComponentType ParticleEmitterComponent::GetType() {
     return ComponentType_ParticleEmitter;
 }
