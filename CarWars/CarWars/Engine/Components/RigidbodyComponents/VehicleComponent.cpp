@@ -474,11 +474,9 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
     PlayerData* me = Game::GetPlayerFromEntity(GetEntity());
 
     if (damager->GetType() == ComponentType_RailGun) {
-        //Audio::Instance().PlayAudio2D("Content/Sounds/railgun-hit.mp3");
-        Audio::Instance().PlayAudio3D("Content/Sounds/railgun-hit.mp3", GetEntity()->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f));
+        Audio::Instance().PlayAudio3D(Audio::Instance().Weapons.railgunHitHeavy, GetEntity()->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 1.f);
     } else if (damager->GetType() == ComponentType_MachineGun) {
-        //Audio::Instance().PlayAudio2D("Content/Sounds/bullet-hit.mp3");
-        Audio::Instance().PlayAudio3D("Content/Sounds/bullet-hit.mp3", GetEntity()->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f));
+        Audio::Instance().PlayAudio3D(Audio::Instance().Weapons.bulletHitHeavy, GetEntity()->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 1.f);
     }
 
     if (attacker && attacker->teamIndex == me->teamIndex) return;

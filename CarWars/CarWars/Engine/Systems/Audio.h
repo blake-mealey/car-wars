@@ -16,6 +16,7 @@
 #define MIN_DISTANCE 0.15
 #define MAX_CHANNELS 200
 #define NUM_MUSIC 7
+
 #define UPDATES_TO_RUN 25
 
 typedef FMOD::Sound* SoundClass;
@@ -29,6 +30,32 @@ struct CarSound {
     FMOD::Channel *channel=0;
     bool changedDirection = false;
     bool reversing = false;
+};
+
+struct WeaponSounds {
+    FMOD::Sound* missleLaunch;
+    FMOD::Sound* explosion;
+
+    FMOD::Sound* bulletShoot;
+    FMOD::Sound* bulletHitHeavy;
+    FMOD::Sound* bulletHitMedium;
+    FMOD::Sound* bulletHitLight;
+    FMOD::Sound* bulletHitGround;
+    FMOD::Sound* bulletHitWall;
+
+    FMOD::Sound* railgunCharge;
+    FMOD::Sound* railgunShoot;
+    FMOD::Sound* railgunHitHeavy;
+    FMOD::Sound* railgunHitMedium;
+    FMOD::Sound* railgunHitLight;
+    FMOD::Sound* railgunHitGround;
+    FMOD::Sound* railgunHitWall;
+};
+
+struct MenuSounds {
+    FMOD::Sound* navigate;
+    FMOD::Sound* enter;
+    FMOD::Sound* back;
 };
 
 
@@ -67,6 +94,9 @@ struct CarSound {
 
 class Audio : public System {
 public:
+    WeaponSounds Weapons;
+    MenuSounds Menu;
+
     float musicVolume = 0.085f;
     float aiSoundVolume = 0.25f;
     float playerSoundVolume = 0.05f;
@@ -86,6 +116,7 @@ public:
     void PlayAudio2D(const char *filename);
     void PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity);
     void PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity, float volume);
+    void PlayAudio3D(FMOD::Sound *s, glm::vec3 position, glm::vec3 velocity, float volume);
 
     int PlaySound(const char* filename);
     void StopSound(int index);
