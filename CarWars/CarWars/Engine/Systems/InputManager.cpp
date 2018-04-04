@@ -327,11 +327,12 @@ void InputManager::NavigateGuis(GuiNavData navData) {
     
     if (StateManager::GetState() != GameState_Playing)
         if (navData.back)
-            Audio::Instance().PlayAudio("Content/Sounds/menu/jig1.wav", 0.1f);
+            Audio::Instance().PlayAudio2D(Audio::Instance().Menu.back, 0.1f);
         else if (navData.enter)
-            Audio::Instance().PlayAudio("Content/Sounds/menu/eshop.wav", 0.1f);
-        else
-            Audio::Instance().PlayAudio("Content/Sounds/menu/jig0.wav", 0.1f);
+			Audio::Instance().PlayAudio2D(Audio::Instance().Menu.enter, 0.1f);
+        else			
+			Audio::Instance().PlayAudio2D(Audio::Instance().Menu.navigate, 0.1f);
+
 
 
 	// Normalize directional inputs

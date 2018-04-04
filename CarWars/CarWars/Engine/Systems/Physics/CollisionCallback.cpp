@@ -20,8 +20,6 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 			//Explode
             glm::vec3 pos = _actor0->transform.GetGlobalPosition();
 			float explosionRadius = _actor0->GetComponent<MissileComponent>()->GetExplosionRadius();
-            //Audio::Instance().PlayAudio("Content/Sounds/explosion.mp3", 1.f);
-            //Audio::Instance().PlayAudio3D("Content/Sounds/explosion.mp3", pos, glm::vec3(0.f, 0.f, 0.f), 2.f);
             Audio::Instance().PlayAudio3D(Audio::Instance().Weapons.explosion, pos, glm::vec3(0.f, 0.f, 0.f), 2.f);
 
 		    Entity* explosionEffect = ContentManager::LoadEntity("ExplosionEffect.json");

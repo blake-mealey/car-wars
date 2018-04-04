@@ -47,43 +47,45 @@ void Audio::Initialize() {
     // main screen intro music
     PlayMusic("Content/Music/imperial-march.mp3");
 
-    AddSoundToMemory("Content/Sounds/rocket-launch.mp3", Weapons.missleLaunch);
-    AddSoundToMemory("Content/Sounds/explosion.mp3", Weapons.explosion);
+	// weapons sounds
+    AddSoundToMemory("Content/Sounds/rocket-launch.mp3", &Weapons.missleLaunch);
+    AddSoundToMemory("Content/Sounds/explosion.mp3", &Weapons.explosion);
 
-    //AddSoundToMemory("Content/Sounds/machine_gun_shot.mp3", Weapons.bulletShoot);
-    //AddSoundToMemory("Content/Sounds/bullet-hit.mp3", Weapons.bulletHitHeavy);
-    AddSoundToMemory("Content/Sounds/bullet-hit.mp3", Weapons.bulletHitMedium);
-    AddSoundToMemory("Content/Sounds/bullet-hit.mp3", Weapons.bulletHitLight);
-    AddSoundToMemory("Content/Sounds/bullet-hit.mp3", Weapons.bulletHitGround);
-    AddSoundToMemory("Content/Sounds/bullet-hit.mp3", Weapons.bulletHitWall);
+    AddSoundToMemory("Content/Sounds/machine_gun_shot.mp3", &Weapons.bulletShoot);
+    AddSoundToMemory("Content/Sounds/bullet-hit.mp3", &Weapons.bulletHitHeavy);
+    AddSoundToMemory("Content/Sounds/bullet-hit.mp3", &Weapons.bulletHitMedium);
+    AddSoundToMemory("Content/Sounds/bullet-hit.mp3", &Weapons.bulletHitLight);
+    AddSoundToMemory("Content/Sounds/bullet-hit.mp3", &Weapons.bulletHitGround);
+    AddSoundToMemory("Content/Sounds/bullet-hit.mp3", &Weapons.bulletHitWall);
 
-    AddSoundToMemory("Content/Sounds/railgun-shoot.mp3", Weapons.railgunShoot);
-    AddSoundToMemory("Content/Sounds/railgun-charge.mp3", Weapons.railgunCharge);
-    AddSoundToMemory("Content/Sounds/railgun-hit.mp3", Weapons.railgunHitHeavy);
-    AddSoundToMemory("Content/Sounds/railgun-hit.mp3", Weapons.railgunHitMedium);
-    AddSoundToMemory("Content/Sounds/railgun-hit.mp3", Weapons.railgunHitLight);
-    AddSoundToMemory("Content/Sounds/railgun-hit.mp3", Weapons.railgunHitGround);
-    AddSoundToMemory("Content/Sounds/railgun-hit.mp3", Weapons.railgunHitWall);
+    AddSoundToMemory("Content/Sounds/railgun-shoot.mp3", &Weapons.railgunShoot);
+    AddSoundToMemory("Content/Sounds/railgun-charge.mp3", &Weapons.railgunCharge);
+    AddSoundToMemory("Content/Sounds/railgun-hit.mp3", &Weapons.railgunHitHeavy);
+    AddSoundToMemory("Content/Sounds/railgun-hit.mp3", &Weapons.railgunHitMedium);
+    AddSoundToMemory("Content/Sounds/railgun-hit.mp3", &Weapons.railgunHitLight);
+    AddSoundToMemory("Content/Sounds/railgun-hit.mp3", &Weapons.railgunHitGround);
+    AddSoundToMemory("Content/Sounds/railgun-hit.mp3", &Weapons.railgunHitWall);
 
+	// menu sounds
+	AddSoundToMemory("Content/Sounds/Menu/back.wav", &Menu.back);
+	AddSoundToMemory("Content/Sounds/Menu/navigate.wav", &Menu.navigate);
+	AddSoundToMemory("Content/Sounds/Menu/enter.wav", &Menu.enter);
 
+	// environmental sounds
+	AddSoundToMemory("Content/Sounds/car-on-car-collision.mp3", &Environment.hitCar);
+	AddSoundToMemory("Content/Sounds/car-on-ground-collision.mp3", &Environment.hitGround);
+	AddSoundToMemory("Content/Sounds/car-on-ground-collision.mp3", &Environment.hitWall);
+	AddSoundToMemory("Content/Sounds/powerup.mp3", &Environment.powerup);
+	AddSoundToMemory("Content/Sounds/jump.mp3", &Environment.jump);
 
-    //soundSystem->createSound("Content/Sounds/rocket-launch.mp3", FMOD_3D | FMOD_LOOP_OFF, 0, &Weapons.missleLaunch);
-    //Weapons.missleLaunch->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
-    soundSystem->createSound("Content/Sounds/explosion.mp3", FMOD_3D | FMOD_LOOP_OFF, 0, &Weapons.explosion);
-    Weapons.explosion->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
-    soundSystem->createSound("Content/Sounds/bullet-hit.mp3", FMOD_3D | FMOD_LOOP_OFF, 0, &Weapons.bulletHitHeavy);
-    Weapons.bulletHitHeavy->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
-    soundSystem->createSound("Content/Sounds/machine_gun_shoot.mp3", FMOD_3D | FMOD_LOOP_OFF, 0, &Weapons.bulletShoot);
-    Weapons.bulletHitHeavy->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
-    
 }
 
-void Audio::AddSoundToMemory(const char *filepath, FMOD::Sound* sound) {
-    result = soundSystem->createSound(filepath, FMOD_3D | FMOD_LOOP_OFF, 0, &sound);
+void Audio::AddSoundToMemory(const char *filepath, FMOD::Sound **sound) {
+    result = soundSystem->createSound(filepath, FMOD_3D | FMOD_LOOP_OFF, 0, sound);
     if (result != FMOD_OK) {
         std::cout << "Error creating sound " << filepath << std::endl;
     }
-    result = sound->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
+    result = (*sound)->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
     if (result != FMOD_OK) {
         std::cout << "Error setting distance on " << filepath << std::endl;
     }
@@ -145,6 +147,12 @@ void Audio::StopSound(int index) {
 	soundArray[index]->release();
 }
 
+
+void Audio::PlayAudio2D(FMOD::Sound* sound, float volume) {
+	soundSystem->playSound(sound, 0, false, &channel);
+	channel->setVolume(volume);
+}
+
 void Audio::PlayAudio(const char *filename, float volume) {
     sound->getNumSubSounds(&numsubsounds);
 
@@ -196,7 +204,7 @@ void Audio::PlayAudio3D(FMOD::Sound *s, glm::vec3 position, glm::vec3 velocity, 
     soundSystem->playSound(s, 0, true, &channel3d);
     channel3d->set3DAttributes(&pos, &vel);
     channel3d->setPaused(false);
-    channel3d->setVolume(1.f);
+    channel3d->setVolume(volume);
 }
 
 void Audio::PauseSounds() {

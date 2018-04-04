@@ -58,6 +58,14 @@ struct MenuSounds {
     FMOD::Sound* back;
 };
 
+struct EnvironmentalSounds {
+	FMOD::Sound* hitCar;
+	FMOD::Sound* hitGround;
+	FMOD::Sound* hitWall;
+	FMOD::Sound* powerup;
+	FMOD::Sound* jump;
+};
+
 
 //struct HeavySounds {
 //    const char *idle = "Content/Sounds/Truck/idle.mp3";
@@ -96,6 +104,7 @@ class Audio : public System {
 public:
     WeaponSounds Weapons;
     MenuSounds Menu;
+	EnvironmentalSounds Environment;
 
     float musicVolume = 0.085f;
     float aiSoundVolume = 0.25f;
@@ -112,6 +121,7 @@ public:
     void PlayAudio(const char *filename, float volume);
     void PlayAudio(const char *filename, glm::vec3 position, glm::vec3 velocity);
     void PlayAudio(const char *filename, glm::vec3 position, glm::vec3 velocity, float volume);
+	void PlayAudio2D(FMOD::Sound* sound, float volume);
     void PlayMusic(const char *filename);
     void PlayAudio2D(const char *filename);
     void PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity);
@@ -171,7 +181,7 @@ private:
     void StopCars();
     void ReleaseSounds();
     void CheckMusic();
-    void AddSoundToMemory(const char *filepath, FMOD::Sound* sound);
+    void AddSoundToMemory(const char *filepath, FMOD::Sound** sound);
 
 
     // No instantiation or copying

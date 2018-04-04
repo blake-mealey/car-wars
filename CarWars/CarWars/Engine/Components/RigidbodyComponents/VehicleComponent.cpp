@@ -647,8 +647,7 @@ void VehicleComponent::Boost(glm::vec3 boostDir) {
 		pxVehicle->getRigidDynamicActor()->addForce(-Transform::ToPx(glm::normalize(boostDir) * boostPower * GetChassisMass()), PxForceMode::eIMPULSE, true);
 		lastBoost = StateManager::gameTime;
 
-		//Audio::Instance().PlayAudio("Content/Sounds/jump.mp3");
-		Audio::Instance().PlayAudio3D("Content/Sounds/jump.mp3", GetEntity()->transform.GetGlobalPosition() , glm::vec3(0.f, 0.f, 0.f));
+		Audio::Instance().PlayAudio3D(Audio::Instance().Environment.jump, GetEntity()->transform.GetGlobalPosition() , glm::vec3(0.f, 0.f, 0.f), 1.f);
 
 
 		HumanData* player = Game::GetHumanFromEntity(GetEntity());
@@ -740,11 +739,9 @@ void VehicleComponent::OnContact(RigidbodyComponent* body) {
     VehicleComponent* otherVehicle = body->GetEntity()->GetComponent<VehicleComponent>();
 	Entity* vehicle = body->GetEntity();
     if (otherVehicle) {
-		Audio::Instance().PlayAudio3D("Content/Sounds/car-on-car2.mp3", vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.25f);
-        //Audio::Instance().PlayAudio("Content/Sounds/car-on-car2.mp3");
+		Audio::Instance().PlayAudio3D(Audio::Instance().Environment.hitCar, vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.25f);
     } else {
-		Audio::Instance().PlayAudio3D("Content/Sounds/car-on-car.mp3", vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.25f);
-		//Audio::Instance().PlayAudio("Content/Sounds/car-on-car.mp3");
+		Audio::Instance().PlayAudio3D(Audio::Instance().Environment.hitGround, vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.25f);
     }
 }
 

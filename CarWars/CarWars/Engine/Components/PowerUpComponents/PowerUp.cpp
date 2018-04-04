@@ -9,10 +9,8 @@
 PowerUp::PowerUp(Time a_duration) : duration(a_duration) {}
 
 void PowerUp::Collect(PlayerData* a_player) {
-    //Audio& audioManager = Audio::Instance();
-	//audioManager.PlayAudio("Content/Sounds/powerup.mp3");
 	Entity *vehicle = a_player->vehicleEntity;
-	Audio::Instance().PlayAudio3D("Content/Sounds/powerup.mp3", vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f));
+	Audio::Instance().PlayAudio3D(Audio::Instance().Environment.powerup, vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 1.f);
 
 
 
