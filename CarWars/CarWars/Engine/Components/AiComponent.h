@@ -39,6 +39,7 @@ public:
 	void StartStuckTime();
 	Time GetStuckDuration();
 	Time GetSearchDuration();
+	Time GetPreppingTime();
 
 	void Update();
 
