@@ -62,6 +62,8 @@ private:
     void InitializeBuffers();
 
     size_t emitOnSpawn;
+    float emitConeMinAngle;
+    float emitConeMaxAngle;
 
     bool lockedToEntity;
 

@@ -1,6 +1,9 @@
 #include "ParticleEmitterComponent.h"
 #include "../Systems/StateManager.h"
 #include "../Systems/Content/ContentManager.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <glm/gtx/string_cast.hpp>
 
 ParticleEmitterComponent::~ParticleEmitterComponent() {
     glDeleteVertexArrays(1, &vao);
@@ -11,6 +14,8 @@ ParticleEmitterComponent::ParticleEmitterComponent(nlohmann::json data) {
     transform = Transform(data);
 
     emitOnSpawn = ContentManager::GetFromJson<size_t>(data["EmitOnSpawn"], 0);
+    emitConeMinAngle = glm::radians(ContentManager::GetFromJson<float>(data["EmitConeMinAngle"], 0.f));
+    emitConeMaxAngle = glm::radians(ContentManager::GetFromJson<float>(data["EmitConeMaxAngle"], 90.f));
 
     lockedToEntity = ContentManager::GetFromJson<bool>(data["LockedToEntity"], false);
 
@@ -63,14 +68,6 @@ void ParticleEmitterComponent::InitializeBuffers() {
     glBindVertexArray(0);
 }
 
-float UnitRand() {
-    return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-}
-
-float UnitRandNegative() {
-    return (UnitRand() * 2.f) - 1.f;
-}
-
 void ParticleEmitterComponent::Update() {
     const float delta = StateManager::deltaTime.GetSeconds();
 
@@ -102,9 +99,27 @@ void ParticleEmitterComponent::AddParticle(glm::vec3 p, glm::vec3 v) {
     particles.push_back(particle);
 }
 
+float UnitRand() {
+    return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+}
+
+float UnitRandNegative() {
+    return (UnitRand() * 2.f) - 1.f;
+}
+
 void ParticleEmitterComponent::Emit(size_t count) {
+    const glm::vec3 forward = transform.GetForward();
+    glm::vec3 cross = normalize(glm::cross(Transform::UP, forward));
+    if (abs(length(cross)) == 0.f) cross = Transform::RIGHT;
     for (size_t i = 0; i < count; ++i) {
-        const glm::vec3 direction = glm::normalize(glm::vec3(UnitRandNegative(), UnitRand()*2.f, UnitRandNegative()));
+        const float fAngle = UnitRand() * M_PI * 2.f;
+        const float cAngle = glm::mix(emitConeMinAngle, emitConeMaxAngle, UnitRand());
+
+        const glm::quat qAroundF = angleAxis(fAngle, forward);
+        const glm::quat qAroundC = angleAxis(cAngle, cross);
+        const glm::quat q = qAroundF *  qAroundC;
+        
+        const glm::vec3 direction = q * forward;
         AddParticle(glm::vec3(0.f), direction * initialSpeed);
     }
 }

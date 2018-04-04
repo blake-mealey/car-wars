@@ -75,8 +75,13 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
                 explosionEffect = ContentManager::LoadEntity("BulletHitGroundEffect.json");
             }
             explosionEffect->transform.SetPosition(hitPosition);
-            ParticleEmitterComponent* emitter = explosionEffect->GetComponent<ParticleEmitterComponent>();
-            auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeInOut>(0.f, 1.f, emitter->GetLifetimeSeconds(), StateManager::gameTime);
+            explosionEffect->transform.LookInDirection(Transform::FromPx(gunHit.block.normal));
+            float duration = 0.f;
+            for (ParticleEmitterComponent* emitter : explosionEffect->GetComponents<ParticleEmitterComponent>()) {
+                emitter->Emit(2);
+                duration = std::max(duration, emitter->GetLifetimeSeconds());
+            }
+            auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeInOut>(0.f, 1.f, duration, StateManager::gameTime);
             tween->SetFinishedCallback([explosionEffect](float& value) mutable {
                 EntityManager::DestroyEntity(explosionEffect);
             });

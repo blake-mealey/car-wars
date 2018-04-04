@@ -53,6 +53,8 @@ public:
 	void SetRotation(glm::quat pRotation);
 	void SetRotationEulerAngles(glm::vec3 eulerAngles);
 	void SetRotationAxisAngles(glm::vec3 axis, float radians);
+    void LookAt(glm::vec3 position);
+    void LookInDirection(glm::vec3 direction);
 
 
 	// Operators for basic data

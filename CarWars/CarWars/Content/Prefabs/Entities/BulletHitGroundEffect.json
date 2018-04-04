@@ -1,21 +1,22 @@
 {
-	"Tag": "ExplosionEffect",
+	"Prefab": "BulletHitCarEffect.json",
 	"Components": [
 		{
 			"Type": "ParticleEmitter",
-			"Texture": "Particles/Explosion.png",
-			"LockedToEntity": true,
+			"Texture": "Particles/WhitePuff.png",
+			"LockedToEntity": false,
+            "EmitConeMinAngle": 0,
+            "EmitConeMaxAngle": 20,
 			"SpawnRate": 0,
-			"EmitOnSpawn": 3,
-			"InitialSpeed": 20,
-			"Acceleration": [0, 0, 0],
-			"Lifetime": 0.1,
-			"InitialScale": [0.5, 0.5],
-			"FinalScale": [0.1, 0.1],
-			"Emission": 10,
+			"InitialSpeed": 5,
+			"Lifetime": 1,
+			"InitialScale": [0.3, 0.4],
+			"FinalScale": [0.4, 0.3],
+			"InitialColor": [64, 54, 42],
+			"FinalColor": [64, 54, 42, 0],
 			"IsSprite": true,
-			"SpriteColumns": 9,
-			"SpriteSize": [590, 590],
+			"SpriteColumns": 25,
+			"SpriteSize": [390, 390],
 			"AnimationCycles": 0.5
 		}
 	]

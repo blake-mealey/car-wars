@@ -175,6 +175,19 @@ void Transform::SetRotationAxisAngles(glm::vec3 axis, float radians) {
 	SetRotation(glm::angleAxis(radians, axis));
 }
 
+void Transform::LookAt(glm::vec3 position) {
+    LookInDirection(position - GetLocalPosition());
+}
+
+void Transform::LookInDirection(glm::vec3 direction) {
+    direction = normalize(direction);
+    const glm::vec3 rotAxis = cross(FORWARD, direction);
+    const float dot = glm::dot(FORWARD, direction);
+
+    const glm::quat q = glm::quat(dot + 1, rotAxis);
+    SetRotation(normalize(q));
+}
+
 void Transform::Translate(glm::vec3 offset) {
 	SetPosition(position + offset);
 }
