@@ -124,7 +124,7 @@ void Physics::Initialize() {
     PxSceneDesc sceneDesc(pxPhysics->getTolerancesScale());
     sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f) * 2.f;
 
-    const PxU32 numWorkers = 1;
+    const PxU32 numWorkers = 3;
     pxDispatcher = PxDefaultCpuDispatcherCreate(numWorkers);
     sceneDesc.cpuDispatcher = pxDispatcher;
     sceneDesc.filterShader = CollisionGroups::FilterShader;
