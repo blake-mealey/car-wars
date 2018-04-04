@@ -113,6 +113,11 @@ bool AiComponent::FinishedPath() const {
     return path.size() == 0;
 }
 
+Time AiComponent::GetPreppingTime() {
+	return GetModeDuration() - LostTargetDuration();
+}
+
+
 void AiComponent::InitializeRenderBuffers() {
     glGenBuffers(1, &pathVbo);
     UpdateRenderBuffers();
@@ -416,7 +421,10 @@ void AiComponent::Act() {
 					sin(randomHorizontalAngle) * sin(randomVerticalAngle)) - glm::vec3(.5f)) * (SPRAY / std::max(myData->difficulty, .1f));
 
 				glm::vec3 hitLocation = vehicleTargetPosition + randomOffset + (myData->weaponType == WeaponType::RocketLauncher ? -vehicleEntity->transform.GetForward() + glm::vec3(0.f, -1.f, 0.f) : glm::vec3(0.f));
-				weapon->Shoot(hitLocation);
+				
+				int windowSize = (int)(AiComponent::MAX_DIFFICULTY - myData->difficulty + 1);
+				if (((int)round(GetPreppingTime().GetSeconds())) % windowSize > windowSize - myData->difficulty/AiComponent::MAX_DIFFICULTY * windowSize - 1)
+				weapon->Shoot(hitLocation);	
 			}
 			else {
 				LostTargetTime();
