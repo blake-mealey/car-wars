@@ -66,6 +66,13 @@ struct EnvironmentalSounds {
 	FMOD::Sound* jump;
 };
 
+struct AttachedSound {
+	FMOD::Channel *channel;
+	Entity* entity;
+	unsigned int position;
+	unsigned int length;
+};
+
 
 //struct HeavySounds {
 //    const char *idle = "Content/Sounds/Truck/idle.mp3";
@@ -120,12 +127,14 @@ public:
     void PlayMusic(const char *filename);
 
 	void PlayAudio2D(FMOD::Sound* sound, float volume);
-    void PlayAudio3D(FMOD::Sound *s, glm::vec3 position, glm::vec3 velocity, float volume);
+	void PlayAudio3D(FMOD::Sound *s, glm::vec3 position, glm::vec3 velocity, float volume);
+	void PlayAudio3DAttached(FMOD::Sound *s, Entity* entity, float volume);
 
 	int PlaySound3D(FMOD::Sound* sound, glm::vec3 position, glm::vec3 velocity, float volume);
 	void StopSound3D(int index);
 
 private:
+	vector<AttachedSound> attachedSounds;
 	int updatePosition;
     bool gameStarted = false;
     int currentMusicIndex = 0;
@@ -171,6 +180,7 @@ private:
     void ReleaseSounds();
     void CheckMusic();
     void AddSoundToMemory(const char *filepath, FMOD::Sound** sound);
+	void UpdateAttached();
 
 
     // No instantiation or copying
