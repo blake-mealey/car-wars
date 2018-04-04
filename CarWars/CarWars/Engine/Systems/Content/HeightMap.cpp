@@ -98,13 +98,15 @@ void HeightMap::Initialize(std::string filePath) {
 	int moundMax = (int)(((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (1 - wallMoundVariation)) * (wallMoundMaxVertices - wallMoundMinVertices) + wallMoundMinVertices);
 	v = wallVertices*(totalColCount)+wallVertices-1;
 	z = 0.0;
-	float temp = std::min(std::max(-xSpacing + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation), -xSpacing*3), xSpacing);
+	//float temp = std::min(std::max(-xSpacing + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation), -xSpacing*3), xSpacing);
+	float temp = -xSpacing + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation);
 	for (unsigned long i = wallVertices; i < rowCount + wallVertices; i++) {
 		currIncline = inclineRate;
 		//float x = -xSpacing + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation);
 		float x;
 		if (mound > moundMax) {
-			x = std::min(std::max(temp + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation), -xSpacing * 3), xSpacing);
+			//x = std::min(std::max(temp + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation), -xSpacing * 3), xSpacing);
+			x = temp + xSpacing*(-variation);
 			temp = x;
 			mound = 0;
 			moundMax = (int)(((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (1 - wallMoundVariation)) * (wallMoundMaxVertices - wallMoundMinVertices) + wallMoundMinVertices);
@@ -188,10 +190,50 @@ void HeightMap::Initialize(std::string filePath) {
 	//Add walls to the Bottom based on the heights closest to the wall
 	currIncline = inclineRate;
 	z = zSpacing * (rowCount);
+	v = (wallVertices + rowCount)*(totalColCount) + wallVertices*wallVertices;
+	for (unsigned long i = wallVertices + rowCount; i < totalRowCount; i++) {
+		float x = 0;
+		for (unsigned long j = wallVertices; j < wallVertices + colCount; j++) {
+			const float y = heights[i - 1][j] + currIncline;
+			heights[i][j] = y;
+
+			vertices[v] = vec3(x, y, z) + offset;
+			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
+			v++;
+
+			x += xSpacing;
+		}
+		currIncline *= wallInclineRate;
+		z += zSpacing;
+	}
+
+	//Add walls to the Bottom Left Corner based on the heights closest to the wall
+	currIncline = inclineRate;
+	z = zSpacing * (rowCount);
 	v = (wallVertices + rowCount)*(totalColCount);
 	for (unsigned long i = wallVertices + rowCount; i < totalRowCount; i++) {
 		float x = -xSpacing*wallVertices;
-		for (unsigned long j = 0; j < totalColCount; j++) {
+		for (unsigned long j = 0; j < wallVertices; j++) {
+			const float y = heights[i - 1][j] + currIncline;
+			heights[i][j] = y;
+
+			vertices[v] = vec3(x, y, z) + offset;
+			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
+			v++;
+
+			x += xSpacing;
+		}
+		currIncline *= wallInclineRate;
+		z += zSpacing;
+	}
+
+	//Add walls to the Bottom Right Corner based on the heights closest to the wall
+	currIncline = inclineRate;
+	z = zSpacing * (rowCount);
+	v = (wallVertices + rowCount)*(totalColCount) + wallVertices*(wallVertices + colCount);
+	for (unsigned long i = wallVertices + rowCount; i < totalRowCount; i++) {
+		float x = xSpacing*colCount;
+		for (unsigned long j = wallVertices + colCount; j < totalColCount; j++) {
 			const float y = heights[i - 1][j] + currIncline;
 			heights[i][j] = y;
 
