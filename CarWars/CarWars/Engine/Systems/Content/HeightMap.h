@@ -41,6 +41,7 @@ private:
 	int wallMoundMaxVertices;
 	int wallMoundMinVertices;
 	float wallMoundVariation;
+	unsigned int wallVarTween;
 
     float xSpacing;
     float zSpacing;
