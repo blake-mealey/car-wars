@@ -58,7 +58,7 @@ struct FBOs {
 };
 
 struct RBOs {
-    enum { Depth=0, Count };
+    enum { DepthStencil=0, Count };
 };
 
 struct Textures {

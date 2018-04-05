@@ -5,7 +5,7 @@
 	    {
 		    "Type": "Mesh",
             "Mesh": "Cylinder.obj",
-            "Material": "PinkShiny.json"
+            "Material": "RedShiny.json"
 	    }
     ]
 }

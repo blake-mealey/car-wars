@@ -6,6 +6,12 @@
 #include "../GuiComponents/GuiComponent.h"
 #include "../SpotLightComponent.h"
 
+PowerUp::~PowerUp() {
+    Effects::Instance().DestroyTween("Headlight" + std::to_string(player->id));
+    Effects::Instance().DestroyTween("PowerUpTweenIn" + std::to_string(player->id));
+    Effects::Instance().DestroyTween("PowerUpTweenOut" + std::to_string(player->id));
+}
+
 PowerUp::PowerUp(Time a_duration) : duration(a_duration) {}
 
 void PowerUp::Collect(PlayerData* a_player) {

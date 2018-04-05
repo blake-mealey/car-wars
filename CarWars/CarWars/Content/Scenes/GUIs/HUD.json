@@ -102,7 +102,8 @@
                 "AnchorPoint": [0.5, 0.5],
                 "ScaledPosition": [0.5, 0.5],
                 "Scale": [4, 4, 1],
-                "Texture": "HUD/sight-dot.png"
+                "Texture": "HUD/sight-dot.png",
+                "Emissiveness": 0.5
 	        },
 	        {
 		        "Type": "GUI",
@@ -110,7 +111,8 @@
 		        "ScaledPosition": [0.5, 0.5],
                 "Position": [-10, 0, 0],
 		        "Scale": [7, 12, 1],
-		        "Texture": "HUD/sight-left.png"
+		        "Texture": "HUD/sight-left.png",
+		        "Emissiveness": 0.5
 	        },
 	        {
 		        "Type": "GUI",
@@ -118,7 +120,8 @@
 		        "ScaledPosition": [0.5, 0.5],
 		        "Position": [10, 0, 0],
 		        "Scale": [7, 12, 1],
-		        "Texture": "HUD/sight-right.png"
+		        "Texture": "HUD/sight-right.png",
+		        "Emissiveness": 0.5
 	        }
         ]
 	},
@@ -131,7 +134,8 @@
 		        "ScaledPosition": [0.5, 0.5],
 		        "Scale": [30, 30, 1],
 		        "Texture": "HUD/hit-indicator.png",
-                "TextureColor": [244, 67, 54, 0]
+                "TextureColor": [244, 67, 54, 0],
+		        "Emissiveness": 0.5
 	        }
         ]
 	},
@@ -144,7 +148,8 @@
 				"ScaledPosition": [0.5, 0.5],
 				"Scale": [500, 500, 1],
                 "TextureColor": "AlphaLightBlue",
-				"Texture": "HUD/damage-indicator.png"
+				"Texture": "HUD/damage-indicator.png",
+				"Emissiveness": 0.7
 			}
 		]
 	},
@@ -163,7 +168,8 @@
                 "MaskInverted": true,
                 "Mask": {
 	                "Scale": [134, 134, 0]
-                }
+                },
+				"Emissiveness": 0.5
 			}
 		]
 	},

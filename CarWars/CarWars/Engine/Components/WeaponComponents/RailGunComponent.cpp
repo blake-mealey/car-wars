@@ -113,7 +113,7 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 
         const float ratio = ((StateManager::gameTime - (nextShotTime - chargeTime)) / chargeTime).GetSeconds();
         const float distance = length(hitPosition - gunPosition);
-        const float radius = glm::mix(0.f, 1.5f, ratio);
+        const float radius = glm::mix(0.f, 1.f, ratio);
         GetBeam()->transform.SetScale(glm::vec3(radius, radius, distance));
         beam->transform.SetPosition(0.5f * (gunPosition + hitPosition));
         beam->transform.LookAt(hitPosition);

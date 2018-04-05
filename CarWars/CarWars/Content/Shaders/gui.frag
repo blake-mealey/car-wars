@@ -26,4 +26,5 @@ void main() {
 	fragmentColor = diffuseTextureEnabled * (diffuseColor * texture(diffuseTexture, uvScale*vec2(uv.x, 1 - uv.y)))
 		+ (1 - diffuseTextureEnabled) * diffuseColor;
 	glowColor = fragmentColor * materialEmissiveness;
+	// glowColor = vec4(fragmentColor.rgb*materialEmissiveness, fragmentColor.a);
 }

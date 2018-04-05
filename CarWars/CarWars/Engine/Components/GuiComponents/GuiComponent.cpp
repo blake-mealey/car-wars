@@ -56,7 +56,7 @@ GuiComponent::GuiComponent(nlohmann::json data) : guiRoot(nullptr), font(nullptr
     clipEnabled = ContentManager::GetFromJson<bool>(data["ClipEnabled"], false);
     if (data["MaskTexture"].is_string()) maskTexture = ContentManager::GetTexture(data["MaskTexture"]);
 
-    emissiveness = ContentManager::GetFromJson<float>(data["Emissiveness"], 0.f);
+    emissiveness = ContentManager::GetFromJson<float>(data["Emissiveness"], 0.25f);
 
     isSprite = ContentManager::GetFromJson<bool>(data["IsSprite"], false);
     spriteSize = ContentManager::JsonToVec2(data["SpriteSize"], glm::vec2(0.f));
