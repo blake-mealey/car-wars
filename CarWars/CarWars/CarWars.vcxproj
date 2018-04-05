@@ -330,6 +330,7 @@
     <None Include="Content\Prefabs\Components\Controls\GamepadA.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadB.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadControl.json" />
+    <None Include="Content\Prefabs\Entities\Beam.json" />
     <None Include="Content\Prefabs\Entities\BulletHitCarEffect.json" />
     <None Include="Content\Prefabs\Entities\BulletHitGroundEffect.json" />
     <None Include="Content\Prefabs\Entities\Controls\GamepadContinue.json" />

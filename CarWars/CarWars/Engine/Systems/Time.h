@@ -31,6 +31,7 @@ public:
 	Time operator-(const Time other) const;
 	Time operator+(const Time other) const;
     Time operator*(const Time other) const;
+    Time operator/(const Time other) const;
 	void operator+=(const Time other);
 	void operator-=(const Time other);
 private:

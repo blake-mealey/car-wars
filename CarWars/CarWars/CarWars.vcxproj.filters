@@ -289,5 +289,6 @@
     <None Include="Content\Prefabs\Components\Particles\Dust.json" />
     <None Include="Content\Prefabs\Entities\BulletHitGroundEffect.json" />
     <None Include="Content\Prefabs\Entities\BulletHitCarEffect.json" />
+    <None Include="Content\Prefabs\Entities\Beam.json" />
   </ItemGroup>
 </Project>

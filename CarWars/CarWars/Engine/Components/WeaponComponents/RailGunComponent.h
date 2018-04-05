@@ -11,6 +11,7 @@
 
 class RailGunComponent : public WeaponComponent {
 public:
+    ~RailGunComponent();
 	RailGunComponent();
 	void Shoot(glm::vec3 position) override;
 	void Charge() override;
@@ -28,4 +29,7 @@ private:
 	Time nextChargeTime = 0.0f;
     bool playingChargeSound = false;
     int soundIndex;
+
+    Entity* GetBeam();
+    Entity* beam;
 };

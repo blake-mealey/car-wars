@@ -1,0 +1,11 @@
+{
+	"Tag": "RailGunBeam",
+    "Scale": [0, 0, 0],
+    "Components": [
+	    {
+		    "Type": "Mesh",
+            "Mesh": "Cylinder.obj",
+            "Material": "PinkShiny.json"
+	    }
+    ]
+}
