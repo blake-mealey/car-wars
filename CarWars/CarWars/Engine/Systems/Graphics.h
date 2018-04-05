@@ -167,6 +167,8 @@ private:
     Time lastTime;
     int frameCount;
 
+    bool sceneGraphShown;
+    bool debugGuiShown;
     bool renderMeshes;
     bool renderGuis;
     bool renderPhysicsColliders;

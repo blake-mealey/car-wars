@@ -31,11 +31,16 @@ public:
 
     void AddParticle(glm::vec3 p, glm::vec3 v);
     void Emit(size_t count = 1);
+    void SetEmitScale(glm::vec3 _emitScale);
 
     GLuint GetVao() const;
     size_t GetParticleCount() const;
 
+    void SetEmitCount(size_t _emitCount);
+
     bool IsLockedToEntity() const;
+
+    float GetInitialSpeed() const;
 
     glm::vec2 GetInitialScale() const;
     glm::vec2 GetFinalScale() const;
@@ -50,9 +55,12 @@ public:
     int GetSpriteRows() const;
     glm::vec2 GetSpriteSize() const;
     float GetAnimationCycles() const;
+    void SetAnimationCycles(float _animationCycles);
 
     float GetLifetimeSeconds() const;
+    void SetLifetime(Time _lifetime);
     void SetSpawnRate(float _spawnRate);
+    void SetDirections(glm::vec3 direction);
 
     Transform transform;
 
@@ -61,9 +69,11 @@ private:
     void UpdateBuffers();
     void InitializeBuffers();
 
+    size_t emitCount;
     size_t emitOnSpawn;
     float emitConeMinAngle;
     float emitConeMaxAngle;
+    glm::vec3 emitScale;
 
     bool lockedToEntity;
 

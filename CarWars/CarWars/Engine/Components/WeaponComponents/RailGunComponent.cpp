@@ -7,6 +7,7 @@
 #include "../../Components/CameraComponent.h"
 #include "../../Components/GuiComponents/GuiHelper.h"
 #include "../../Components/GuiComponents/GuiComponent.h"
+#include "../../Components/ParticleEmitterComponent.h"
 #include "../../Systems/Content/ContentManager.h"
 #include "../../Systems/Physics/RaycastGroups.h"
 #include "../LineComponent.h"
@@ -112,11 +113,19 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 		}
 
         const float ratio = ((StateManager::gameTime - (nextShotTime - chargeTime)) / chargeTime).GetSeconds();
-        const float distance = length(hitPosition - gunPosition);
+        const glm::vec3 direction = hitPosition - gunPosition;
+        const float distance = length(direction);
         const float radius = glm::mix(0.f, 1.f, ratio);
         GetBeam()->transform.SetScale(glm::vec3(radius, radius, distance));
         beam->transform.SetPosition(0.5f * (gunPosition + hitPosition));
         beam->transform.LookAt(hitPosition);
+
+        ParticleEmitterComponent* emitter = beam->GetComponent<ParticleEmitterComponent>();
+//        emitter->SetLifetime(distance / emitter->GetInitialSpeed());
+//        emitter->transform.SetPosition(glm::vec3(0.f, 0.f, 0.5f));
+        emitter->SetEmitScale(glm::vec3(0.1f, 0.1f, distance*0.5f));
+        emitter->SetEmitCount(distance);
+//        emitter->SetDirections(normalize(direction));
 	}
 }
 

@@ -69,7 +69,8 @@ const glm::mat4 Graphics::BIAS_MATRIX = glm::mat4(
 );
 
 // Singleton
-Graphics::Graphics() : framesPerSecond(0.0), lastTime(0.0), frameCount(0), renderMeshes(true),
+Graphics::Graphics() : framesPerSecond(0.0), lastTime(0.0), frameCount(0), sceneGraphShown(false), debugGuiShown(false),
+                       renderMeshes(true),
                        renderGuis(true), renderPhysicsColliders(false), renderPhysicsBoundingBoxes(false),
                        renderNavigationMesh(false), renderNavigationPaths(false), bloomEnabled(true),
                        bloomScale(0.1f) { }
@@ -1073,17 +1074,15 @@ void Graphics::SceneChanged() {
 void Graphics::RenderDebugGui() {
     ImGui_ImplGlfwGL3_NewFrame();
 
-    static bool showSceneGraph = true;
-    if (showSceneGraph) {
-        ImGui::Begin("Scene Graph", &showSceneGraph);
+    if (sceneGraphShown) {
+        ImGui::Begin("Scene Graph", &sceneGraphShown);
         ImGui::PushItemWidth(-100);
         EntityManager::GetRoot()->RenderDebugGui();
         ImGui::End();
     }
 
-    static bool showGraphicsMenu = true;
-    if (showGraphicsMenu) {
-        ImGui::Begin("Graphics", &showGraphicsMenu);
+    if (debugGuiShown) {
+        ImGui::Begin("Graphics", &debugGuiShown);
         ImGui::PushItemWidth(-100);
 
         frameCount++;

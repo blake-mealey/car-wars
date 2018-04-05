@@ -5,7 +5,28 @@
 	    {
 		    "Type": "Mesh",
             "Mesh": "Cylinder.obj",
-            "Material": "RedShiny.json"
+            "Material": "RedShiny.json",
+            "Enabled": false
+	    },
+	    {
+		    "Type": "ParticleEmitter",
+		    "Texture": "Particles/WhitePuff.png",
+            "LockedToEntity": true,
+		    "EmitConeMinAngle": 0,
+		    "EmitConeMaxAngle": 0,
+		    "SpawnRate": 0.02,
+		    "InitialSpeed": 0,
+            "Acceleration": [0, 0, 0],
+		    "Lifetime": 0.01,
+            "InitialColor": "Cyan",
+            "FinalColor": "Cyan",
+		    "InitialScale": [0.5, 0.5],
+		    "FinalScale": [0.5, 0.5],
+		    "Emission": 10,
+		    "IsSprite": true,
+		    "SpriteColumns": 25,
+		    "SpriteSize": [390, 390],
+		    "AnimationCycles": 1
 	    }
     ]
 }
