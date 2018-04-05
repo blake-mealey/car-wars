@@ -131,7 +131,7 @@
 		        "ScaledPosition": [0.5, 0.5],
 		        "Scale": [30, 30, 1],
 		        "Texture": "HUD/hit-indicator.png",
-                "TextureColor": "AlphaWhite"
+                "TextureColor": [244, 67, 54, 0]
 	        }
         ]
 	},
