@@ -196,3 +196,8 @@ Entity* RailGunComponent::GetBeam() {
     if (!beam) beam = ContentManager::LoadEntity("Beam.json");
     return beam;
 }
+
+Time RailGunComponent::GetChargeTime() {
+	RailGunComponent railgun;
+	return railgun.chargeTime;
+}

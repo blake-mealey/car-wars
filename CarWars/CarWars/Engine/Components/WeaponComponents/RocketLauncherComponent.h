@@ -27,5 +27,5 @@ public:
 
 	void RenderDebugGui() override;
 private:
-	Time timeBetweenShots = 1.0f / 0.75f;
+	Time timeBetweenShots = 2.0f;
 };
