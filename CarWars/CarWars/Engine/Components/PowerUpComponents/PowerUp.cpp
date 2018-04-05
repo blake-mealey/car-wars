@@ -82,7 +82,8 @@ void PowerUp::Remove(bool force) {
 			const glm::vec3 end = glm::vec3(1.f);
 			auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0, 1, 2, StateManager::gameTime);
 			tween->SetTag("Headlight" + std::to_string(player->id));
-			tween->SetUpdateCallback([start, end, light, mesh](float& value) {
+			tween->SetUpdateCallback([this, start, end, light, mesh](float& value) {
+                if (!player->alive) return;
 				light->SetColor(glm::mix(start, end, value));
                 mesh->GetMaterial()->diffuseColor = glm::vec4(glm::mix(glm::mix(start, end, 0.25f), end, value), 1.f);
 			});
