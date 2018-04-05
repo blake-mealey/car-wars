@@ -327,11 +327,11 @@ void InputManager::NavigateGuis(GuiNavData navData) {
     
     if (StateManager::GetState() != GameState_Playing)
         if (navData.back)
-            Audio::Instance().PlayAudio2D(Audio::Instance().Menu.back, 0.1f);
+            Audio::Instance().PlayAudio2D(Audio::Instance().Menu.back, 1.f);
         else if (navData.enter)
-			Audio::Instance().PlayAudio2D(Audio::Instance().Menu.enter, 0.1f);
+			Audio::Instance().PlayAudio2D(Audio::Instance().Menu.enter, 1.f);
         else			
-			Audio::Instance().PlayAudio2D(Audio::Instance().Menu.navigate, 0.1f);
+			Audio::Instance().PlayAudio2D(Audio::Instance().Menu.navigate, .4f);
 
 
 

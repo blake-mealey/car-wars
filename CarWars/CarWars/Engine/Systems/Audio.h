@@ -69,8 +69,6 @@ struct EnvironmentalSounds {
 struct AttachedSound {
 	FMOD::Channel *channel;
 	Entity* entity;
-	unsigned int position;
-	unsigned int length;
 };
 
 
@@ -113,7 +111,7 @@ public:
     MenuSounds Menu;
 	EnvironmentalSounds Environment;
 
-    float musicVolume = 0.085f;
+    float musicVolume = 0.065f;
     float aiSoundVolume = 0.25f;
     float playerSoundVolume = 0.05f;
 
@@ -201,11 +199,10 @@ missle:
 more uniform launch sound
 louder explosion
 
++ add suicide sound
 
-- powerup sound
-- boost sound
 - machine gun sound (I'd prefer a star wars blaster-y sound but that's up for debate)
 - general mixing (some sounds are too quiet others are too loud)
-- in-game music(edited)
+- in-game music
 
 */

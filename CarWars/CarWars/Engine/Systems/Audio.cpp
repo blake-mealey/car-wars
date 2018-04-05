@@ -45,8 +45,10 @@ void Audio::Initialize() {
     AddSoundToMemory("Content/Sounds/rocket-launch.mp3", &Weapons.missleLaunch); 
     AddSoundToMemory("Content/Sounds/explosion.mp3", &Weapons.explosion);
 
-    AddSoundToMemory("Content/Sounds/machine_gun_shot.mp3", &Weapons.bulletShoot);
-    AddSoundToMemory("Content/Sounds/bullet-hit.mp3", &Weapons.bulletHitHeavy);
+    //AddSoundToMemory("Content/Sounds/machine_gun_shot.mp3", &Weapons.bulletShoot);
+    AddSoundToMemory("Content/Sounds/Weapons/blaster-shoot.mp3", &Weapons.bulletShoot);
+    //AddSoundToMemory("Content/Sounds/bullet-hit.mp3", &Weapons.bulletHitHeavy);
+    AddSoundToMemory("Content/Sounds/Weapons/blaster-hit1.mp3", &Weapons.bulletHitHeavy);
     AddSoundToMemory("Content/Sounds/bullet-hit.mp3", &Weapons.bulletHitMedium);
     AddSoundToMemory("Content/Sounds/bullet-hit.mp3", &Weapons.bulletHitLight);
     AddSoundToMemory("Content/Sounds/bullet-hit.mp3", &Weapons.bulletHitGround);
@@ -54,23 +56,26 @@ void Audio::Initialize() {
 
     AddSoundToMemory("Content/Sounds/railgun-shoot.mp3", &Weapons.railgunShoot);
     AddSoundToMemory("Content/Sounds/railgun-charge.mp3", &Weapons.railgunCharge);
-    AddSoundToMemory("Content/Sounds/railgun-hit.mp3", &Weapons.railgunHitHeavy);
+    //AddSoundToMemory("Content/Sounds/railgun-hit.mp3", &Weapons.railgunHitHeavy);
+    AddSoundToMemory("Content/Sounds/Weapons/railgun-hit1.mp3", &Weapons.railgunHitHeavy);
     AddSoundToMemory("Content/Sounds/railgun-hit.mp3", &Weapons.railgunHitMedium);
     AddSoundToMemory("Content/Sounds/railgun-hit.mp3", &Weapons.railgunHitLight);
     AddSoundToMemory("Content/Sounds/railgun-hit.mp3", &Weapons.railgunHitGround);
     AddSoundToMemory("Content/Sounds/railgun-hit.mp3", &Weapons.railgunHitWall);
 
 	// menu sounds
-	AddSoundToMemory("Content/Sounds/Menu/back.wav", &Menu.back);
-	AddSoundToMemory("Content/Sounds/Menu/navigate.wav", &Menu.navigate);
-	AddSoundToMemory("Content/Sounds/Menu/enter.wav", &Menu.enter);
+	AddSoundToMemory("Content/Sounds/Menu/back2.mp3", &Menu.back);
+	AddSoundToMemory("Content/Sounds/Menu/navigate.mp3", &Menu.navigate);
+	AddSoundToMemory("Content/Sounds/Menu/enter2.mp3", &Menu.enter);
 
 	// environmental sounds
 	AddSoundToMemory("Content/Sounds/car-on-car-collision.mp3", &Environment.hitCar);
 	AddSoundToMemory("Content/Sounds/car-on-ground-collision.mp3", &Environment.hitGround);
 	AddSoundToMemory("Content/Sounds/car-on-ground-collision.mp3", &Environment.hitWall);
-	AddSoundToMemory("Content/Sounds/powerup.mp3", &Environment.powerup);
-	AddSoundToMemory("Content/Sounds/jump.mp3", &Environment.jump);
+    //AddSoundToMemory("Content/Sounds/powerup.mp3", &Environment.powerup);
+    AddSoundToMemory("Content/Sounds/Environment/powerup.mp3", &Environment.powerup);
+    //AddSoundToMemory("Content/Sounds/jump.mp3", &Environment.jump);
+    AddSoundToMemory("Content/Sounds/Environment/jump.mp3", &Environment.jump);
 
 }
 
@@ -128,9 +133,6 @@ void Audio::PlayAudio3DAttached(FMOD::Sound *s, Entity* entity, float volume) {
 
 	AttachedSound a;
 	a.entity = entity;
-	s->getLength(&a.length, FMOD_TIMEUNIT_MS);
-	//a.channel->getPosition(&a.position, FMOD_TIMEUNIT_MS);
-	a.position = 0;
 	soundSystem->playSound(s, 0, true, &a.channel);
 	a.channel->set3DAttributes(&pos, &vel);
 	a.channel->setPaused(false);
@@ -208,14 +210,12 @@ void Audio::UpdateListeners() {
 }
 
 void Audio::UpdateAttached() {
-	std::cout << "size : " << attachedSounds.size() << std::endl;
+	//std::cout << "size : " << attachedSounds.size() << std::endl;
 	vector<int> toDelete;
 	for (int i = 0; i < attachedSounds.size(); ++i) {
-		attachedSounds[i].channel->getPosition(&attachedSounds[i].position, FMOD_TIMEUNIT_MS);
-		// or check
-		 bool isPlaying;
-		 attachedSounds[i].channel->isPlaying(&isPlaying);
-		if (!isPlaying) {
+		bool isPlaying;
+		attachedSounds[i].channel->isPlaying(&isPlaying);
+		if (!isPlaying || attachedSounds[i].entity->IsMarkedForDeletion()) {
 			//delete
 			toDelete.push_back(i);
 		} else {
