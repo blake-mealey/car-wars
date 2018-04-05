@@ -664,12 +664,12 @@ void Graphics::Update() {
             billboardProgram->LoadUniform(UniformName::UvScale, glm::vec2(1.f));
 
             // Load the billboard's position and scale to the GPU
-            if (emitter->IsLockedToEntity()) {
+            billboardProgram->LoadUniform(UniformName::ModelMatrix, emitter->GetModelMatrix());
+            /*if (emitter->IsLockedToEntity()) {
                 billboardProgram->LoadUniform(UniformName::BillboardPosition, emitter->transform.GetGlobalPosition());
-            }
-            else {
+            } else {
                 billboardProgram->LoadUniform(UniformName::BillboardPosition, glm::vec3());
-            }
+            }*/
 
             billboardProgram->LoadUniform("initialScale", emitter->GetInitialScale());
             billboardProgram->LoadUniform("finalScale", emitter->GetFinalScale());

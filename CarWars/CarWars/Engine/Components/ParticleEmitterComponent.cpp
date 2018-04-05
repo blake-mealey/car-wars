@@ -110,9 +110,7 @@ float UnitRandNegative() {
 }
 
 void ParticleEmitterComponent::Emit(size_t count) {
-    const glm::mat4 modelMatrix = transform.GetTransformationMatrix();
     const glm::vec3 forward = transform.GetForward();
-    const glm::vec3 globalScale = transform.GetGlobalScale();
     glm::vec3 cross = normalize(glm::cross(Transform::UP, forward));
     if (abs(length(cross)) == 0.f) cross = Transform::RIGHT;
     for (size_t i = 0; i < count; ++i) {
@@ -121,12 +119,12 @@ void ParticleEmitterComponent::Emit(size_t count) {
 
         const glm::quat qAroundF = angleAxis(fAngle, forward);
         const glm::quat qAroundC = angleAxis(cAngle, cross);
-        const glm::quat q = qAroundF *  qAroundC;
+        const glm::quat q = qAroundF * qAroundC;
         
         const glm::vec3 direction = normalize(q * forward);
 
-        const glm::vec3 localPosition = emitScale * glm::vec3(UnitRandNegative(), UnitRandNegative(), UnitRandNegative()) / globalScale;
-        const glm::vec3 position = modelMatrix * glm::vec4(localPosition, 0.f);
+        const glm::vec3 localPosition = emitScale * glm::vec3(UnitRandNegative(), UnitRandNegative(), UnitRandNegative());
+        const glm::vec3 position = localPosition;
         AddParticle(position, direction * initialSpeed);
     }
 }
@@ -139,12 +137,17 @@ bool ParticleEmitterComponent::IsLockedToEntity() const {
     return lockedToEntity;
 }
 
+glm::mat4 ParticleEmitterComponent::GetModelMatrix() {
+    if (!lockedToEntity) return glm::mat4(1.f);
+    return transform.GetTransformationMatrix();
+}
+
 float ParticleEmitterComponent::GetInitialSpeed() const {
     return initialSpeed;
 }
 
 void ParticleEmitterComponent::Sort(glm::vec3 cameraPosition) {
-    glm::vec3 localCameraPosition = lockedToEntity ? glm::inverse(transform.GetTransformationMatrix()) * glm::vec4(cameraPosition, 1.f) : cameraPosition;
+    glm::vec3 localCameraPosition = lockedToEntity ? inverse(transform.GetTransformationMatrix()) * glm::vec4(cameraPosition, 1.f) : cameraPosition;
     std::sort(particles.begin(), particles.end(), [localCameraPosition](const Particle& lhs, const Particle& rhs) -> bool {
         return length(lhs.position - localCameraPosition) > length(rhs.position - localCameraPosition);
     });
@@ -167,8 +170,16 @@ glm::vec2 ParticleEmitterComponent::GetInitialScale() const {
     return initialScale;
 }
 
+void ParticleEmitterComponent::SetInitialScale(glm::vec2 scale) {
+    initialScale = scale;
+}
+
 glm::vec2 ParticleEmitterComponent::GetFinalScale() const {
     return finalScale;
+}
+
+void ParticleEmitterComponent::SetFinalScale(glm::vec2 scale) {
+    finalScale = scale;
 }
 
 Texture* ParticleEmitterComponent::GetTexture() const {

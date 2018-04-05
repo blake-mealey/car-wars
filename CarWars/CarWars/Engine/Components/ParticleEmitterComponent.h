@@ -39,11 +39,14 @@ public:
     void SetEmitCount(size_t _emitCount);
 
     bool IsLockedToEntity() const;
+    glm::mat4 GetModelMatrix();
 
     float GetInitialSpeed() const;
 
     glm::vec2 GetInitialScale() const;
+    void SetInitialScale(glm::vec2 scale);
     glm::vec2 GetFinalScale() const;
+    void SetFinalScale(glm::vec2 scale);
 
     Texture* GetTexture() const;
     glm::vec4 GetInitialColor() const;

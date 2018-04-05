@@ -69,15 +69,20 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 		
 		PlayerData* player = Game::Instance().GetPlayerFromEntity(GetEntity());
 
-        Transform& transform = GetBeam()->transform;
-        float startRadius = transform.GetLocalScale().x;
+        Transform& beamTransform = GetBeam()->transform;
+        Transform& beamMeshTransform = beam->GetComponent<MeshComponent>()->transform;
+        ParticleEmitterComponent* emitter = beam->GetComponent<ParticleEmitterComponent>();
+
+        float startRadius = beamMeshTransform.GetLocalScale().x;
 		auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(0.f, 1.f, 0.1, StateManager::gameTime);
-		tween->SetUpdateCallback([startRadius, &transform, hitPosition, rgTurret, player, tween](float& value) mutable {
+		tween->SetUpdateCallback([emitter, startRadius, &beamTransform, &beamMeshTransform, hitPosition, rgTurret, player, tween](float& value) mutable {
 			if (!player->alive) return;
-            transform.SetPosition(0.5f * (rgTurret->transform.GetGlobalPosition() + hitPosition));
+            beamTransform.SetPosition(0.5f * (rgTurret->transform.GetGlobalPosition() + hitPosition));
             float radius = glm::mix(startRadius, 0.f, value);
-            transform.SetScale(glm::vec3(radius, radius, length(rgTurret->transform.GetGlobalPosition() - hitPosition)));
-            transform.LookAt(hitPosition);
+            beamMeshTransform.SetScale(glm::vec3(radius, radius, length(rgTurret->transform.GetGlobalPosition() - hitPosition)));
+            beamTransform.LookAt(hitPosition);
+            emitter->SetInitialScale(glm::vec2(radius*3.f));
+            emitter->SetFinalScale(glm::vec2(radius*3.f));
 		});
 		tween->SetFinishedCallback([this](float& value) mutable {
 			EntityManager::DestroyEntity(beam);
@@ -116,16 +121,16 @@ void RailGunComponent::Shoot(glm::vec3 position) {
         const glm::vec3 direction = hitPosition - gunPosition;
         const float distance = length(direction);
         const float radius = glm::mix(0.f, 1.f, ratio);
-        GetBeam()->transform.SetScale(glm::vec3(radius, radius, distance));
+        MeshComponent* beamMesh = GetBeam()->GetComponent<MeshComponent>();
+        beamMesh->transform.SetScale(glm::vec3(radius, radius, distance));
         beam->transform.SetPosition(0.5f * (gunPosition + hitPosition));
         beam->transform.LookAt(hitPosition);
 
         ParticleEmitterComponent* emitter = beam->GetComponent<ParticleEmitterComponent>();
-//        emitter->SetLifetime(distance / emitter->GetInitialSpeed());
-//        emitter->transform.SetPosition(glm::vec3(0.f, 0.f, 0.5f));
         emitter->SetEmitScale(glm::vec3(0.1f, 0.1f, distance*0.5f));
-        emitter->SetEmitCount(distance);
-//        emitter->SetDirections(normalize(direction));
+        emitter->SetEmitCount(distance*0.25f);
+        emitter->SetInitialScale(glm::vec2(radius*3.f));
+        emitter->SetFinalScale(glm::vec2(radius*3.f));
 	}
 }
 
@@ -180,17 +185,20 @@ void RailGunComponent::ChargeRelease() {
 		Transform& mask = gui->GetMask();
 
         Transform& transform = GetEntity()->transform;
-        Transform& beamTransform = GetBeam()->transform;
-        float startRadius = beamTransform.GetLocalScale().x;
+        Transform& beamMeshTransform = GetBeam()->GetComponent<MeshComponent>()->transform;
+        ParticleEmitterComponent* emitter = beam->GetComponent<ParticleEmitterComponent>();
+        float startRadius = beamMeshTransform.GetLocalScale().x;
 
         const glm::vec3 scaleStart = mask.GetLocalScale();
         const glm::vec3 scaleEnd = glm::vec3(134.f, 134.f, 0.f);
 		auto tweenOut = Effects::Instance().CreateTween<float, easing::Sine::easeIn>(0.f, 1.f, 0.05, StateManager::gameTime);
-		tweenOut->SetUpdateCallback([&beamTransform, &transform, &mask, startRadius, scaleStart, scaleEnd](float& value) {
+		tweenOut->SetUpdateCallback([emitter, &beamMeshTransform, &transform, &mask, startRadius, scaleStart, scaleEnd](float& value) {
 			mask.SetScale(mix(scaleStart, scaleEnd, value));
 
             float radius = glm::mix(startRadius, 0.f, value);
-            beamTransform.SetScale(glm::vec3(radius, radius, beamTransform.GetLocalScale().z));
+            beamMeshTransform.SetScale(glm::vec3(radius, radius, beamMeshTransform.GetLocalScale().z));
+		    emitter->SetInitialScale(glm::vec2(radius*3.f));
+            emitter->SetFinalScale(glm::vec2(radius*3.f));
 		});
         tweenOut->SetFinishedCallback([this](float& value) mutable {
             EntityManager::DestroyEntity(beam);
