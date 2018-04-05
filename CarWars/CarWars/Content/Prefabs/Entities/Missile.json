@@ -23,6 +23,11 @@
 			"Type": "Missile"
 		},
 		{
+			"Type": "PointLight",
+			"Color": [216, 135, 68],
+			"Power": 10
+		},
+		{
 			"Type": "ParticleEmitter",
 			"Texture": "Particles/Flash.png",
 			"EmitConeMinAngle": 0,
