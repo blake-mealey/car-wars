@@ -165,7 +165,7 @@ void Audio::MenuMusicControl() {
             if (!gameStarted) {
                 music->release();
                 PlayMusic(musicPlaylist[currentMusicIndex]);
-                music->getLength(&gameMusicLength, FMOD_TIMEUNIT_MS);
+                //music->getLength(&gameMusicLength, FMOD_TIMEUNIT_MS);
                 gameStarted = true;
             }
             //musicChannel->setPosition(gameMusicPosition, FMOD_TIMEUNIT_MS);
@@ -367,13 +367,16 @@ void Audio::UpdateRunningCars() {
 }
 
 void Audio::CheckMusic() {
-    musicChannel->getPosition(&gameMusicPosition, FMOD_TIMEUNIT_MS);
-    if (gameMusicPosition > gameMusicLength-5000 && StateManager::GetState() == GameState_Playing) {
+	bool isPlaying;
+	musicChannel->isPlaying(&isPlaying);
+
+    if (!isPlaying && StateManager::GetState() == GameState_Playing) {
+		//play next song
         music->release();
         srand(time(NULL));
         currentMusicIndex = rand() % NUM_MUSIC;
         PlayMusic(musicPlaylist[currentMusicIndex]);
-        music->getLength(&gameMusicLength, FMOD_TIMEUNIT_MS);
+        //music->getLength(&gameMusicLength, FMOD_TIMEUNIT_MS);
     }
 }
 

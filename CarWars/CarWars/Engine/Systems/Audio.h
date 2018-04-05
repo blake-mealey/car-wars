@@ -155,7 +155,7 @@ private:
 	bool availableSound3D[100];
 
     std::vector<CarSound> carSounds;
-    unsigned int gameMusicPosition, gameMusicLength;
+    //unsigned int gameMusicPosition, gameMusicLength;
     FMOD::Sound *music;
     FMOD::Channel *musicChannel;
 
