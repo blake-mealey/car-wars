@@ -14,13 +14,11 @@
 
 void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 	if (_actor0->HasTag("Missile")) {
-		Physics& physicsInstance = Physics::Instance();
-		if (_actor1->GetId() == _actor0->GetComponent<MissileComponent>()->GetOwner()->GetId()) {
-		} else {
+        MissileComponent* missile = _actor0->GetComponent<MissileComponent>();
+		if (missile->enabled && _actor1->GetId() != missile->GetOwner()->GetId()) {
 			//Explode
-            glm::vec3 pos = _actor0->transform.GetGlobalPosition();
-			float explosionRadius = _actor0->GetComponent<MissileComponent>()->GetExplosionRadius();
-            //Audio::Instance().PlayAudio("Content/Sounds/explosion.mp3", 1.f);
+            const glm::vec3 pos = _actor0->transform.GetGlobalPosition();
+			const float explosionRadius = missile->GetExplosionRadius();
             Audio::Instance().PlayAudio3D("Content/Sounds/explosion.mp3", pos, glm::vec3(0.f, 0.f, 0.f), 2.f);
             
 		    Entity* explosionEffect = ContentManager::LoadEntity("ExplosionEffect.json");
@@ -28,13 +26,13 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
             ParticleEmitterComponent* emitter = explosionEffect->GetComponent<ParticleEmitterComponent>();
             
             auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeInOut>(0.f, 1.f, emitter->GetLifetimeSeconds(), StateManager::gameTime);
-            tween->SetFinishedCallback([explosionEffect](float& value) mutable {
+            tween->SetFinishedCallback([explosionEffect, _actor0](float& value) mutable {
+                Physics::Instance().AddToDelete(_actor0);
                 EntityManager::DestroyEntity(explosionEffect);
             });
             tween->Start();
 
-
-			std::vector<Component*> carComponents = EntityManager::GetComponents(ComponentType_Vehicle);
+			vector<Component*> carComponents = EntityManager::GetComponents(ComponentType_Vehicle);
 			for (Component* component : carComponents) {
 				if (glm::length(component->GetEntity()->transform.GetGlobalPosition() - _actor0->transform.GetGlobalPosition()) < explosionRadius) {
 					RocketLauncherComponent* weapon = _actor0->GetComponent<MissileComponent>()->GetOwner()->GetComponent<RocketLauncherComponent>();
@@ -44,7 +42,9 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 					component->TakeDamage(weapon, damageToTake);
 				}
 			}
-			physicsInstance.AddToDelete(_actor0);
+
+            missile->enabled = false;
+            _actor0->GetComponent<MeshComponent>()->enabled = false;
 		}
 	}
 }
