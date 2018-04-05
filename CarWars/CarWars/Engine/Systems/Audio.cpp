@@ -215,7 +215,7 @@ void Audio::UpdateAttached() {
 	for (int i = 0; i < attachedSounds.size(); ++i) {
 		bool isPlaying;
 		attachedSounds[i].channel->isPlaying(&isPlaying);
-		if (!isPlaying || attachedSounds[i].entity->IsMarkedForDeletion()) {
+		if (!isPlaying || attachedSounds[i].entity == nullptr || &(attachedSounds[i].entity->transform) == nullptr) {
 			//delete
 			toDelete.push_back(i);
 		} else {
