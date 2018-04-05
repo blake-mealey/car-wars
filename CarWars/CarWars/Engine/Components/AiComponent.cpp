@@ -5,6 +5,7 @@
 #include "../Systems/StateManager.h"
 #include "../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../Components/WeaponComponents/WeaponComponent.h"
+#include "../Components/WeaponComponents/RailGunComponent.h"
 #include "../Components/RigidbodyComponents/PowerUpSpawnerComponent.h"
 
 #include "../Systems/Physics.h"
@@ -148,7 +149,7 @@ void AiComponent::StartStuckTime() {
 }
 
 Time AiComponent::GetStuckDuration() {
-	if (startedStuckTime.GetSeconds() < 0) return -1;
+	if (startedStuckTime.GetSeconds() < 0) return 0;
 	return StateManager::gameTime - startedStuckTime;
 }
 
@@ -158,7 +159,7 @@ void AiComponent::LostTargetTime() {
 }
 
 Time AiComponent::LostTargetDuration() {
-	if (lostTargetTime.GetSeconds() < 0) return -1;
+	if (lostTargetTime.GetSeconds() < 0) return 0;
 	return StateManager::gameTime - lostTargetTime;
 }
 
@@ -421,10 +422,16 @@ void AiComponent::Act() {
 					sin(randomHorizontalAngle) * sin(randomVerticalAngle)) - glm::vec3(.5f)) * (SPRAY / std::max(myData->difficulty, .1f));
 
 				glm::vec3 hitLocation = vehicleTargetPosition + randomOffset + (myData->weaponType == WeaponType::RocketLauncher ? -vehicleEntity->transform.GetForward() + glm::vec3(0.f, -1.f, 0.f) : glm::vec3(0.f));
-				
-				int windowSize = (int)(AiComponent::MAX_DIFFICULTY - myData->difficulty + 1);
-				if (((int)round(GetPreppingTime().GetSeconds())) % windowSize > windowSize - myData->difficulty/AiComponent::MAX_DIFFICULTY * windowSize - 1)
-				weapon->Shoot(hitLocation);	
+
+				if (myData->weaponType == WeaponType::RailGun ){
+					float windowSize = MAX_DIFFICULTY * RailGunComponent::GetChargeTime().GetSeconds() * 1.1;
+					float timeInWindow = GetPreppingTime().GetSeconds() - floor(GetPreppingTime().GetSeconds() / windowSize) * windowSize;
+					if(timeInWindow < myData->difficulty / MAX_DIFFICULTY * windowSize) weapon->Shoot(hitLocation);
+					else charged = false;
+				}
+				else if (rand() % (int)MAX_DIFFICULTY < myData->difficulty){
+					weapon->Shoot(hitLocation);
+				}
 			}
 			else {
 				LostTargetTime();

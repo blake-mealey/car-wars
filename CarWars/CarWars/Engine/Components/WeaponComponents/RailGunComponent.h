@@ -22,6 +22,8 @@ public:
 
 	void ChargeRelease();
 
+	static Time GetChargeTime();
+
 private:
 	Time timeBetweenShots = 1.0f;
 	Time chargeTime = 2.0f;

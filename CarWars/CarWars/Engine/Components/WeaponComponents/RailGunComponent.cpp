@@ -170,3 +170,8 @@ void RailGunComponent::ChargeRelease() {
 		tweenOut->Start();
 	}
 }
+
+Time RailGunComponent::GetChargeTime() {
+	RailGunComponent railgun;
+	return railgun.chargeTime;
+}
