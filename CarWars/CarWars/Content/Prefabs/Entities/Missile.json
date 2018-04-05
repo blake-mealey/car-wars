@@ -4,8 +4,9 @@
 		{
 			"Type": "Mesh",
 			"Mesh": "Weapons/Missile.obj",
-			"Material": "RedShiny.json",
-			"Scale": [0.1, 0.1, 0.1]
+			"Material": "Basic.json",
+			"Scale": [0.1, 0.1, 0.1],
+            "Texture": "DiamondPlate.jpg"
 		},
 		{
 			"Type": "RigidDynamic",
@@ -22,6 +23,31 @@
 			"Type": "Missile"
 		},
 		{
+			"Type": "PointLight",
+			"Color": [216, 135, 68],
+			"Power": 10
+		},
+		{
+			"Type": "ParticleEmitter",
+			"Texture": "Particles/Flash.png",
+			"EmitConeMinAngle": 0,
+			"EmitConeMaxAngle": 30,
+			"SpawnRate": 0.02,
+			"InitialSpeed": 10,
+			"Acceleration": [0, -5, 0],
+			"Lifetime": 0.5,
+			"InitialScale": [1, 1],
+			"FinalScale": [2, 2],
+			"InitialColor": [512, 255, 255, 512],
+			"FinalColor": [255, 128, 128, 0],
+            "Emission": 10,
+			"IsSprite": true,
+			"SpriteColumns": 9,
+			"SpriteSize": [590, 590],
+			"AnimationCycles": 1,
+			"Position": [0, 0, -1]
+		},
+		{
 			"Type": "ParticleEmitter",
             "Texture": "Particles/BlackSmoke.png",
             "SpawnRate": 0.02,
@@ -35,7 +61,8 @@
             "IsSprite": true,
             "SpriteColumns": 25,
 			"SpriteSize": [390, 390],
-            "AnimationCycles": 0.5
+            "AnimationCycles": 0.5,
+            "Position": [0, 0, -1.1]
 		}
 	]
 }
