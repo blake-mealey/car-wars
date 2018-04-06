@@ -7,7 +7,8 @@
         "ScaledPosition": [ 0.5, 0.5 ],
         "Position": [0, 22, 0],
         "Texture": "Menu.png",
-        "UvScale": [ 1, 1 ]
+        "UvScale": [ 1, 1 ],
+        "Emissiveness": 0.1
       },
       {
         "Prefab": "GUIs/StarjediFont.json",
@@ -16,7 +17,8 @@
         "Position": [ 0, -180, 0 ],
         "TextYAlignment": "Top",
         "FontSize": 48,
-        "Text": "Leaderboard"
+        "Text": "Leaderboard",
+        "Emissiveness": 0.15
       },
       {
         "Prefab": "GUIs/StarjediFont.json",
@@ -26,7 +28,8 @@
         "TextXAlignment": "Left",
         "TextYAlignment": "Top",
         "FontSize": 36,
-        "Text": "Player"
+        "Text": "Player",
+        "Emissiveness": 0.15
       },
       {
         "Prefab": "GUIs/StarjediFont.json",
@@ -36,8 +39,20 @@
         "TextXAlignment": "Right",
         "TextYAlignment": "Top",
         "FontSize": 36,
-        "Text": "Kills"
-      }
+        "Text": "Kills",
+        "Emissiveness": 0.15
+      },
+	    {
+		    "Prefab": "GUIs/StarjediFont.json",
+		    "AnchorPoint": [ 0.5, 0.5 ],
+		    "ScaledPosition": [ 0.5, 0.5 ],
+		    "Position": [ 0, -130, 0 ],
+		    "TextXAlignment": "Centre",
+		    "TextYAlignment": "Top",
+		    "FontSize": 36,
+		    "Text": "Deaths",
+		    "Emissiveness": 0.15
+	    }
     ],
     "Children": [
       {

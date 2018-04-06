@@ -41,6 +41,7 @@ struct WeaponType {
 	static constexpr size_t STAT_COUNT = 3;
 	static const std::string statDisplayNames[STAT_COUNT];
 	static const std::string statValues[Count][STAT_COUNT];		// rof, damage, type
+    static const std::string texturePaths[Count];
 };
 
 struct TeamData {

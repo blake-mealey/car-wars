@@ -201,7 +201,7 @@ void NextEnumOption(Entity* option, int dir, size_t &value, size_t count, const 
 
 void UpdateLeaderboardMenu(Entity* leaderboard, int playerIndex) {
 	Entity* container = EntityManager::FindFirstChild(leaderboard, "LeaderboardRows");
-	std::vector<PlayerData> allPlayers;
+	vector<PlayerData> allPlayers;
 	
 	for (size_t i = 0; i < 4; ++i) {
         HumanData& player = Game::humanPlayers[i];
@@ -212,7 +212,7 @@ void UpdateLeaderboardMenu(Entity* leaderboard, int playerIndex) {
 		allPlayers.push_back(ai);
 	}
 
-	std::sort(allPlayers.begin(), allPlayers.end());
+	sort(allPlayers.begin(), allPlayers.end());
 
     if (playerIndex > -1) {
         HumanData& thisPlayer = Game::humanPlayers[playerIndex];
@@ -225,12 +225,18 @@ void UpdateLeaderboardMenu(Entity* leaderboard, int playerIndex) {
         }
     }
 
-	std::vector<Entity*> rows = EntityManager::GetChildren(container);
+	vector<Entity*> rows = EntityManager::GetChildren(container);
 	for (size_t i = 0; i < rows.size(); ++i) {
 		PlayerData& player = allPlayers[i];
 		Entity* row = rows[i];
+        if (Game::gameData.gameMode == GameModeType::Team) {
+            const glm::vec4 color = player.teamIndex == 0 ? ContentManager::COLOR_LIGHT_GREEN : ContentManager::COLOR_LIGHT_RED;
+            GuiHelper::SetGuiColors(row, color);
+        }
+        GuiHelper::SetGuiTexture(row, 3, ContentManager::GetTexture(WeaponType::texturePaths[player.weaponType]));
 		GuiHelper::SetFirstGuiText(row, player.name);
 		GuiHelper::SetSecondGuiText(row, to_string(player.killCount));
+		GuiHelper::SetThirdGuiText(row, to_string(player.deathCount));
 	}
 }
 
@@ -243,7 +249,8 @@ void CreateLeaderboardMenu(Entity* leaderboard, int playerIndex) {
 	count = count < 10 ? count : 10;
 	for (size_t i = 0; i < count; ++i) {
 		Entity* row = ContentManager::LoadEntity("Menu/LeaderboardRow.json", container);
-		GuiHelper::SetGuiPositions(row, glm::vec3(0.f, -85.f + (i * 30.f), 0.f));
+		GuiHelper::AddGuiPositions(row, glm::vec3(0.f, i * 30.f, 0.f));
+//		GuiHelper::SetGuiPositions(row, glm::vec3(0.f, -85.f + (i * 30.f), 0.f));
 	}
 
 	UpdateLeaderboardMenu(leaderboard, playerIndex);
@@ -686,6 +693,13 @@ void InputManager::HandleKeyboard() {
 		if (Keyboard::KeyDown(GLFW_KEY_SPACE)) {
 			handbrake = 1;
 		}
+
+
+        if (Keyboard::KeyPressed(GLFW_KEY_F1)) {
+            Graphics::Instance().sceneGraphShown = !Graphics::Instance().sceneGraphShown;
+        } if (Keyboard::KeyPressed(GLFW_KEY_F2)) {
+            Graphics::Instance().debugGuiShown = !Graphics::Instance().debugGuiShown;
+        }
 
 		vehicle->Boost(boostDir);
 		vehicle->HandleAcceleration(forwardPower, backwardPower);

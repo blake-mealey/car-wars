@@ -69,7 +69,7 @@ const glm::mat4 Graphics::BIAS_MATRIX = glm::mat4(
 );
 
 // Singleton
-Graphics::Graphics() : framesPerSecond(0.0), lastTime(0.0), frameCount(0), sceneGraphShown(false), debugGuiShown(true),
+Graphics::Graphics() : framesPerSecond(0.0), lastTime(0.0), frameCount(0), sceneGraphShown(false), debugGuiShown(false),
                        renderMeshes(true),
                        renderGuis(true), renderPhysicsColliders(false), renderPhysicsBoundingBoxes(false),
                        renderNavigationMesh(false), renderNavigationPaths(false), bloomEnabled(true),

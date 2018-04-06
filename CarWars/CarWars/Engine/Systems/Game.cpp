@@ -57,6 +57,7 @@ const string WeaponType::statValues[Count][STAT_COUNT] = {
 	{ "75", "500", "rocket" },      // Rocket Launcher
 	{ "33", "1150", "charge" }       // Rail Gun
 };
+const string WeaponType::texturePaths[Count] = { "HUD/bullets.png", "HUD/explosion.png", "HUD/target.png" };
 
 const unsigned int Game::MAX_VEHICLE_COUNT = 20;
 

@@ -556,32 +556,23 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
             GuiComponent* player1Gui = guis[1];
             GuiComponent* weaponGui = guis[2];
             
-            std::vector<Entity*> rows = EntityManager::GetChildren(killFeed);
+            vector<Entity*> rows = EntityManager::GetChildren(killFeed);
 
             player1Gui->SetText(me->name);
+            if (Game::gameData.gameMode == GameModeType::Team) player1Gui->SetFontColor(me->teamIndex ? ContentManager::COLOR_LIGHT_RED : ContentManager::COLOR_LIGHT_GREEN);
             const glm::vec2 fontDims = player1Gui->GetFontDimensions();
             
-            Texture* weaponTexture = nullptr;
-            switch (damager->GetType()) {
-            case ComponentType_MachineGun:
-                weaponTexture = ContentManager::GetTexture("HUD/bullets.png");
-                break;
-            case ComponentType_RocketLauncher:
-                weaponTexture = ContentManager::GetTexture("HUD/explosion.png");
-                break;
-            case ComponentType_RailGun:
-                weaponTexture = ContentManager::GetTexture("HUD/target.png");
-                break;
-			case ComponentType_SuicideWeapon:
-				weaponTexture = ContentManager::GetTexture("HUD/skull.png");
-				break;
-            default:;
-            }
+            Texture* weaponTexture;
+            if (attacker) weaponTexture = ContentManager::GetTexture(WeaponType::texturePaths[attacker->weaponType]);
+            else weaponTexture = ContentManager::GetTexture("HUD/skull.png");
             
             weaponGui->SetTexture(weaponTexture);
             weaponGui->transform.Translate(-glm::vec3(fontDims.x + 10.f, 0.f, 0.f));
             
-            if (attacker) player0Gui->SetText(attacker->name);
+            if (attacker) {
+                player0Gui->SetText(attacker->name);
+                if (Game::gameData.gameMode == GameModeType::Team) player0Gui->SetFontColor(attacker->teamIndex ? ContentManager::COLOR_LIGHT_RED : ContentManager::COLOR_LIGHT_GREEN);
+            }
             player0Gui->transform.Translate(-glm::vec3(fontDims.x + 50.f, 0.f, 0.f));
 
             constexpr size_t maxCount = 5;

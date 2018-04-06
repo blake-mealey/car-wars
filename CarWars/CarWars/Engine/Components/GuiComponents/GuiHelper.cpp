@@ -186,8 +186,14 @@ void GuiHelper::DestroyGuis(std::string entityTag, int playerIndex) {
 	DestroyGuis(GetGuiEntity(entityTag, playerIndex));
 }
 
+void GuiHelper::SetGuiTexture(Entity* parent, int guiIndex, Texture* texture) {
+    vector<GuiComponent*> guis = parent->GetComponents<GuiComponent>();
+    if (guis.size() <= guiIndex) return;
+    guis[guiIndex]->SetTexture(texture);
+}
+
 void GuiHelper::SetGuiText(Entity* entity, int guiIndex, std::string text) {
-    std::vector<GuiComponent*> guis = entity->GetComponents<GuiComponent>();
+    vector<GuiComponent*> guis = entity->GetComponents<GuiComponent>();
     if (guis.size() <= guiIndex) return;
     guis[guiIndex]->SetText(text);
 }
@@ -210,6 +216,14 @@ void GuiHelper::SetSecondGuiText(Entity* entity, std::string text) {
 
 void GuiHelper::SetSecondGuiText(std::string entityTag, std::string text, int playerIndex) {
     SetSecondGuiText(GetGuiEntity(entityTag, playerIndex), text);
+}
+
+void GuiHelper::SetThirdGuiText(Entity* entity, std::string text) {
+    SetGuiText(entity, 2, text);
+}
+
+void GuiHelper::SetThirdGuiText(std::string entityTag, std::string text, int playerIndex) {
+    SetThirdGuiText(GetGuiEntity(entityTag, playerIndex), text);
 }
 
 bool GuiHelper::FirstGuiHasText(Entity *entity, std::string text) {
@@ -311,6 +325,14 @@ Entity* GuiHelper::GetGuiEntity(std::string entityTag, int playerIndex) {
 	return EntityManager::FindEntities(entityTag)[playerIndex];
     //Entity* root = static_cast<CameraComponent*>(EntityManager::GetComponents(ComponentType_Camera)[playerIndex])->GetGuiRoot();
     //return EntityManager::FindFirstChild(root, entityTag);
+}
+
+void GuiHelper::SetGuiColors(Entity* parent, glm::vec4 color) {
+    for (GuiComponent* gui : parent->GetComponents<GuiComponent>()) {
+        gui->SetFontColor(color);
+        gui->SetSelectedFontColor(color);
+        gui->SetTextureColor(color);
+    }
 }
 
 void GuiHelper::GetGuisRecursive(Entity* parent, std::vector<GuiComponent*>& guis, std::unordered_set<GuiComponent*> ignoreList) {

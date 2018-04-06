@@ -109,6 +109,9 @@ public:
 
 	static const glm::mat4 BIAS_MATRIX;
 
+    bool sceneGraphShown;
+    bool debugGuiShown;
+
 	// System calls
 	bool Initialize(char* windowTitle);
 	void Update() override;
@@ -167,8 +170,6 @@ private:
     Time lastTime;
     int frameCount;
 
-    bool sceneGraphShown;
-    bool debugGuiShown;
     bool renderMeshes;
     bool renderGuis;
     bool renderPhysicsColliders;
