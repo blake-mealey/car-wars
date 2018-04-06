@@ -43,9 +43,10 @@ void main() {
 	fragmentColor = vec4(hsv2rgb(fragmentHsv), fragmentColor.w);
 
 	// Blend with sun colour
+	float sunSize = sunSizeRadians + sin(time) * 0.02;
 	float angle = acos(dot(normalize(-sunDirection), normalize(fragmentUv)));
-	if (angle < sunSizeRadians - 0.01) {
-		vec2 sunPos = vec2(angle/sunSizeRadians, 0.5);
+	if (angle < sunSize - 0.01) {
+		vec2 sunPos = vec2(angle/sunSize, 0.5);
 		vec4 sunColor = texture(sun, sunPos);
 		fragmentColor = (sunColor*(2 - pow(sunPos.x,1.5)) * sunColor.w) + (fragmentColor * (1 - sunColor.w));
 	}

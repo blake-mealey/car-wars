@@ -58,6 +58,7 @@ public:
 	static void DestroyGuis(std::string entityTag, int playerIndex = 0);
     
     static void SetGuiColors(Entity* parent, glm::vec4 color);
+    static void SetGuiColors(std::string entityTag, glm::vec4 color, int playerIndex = 0);
 
     static void SetGuiTexture(Entity* parent, int guiIndex, Texture* texture);
 

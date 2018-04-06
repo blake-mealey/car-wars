@@ -51,6 +51,7 @@ struct TeamData {
 	int deathCount;
 	size_t size;
     std::string name;
+    size_t index;
 };
 
 struct PlayerData {

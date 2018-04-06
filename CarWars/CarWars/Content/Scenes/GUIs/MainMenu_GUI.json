@@ -11,8 +11,9 @@
         "AnchorPoint": [ 0.5, 0 ],
         "Text": "cAR wARS",
         "Font": "Starjedi.ttf",
-        "FontColor": "White",
-        "FontSize": 128
+        "FontColor": "LightBlue",
+        "FontSize": 128,
+        "Emissiveness": 0.5
       }
     ]
   },

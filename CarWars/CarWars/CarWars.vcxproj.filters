@@ -178,10 +178,7 @@
     <Media Include="Content\Sounds\powerup.mp3" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Content\Textures\HUD\health-vignette.png" />
     <Image Include="Content\Textures\HUD\shield-vignette-blue.png" />
-    <Image Include="Content\Textures\HUD\shield-vignette.png" />
-    <Image Include="Content\Textures\HUD\speed-vingette.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\Materials\CyanShiny.json" />

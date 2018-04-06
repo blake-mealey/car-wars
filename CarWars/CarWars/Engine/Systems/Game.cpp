@@ -170,6 +170,7 @@ void Game::InitializeGame() {
     else if (gameData.gameMode == GameModeType::FreeForAll) teamCount = gameData.humanCount + gameData.aiCount;
     for (size_t i = 0; i < teamCount; ++i) {
         TeamData team;
+        team.index = i;
         if (gameData.gameMode == GameModeType::Team) {
             team.name = "Team " + to_string(i + 1);
         }

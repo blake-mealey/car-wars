@@ -335,6 +335,10 @@ void GuiHelper::SetGuiColors(Entity* parent, glm::vec4 color) {
     }
 }
 
+void GuiHelper::SetGuiColors(std::string entityTag, glm::vec4 color, int playerIndex) {
+    SetGuiColors(GetGuiEntity(entityTag, playerIndex), color);
+}
+
 void GuiHelper::GetGuisRecursive(Entity* parent, std::vector<GuiComponent*>& guis, std::unordered_set<GuiComponent*> ignoreList) {
 	std::vector<GuiComponent*> components = parent->GetComponents<GuiComponent>();
     for (GuiComponent* gui : components) {
