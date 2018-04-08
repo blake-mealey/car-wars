@@ -70,6 +70,7 @@ public:
 	Time GetTimeSinceBoost();
 
 	void SetResistance(float _resistance);
+	void SetBaseDamage(float _baseDamage);
 
     void OnContact(RigidbodyComponent* body) override;
     void OnTrigger(RigidbodyComponent* body) override;
@@ -100,6 +101,7 @@ private:
 
 	float health = 1000.f;
 	float resistance = 0.5f;
+	float baseDamage = 1.0f;
 
 	size_t raycastGroup;
 

@@ -482,7 +482,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
     }
 
     if (attacker && attacker->teamIndex == me->teamIndex) return;
-    health -= _damage * (1.f - (resistance * defenceMultiplier));
+    health -= (damager->GetEntity()->GetComponent<VehicleComponent>()->baseDamage * _damage) * (1.f - (resistance * defenceMultiplier));
 
     HumanData* attackerPlayer = Game::GetHumanFromEntity(damager->GetEntity());
     if (attackerPlayer) {
@@ -727,6 +727,10 @@ Time VehicleComponent::GetTimeSinceBoost() {
 
 void VehicleComponent::SetResistance(float _resistance) {
 	resistance = _resistance;
+}
+
+void VehicleComponent::SetBaseDamage(float _baseDamage) {
+	baseDamage = _baseDamage;
 }
 
 void VehicleComponent::OnContact(RigidbodyComponent* body) {
