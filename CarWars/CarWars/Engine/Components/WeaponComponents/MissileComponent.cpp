@@ -9,6 +9,7 @@
 #include "../../Systems/Content/\ContentManager.h"
 #include "../../Components/WeaponComponents/WeaponComponent.h"
 #include "../../Components/RigidbodyComponents/RigidDynamicComponent.h"
+#include "../ParticleEmitterComponent.h"
 
 MissileComponent::MissileComponent() {}
 
@@ -20,6 +21,11 @@ void MissileComponent::Initialize(Entity* _entity, glm::vec3 position) {
 	Entity* missile = GetEntity();
 	Entity* gunTurret = EntityManager::FindFirstChild(owner, "GunTurret");
 	RigidDynamicComponent* missileRigidDynamic = missile->GetComponent<RigidDynamicComponent>();
+
+    auto emitters = gunTurret->GetComponents<ParticleEmitterComponent>();
+    for (auto emitter : emitters) {
+        emitter->Emit();
+    }
 
 	//Variables Needed
 	glm::vec3 gunPosition = gunTurret->transform.GetGlobalPosition();

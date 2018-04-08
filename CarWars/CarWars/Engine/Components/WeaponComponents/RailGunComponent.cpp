@@ -63,6 +63,11 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 		//Reset Next Charing Time
 		nextChargeTime = StateManager::gameTime + timeBetweenShots;
 
+        auto emitters = rgTurret->GetComponents<ParticleEmitterComponent>();
+        for (auto emitter : emitters) {
+            emitter->Emit(1);
+        }
+
         if (didHit) {
             Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
 			if (thingHit && vehicle) {
@@ -85,8 +90,8 @@ void RailGunComponent::Shoot(glm::vec3 position) {
             float radius = glm::mix(0.1f, 1.f, value);
             beamMeshTransform.SetScale(glm::vec3(radius, radius, length(rgTurret->transform.GetGlobalPosition() - hitPosition)));
             beamTransform.LookAt(hitPosition);
-            emitter->SetInitialScale(glm::vec2(radius*4.f));
-            emitter->SetFinalScale(glm::vec2(radius*4.f));
+            emitter->SetInitialScale(glm::vec2(radius*3.f));
+            emitter->SetFinalScale(glm::vec2(radius*3.f));
         });
 
         float startRadius = beamMeshTransform.GetLocalScale().x;
@@ -97,8 +102,8 @@ void RailGunComponent::Shoot(glm::vec3 position) {
             float radius = glm::mix(startRadius, 0.f, value);
             beamMeshTransform.SetScale(glm::vec3(radius, radius, length(rgTurret->transform.GetGlobalPosition() - hitPosition)));
             beamTransform.LookAt(hitPosition);
-            emitter->SetInitialScale(glm::vec2(radius*4.f));
-            emitter->SetFinalScale(glm::vec2(radius*4.f));
+            emitter->SetInitialScale(glm::vec2(radius*3.f));
+            emitter->SetFinalScale(glm::vec2(radius*3.f));
 		});
         tweenOut->SetFinishedCallback([this](float& value) mutable {
 			EntityManager::DestroyEntity(beam);
