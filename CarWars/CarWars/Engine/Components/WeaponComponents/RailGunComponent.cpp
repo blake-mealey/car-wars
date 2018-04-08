@@ -65,7 +65,11 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 
         if (didHit) {
             Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
-            if (thingHit) thingHit->TakeDamage(this, GetDamage());
+			if (thingHit && vehicle) {
+				if(thingHit->GetComponent<VehicleComponent>())
+					thingHit->GetComponent<VehicleComponent>()->pxVehicle->getRigidDynamicActor()->addForce(Transform::ToPx(glm::normalize(thingHit->transform.GetGlobalPosition() - vehicle->transform.GetGlobalPosition()) * 40000.f), PxForceMode::eIMPULSE, true);
+				thingHit->TakeDamage(this, GetDamage());
+			}
         }
 		
 		PlayerData* player = Game::Instance().GetPlayerFromEntity(GetEntity());

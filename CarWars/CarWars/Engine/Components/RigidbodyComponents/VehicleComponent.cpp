@@ -482,7 +482,11 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
     }
 
     if (attacker && attacker->teamIndex == me->teamIndex) return;
-    health -= (damager->GetEntity()->GetComponent<VehicleComponent>()->baseDamage * _damage) * (1.f - (resistance * defenceMultiplier));
+	if (!attacker || attacker->teamIndex == me->teamIndex) {
+		health -= (_damage) * (1.f - (resistance * defenceMultiplier));
+	} else {
+		health -= (attacker->vehicleEntity->GetComponent<VehicleComponent>()->baseDamage * _damage) * (1.f - (resistance * defenceMultiplier));
+	}
 
     HumanData* attackerPlayer = Game::GetHumanFromEntity(damager->GetEntity());
     if (attackerPlayer) {
