@@ -1,6 +1,6 @@
 {
 	"Type": "Mesh",
-  "Mesh": "PowerUps/health_pack.obj",
-  "Material": "Basic.json",
-  "Texture": "Boulder.jpg"
+  "Mesh": "PowerUps/health.obj",
+	"Material": "Basic.json",
+  "Scale": [ 0.5, 0.5, 0.5 ]
 }
