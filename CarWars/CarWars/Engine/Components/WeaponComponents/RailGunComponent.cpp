@@ -239,6 +239,9 @@ Entity* RailGunComponent::GetBeam() {
 }
 
 Time RailGunComponent::GetChargeTime() {
-	RailGunComponent railgun;
-	return railgun.chargeTime;
+	return chargeTime;
+}
+
+Time RailGunComponent::GetCooldown() {
+	return timeBetweenShots;
 }

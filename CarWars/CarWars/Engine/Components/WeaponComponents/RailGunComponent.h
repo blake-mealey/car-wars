@@ -23,7 +23,8 @@ public:
 
 	void ChargeRelease();
 
-	static Time GetChargeTime();
+	Time GetChargeTime();
+	Time GetCooldown();
 
 private:
 	Time timeBetweenShots = 1.0f;
