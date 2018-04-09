@@ -3,7 +3,7 @@
 #include "../../Entities/Entity.h"
 #include "../../Systems/Content/ContentManager.h"
 #include "../../Systems/StateManager.h"
-#include "../PowerUpComponents/SpeedPowerUp.h"
+#include "../PowerUpComponents/HealthPowerUp.h"
 #include "../../Entities/EntityManager.h"
 #include "../../Systems/Game.h"
 #include "../PowerUpComponents/DefencePowerUp.h"
@@ -13,7 +13,7 @@
 #include "../../Systems/Effects.h"
 
 PowerUpSpawnerComponent::PowerUpSpawnerComponent(nlohmann::json data): RigidStaticComponent(data) {
-    respawnDuration = ContentManager::GetFromJson<double>(data["RespawnDuration"], 5.0);
+    respawnDuration = ContentManager::GetFromJson<double>(data["RespawnDuration"], baseDuration);
     powerUpType = ContentManager::GetFromJson<PowerUpType>(data["PowerUpType"], Random);
     activePowerUp = nullptr;
     powerUpMesh = nullptr;
@@ -43,10 +43,13 @@ void PowerUpSpawnerComponent::Respawn() {
 
     int type = powerUpType;
     if (type == Random) type = rand() % Count;
+    std::cout<< "type is " << type << std::endl;
+    type = Health;
     switch (type) {
-    case Speed:
-        activePowerUp = new SpeedPowerUp();
-        powerUpMesh = ContentManager::LoadComponent<MeshComponent>("SpeedPowerUpMesh.json");
+    case Health:
+        std::cout<<"spawned health"<<std::endl;
+        activePowerUp = new HealthPowerUp();
+        powerUpMesh = ContentManager::LoadComponent<MeshComponent>("HealthPowerUpMesh.json");
         break;
     case Damage:
         activePowerUp = new DamagePowerUp();

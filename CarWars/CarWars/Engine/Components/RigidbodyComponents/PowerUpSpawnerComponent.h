@@ -6,7 +6,7 @@
 class VehicleComponent;
 
 enum PowerUpType {
-    Speed=0,
+    Health=0,
     Damage,
     Defence,
     Random,
@@ -32,6 +32,7 @@ public:
 	bool HasActivePowerup() const;
 
 private:
+    double baseDuration = 15.0;
     Time respawnDuration;
     Time lastPickupTime;
 

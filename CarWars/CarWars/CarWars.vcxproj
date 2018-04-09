@@ -172,6 +172,7 @@
     <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
     <ClCompile Include="Engine\Components\LineComponent.cpp" />
     <ClCompile Include="Engine\Components\ParticleEmitterComponent.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\HealthPowerUp.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.cpp" />
     <ClCompile Include="Engine\Components\WeaponComponents\SuicideWeaponComponent.cpp" />
     <ClCompile Include="Engine\Systems\Content\HeightMap.cpp" />
@@ -256,6 +257,7 @@
     <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
     <ClInclude Include="Engine\Components\LineComponent.h" />
     <ClInclude Include="Engine\Components\ParticleEmitterComponent.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\HealthPowerUp.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.h" />
     <ClInclude Include="Engine\Components\Tweens\TTween.h" />
     <ClInclude Include="Engine\Components\Tweens\Tween.h" />
@@ -320,13 +322,14 @@
     <None Include="Content\Maps\Arena\Data.json" />
     <None Include="Content\Maps\Tiers\Data.json" />
     <None Include="Content\Materials\CyanShiny.json" />
+    <None Include="Content\Materials\GreenShiny.json" />
     <None Include="Content\Materials\PinkShiny.json" />
     <None Include="Content\Materials\YellowShiny.json" />
     <None Include="Content\Prefabs\Components\DamagePowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\DefencePowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\Particles\Dust.json" />
     <None Include="Content\Prefabs\Components\PowerUpMesh.json" />
-    <None Include="Content\Prefabs\Components\SpeedPowerUpMesh.json" />
+    <None Include="Content\Prefabs\Components\HealthPowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadA.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadB.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadControl.json" />

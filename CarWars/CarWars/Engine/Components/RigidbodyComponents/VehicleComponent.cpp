@@ -11,7 +11,6 @@
 #include "../../Systems/Physics/VehicleTireFriction.h"
 
 #include "../../Systems/Physics/RaycastGroups.h"
-#include "../../Systems/Game.h"
 #include "../GuiComponents/GuiComponent.h"
 #include "../GuiComponents/GuiHelper.h"
 #include "../Tweens/Tween.h"
@@ -467,6 +466,25 @@ void VehicleComponent::UpdateFromPhysics(physx::PxTransform t) {
     UpdateWheelTransforms();
 }
 
+void VehicleComponent::UpdateHealthGui(HumanData *myPlayer) {
+    const float healthPercent = glm::max(0.f, health) / 1000.f;
+    Entity* entity = EntityManager::FindFirstChild(myPlayer->camera->GetGuiRoot(), "HealthBar");
+    GuiComponent* gui = GuiHelper::GetSecondGui(entity);
+
+    const std::string tweenTag = "HealthBar" + std::to_string(myPlayer->id);
+    Effects::Instance().DestroyTween(tweenTag);
+
+    Transform& mask = gui->GetMask();
+    const glm::vec3 start = mask.GetLocalScale();
+    const glm::vec3 end = gui->transform.GetLocalScale() * glm::vec3(healthPercent, 1.f, 1.f);
+    auto tween = Effects::Instance().CreateTween<glm::vec3, easing::Quint::easeOut>(start, end, 0.1, StateManager::gameTime);
+    tween->SetTag(tweenTag);
+    tween->SetUpdateCallback([&mask](glm::vec3& value) mutable {
+        mask.SetScale(value);
+    });
+    tween->Start();
+}
+
 
 void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
 	if (!damager) return;
@@ -632,6 +650,11 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
 
 float VehicleComponent::GetHealth() {
 	return health;
+}
+
+void VehicleComponent::AddHealth(float _health) {
+    health += _health;
+    if (health > 1000.f) health = 1000.f;
 }
 
 size_t VehicleComponent::GetRaycastGroup() const {
