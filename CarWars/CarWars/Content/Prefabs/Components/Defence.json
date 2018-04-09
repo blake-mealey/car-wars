@@ -1,0 +1,5 @@
+{
+	"Type": "Mesh",
+  "Mesh": "PowerUps/Defence.obj",
+	"Material": "Basic.json"
+}

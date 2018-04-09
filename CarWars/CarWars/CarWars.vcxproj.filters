@@ -291,5 +291,7 @@
     <None Include="Content\Prefabs\Components\HealthPowerUpMesh.json" />
     <None Include="Content\Materials\GreenShiny.json" />
     <None Include="Content\Prefabs\Components\HP.json" />
+    <None Include="Content\Prefabs\Components\Defence.json" />
+    <None Include="Content\Prefabs\Components\Damage.json" />
   </ItemGroup>
 </Project>
