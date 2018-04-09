@@ -33,6 +33,11 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		Entity* mgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
 		const glm::vec3 gunPosition = mgTurret->transform.GetGlobalPosition();
 
+        auto emitters = mgTurret->GetComponents<ParticleEmitterComponent>();
+        for (auto emitter : emitters) {
+            emitter->Emit(3);
+        }
+
 		glm::vec3 gunDirection = position - gunPosition;
 		float distanceToTarget = glm::length(gunDirection);
 		gunDirection = glm::normalize(gunDirection);

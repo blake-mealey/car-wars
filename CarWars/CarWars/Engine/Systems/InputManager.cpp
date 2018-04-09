@@ -782,12 +782,25 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		}
 
 		//TODO: use timer and clamps to control speed
-		if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			cameraX += (static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f) * .4f; 
+		//XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
+		if (abs(controller->GetState().Gamepad.sThumbRX) >= 4000 || abs(controller->GetState().Gamepad.sThumbRY) >= 4000) {
+			float magnitude = abs(static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f) + abs(static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f);
+			cameraX += .4f * magnitude * pow(static_cast<float>(controller->GetState().Gamepad.sThumbRX) / (32768.0f), 7);
+			cameraY += .35f * magnitude * pow(static_cast<float>(controller->GetState().Gamepad.sThumbRY) / (32768.0f), 7);
 		}
-		if (abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			cameraY += (static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f) * .4f;
-		}
+
+		//if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+		//	cameraX += (pow((static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f), 7) * .4f);
+		//}
+		//if (abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+		//	cameraY += (pow((static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f), 7) * .4f);
+		//} 
+		//else if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE && abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+		//	float sum = static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f + static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f;
+//
+	//		cameraX += (pow((static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f * sum), 3) * .4f);
+		//	cameraY += (pow((static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f * sum), 3) * .4f);
+		//}
 
 		if (cameraX > M_PI) cameraX -= M_PI * 2;
 		if (cameraX < -M_PI) cameraX += M_PI * 2;

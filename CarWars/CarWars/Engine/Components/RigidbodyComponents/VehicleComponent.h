@@ -7,6 +7,8 @@
 #include <json/json.hpp>
 #include "RigidDynamicComponent.h"
 #include "../MeshComponent.h"
+#include "../../Systems/Game.h"
+
 
 class WeaponComponent;
 class ParticleEmitterComponent;
@@ -57,6 +59,8 @@ public:
     float defenceMultiplier = 1.f;
 	void TakeDamage(WeaponComponent* damager, float damage) override;
 	float GetHealth();
+    void AddHealth(float _health);
+
 
 	size_t GetRaycastGroup() const;
 
@@ -66,10 +70,12 @@ public:
 	void Handbrake( float amount);
 
     void PoweredUp();
+    void UpdateHealthGui(HumanData *myPlayer);
 
 	Time GetTimeSinceBoost();
 
 	void SetResistance(float _resistance);
+	void SetBaseDamage(float _baseDamage);
 
     void OnContact(RigidbodyComponent* body) override;
     void OnTrigger(RigidbodyComponent* body) override;
@@ -100,6 +106,7 @@ private:
 
 	float health = 1000.f;
 	float resistance = 0.5f;
+	float baseDamage = 1.0f;
 
 	size_t raycastGroup;
 

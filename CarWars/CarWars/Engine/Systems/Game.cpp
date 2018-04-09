@@ -96,7 +96,8 @@ void Game::SpawnVehicle(PlayerData& player) const {
 		cantSpawn = false;
 		spawn = spawns[rand() % spawns.size()];
 		for (Entity* vehicle : EntityManager::FindEntities("Vehicle")) {
-			if (glm::distance(spawn->transform.GetGlobalPosition(), vehicle->transform.GetGlobalPosition()) < 10.0f) {
+			glm::vec3 vehiclePosition = Transform::FromPx(vehicle->GetComponent<VehicleComponent>()->pxRigid->getGlobalPose().p);
+			if (glm::distance(spawn->transform.GetGlobalPosition(), vehiclePosition) < 10.0f) {
 				cantSpawn = true;
 				i++;
 			}
@@ -120,12 +121,15 @@ void Game::SpawnVehicle(PlayerData& player) const {
 	switch (player.vehicleType) {
 	case VehicleType::Heavy:
 		vehicleComponent->SetResistance(0.65f);
+		vehicleComponent->SetBaseDamage(0.85f);
 		break;
 	case VehicleType::Medium:
 		vehicleComponent->SetResistance(0.5f);
+		vehicleComponent->SetBaseDamage(1.0f);
 		break;
 	case VehicleType::Light:
-		vehicleComponent->SetResistance(0.20f);
+		vehicleComponent->SetResistance(0.35f);
+		vehicleComponent->SetBaseDamage(1.15f);
 		break;
 	}
 

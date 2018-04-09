@@ -58,6 +58,7 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 					//Take Damage Equal to damage / 1 + distanceFromExplosion?
 					float missileDamage = _actor0->GetComponent<MissileComponent>()->GetDamage();
 					float damageToTake = missileDamage - (15.0f * (glm::length(component->GetEntity()->transform.GetGlobalPosition() - _actor0->transform.GetGlobalPosition())));
+					static_cast<VehicleComponent*>(component)->pxVehicle->getRigidDynamicActor()->addForce(Transform::ToPx(glm::normalize(component->GetEntity()->transform.GetGlobalPosition() - _actor0->transform.GetGlobalPosition()) * 20000.0f), PxForceMode::eIMPULSE, true);
 					component->TakeDamage(weapon, damageToTake);
 				}
 			}

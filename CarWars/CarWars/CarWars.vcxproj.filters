@@ -80,6 +80,7 @@
     <ClCompile Include="Engine\Components\WeaponComponents\SuicideWeaponComponent.cpp" />
     <ClCompile Include="Engine\Components\BillboardComponent.cpp" />
     <ClCompile Include="Engine\Components\ParticleEmitterComponent.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\HealthPowerUp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -173,6 +174,7 @@
     <ClInclude Include="Engine\Components\WeaponComponents\SuicideWeaponComponent.h" />
     <ClInclude Include="Engine\Components\BillboardComponent.h" />
     <ClInclude Include="Engine\Components\ParticleEmitterComponent.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\HealthPowerUp.h" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="Content\Sounds\powerup.mp3" />
@@ -255,7 +257,6 @@
     <None Include="Content\Shaders\shadowMap.vert" />
     <None Include="Content\Shaders\skybox.frag" />
     <None Include="Content\Shaders\skybox.vert" />
-    <None Include="Content\Prefabs\Components\SpeedPowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\PowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\DamagePowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\DefencePowerUpMesh.json" />
@@ -287,5 +288,7 @@
     <None Include="Content\Prefabs\Entities\BulletHitGroundEffect.json" />
     <None Include="Content\Prefabs\Entities\BulletHitCarEffect.json" />
     <None Include="Content\Prefabs\Entities\Beam.json" />
+    <None Include="Content\Prefabs\Components\HealthPowerUpMesh.json" />
+    <None Include="Content\Materials\GreenShiny.json" />
   </ItemGroup>
 </Project>

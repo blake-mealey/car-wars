@@ -10,18 +10,6 @@
         "ScaledPosition": [ 0.5, 0.5 ]
       }
     ]
-  },{
-    "Tag": "SpeedPowerUp",
-    "Components": [
-      {
-        "Type": "GUI",
-        "ScaledScale": [ 1.0, 1.0 ],
-        "TextureColor": "YellowAlpha",
-        "Texture": "HUD/health-vignette.png",
-        "AnchorPoint": [ 0.5, 0.5 ],
-        "ScaledPosition": [ 0.5, 0.5 ]
-      }
-    ]
   },
   {
     "Tag": "DefencePowerUp",
@@ -29,7 +17,7 @@
       {
         "Type": "GUI",
         "ScaledScale": [ 1.0, 1.0 ],
-        "TextureColor": "CyanAlpha",
+        "TextureColor": "YellowAlpha",
         "Texture": "HUD/shield-vignette.png",
         "AnchorPoint": [ 0.5, 0.5 ],
         "ScaledPosition": [ 0.5, 0.5 ]
@@ -185,7 +173,7 @@
         "ScaledPosition": [ 0.5, 1 ],
         "Position": [ 0, -20, 0 ],
         "Scale": [ 494, 58, 0 ],
-        "Texture": "HUD/HealthBar.png",
+        "Texture": "HUD/HealthBarG.png",
         "TextureColor": "BlackHalfAlpha"
       },
       {
@@ -194,7 +182,7 @@
         "ScaledPosition": [ 0.5, 1 ],
         "Position": [ 0, -20, 0 ],
         "Scale": [ 494, 58, 0 ],
-        "Texture": "HUD/HealthBar.png",
+        "Texture": "HUD/HealthBarG.png",
         "MaskEnabled": true,
         "Mask": {
 	        "Scale": [494, 58, 0]

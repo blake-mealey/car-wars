@@ -6,7 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 GuiComponent::~GuiComponent() {
-    delete font;
+    if (font) delete font;
     for (GuiEffect* effect : effects) {
         delete effect;
     }
