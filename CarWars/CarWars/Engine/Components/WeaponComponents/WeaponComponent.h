@@ -32,9 +32,8 @@ public:
 
     float damageMultiplier = 1.f;
 	Time timeBetweenShots;
-protected:
-
 	void turnTurret(glm::vec3 location);
+protected:
 
 	float targetHorizontalAngle;
 	float targetVerticalAngle;

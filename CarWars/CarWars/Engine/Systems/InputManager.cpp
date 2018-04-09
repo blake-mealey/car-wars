@@ -777,30 +777,26 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 			cameraC->follow = !cameraC->follow;
 		}
 
-		if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE && abs(controller->GetPreviousState().Gamepad.sThumbRX) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-			//TODO: add timer for player
-		}
-
-		//TODO: use timer and clamps to control speed
 		//XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
-		if (abs(controller->GetState().Gamepad.sThumbRX) >= 4000 || abs(controller->GetState().Gamepad.sThumbRY) >= 4000) {
-			float magnitude = abs(static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f) + abs(static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f);
-			cameraX += .4f * magnitude * pow(static_cast<float>(controller->GetState().Gamepad.sThumbRX) / (32768.0f), 7);
-			cameraY += .35f * magnitude * pow(static_cast<float>(controller->GetState().Gamepad.sThumbRY) / (32768.0f), 7);
+		if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE || abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+			float x = static_cast<float>(controller->GetState().Gamepad.sThumbRX);
+			float y = static_cast<float>(controller->GetState().Gamepad.sThumbRY);
+
+			// normalize the short properly
+			x /= x > 0.f ? 32767.0f : 32768.0f;
+			y /= y > 0.f ? 32767.0f : 32768.0f;
+
+			glm::vec2 directions(x, y);
+			float magnitude = length(directions);
+
+			float sensitivity = .6f;
+
+			directions *= pow(magnitude, 7) * sensitivity; // (magnitude < .95f ? .3 * sensitivity : sensitivity);
+
+			cameraX += directions.x;
+			cameraY += directions.y;
 		}
 
-		//if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-		//	cameraX += (pow((static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f), 7) * .4f);
-		//}
-		//if (abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-		//	cameraY += (pow((static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f), 7) * .4f);
-		//} 
-		//else if (abs(controller->GetState().Gamepad.sThumbRX) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE && abs(controller->GetState().Gamepad.sThumbRY) >= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-		//	float sum = static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f + static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f;
-//
-	//		cameraX += (pow((static_cast<float>(controller->GetState().Gamepad.sThumbRX) / 32768.0f * sum), 3) * .4f);
-		//	cameraY += (pow((static_cast<float>(controller->GetState().Gamepad.sThumbRY) / 32768.0f * sum), 3) * .4f);
-		//}
 
 		if (cameraX > M_PI) cameraX -= M_PI * 2;
 		if (cameraX < -M_PI) cameraX += M_PI * 2;
@@ -839,34 +835,38 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Manage Shooting
 		// -------------------------------------------------------------------------------------------------------------- //
+		glm::vec3 cameraHit;
+		PxQueryFilterData filterData;
+		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
+		cameraHit = cameraC->CastRay(100.0f, filterData);
+
 		if (pressedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
 			weapon->Charge();
 		}
 		if (heldButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
-			glm::vec3 cameraDirection = glm::normalize(cameraC->GetTarget() - cameraC->GetPosition());
-			float lowestDot = 999.0f;
-			Entity* closestAimVehicle = nullptr;
-			glm::vec3 cameraHit;
-			for (Component* component : EntityManager::GetComponents(ComponentType_Vehicle)) {
-				VehicleComponent* vehicleComponent = static_cast<VehicleComponent*>(component);
-				Entity* vehicleEntity = vehicleComponent->GetEntity();
-				if ((vehicleEntity->GetId() != vehicle->GetEntity()->GetId()) && (Game::GetPlayerFromEntity(vehicleEntity)->teamIndex != Game::GetPlayerFromEntity(vehicle->GetEntity())->teamIndex)) {
-					glm::vec3 otherVehiclePos = vehicleEntity->transform.GetGlobalPosition();
-					glm::vec3 dirToOtherVehicle = otherVehiclePos - vehicle->GetEntity()->transform.GetGlobalPosition();
-					if (glm::length(dirToOtherVehicle) < 150.0f) {
-						if (glm::dot(cameraDirection, glm::normalize(dirToOtherVehicle)) < lowestDot) {
-							closestAimVehicle = vehicleEntity;
-							lowestDot = glm::dot(cameraDirection, glm::normalize(dirToOtherVehicle));
+			if (!(player.weaponType == WeaponType::RocketLauncher)) {
+				// Aim Assist
+				glm::vec3 cameraDirection = glm::normalize(cameraC->GetTarget() - cameraC->GetPosition());
+				float lowestDot = 999.0f;
+				Entity* closestAimVehicle = nullptr;
+				for (Component* component : EntityManager::GetComponents(ComponentType_Vehicle)) {
+					VehicleComponent* vehicleComponent = static_cast<VehicleComponent*>(component);
+					Entity* vehicleEntity = vehicleComponent->GetEntity();
+					if ((vehicleEntity->GetId() != vehicle->GetEntity()->GetId()) && (Game::GetPlayerFromEntity(vehicleEntity)->teamIndex != Game::GetPlayerFromEntity(vehicle->GetEntity())->teamIndex)) {
+						glm::vec3 otherVehiclePos = vehicleEntity->transform.GetGlobalPosition();
+						glm::vec3 dirToOtherVehicle = otherVehiclePos - vehicle->GetEntity()->transform.GetGlobalPosition();
+						if (glm::length(dirToOtherVehicle) < 150.0f) {
+							if (glm::dot(cameraDirection, glm::normalize(dirToOtherVehicle)) < lowestDot) {
+								closestAimVehicle = vehicleEntity;
+								lowestDot = glm::dot(cameraDirection, glm::normalize(dirToOtherVehicle));
+							}
 						}
 					}
 				}
-			}
-			if (!(player.weaponType == WeaponType::RocketLauncher) && closestAimVehicle && acos(lowestDot) < (6.0f / glm::length(closestAimVehicle->transform.GetGlobalPosition() - vehicle->GetEntity()->transform.GetGlobalPosition()))) {
-				cameraHit = closestAimVehicle->transform.GetGlobalPosition();
-			} else {
-				PxQueryFilterData filterData;
-				filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
-				cameraHit = cameraC->CastRay(100.0f, filterData);
+				if (closestAimVehicle && acos(lowestDot) < (6.0f / glm::length(closestAimVehicle->transform.GetGlobalPosition() - vehicle->GetEntity()->transform.GetGlobalPosition()))) {
+					float pull = 1.f;
+					cameraHit = closestAimVehicle->transform.GetGlobalPosition() * pull + cameraHit * (1-pull);
+				}
 			}
 			weapon->Shoot(cameraHit);
 			vehicle->GetEntity()->GetComponent<WeaponComponent>()->Shoot(cameraHit);
@@ -876,6 +876,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 				static_cast<RailGunComponent*>(weapon)->ChargeRelease();
 			}
 		}
+		weapon->turnTurret(cameraHit);
 		
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Update
