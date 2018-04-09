@@ -1,4 +1,4 @@
 {
-	"Type": "Mesh",
-  "Mesh": "Sphere.obj"
+	"Prefab": "PowerUpMesh.json",
+	"Material": "GreenShiny.json"
 }

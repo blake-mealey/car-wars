@@ -327,6 +327,7 @@
     <None Include="Content\Materials\YellowShiny.json" />
     <None Include="Content\Prefabs\Components\DamagePowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\DefencePowerUpMesh.json" />
+    <None Include="Content\Prefabs\Components\HP.json" />
     <None Include="Content\Prefabs\Components\Particles\Dust.json" />
     <None Include="Content\Prefabs\Components\PowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\HealthPowerUpMesh.json" />

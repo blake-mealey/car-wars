@@ -43,6 +43,7 @@ void PowerUpSpawnerComponent::Respawn() {
 
     int type = powerUpType;
     if (type == Random) type = rand() % Count;
+    type = Health;
     switch (type) {
     case Health:
         activePowerUp = new HealthPowerUp();
