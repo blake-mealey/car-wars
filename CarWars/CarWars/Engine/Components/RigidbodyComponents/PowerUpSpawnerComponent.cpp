@@ -43,11 +43,8 @@ void PowerUpSpawnerComponent::Respawn() {
 
     int type = powerUpType;
     if (type == Random) type = rand() % Count;
-    std::cout<< "type is " << type << std::endl;
-    type = Health;
     switch (type) {
     case Health:
-        std::cout<<"spawned health"<<std::endl;
         activePowerUp = new HealthPowerUp();
         powerUpMesh = ContentManager::LoadComponent<MeshComponent>("HealthPowerUpMesh.json");
         break;
