@@ -351,7 +351,8 @@ void AiComponent::FindTargets() {
 		for (PlayerData* enemyPlayer : players) {
 			if ((enemyPlayer->teamIndex != myData->teamIndex) // if they are not on my team
 				&& enemyPlayer->vehicleEntity						 // have a vehicle
-				&& enemyPlayer->alive) {							 // are alive
+				&& enemyPlayer->alive
+				&& !enemyPlayer->vehicleEntity->IsMarkedForDeletion()) {							 // are alive
 				glm::vec3 enemyPosition = enemyPlayer->vehicleEntity->transform.GetGlobalPosition();
 				float distanceToEnemy = glm::length(enemyPosition - localPosition);
 				if (distanceToEnemy < (myData->difficulty * TARGETING_RANGE)) { //see if they are in targeting range
@@ -411,6 +412,13 @@ void AiComponent::Act() {
 	PlayerData* enemyData = Game::GetPlayerFromEntity(vehicleEntity);
 	glm::vec3 localPosition = myData->vehicleEntity->transform.GetGlobalPosition();
 
+	if (previousMode == AiMode_Attack && mode != AiMode_Attack && myData->weaponType == WeaponType::RailGun) {
+		WeaponComponent* weapon = GetEntity()->GetComponent<WeaponComponent>();
+		RailGunComponent* railgun = static_cast<RailGunComponent*>(weapon);
+		if (railgun) railgun->ChargeRelease();
+		StopCharge();
+	}
+
 	// Shooting stuff
 	if (mode == AiMode_Attack && enemyData && enemyData->alive) {
 		glm::vec3 vehicleTargetPosition = vehicleEntity->transform.GetGlobalPosition();
@@ -451,7 +459,6 @@ void AiComponent::Act() {
 					if (cooldown && GetChargeDuration() > railgun->GetChargeTime() + railgun->GetCooldown()) {
 						StopCharge();
 					}
-
 				}
 				else if (rand() % (int)MAX_DIFFICULTY < myData->difficulty){
 					weapon->Shoot(hitLocation);

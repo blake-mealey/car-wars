@@ -42,8 +42,6 @@ public:
 
 	Time GetSearchDuration();
 
-	Time GetPreppingTime();
-
 	void StartCharge();
 	Time GetChargeDuration();
 	void StopCharge();
