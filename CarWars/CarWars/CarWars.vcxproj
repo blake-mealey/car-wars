@@ -325,6 +325,7 @@
     <None Include="Content\Materials\GreenShiny.json" />
     <None Include="Content\Materials\PinkShiny.json" />
     <None Include="Content\Materials\YellowShiny.json" />
+    <None Include="Content\Prefabs\Components\Damage.json" />
     <None Include="Content\Prefabs\Components\DamagePowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\DefencePowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\HP.json" />
@@ -334,6 +335,7 @@
     <None Include="Content\Prefabs\Components\Controls\GamepadA.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadB.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadControl.json" />
+    <None Include="Content\Prefabs\Components\Defence.json" />
     <None Include="Content\Prefabs\Entities\Beam.json" />
     <None Include="Content\Prefabs\Entities\BulletHitCarEffect.json" />
     <None Include="Content\Prefabs\Entities\BulletHitGroundEffect.json" />

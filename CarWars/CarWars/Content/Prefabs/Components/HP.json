@@ -1,6 +1,6 @@
 {
 	"Type": "Mesh",
-  "Mesh": "PowerUps/health.obj",
+  "Mesh": "PowerUps/Health.obj",
 	"Material": "Basic.json",
-  "Scale": [ 0.5, 0.5, 0.5 ]
+  "Scale": [ 0.45, 0.45, 0.45 ]
 }
