@@ -207,7 +207,7 @@ void Audio::UpdateListeners() {
             const auto carUp = player.vehicleEntity->transform.GetUp();
             const auto carPosition = player.vehicleEntity->transform.GetGlobalPosition();
             const auto carVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
-            
+            player.vehicleEntity->GetComponent<VehicleComponent>()->pxVehicle->computeForwardSpeed(); 
             FMOD_VECTOR forward = { carForward.x, carForward.y, carForward.z };
             FMOD_VECTOR up = { carUp.x, carUp.y, carUp.z };
             FMOD_VECTOR position = { carPosition.x, carPosition.y, carPosition.z };

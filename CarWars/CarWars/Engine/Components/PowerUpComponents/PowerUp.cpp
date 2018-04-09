@@ -99,5 +99,6 @@ void PowerUp::Remove(bool force) {
 	}
 
     player->activePowerUp = nullptr;
+    
     delete this;
 }
