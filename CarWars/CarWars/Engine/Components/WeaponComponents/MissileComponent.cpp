@@ -40,7 +40,7 @@ void MissileComponent::Initialize(Entity* _entity, glm::vec3 position) {
 
 	glm::vec3 missilePos = gunPosition;
 	glm::quat missileRotation =  owner->transform.GetLocalRotation() * gunTurret->transform.GetLocalRotation();
-	Transform missileTransform = Transform(nullptr, missilePos, glm::vec3(1), glm::normalize(q), false);
+	Transform missileTransform = Transform(nullptr, missilePos, glm::vec3(1), glm::normalize(q));
 
 	missileRigidDynamic->actor->setGlobalPose(Transform::ToPx(missileTransform));
 	missileRigidDynamic->actor->setLinearVelocity(Transform::ToPx(-missileTransform.GetForward() * missileSpeed), true);
