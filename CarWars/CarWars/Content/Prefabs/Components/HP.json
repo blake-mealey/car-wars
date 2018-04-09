@@ -1,0 +1,6 @@
+{
+	"Type": "Mesh",
+  "Mesh": "PowerUps/health_pack.obj",
+  "Material": "Basic.json",
+  "Texture": "Boulder.jpg"
+}
