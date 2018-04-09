@@ -127,6 +127,7 @@ Mesh* ContentManager::GetMesh(const string filePath, unsigned pFlags) {
 	glm::vec3 *vertices = new glm::vec3[vertexCount];
 	glm::vec2 *uvs = new glm::vec2[vertexCount];
 	glm::vec3 *normals = new glm::vec3[vertexCount];
+
 	for (size_t i = 0; i < vertexCount; ++i) {
 		vertices[i] = AssimpVectorToGlm(aiMesh->mVertices[i]);
 		uvs[i] = AssimpVectorToGlm(aiMesh->mTextureCoords[0][i]);
