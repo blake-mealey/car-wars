@@ -1,20 +1,19 @@
 {
-    "Tag": "Wall",
+    "Tag": "Archway",
     "Scale": [ 1, 1, 1 ],
     "Components": [
       {
         "Type": "Mesh",
-        "Mesh": "Cube.obj",
-        "Texture": "BaseSteel.jpg",
-        "Material": "Basic.json",
-        "UvScale": [ 10, 1 ],
-        "Scale": [ 0.5, 0.5, 0.5 ]
+        "Mesh": "Archway.obj",
+        "Texture": "NiceSlate.jpg",
+        "Material": "Basic.json"
       },
       {
         "Type": "RigidStatic",
         "Colliders": [
           {
-            "Type": "Box",
+            "Type": "ConvexMesh",
+			"Mesh": "Boulder.obj",
             "CollisionGroup": "Obstacles"
           }
         ]

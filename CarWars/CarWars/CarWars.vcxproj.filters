@@ -181,6 +181,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Content\Textures\HUD\shield-vignette-blue.png" />
+    <Image Include="Content\Maps\TestArena\Map.png" />
+    <Image Include="Content\Maps\TestArena\Nav.png" />
+    <Image Include="Content\Maps\TestArena\Objects.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\Materials\CyanShiny.json" />
@@ -293,5 +296,13 @@
     <None Include="Content\Prefabs\Components\HP.json" />
     <None Include="Content\Prefabs\Components\Defence.json" />
     <None Include="Content\Prefabs\Components\Damage.json" />
+    <None Include="Content\Scenes\Maps\TestArena.json" />
+    <None Include="Content\Maps\TestArena\Data.json" />
+    <None Include="Content\Prefabs\Entities\Archway.json" />
+    <None Include="Content\Prefabs\Entities\Ball.json" />
+    <None Include="Content\Prefabs\Entities\StaticBoulder1.json" />
+    <None Include="Content\Prefabs\Entities\StaticBoulder2.json" />
+    <None Include="Content\Prefabs\Entities\Dome.json" />
+    <None Include="Content\Prefabs\Entities\Tree.json" />
   </ItemGroup>
 </Project>

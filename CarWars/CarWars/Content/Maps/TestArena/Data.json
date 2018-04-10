@@ -2,5 +2,5 @@
 	"MaxHeight": 10,
 	"MaxWidth": 255,
 	"MaxLength": 255,
-    "Scene": "Maps/EmptyArena.json"
+    "Scene": "Maps/TestArena.json"
 }
