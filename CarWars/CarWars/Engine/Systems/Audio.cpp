@@ -27,6 +27,7 @@ void Audio::ReleaseSounds() {
 }
 
 void Audio::Initialize() { 
+    updateFunctionId = 0;
 	updatePosition = 0;
     srand(time(NULL));
     currentMusicIndex = rand() % NUM_MUSIC;
@@ -142,11 +143,13 @@ void Audio::PlayAudio3DAttached(FMOD::Sound *s, Entity* entity, float volume) {
 
 void Audio::PauseSounds() {
     for (auto c : channelArray3D) c->setPaused(true);
+    for (auto car : carSounds) car.channel->setPaused(true);
     channel->setPaused(true);
     channel3d->setPaused(true);
 }
 void Audio::ResumeSounds() {
     for (auto c : channelArray3D) c->setPaused(false);
+    for (auto car : carSounds) car.channel->setPaused(false);
     channel->setPaused(false);
     channel3d->setPaused(false);
 }
@@ -165,15 +168,11 @@ void Audio::MenuMusicControl() {
             if (!gameStarted) {
                 music->release();
                 PlayMusic(musicPlaylist[currentMusicIndex]);
-                //music->getLength(&gameMusicLength, FMOD_TIMEUNIT_MS);
                 gameStarted = true;
             }
             //musicChannel->setPosition(gameMusicPosition, FMOD_TIMEUNIT_MS);
         } else if (currGameState == GameState_Paused) {
 			PauseSounds();
-            //musicChannel->getPosition(&gameMusicPosition, FMOD_TIMEUNIT_MS);
-            //music->release();
-            //PlayMusic("Content/Music/imperial-march.mp3");
         } else if (currGameState == GameState_Menu) {
             //gameMusicPosition = 0;
             srand(time(NULL));
@@ -211,9 +210,8 @@ void Audio::UpdateListeners() {
 }
 
 void Audio::UpdateAttached() {
-	//std::cout << "size : " << attachedSounds.size() << std::endl;
 	vector<int> toDelete;
-	for (int i = 0; i < attachedSounds.size(); ++i) {
+	for (int i = updatePosition; i < attachedSounds.size() && availableUpdates > 0; ++i) {
 		bool isPlaying;
 		attachedSounds[i].channel->isPlaying(&isPlaying);
 		if (!isPlaying || attachedSounds[i].entity == nullptr || &(attachedSounds[i].entity->transform) == nullptr) {
@@ -229,9 +227,17 @@ void Audio::UpdateAttached() {
 			FMOD_VECTOR vel = { 0.f, 0.f, 0.f };
 			attachedSounds[i].channel->set3DAttributes(&pos, &vel);
 		}
+        availableUpdates--;
 	}
 
-	for (int i = toDelete.size() - 1; i >= 0; --i) {
+    // reset position
+    // give way to 2nd function to update
+    updatePosition = 0;
+    updateFunctionId = 1;
+
+
+    // does not count against updates...
+	for (int i = toDelete.size() - 1; i >= 0 && availableUpdates > 0; --i) {
 		attachedSounds.erase(attachedSounds.begin() + i);
 	}
 }
@@ -287,7 +293,7 @@ void Audio::UpdateCars() {
     const char *engineReverse = "Content/Sounds/Truck/reverse.mp3";
 
     //player
-    for (int i = 0; i < 4; i++) {
+    for (int i = updatePosition; i < 4 && availableUpdates > 0; i++) {
         HumanData& player = Game::humanPlayers[i];
         if (!player.ready || !player.alive) continue;
         const auto playerPos = player.vehicleEntity->transform.GetGlobalPosition();
@@ -317,29 +323,24 @@ void Audio::UpdateCars() {
 
             }
         }
-        //soundSystem->createSound(engineSound, FMOD_3D | FMOD_LOOP_NORMAL, 0, &carSounds[i].sound);
-        //carSounds[i].sound->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
-        //soundSystem->playSound(carSounds[i].sound, 0, true, &carSounds[i].channel);
         FMOD_VECTOR pos = { playerPos.x, playerPos.y+1.0f, playerPos.z };
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
         carSounds[i].channel->set3DAttributes(&pos, &vel);
         //carSounds[i].channel->setPaused(true);
         carSounds[i].channel->setVolume(playerSoundVolume);
+        availableUpdates--;
     }
     size_t offset = Game::gameData.humanCount;
     //ai
-    for (int i = 0; i < Game::gameData.aiCount; i++) {
+    for (int i = updatePosition - 4; i < Game::gameData.aiCount && availableUpdates > 0; i++) {
         AiData& ai = Game::aiPlayers[i];
         if (!ai.alive) continue;
         const auto aiPos = ai.vehicleEntity->transform.GetGlobalPosition();
-        //soundSystem->createSound(engineSound, FMOD_3D | FMOD_LOOP_NORMAL, 0, &carSounds[i + offset].sound);
-        //carSounds[i + offset].sound->set3DMinMaxDistance(MIN_DISTANCE, MAX_DISTANCE);
-        //soundSystem->playSound(carSounds[i + offset].sound, 0, true, &carSounds[i + offset].channel);
         FMOD_VECTOR pos = { aiPos.x, aiPos.y, aiPos.z };
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
         carSounds[i + offset].channel->set3DAttributes(&pos, &vel);
-        //carSounds[i + offset].channel->setPaused(false);
         carSounds[i + offset].channel->setVolume(aiSoundVolume);
+        availableUpdates--;
     }
 }
 
@@ -362,22 +363,25 @@ void Audio::UpdateRunningCars() {
             StopCars();
         }
     }
+
     if (carsStarted && currGameState == GameState_Playing) {
         UpdateCars();
     }
+    // give way to first function
+    updateFunctionId = 0;
+    updatePosition = 0;
 }
 
 void Audio::CheckMusic() {
 	bool isPlaying;
 	musicChannel->isPlaying(&isPlaying);
 
-    if (!isPlaying && StateManager::GetState() == GameState_Playing) {
+    if (!isPlaying && (StateManager::GetState() == GameState_Playing || StateManager::GetState() == GameState_Paused)) {
 		//play next song
         music->release();
         srand(time(NULL));
         currentMusicIndex = rand() % NUM_MUSIC;
         PlayMusic(musicPlaylist[currentMusicIndex]);
-        //music->getLength(&gameMusicLength, FMOD_TIMEUNIT_MS);
     }
 }
 
@@ -387,12 +391,16 @@ int LimitedUpdate(int updatePosition, int updatesAvailable) {
 }
 
 void Audio::Update() { 
+    availableUpdates = UPDATES_TO_RUN;
+
 	UpdateListeners(); // 4 updates
-	UpdateAttached();
-	UpdateRunningCars(); // 
 
-	MenuMusicControl(); // prevGameState saved
-
+    while (availableUpdates > 0 && StateManager::GetState() == GameState_Playing) {
+        if (updateFunctionId == 0) UpdateAttached();
+        if (updateFunctionId == 1) UpdateRunningCars(); // 
+    }
+	
+    MenuMusicControl(); // prevGameState saved - 1 update
     CheckMusic(); // 1 update
 
     soundSystem->update();
