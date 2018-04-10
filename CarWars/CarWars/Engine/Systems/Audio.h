@@ -17,6 +17,7 @@
 #define MAX_CHANNELS 200
 #define NUM_MUSIC 7
 
+// 25 is too low
 #define UPDATES_TO_RUN 100 // +6 "mandatory updates"
 
 typedef FMOD::Sound* SoundClass;
