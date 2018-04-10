@@ -52,7 +52,6 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
             tween->Start();
 
 			vector<Component*> carComponents = EntityManager::GetComponents(ComponentType_Vehicle);
-			std::cout << carComponents.size() << std::endl;
 			for (Component* component : carComponents) {
 				if (glm::length(component->GetEntity()->transform.GetGlobalPosition() - _actor0->transform.GetGlobalPosition()) < explosionRadius) {
 					RocketLauncherComponent* weapon = _actor0->GetComponent<MissileComponent>()->GetOwner()->GetComponent<RocketLauncherComponent>();
@@ -69,7 +68,6 @@ void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 			for (ParticleEmitterComponent* emitter : _actor0->GetComponents<ParticleEmitterComponent>()) {
 				emitter->SetSpawnRate(0.f);
 			}
-			//Physics::Instance().AddToDelete(missile->GetEntity());
 		}
 	}
 }

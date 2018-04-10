@@ -35,12 +35,12 @@ AiComponent::AiComponent(nlohmann::json data) : vehicleEntity(nullptr), powerupE
 	ACCELERATION = ContentManager::GetFromJson<float>(data["Acceleration"], .5f);
 	STUCK_TIME = ContentManager::GetFromJson<float>(data["StuckTime"], 2.f);
 	UPDATE_TIME = ContentManager::GetFromJson<float>(data["UpdateTime"], 2.f);
-	STUCK_CONTROL = ContentManager::GetFromJson<float>(data["StuckControl"], 1.5f);
+	STUCK_CONTROL =	ContentManager::GetFromJson<float>(data["StuckControl"], 1.5f);
 	TARGETING_RANGE = ContentManager::GetFromJson<float>(data["TargetingRange"], 500.f) / MAX_DIFFICULTY;
 	LOCKON_RANGE = ContentManager::GetFromJson<float>(data["LockonRange"], 400.f) / MAX_DIFFICULTY;
-	LOST_TIME = ContentManager::GetFromJson<float>(data["LostTime"], 5.f) / MAX_DIFFICULTY;
-	SPRAY = ContentManager::GetFromJson<float>(data[ "Spray"], 1.5f) * MAX_DIFFICULTY;
-	STOPING_DISTANCE = ContentManager::GetFromJson<float>(data[	"StoppingDistance"], 100.f) / MAX_DIFFICULTY;
+	LOST_TIME =	ContentManager::GetFromJson<float>(data["LostTime"], 5.f) / MAX_DIFFICULTY;
+	SPRAY =	ContentManager::GetFromJson<float>(data["Spray"], 1.5f) * MAX_DIFFICULTY;
+	STOPING_DISTANCE = ContentManager::GetFromJson<float>(data["StoppingDistance"], 100.f) / MAX_DIFFICULTY;
 
 	mode = AiMode_GetPowerup;
 	UpdateMode(AiMode_Attack);
@@ -310,7 +310,6 @@ bool AiComponent::GetLineOfSight(glm::vec3 _position) {
 	if (!hit.hasAnyHits()){ // if you hit nothing then you have line of sight
 		sight = true;
 	}
-
 	return sight;
 }
 
