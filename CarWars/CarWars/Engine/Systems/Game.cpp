@@ -27,6 +27,7 @@
 #include "../Components/RigidbodyComponents/PowerUpSpawnerComponent.h"
 #include "PennerEasing/Quint.h"
 #include "../Components/ParticleEmitterComponent.h"
+#include "../Components/PowerUpComponents/HealthPowerUp.h"
 using namespace std;
 
 const string GameModeType::displayNames[Count] = { "Team", "Free for All" };
@@ -360,6 +361,25 @@ void Game::Update() {
 				player.vehicleEntity->TakeDamage(suicide, suicide->GetDamage());
 			}
 		}
+
+        // health tick
+        for (AiData& player : aiPlayers) {
+            if (player.alive) {
+                auto powerUp = player.activePowerUp;
+                if (powerUp != nullptr && powerUp->GetColor() == glm::vec4(0.f, 1.f, 0.f, 1.f)) {
+                    static_cast<HealthPowerUp*>(powerUp)->Tick(&player);
+                }
+            }
+        }
+        for (int i = 0; i < 4; ++i) {
+            HumanData& player = humanPlayers[i];
+            if (player.alive) {
+                auto powerUp = player.activePowerUp;
+                if (powerUp != nullptr && powerUp->GetColor() == glm::vec4(0.f, 1.f, 0.f, 1.f)) {
+                    static_cast<HealthPowerUp*>(powerUp)->Tick(&player);
+                }
+            }
+        }
 
 		for (AiData& player : aiPlayers) {
 			if (!player.alive && StateManager::gameTime >= player.diedTime + gameData.respawnTime && player.deathCount < gameData.numberOfLives) {
