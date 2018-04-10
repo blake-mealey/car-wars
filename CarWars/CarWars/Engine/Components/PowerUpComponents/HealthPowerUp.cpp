@@ -17,11 +17,13 @@ void HealthPowerUp::Collect(PlayerData* player) {
     vehicle->AddHealth(50.f);
     updateGui(vehicle);
     collectedAt = StateManager::gameTime.GetSeconds();
+    duration = 5.0f;
 }
 
 void HealthPowerUp::Tick(PlayerData* player) {
+    VehicleComponent* vehicle = player->vehicleEntity->GetComponent<VehicleComponent>();
     if ((StateManager::gameTime.GetSeconds() - collectedAt) > 1.f && numTicks > 0) {
-        VehicleComponent* vehicle = player->vehicleEntity->GetComponent<VehicleComponent>();
+        
         collectedAt += 1.f;
         numTicks--;
         vehicle->AddHealth(50.f);
