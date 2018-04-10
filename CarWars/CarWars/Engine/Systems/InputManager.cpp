@@ -808,19 +808,19 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		glm::vec3 boostDir = glm::vec3();
 
 		if (heldButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
-			boostDir = boostDir - player.vehicleEntity->transform.GetRight();
-		}
-
-		if (heldButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
 			boostDir = boostDir + player.vehicleEntity->transform.GetRight();
 		}
 
+		if (heldButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
+			boostDir = boostDir - player.vehicleEntity->transform.GetRight();
+		}
+
 		if (heldButtons & XINPUT_GAMEPAD_DPAD_UP) {
-			boostDir = boostDir - player.vehicleEntity->transform.GetUp();
+			boostDir = boostDir + player.vehicleEntity->transform.GetUp();
 		}
 
 		if (heldButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
-			boostDir = boostDir + player.vehicleEntity->transform.GetUp();
+			boostDir = boostDir - player.vehicleEntity->transform.GetUp();
 		}
 
 		// -------------------------------------------------------------------------------------------------------------- //

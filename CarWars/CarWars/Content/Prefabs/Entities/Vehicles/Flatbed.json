@@ -21,7 +21,7 @@
 		"Scale": [0.275, 0.275, 0.275]
       },
       "Mass": 1000,
-      "ChassisSize": [ 1.595, 0.9625, 4.07 ],
+      "ChassisSize": [ 1.595, 0.9625, 3.8 ],
       "WheelMass": 200,
       "WheelRadius": 0.33,
       "WheelWidth": 0.33,

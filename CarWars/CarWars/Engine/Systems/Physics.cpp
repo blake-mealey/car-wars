@@ -199,10 +199,10 @@ void Physics::Update() {
         Component* component = vehicleComponents[i];
         VehicleComponent* vehicle = static_cast<VehicleComponent*>(component);
         vehicle->inAir = vehicle->pxVehicle->getRigidDynamicActor()->isSleeping() ? false : PxVehicleIsInAir(vehicleQueryResults[i]);
-		if (!vehicle->inAir) {
-			glm::vec3 force = vehicle->GetEntity()->transform.GetUp() * abs(vehicle->pxVehicle->computeForwardSpeed()) * vehicle->GetChassisMass() * -.01f;
-			vehicle->actor->addForce(Transform::ToPx(force), PxForceMode::eIMPULSE);
-		}
+
+		vehicle->SetDownForce(vehicle->inAir ? glm::vec3(0) : vehicle->GetEntity()->transform.GetUp() * abs(vehicle->pxVehicle->computeForwardSpeed()) * vehicle->GetChassisMass() * -.015f);
+		vehicle->actor->addForce(Transform::ToPx(vehicle->GetDownForce()), PxForceMode::eIMPULSE);
+		vehicle->SetCenterOfMassOffset(vehicle->GetChassisCenterOfMassOffset());
     }
 
     //Scene update.

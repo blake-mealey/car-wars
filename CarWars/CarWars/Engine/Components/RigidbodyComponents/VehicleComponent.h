@@ -69,7 +69,6 @@ public:
 	void Steer( float amount);
 	void Handbrake( float amount);
 
-    void PoweredUp();
     void UpdateHealthGui(HumanData *myPlayer);
 
 	Time GetTimeSinceBoost();
@@ -80,12 +79,19 @@ public:
     void OnContact(RigidbodyComponent* body) override;
     void OnTrigger(RigidbodyComponent* body) override;
 
+	glm::vec3 GetDownForce();
+	void SetDownForce(glm::vec3);
+
 private:
     Time powerUpLife;
 	Time lastBoost;
 	Time boostCooldown;
 
+	glm::vec3 downForce;
+
+	glm::vec3 boostDirection;
 	float boostPower;
+
 
     MeshComponent* wheelMeshPrefab;
     std::vector<MeshComponent*> wheelMeshes;
