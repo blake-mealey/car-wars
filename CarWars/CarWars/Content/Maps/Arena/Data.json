@@ -7,7 +7,7 @@
 	"WallHeight": 30.0,
 	"WallIncline": 1.1,
 	"WallVariation": 0.5,
-	"WallVarTween": 5,
+	"WallVerTween": 5,
 	"WallMoundMaxVertices": 10,
 	"WallMoundMinVertices": 3,
 	"WallMoundVariation": 0.2

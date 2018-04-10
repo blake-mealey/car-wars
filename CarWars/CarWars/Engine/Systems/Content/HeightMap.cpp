@@ -16,7 +16,7 @@ HeightMap::HeightMap(std::string dirPath) {
 	wallHeight = ContentManager::GetFromJson<float>(data["WallHeight"], 0.0f);
 	wallInclineRate = ContentManager::GetFromJson<float>(data["WallIncline"], 1.0f);
 	variation = ContentManager::GetFromJson<float>(data["WallVariation"], 0.0f);
-	wallVarTween = ContentManager::GetFromJson<float>(data["WallVarTween"], 0);
+	wallVerTween = ContentManager::GetFromJson<float>(data["WallVerTween"], 1);
 	wallMoundMaxVertices = ContentManager::GetFromJson<float>(data["WallMoundMaxVertices"], 0.0);
 	wallMoundMinVertices = ContentManager::GetFromJson<float>(data["WallMoundMinVertices"], 0.0);
 	wallMoundVariation = ContentManager::GetFromJson<float>(data["WallMoundVariation"], 0.0);
@@ -103,19 +103,19 @@ void HeightMap::Initialize(std::string filePath) {
 	v = wallVertices*(totalColCount)+wallVertices-1;
 	z = 0.0;
 	//float temp = std::min(std::max(-xSpacing + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation), -xSpacing*3), xSpacing);
-	float var = (xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation)) / wallVarTween;
+	float var = (xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation)) / wallVerTween;
 	float temp = -xSpacing;
 
 	for (unsigned long i = wallVertices; i < rowCount + wallVertices; i++) {
 		currIncline = inclineRate;
 		//float x = -xSpacing + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation);
 		float x;
-		if (mound < wallVarTween) {
+		if (mound < wallVerTween) {
 			temp += var;
 			x = temp;
 		}
-		if (mound > moundMax + wallVarTween) {
-			var = (xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation)) / wallVarTween;
+		if (mound > moundMax + wallVerTween) {
+			var = (xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation)) / wallVerTween;
 			x = temp + var;
 			temp = x;
 			mound = 0;
@@ -145,18 +145,18 @@ void HeightMap::Initialize(std::string filePath) {
 	z = 0.0;
 	mound = 0;
 	moundMax = (int)(((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (1 - wallMoundVariation)) * (wallMoundMaxVertices - wallMoundMinVertices) + wallMoundMinVertices);
-	var = (xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation)) / wallVarTween;
+	var = (xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation)) / wallVerTween;
 	temp = xSpacing*(colCount) + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation);
 	//temp = xSpacing*(colCount)+ xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation);
 	for (unsigned long i = wallVertices; i < rowCount + wallVertices; i++) {
 		currIncline = inclineRate;
 		float x;
-		if (mound < wallVarTween) {
+		if (mound < wallVerTween) {
 			temp += var;
 			x = temp;
 		}
-		if (mound > moundMax + wallVarTween) {
-			var = (xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation)) / wallVarTween;
+		if (mound > moundMax + wallVerTween) {
+			var = (xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation)) / wallVerTween;
 			x = temp + var;
 			temp = x;
 			mound = 0;
