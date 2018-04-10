@@ -21,10 +21,10 @@ void HealthPowerUp::Collect(PlayerData* player) {
 }
 
 void HealthPowerUp::Tick(PlayerData* player) {
+    float elapsedTime = StateManager::gameTime.GetSeconds() - collectedAt;
     VehicleComponent* vehicle = player->vehicleEntity->GetComponent<VehicleComponent>();
-    if ((StateManager::gameTime.GetSeconds() - collectedAt) > 1.f && numTicks > 0) {
-        
-        collectedAt += 1.f;
+    if (elapsedTime >= 1.f && numTicks > 0) {
+        collectedAt += elapsedTime;
         numTicks--;
         vehicle->AddHealth(50.f);
         updateGui(vehicle);
