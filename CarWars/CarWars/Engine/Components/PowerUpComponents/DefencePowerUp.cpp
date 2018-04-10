@@ -27,5 +27,5 @@ std::string DefencePowerUp::GetGuiName() const {
 }
 
 glm::vec4 DefencePowerUp::GetColor() const {
-	return glm::vec4(0.f, 1.f, 1.f, 1.f);
+	return glm::vec4(1.f, 1.f, 0.f, 1.f);
 }

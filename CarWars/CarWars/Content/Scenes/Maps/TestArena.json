@@ -1,0 +1,36 @@
+[
+  {
+    "Prefab": "Ball.json",
+    "Position": [0, 0, 0 ]
+  },
+
+  {
+    "Prefab": "StaticBoulder1.json",
+    "Position": [50, 0, 0 ],
+	"Scale": [10, 10, 10 ]
+  },
+
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-50, 0, 0 ],
+	"Scale": [10, 10, 10 ]
+  },
+
+    {
+    "Prefab": "Archway.json",
+    "Position": [0, 0, -50 ],
+	"Scale": [10, 10, 10 ]
+  },
+
+  {
+    "Prefab": "Dome.json",
+    "Position": [0, 0, 50 ]
+  },
+
+  {
+    "Prefab": "Tree.json",
+    "Position": [50, 0, 50 ]
+  },
+
+  "Sun.json"
+]

@@ -1,0 +1,28 @@
+{
+    "Tag": "Tree",
+    "Scale": [ 5, 5, 5 ],
+    "Components": [
+      {
+        "Type": "Mesh",
+        "Mesh": "TreeBase.obj",
+        "Texture": "TreeBark.jpg",
+        "Material": "Basic.json"
+      },
+      {
+        "Type": "RigidStatic",
+        "Colliders": [
+          {
+            "Type": "ConvexMesh",
+			"Mesh": "TreeCollider.obj",
+            "CollisionGroup": "Obstacles"
+          }
+        ]
+      },
+      {
+        "Type": "Mesh",
+        "Mesh": "TreeLeaves.obj",
+        "Texture": "ThickerBranches.png",
+        "Material": "Basic.json"
+      }
+    ]
+}

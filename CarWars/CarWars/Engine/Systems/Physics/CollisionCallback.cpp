@@ -11,39 +11,64 @@
 #include "../../Components/RigidbodyComponents/RigidStaticComponent.h"
 #include "PennerEasing/Linear.h"
 #include "../../Components/ParticleEmitterComponent.h"
+#include "PennerEasing/Back.h"
 
 void HandleMissileCollision(Entity* _actor0, Entity* _actor1) {
 	if (_actor0->HasTag("Missile")) {
-		Physics& physicsInstance = Physics::Instance();
-		if (_actor1->GetId() == _actor0->GetComponent<MissileComponent>()->GetOwner()->GetId()) {
-		} else {
+        MissileComponent* missile = _actor0->GetComponent<MissileComponent>();
+		if (missile->enabled && _actor1->GetId() != missile->GetOwner()->GetId()) {
 			//Explode
-            glm::vec3 pos = _actor0->transform.GetGlobalPosition();
-			float explosionRadius = _actor0->GetComponent<MissileComponent>()->GetExplosionRadius();
+
+            const glm::vec3 pos = _actor0->transform.GetGlobalPosition();
+			const float explosionRadius = missile->GetExplosionRadius();
             Audio::Instance().PlayAudio3D(Audio::Instance().Weapons.explosion, pos, glm::vec3(0.f, 0.f, 0.f), 2.f);
 
 		    Entity* explosionEffect = ContentManager::LoadEntity("ExplosionEffect.json");
             explosionEffect->transform.SetPosition(_actor0->transform.GetGlobalPosition());
-            ParticleEmitterComponent* emitter = explosionEffect->GetComponent<ParticleEmitterComponent>();
+
+            {
+                PointLightComponent* light = EntityManager::FindFirstChild(explosionEffect, "Light")->GetComponent<PointLightComponent>();
+                constexpr float power = 150.f;
+                
+                auto tweenIn = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, power, 0.2, StateManager::gameTime);
+                tweenIn->SetUpdateCallback([light](float& value) mutable {
+                    light->SetPower(value);
+                });
+
+                auto tweenOut = Effects::Instance().CreateTween<float, easing::Quint::easeIn>(power, 0.f, 0.1, StateManager::gameTime);
+                tweenOut->SetUpdateCallback([light](float& value) mutable {
+                    light->SetPower(value);
+                });
+
+                tweenIn->SetNext(tweenOut);
+                tweenIn->Start();
+            }
             
-            auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeInOut>(0.f, 1.f, emitter->GetLifetimeSeconds(), StateManager::gameTime);
-            tween->SetFinishedCallback([explosionEffect](float& value) mutable {
+		    ParticleEmitterComponent* emitter = explosionEffect->GetComponent<ParticleEmitterComponent>();
+            auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(0.f, 1.f, emitter->GetLifetimeSeconds(), StateManager::gameTime);
+            tween->SetFinishedCallback([explosionEffect, _actor0](float& value) mutable {
+                Physics::Instance().AddToDelete(_actor0);
                 EntityManager::DestroyEntity(explosionEffect);
             });
             tween->Start();
 
-
-			std::vector<Component*> carComponents = EntityManager::GetComponents(ComponentType_Vehicle);
+			vector<Component*> carComponents = EntityManager::GetComponents(ComponentType_Vehicle);
 			for (Component* component : carComponents) {
 				if (glm::length(component->GetEntity()->transform.GetGlobalPosition() - _actor0->transform.GetGlobalPosition()) < explosionRadius) {
 					RocketLauncherComponent* weapon = _actor0->GetComponent<MissileComponent>()->GetOwner()->GetComponent<RocketLauncherComponent>();
 					//Take Damage Equal to damage / 1 + distanceFromExplosion?
 					float missileDamage = _actor0->GetComponent<MissileComponent>()->GetDamage();
 					float damageToTake = missileDamage - (15.0f * (glm::length(component->GetEntity()->transform.GetGlobalPosition() - _actor0->transform.GetGlobalPosition())));
+					static_cast<VehicleComponent*>(component)->pxVehicle->getRigidDynamicActor()->addForce(Transform::ToPx(glm::normalize(component->GetEntity()->transform.GetGlobalPosition() - _actor0->transform.GetGlobalPosition()) * 20000.0f), PxForceMode::eIMPULSE, true);
 					component->TakeDamage(weapon, damageToTake);
 				}
 			}
-			physicsInstance.AddToDelete(_actor0);
+
+            missile->enabled = false;
+            _actor0->GetComponent<MeshComponent>()->enabled = false;
+			for (ParticleEmitterComponent* emitter : _actor0->GetComponents<ParticleEmitterComponent>()) {
+				emitter->SetSpawnRate(0.f);
+			}
 		}
 	}
 }

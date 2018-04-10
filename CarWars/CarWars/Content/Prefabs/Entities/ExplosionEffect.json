@@ -22,5 +22,18 @@
 		    "SpriteSize": [341.333, 292.571],
 		    "AnimationCycles": 1
 	    }
+    ],
+    "Children": [
+        {
+            "Tag": "Light",
+            "Position": [0, 2.5, 0],
+            "Components": [
+	            {
+		            "Type": "PointLight",
+		            "Color": [216, 135, 68],
+		            "Power": 0
+	            }
+            ]
+        }
     ]
 }

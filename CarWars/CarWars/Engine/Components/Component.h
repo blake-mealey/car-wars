@@ -22,7 +22,7 @@ enum ComponentType {
 	ComponentType_RocketLauncher,
 	ComponentType_AI,
     ComponentType_PowerUp,
-    ComponentType_SpeedPowerUp,
+    ComponentType_HealthPowerUp,
     ComponentType_DefencePowerUp,
     ComponentType_DamagePowerUp,
 	ComponentType_GUI,

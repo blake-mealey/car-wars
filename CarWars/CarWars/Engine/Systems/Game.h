@@ -28,7 +28,7 @@ struct VehicleType {
     static const std::string displayNames[Count];
     static const std::string prefabPaths[Count];
     static const std::string teamTextureNames[Count][2];
-	static constexpr size_t STAT_COUNT = 3;
+	static constexpr size_t STAT_COUNT = 4;
 	static const std::string statDisplayNames[STAT_COUNT];
 	static const std::string statValues[Count][STAT_COUNT];		// accel, handle, resist
 };
@@ -41,6 +41,7 @@ struct WeaponType {
 	static constexpr size_t STAT_COUNT = 3;
 	static const std::string statDisplayNames[STAT_COUNT];
 	static const std::string statValues[Count][STAT_COUNT];		// rof, damage, type
+    static const std::string texturePaths[Count];
 };
 
 struct TeamData {
@@ -50,6 +51,7 @@ struct TeamData {
 	int deathCount;
 	size_t size;
     std::string name;
+    size_t index;
 };
 
 struct PlayerData {

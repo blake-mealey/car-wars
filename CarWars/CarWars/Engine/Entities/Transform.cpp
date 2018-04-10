@@ -17,12 +17,11 @@ const glm::vec3 Transform::UP = glm::vec3(0.f, 1.f, 0.f);
 
 float Transform::radius = 0;
 
-Transform::Transform() : Transform(nullptr, glm::vec3(), glm::vec3(1.f), glm::quat(), false) {}
+Transform::Transform() : Transform(nullptr, glm::vec3(), glm::vec3(1.f), glm::quat()) {}
 
-Transform::Transform(glm::vec3 _position, glm::vec3 _scale, glm::quat _quat) : Transform(nullptr, _position, _scale, _quat, false) { }
+Transform::Transform(glm::vec3 _position, glm::vec3 _scale, glm::quat _quat) : Transform(nullptr, _position, _scale, _quat) { }
 
 Transform::Transform(nlohmann::json data) : parent(nullptr) {
-	connectedToCylinder = ContentManager::GetFromJson<bool>(data["CylinderPart"], false);
 	SetPosition(ContentManager::JsonToVec3(data["Position"], glm::vec3()));
     SetScale(ContentManager::JsonToVec3(data["Scale"], glm::vec3(1.f)));
     if (!data["Rotate"].is_null()) {
@@ -31,17 +30,15 @@ Transform::Transform(nlohmann::json data) : parent(nullptr) {
     }
 }
 
-Transform::Transform(physx::PxTransform t) : Transform(nullptr, FromPx(t.p), glm::vec3(1.f), FromPx(t.q), false) {}
+Transform::Transform(physx::PxTransform t) : Transform(nullptr, FromPx(t.p), glm::vec3(1.f), FromPx(t.q)) {}
 
-Transform::Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::vec3 pEulerRotation, bool connected) : parent(pParent) {
-	connectedToCylinder = connected;
+Transform::Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::vec3 pEulerRotation) : parent(pParent) {
 	SetPosition(pPosition);
 	SetScale(pScale);
 	SetRotationEulerAngles(pEulerRotation);
 }
 
-Transform::Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::quat pRotation, bool connected) : parent(pParent) {
-	connectedToCylinder = connected;
+Transform::Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::quat pRotation) : parent(pParent) {
 	SetPosition(pPosition);
 	SetScale(pScale);
 	SetRotation(pRotation);
@@ -51,10 +48,6 @@ void Transform::Update() {
 	SetPosition(position);
 	SetScale(scale);
 	SetRotation(rotation);
-}
-
-void Transform::ConnectToCylinder() {
-	connectedToCylinder = true;
 }
 
 bool Transform::RenderDebugGui(float positionIncrement, float scaleIncrement) {
@@ -72,11 +65,6 @@ bool Transform::RenderDebugGui(float positionIncrement, float scaleIncrement) {
 
 glm::vec3 Transform::GetLocalPosition() const {
 	return position;
-}
-
-glm::vec3 Transform::GetCylinderPosition() {
-	if (connectedToCylinder) return position;
-	return FromCylinder(GetGlobalPosition());
 }
 
 glm::vec3 Transform::GetLocalScale() const {
@@ -131,40 +119,23 @@ void Transform::UpdateTransformationMatrix() {
 
 void Transform::SetPosition(glm::vec3 pPosition) {
 	position = pPosition;
-	if (connectedToCylinder && radius > 0) {
-		// bound to the location on the rectangle part of the cylinder
-		while (position.x > M_PI * radius) {
-			position.x -= 2.f * (float)M_PI * radius;
-		}
-		while (position.x < -M_PI * radius) {
-			position.x += 4.f * (float)M_PI * radius;
-		}
-		translationMatrix = glm::translate(glm::mat4(), ToCylinder(position));
-		//rotate accordingly
-		float rotBy = position.x / radius + (float)M_PI/2.f;
-		rotationMatrix = glm::toMat4(glm::rotate(glm::quat(), rotBy, glm::vec3(0,0,1)))*glm::toMat4(rotation);
-	}
-	else {
-		translationMatrix = glm::translate(glm::mat4(), position);
-	}
+
+	translationMatrix = glm::translate(glm::mat4(), position);
 	UpdateTransformationMatrix();
 }
 
 void Transform::SetScale(glm::vec3 pScale) {
 	scale = pScale;
+
 	scalingMatrix = glm::scale(scale);
 	UpdateTransformationMatrix();
 }
 
 void Transform::SetRotation(glm::quat pRotation) {
 	rotation = pRotation;
-	if (connectedToCylinder && radius > 0) {
-		rotationMatrix = glm::toMat4(glm::rotate(glm::quat(), position.x/radius, glm::vec3(0, 0, 1)))*glm::toMat4(rotation);
-	}
-	else {
-		rotationMatrix = glm::toMat4(rotation);
-		UpdateTransformationMatrix();
-	}
+
+	rotationMatrix = glm::toMat4(rotation);
+	UpdateTransformationMatrix();
 }
 
 void Transform::SetRotationEulerAngles(glm::vec3 eulerAngles) {
@@ -173,6 +144,19 @@ void Transform::SetRotationEulerAngles(glm::vec3 eulerAngles) {
 
 void Transform::SetRotationAxisAngles(glm::vec3 axis, float radians) {
 	SetRotation(glm::angleAxis(radians, axis));
+}
+
+void Transform::LookAt(glm::vec3 position) {
+    LookInDirection(position - GetLocalPosition());
+}
+
+void Transform::LookInDirection(glm::vec3 direction) {
+    direction = normalize(direction);
+    const glm::vec3 rotAxis = cross(FORWARD, direction);
+    const float dot = glm::dot(FORWARD, direction);
+
+    const glm::quat q = glm::quat(dot + 1, rotAxis);
+    SetRotation(normalize(q));
 }
 
 void Transform::Translate(glm::vec3 offset) {
@@ -249,32 +233,6 @@ glm::mat4 Transform::GetGuiTransformationMatrix(glm::vec2 anchorPoint, glm::vec2
     // Build the transform
     const Transform transform = Transform(screenPosition, screenScale, GetLocalRotation());
     return transform.translationMatrix * transform.scalingMatrix * transform.rotationMatrix;
-}
-
-// returns the world location of a point in the cylinder co-ordinates
-// since the x coordinate will wrap transforming to the cylinder and then back may result in diffrent locations
-glm::vec3 Transform::ToCylinder(glm::vec3 point) {
-	float theta = point.x / radius;
-	float r = radius - point.y;
-	
-	point.x = r * cos(theta);
-	point.y = r * sin(theta);
-
-	return point;
-}
-
-// returns the location on rectangular part of the unwrapped cylinder 
-// x coordinates: [-radius*pi,radius*pi]
-// y coordinates: [...,radius]
-// z coordinates: [...,...]
-glm::vec3 Transform::FromCylinder(glm::vec3 point) {
-	float r = sqrt(point.x*point.x + point.y*point.y);
-	float theta = atan2(point.y, point.x);
-
-	point.x = theta * radius - M_PI * radius;
-	point.y = radius - r;
-
-	return point;
 }
 
 glm::vec4 Transform::FromPx(physx::PxVec4 v) {

@@ -8,6 +8,28 @@
 			"Material": "Basic.json",
 			"UvScale": [0.5, 0.5],
 			"Scale": [0.075, 0.075, 0.075]
+		},
+		{
+			"Type": "ParticleEmitter",
+			"Texture": "Particles/EnergyAura.png",
+			"LockedToEntity": true,
+			"EmitConeMinAngle": 0,
+			"EmitConeMaxAngle": 0,
+			"SpawnRate": 0,
+			"InitialSpeed": 0,
+			"Acceleration": [0, 0, 0],
+			"Lifetime": 0.3,
+			"InitialColor": "White",
+			"FinalColor": "WhiteAlpha",
+			"InitialScale": [3, 3],
+			"FinalScale": [6, 6],
+			"Emission": 10,
+			"IsSprite": true,
+			"SpriteRows": 3,
+			"SpriteColumns": 4,
+			"SpriteSize": [128, 128],
+			"AnimationCycles": 1,
+			"Position": [0, 0.5, 1]
 		}
 	]
 }

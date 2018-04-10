@@ -1,5 +1,6 @@
 {
   "Type": "GUI",
   "Scale": [ 40, 40, 0 ],
-  "AnchorPoint": [ 0.5, 0.5 ]
+  "AnchorPoint": [ 0.5, 0.5 ],
+  "Emissiveness": 0.5
 }

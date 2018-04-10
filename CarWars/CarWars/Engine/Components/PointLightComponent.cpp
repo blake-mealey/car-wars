@@ -37,3 +37,7 @@ void PointLightComponent::RenderDebugGui() {
 void PointLightComponent::SetColor(glm::vec4 _color) {
     color = _color;
 }
+
+void PointLightComponent::SetPower(float _power) {
+    power = _power;
+}

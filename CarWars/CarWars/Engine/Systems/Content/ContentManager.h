@@ -14,6 +14,19 @@ struct Texture;
 
 class ContentManager {
 public:
+    static const glm::vec4 COLOR_WHITE;
+    static const glm::vec4 COLOR_LIGHT_GREY;
+    static const glm::vec4 COLOR_BLACK;
+    static const glm::vec4 COLOR_LIGHT_RED;
+    static const glm::vec4 COLOR_RED;
+    static const glm::vec4 COLOR_LIGHT_GREEN;
+    static const glm::vec4 COLOR_GREEN;
+    static const glm::vec4 COLOR_DARK_BLUE;
+    static const glm::vec4 COLOR_LIGHT_BLUE;
+    static const glm::vec4 COLOR_BLUE;
+    static const glm::vec4 COLOR_YELLOW;
+    static const glm::vec4 COLOR_CYAN;
+
 	static const std::string CONTENT_DIR_PATH;
 
 	static const std::string MESH_DIR_PATH;

@@ -8,6 +8,7 @@ struct PlayerData;
 
 class PowerUp {
 public:
+    ~PowerUp();
     explicit PowerUp(Time a_duration = 10.0);
 
     virtual void Collect(PlayerData* player);

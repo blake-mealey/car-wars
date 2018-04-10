@@ -76,6 +76,10 @@ Time Time::operator*(const Time other) const {
     return GetSeconds() * other.GetSeconds();
 }
 
+Time Time::operator/(const Time other) const {
+    return GetSeconds() / other.GetSeconds();
+}
+
 void Time::operator+=(const Time other) {
     timeSeconds += other.GetSeconds();
 }

@@ -31,7 +31,7 @@ NavigationMesh::NavigationMesh(std::string dirPath) {
     size_t index = 0;
     for (unsigned int row = 0; row < rowCount; ++row) {
         for (unsigned int col = 0; col < columnCount; ++col) {
-            const float y = 0.01f + image->Sample(row / static_cast<float>(rowCount), col / static_cast<float>(columnCount)) * 0.7f;
+            const float y = image->Sample(row / static_cast<float>(rowCount), col / static_cast<float>(columnCount)) * 0.7f;
             defaults[index++] = y;
         }
     }

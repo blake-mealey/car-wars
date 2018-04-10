@@ -9,6 +9,7 @@
 #include "../Tweens/TTween.h"
 #include <unordered_set>
 
+struct Texture;
 class Time;
 class CameraComponent;
 class Entity;
@@ -55,6 +56,11 @@ public:
 
 	static void DestroyGuis(Entity* entity);
 	static void DestroyGuis(std::string entityTag, int playerIndex = 0);
+    
+    static void SetGuiColors(Entity* parent, glm::vec4 color);
+    static void SetGuiColors(std::string entityTag, glm::vec4 color, int playerIndex = 0);
+
+    static void SetGuiTexture(Entity* parent, int guiIndex, Texture* texture);
 
     static void SetGuiText(Entity *entity, int guiIndex, std::string text);
     static void SetGuiText(std::string entityTag, int guiIndex, std::string text, int playerIndex = 0);
@@ -64,6 +70,9 @@ public:
 
     static void SetSecondGuiText(Entity *entity, std::string text);
     static void SetSecondGuiText(std::string entityTag, std::string text, int playerIndex = 0);
+
+    static void SetThirdGuiText(Entity *entity, std::string text);
+    static void SetThirdGuiText(std::string entityTag, std::string text, int playerIndex = 0);
 
 	static bool FirstGuiHasText(Entity *entity, std::string text);
 	static bool FirstGuiHasText(std::string entityTag, std::string text, int playerIndex = 0);

@@ -5,6 +5,7 @@
 #include "../Systems/StateManager.h"
 #include "../Components/RigidbodyComponents/VehicleComponent.h"
 #include "../Components/WeaponComponents/WeaponComponent.h"
+#include "../Components/WeaponComponents/RailGunComponent.h"
 #include "../Components/RigidbodyComponents/PowerUpSpawnerComponent.h"
 
 #include "../Systems/Physics.h"
@@ -34,20 +35,23 @@ AiComponent::AiComponent(nlohmann::json data) : vehicleEntity(nullptr), powerupE
 	ACCELERATION = ContentManager::GetFromJson<float>(data["Acceleration"], .5f);
 	STUCK_TIME = ContentManager::GetFromJson<float>(data["StuckTime"], 2.f);
 	UPDATE_TIME = ContentManager::GetFromJson<float>(data["UpdateTime"], 2.f);
-	STUCK_CONTROL = ContentManager::GetFromJson<float>(data["StuckControl"], 1.5f);
+	STUCK_CONTROL =	ContentManager::GetFromJson<float>(data["StuckControl"], 1.5f);
 	TARGETING_RANGE = ContentManager::GetFromJson<float>(data["TargetingRange"], 500.f) / MAX_DIFFICULTY;
 	LOCKON_RANGE = ContentManager::GetFromJson<float>(data["LockonRange"], 400.f) / MAX_DIFFICULTY;
-	LOST_TIME = ContentManager::GetFromJson<float>(data["LostTime"], 5.f) / MAX_DIFFICULTY;
-	SPRAY = ContentManager::GetFromJson<float>(data[ "Spray"], 1.5f) * MAX_DIFFICULTY;
-	STOPING_DISTANCE = ContentManager::GetFromJson<float>(data[	"StoppingDistance"], 100.f) / MAX_DIFFICULTY;
+	LOST_TIME =	ContentManager::GetFromJson<float>(data["LostTime"], 5.f) / MAX_DIFFICULTY;
+	SPRAY =	ContentManager::GetFromJson<float>(data["Spray"], 1.5f) * MAX_DIFFICULTY;
+	STOPING_DISTANCE = ContentManager::GetFromJson<float>(data["StoppingDistance"], 100.f) / MAX_DIFFICULTY;
 
 	mode = AiMode_GetPowerup;
 	UpdateMode(AiMode_Attack);
 
 	startedStuckTime = Time(-1);
 	lostTargetTime = Time(-1);
+	chargeStartTime = Time(-1);
+
 	modeStartTime = Time(-UPDATE_TIME);
 	lastSearchTime = Time(-UPDATE_TIME);
+
 
     InitializeRenderBuffers();
 }
@@ -113,6 +117,7 @@ bool AiComponent::FinishedPath() const {
     return path.size() == 0;
 }
 
+
 void AiComponent::InitializeRenderBuffers() {
     glGenBuffers(1, &pathVbo);
     UpdateRenderBuffers();
@@ -143,17 +148,34 @@ void AiComponent::StartStuckTime() {
 }
 
 Time AiComponent::GetStuckDuration() {
-	if (startedStuckTime.GetSeconds() < 0) return -1;
+	if (startedStuckTime.GetSeconds() < 0) return Time(0);
 	return StateManager::gameTime - startedStuckTime;
 }
 
+void AiComponent::StartCharge() {
+	WeaponComponent* weapon = GetEntity()->GetComponent<WeaponComponent>();
+	if (chargeStartTime.GetSeconds() < 0) {
+		chargeStartTime = StateManager::gameTime;
+		weapon->Charge();
+	}
+}
+
+Time AiComponent::GetChargeDuration() {
+	if (chargeStartTime.GetSeconds() < 0) return Time(0);
+	return StateManager::gameTime - chargeStartTime;
+}
+
+void AiComponent::StopCharge() {
+	cooldown = false;
+	chargeStartTime = Time(-1);
+}
 
 void AiComponent::LostTargetTime() {
 	if (lostTargetTime.GetSeconds() < 0) lostTargetTime = StateManager::gameTime;
 }
 
 Time AiComponent::LostTargetDuration() {
-	if (lostTargetTime.GetSeconds() < 0) return -1;
+	if (lostTargetTime.GetSeconds() < 0) return Time(0);
 	return StateManager::gameTime - lostTargetTime;
 }
 
@@ -288,7 +310,6 @@ bool AiComponent::GetLineOfSight(glm::vec3 _position) {
 	if (!hit.hasAnyHits()){ // if you hit nothing then you have line of sight
 		sight = true;
 	}
-
 	return sight;
 }
 
@@ -329,7 +350,8 @@ void AiComponent::FindTargets() {
 		for (PlayerData* enemyPlayer : players) {
 			if ((enemyPlayer->teamIndex != myData->teamIndex) // if they are not on my team
 				&& enemyPlayer->vehicleEntity						 // have a vehicle
-				&& enemyPlayer->alive) {							 // are alive
+				&& enemyPlayer->alive
+				&& !enemyPlayer->vehicleEntity->IsMarkedForDeletion()) {							 // are alive
 				glm::vec3 enemyPosition = enemyPlayer->vehicleEntity->transform.GetGlobalPosition();
 				float distanceToEnemy = glm::length(enemyPosition - localPosition);
 				if (distanceToEnemy < (myData->difficulty * TARGETING_RANGE)) { //see if they are in targeting range
@@ -356,7 +378,6 @@ void AiComponent::FindTargets() {
 			vehicleEntity = bestTarget;
 		}
 	}
-
 
 	//find powerup
 	//TODO: pick a better one that is on your way to the vehicle target
@@ -390,6 +411,13 @@ void AiComponent::Act() {
 	PlayerData* enemyData = Game::GetPlayerFromEntity(vehicleEntity);
 	glm::vec3 localPosition = myData->vehicleEntity->transform.GetGlobalPosition();
 
+	if (previousMode == AiMode_Attack && mode != AiMode_Attack && myData->weaponType == WeaponType::RailGun) {
+		WeaponComponent* weapon = GetEntity()->GetComponent<WeaponComponent>();
+		RailGunComponent* railgun = static_cast<RailGunComponent*>(weapon);
+		if (railgun) railgun->ChargeRelease();
+		StopCharge();
+	}
+
 	// Shooting stuff
 	if (mode == AiMode_Attack && enemyData && enemyData->alive) {
 		glm::vec3 vehicleTargetPosition = vehicleEntity->transform.GetGlobalPosition();
@@ -402,11 +430,6 @@ void AiComponent::Act() {
 
 		if (weapon) {
 			if (distanceToTarget < (LOCKON_RANGE * myData->difficulty)) {
-				if (!charged) {
-					weapon->Charge();
-					charged = true;
-				}
-
 				float randomHorizontalAngle = (float)rand() / (float)RAND_MAX * M_PI * 2.f;
 				float randomVerticalAngle = (float)rand() / (float)RAND_MAX * M_PI;
 
@@ -416,7 +439,29 @@ void AiComponent::Act() {
 					sin(randomHorizontalAngle) * sin(randomVerticalAngle)) - glm::vec3(.5f)) * (SPRAY / std::max(myData->difficulty, .1f));
 
 				glm::vec3 hitLocation = vehicleTargetPosition + randomOffset + (myData->weaponType == WeaponType::RocketLauncher ? -vehicleEntity->transform.GetForward() + glm::vec3(0.f, -1.f, 0.f) : glm::vec3(0.f));
-				weapon->Shoot(hitLocation);
+
+				if (myData->weaponType == WeaponType::RailGun) {
+					RailGunComponent* railgun = static_cast<RailGunComponent*>(weapon);
+					if (!GetChargeDuration().GetSeconds()) {
+						StartCharge();
+					}
+					if (GetChargeDuration() < railgun->GetChargeTime()) {
+						weapon->Shoot(vehicleEntity->transform.GetGlobalPosition());
+					}
+					else {
+						if (rand() % (int)MAX_DIFFICULTY < myData->difficulty && !cooldown) {
+							weapon->Shoot(hitLocation);
+						}
+						railgun->ChargeRelease();
+						cooldown = true;
+					}
+					if (cooldown && GetChargeDuration() > railgun->GetChargeTime() + railgun->GetCooldown()) {
+						StopCharge();
+					}
+				}
+				else if (rand() % (int)MAX_DIFFICULTY < myData->difficulty){
+					weapon->Shoot(hitLocation);
+				}
 			}
 			else {
 				LostTargetTime();

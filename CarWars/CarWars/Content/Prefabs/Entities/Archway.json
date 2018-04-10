@@ -1,0 +1,22 @@
+{
+    "Tag": "Archway",
+    "Scale": [ 1, 1, 1 ],
+    "Components": [
+      {
+        "Type": "Mesh",
+        "Mesh": "Archway.obj",
+        "Texture": "NiceSlate.jpg",
+        "Material": "Basic.json"
+      },
+      {
+        "Type": "RigidStatic",
+        "Colliders": [
+          {
+            "Type": "ConvexMesh",
+			"Mesh": "Boulder.obj",
+            "CollisionGroup": "Obstacles"
+          }
+        ]
+      }
+    ]
+}

@@ -34,6 +34,11 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		Entity* mgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
 		const glm::vec3 gunPosition = mgTurret->transform.GetGlobalPosition();
 
+        auto emitters = mgTurret->GetComponents<ParticleEmitterComponent>();
+        for (auto emitter : emitters) {
+            emitter->Emit(3);
+        }
+
 		glm::vec3 gunDirection = position - gunPosition;
 		float distanceToTarget = glm::length(gunDirection);
 		gunDirection = glm::normalize(gunDirection);
@@ -76,8 +81,13 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
                 explosionEffect = ContentManager::LoadEntity("BulletHitGroundEffect.json");
             }
             explosionEffect->transform.SetPosition(hitPosition);
-            ParticleEmitterComponent* emitter = explosionEffect->GetComponent<ParticleEmitterComponent>();
-            auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeInOut>(0.f, 1.f, emitter->GetLifetimeSeconds(), StateManager::gameTime);
+            explosionEffect->transform.LookInDirection(Transform::FromPx(gunHit.block.normal));
+            float duration = 0.f;
+            for (ParticleEmitterComponent* emitter : explosionEffect->GetComponents<ParticleEmitterComponent>()) {
+                emitter->Emit(2);
+                duration = std::max(duration, emitter->GetLifetimeSeconds());
+            }
+            auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeInOut>(0.f, 1.f, duration, StateManager::gameTime);
             tween->SetFinishedCallback([explosionEffect](float& value) mutable {
                 EntityManager::DestroyEntity(explosionEffect);
             });
@@ -92,10 +102,11 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		LineComponent* line = bullet->GetComponent<LineComponent>();
 		line->SetPoint0(gunPosition);
 		line->SetPoint1(hitPosition);
+		line->SetColor(glm::vec4(1.0f, .1f, .1f, 1.f));
+
 		auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(1.f, 0.f, timeBetweenShots*0.5, StateManager::gameTime);
 		tween->SetUpdateCallback([line, player, mgTurret, tween](float& value) mutable {
 			if (!player->alive) return;
-			line->SetColor(glm::vec4(1.0f, .9f, .4f, .3f));
 			line->SetPoint0(mgTurret->transform.GetGlobalPosition());
 		});
 		tween->SetFinishedCallback([bullet](float& value) mutable {

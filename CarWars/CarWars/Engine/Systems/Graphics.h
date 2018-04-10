@@ -58,7 +58,7 @@ struct FBOs {
 };
 
 struct RBOs {
-    enum { Depth=0, Count };
+    enum { DepthStencil=0, Count };
 };
 
 struct Textures {
@@ -108,6 +108,9 @@ public:
 	static const glm::vec4 AMBIENT_COLOR;
 
 	static const glm::mat4 BIAS_MATRIX;
+
+    bool sceneGraphShown;
+    bool debugGuiShown;
 
 	// System calls
 	bool Initialize(char* windowTitle);

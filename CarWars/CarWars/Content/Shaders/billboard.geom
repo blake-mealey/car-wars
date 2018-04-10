@@ -10,7 +10,6 @@ uniform float lifetimeSeconds;
 uniform vec3 cameraRight_world;
 uniform vec3 cameraUp_world;
 uniform mat4 viewProjectionMatrix;
-uniform vec3 billboardPosition;
 
 uniform vec2 initialScale;
 uniform vec2 finalScale;
@@ -19,7 +18,7 @@ out vec2 fragmentUv;
 out float lifetime_particle;
 
 void main() {
-	vec3 position = gl_in[0].gl_Position.xyz + billboardPosition.xyz;
+	vec3 position = gl_in[0].gl_Position.xyz;
 
 	lifetime_particle = lifetimes_particle[0];
 	float r = lifetime_particle / lifetimeSeconds;

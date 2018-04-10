@@ -16,6 +16,7 @@ HeightMap::HeightMap(std::string dirPath) {
 	wallHeight = ContentManager::GetFromJson<float>(data["WallHeight"], 0.0f);
 	wallInclineRate = ContentManager::GetFromJson<float>(data["WallIncline"], 1.0f);
 	variation = ContentManager::GetFromJson<float>(data["WallVariation"], 0.0f);
+	wallVerTween = ContentManager::GetFromJson<float>(data["WallVerTween"], 1);
 	wallMoundMaxVertices = ContentManager::GetFromJson<float>(data["WallMoundMaxVertices"], 0.0);
 	wallMoundMinVertices = ContentManager::GetFromJson<float>(data["WallMoundMinVertices"], 0.0);
 	wallMoundVariation = ContentManager::GetFromJson<float>(data["WallMoundVariation"], 0.0);
@@ -96,15 +97,26 @@ void HeightMap::Initialize(std::string filePath) {
 	//Add walls to the left side based on the heights closest to the wall
 	int mound = 0;
 	int moundMax = (int)(((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (1 - wallMoundVariation)) * (wallMoundMaxVertices - wallMoundMinVertices) + wallMoundMinVertices);
+	unsigned int tweened = 0;
+	float tweenAmount = 0.0f;
+	
 	v = wallVertices*(totalColCount)+wallVertices-1;
 	z = 0.0;
-	float temp = std::min(std::max(-xSpacing + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation), -xSpacing*3), xSpacing);
+	//float temp = std::min(std::max(-xSpacing + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation), -xSpacing*3), xSpacing);
+	float var = (xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation)) / wallVerTween;
+	float temp = -xSpacing;
+
 	for (unsigned long i = wallVertices; i < rowCount + wallVertices; i++) {
 		currIncline = inclineRate;
 		//float x = -xSpacing + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation);
 		float x;
-		if (mound > moundMax) {
-			x = std::min(std::max(temp + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation), -xSpacing * 3), xSpacing);
+		if (mound < wallVerTween) {
+			temp += var;
+			x = temp;
+		}
+		if (mound > moundMax + wallVerTween) {
+			var = (xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation)) / wallVerTween;
+			x = temp + var;
 			temp = x;
 			mound = 0;
 			moundMax = (int)(((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (1 - wallMoundVariation)) * (wallMoundMaxVertices - wallMoundMinVertices) + wallMoundMinVertices);
@@ -133,21 +145,26 @@ void HeightMap::Initialize(std::string filePath) {
 	z = 0.0;
 	mound = 0;
 	moundMax = (int)(((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (1 - wallMoundVariation)) * (wallMoundMaxVertices - wallMoundMinVertices) + wallMoundMinVertices);
-	temp = std::min(std::max(xSpacing*(colCount) + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation), xSpacing*(colCount) + xSpacing * 2), xSpacing*(colCount) - xSpacing * 2);
+	var = (xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation)) / wallVerTween;
+	temp = xSpacing*(colCount) + xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation);
 	//temp = xSpacing*(colCount)+ xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation);
 	for (unsigned long i = wallVertices; i < rowCount + wallVertices; i++) {
 		currIncline = inclineRate;
-		/*float x;
-		if (mound > moundMax) {
-			x = std::min(std::max(temp+xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation), xSpacing*(colCount)+xSpacing * 2), xSpacing*(colCount)-xSpacing * 2);
+		float x;
+		if (mound < wallVerTween) {
+			temp += var;
+			x = temp;
+		}
+		if (mound > moundMax + wallVerTween) {
+			var = (xSpacing*((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (variation * 2) - variation)) / wallVerTween;
+			x = temp + var;
 			temp = x;
 			mound = 0;
 			moundMax = (int)(((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * (1 - wallMoundVariation)) * (wallMoundMaxVertices - wallMoundMinVertices) + wallMoundMinVertices);
 		}
 		else {
 			x = temp;
-		}*/
-		float x = xSpacing*(colCount);
+		}
 		for (unsigned long j = colCount + wallVertices; j < totalColCount; j++) {
 			const float y = heights[i][j - 1] + currIncline;
 			heights[i][j] = y;
@@ -166,10 +183,11 @@ void HeightMap::Initialize(std::string filePath) {
 	//Add walls to the Top based on the heights closest to the wall
 	currIncline = inclineRate;
 	z = -zSpacing;
-	v = (wallVertices - 1)*(totalColCount);
+	v = (wallVertices - 1)*(totalColCount) + wallVertices;
 	for (int i = wallVertices - 1; i >= 0; i--) {
-		float x = -xSpacing*wallVertices;
-		for (unsigned long j = 0; j < totalColCount; j++) {
+		//float x = -xSpacing*(wallVertices);
+		float x = 0;
+		for (unsigned long j = wallVertices; j < wallVertices + colCount; j++) {
 			const float y = heights[i + 1][j] + currIncline;
 			heights[i][j] = y;
 
@@ -181,17 +199,71 @@ void HeightMap::Initialize(std::string filePath) {
 			x += xSpacing;
 		}
 		currIncline *= wallInclineRate;
-		v -= totalColCount * 2;
+		//v -= totalColCount * 2;
+		v -= (totalColCount + colCount);
 		z -= zSpacing;
 	}
+
+	//Add walls to the Top Left Corner based on the heights closest to the wall
+	currIncline = inclineRate;
+	z = -zSpacing;
+	v = (wallVertices - 1)*(totalColCount);
+	for (int i = wallVertices - 1; i >= 0; i--) {
+		float x = vertices[(wallVertices - 1)*(totalColCount)+totalColCount].x - offset.x;
+		//float x = -xSpacing*wallVertices;
+		for (unsigned long j = 0; j < wallVertices; j++) {
+			const float tempInclineRate = (wallHeight - (heights[wallVertices][j] - heights[wallVertices][wallVertices])) / (1 + (pow(wallInclineRate, wallVertices) - wallInclineRate)*(1 / (wallInclineRate - 1)));
+			const float tempCurr = tempInclineRate * pow(wallInclineRate, (wallVertices - 1) - i);
+			const float y = heights[i + 1][j] + tempCurr;
+			//const float y = heights[i + 1][j] + currIncline;
+			heights[i][j] = y;
+
+			cout << std::endl;
+			vertices[v] = vec3(x, y, z) + offset;
+			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
+			v++;
+
+			x += xSpacing;
+		}
+		currIncline *= wallInclineRate;
+		v -= (totalColCount + wallVertices);
+		z -= zSpacing;
+	}
+
+	//Add walls to the Top Right Corner based on the heights closest to the wall
+	currIncline = inclineRate;
+	z = -zSpacing;
+	v = (wallVertices - 1)*(totalColCount) + wallVertices + colCount;
+	for (int i = wallVertices - 1; i >= 0; i--) {
+		float x = vertices[(wallVertices - 1)*(totalColCount)+ wallVertices + colCount + totalColCount].x - offset.x;
+		//float x = -xSpacing*wallVertices;
+		for (unsigned long j = wallVertices + colCount; j < totalColCount; j++) {
+			const float tempInclineRate = (wallHeight - (heights[wallVertices][j] - heights[wallVertices][wallVertices + colCount])) / (1 + (pow(wallInclineRate, wallVertices) - wallInclineRate)*(1 / (wallInclineRate - 1)));
+			const float tempCurr = tempInclineRate * pow(wallInclineRate, (wallVertices - 1) - i);
+			const float y = heights[i + 1][j] + tempCurr;
+			//const float y = heights[i + 1][j] + currIncline;
+			heights[i][j] = y;
+
+			cout << std::endl;
+			vertices[v] = vec3(x, y, z) + offset;
+			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
+			v++;
+
+			x += xSpacing;
+		}
+		currIncline *= wallInclineRate;
+		v -= (totalColCount + wallVertices);
+		z -= zSpacing;
+	}
+
 
 	//Add walls to the Bottom based on the heights closest to the wall
 	currIncline = inclineRate;
 	z = zSpacing * (rowCount);
-	v = (wallVertices + rowCount)*(totalColCount);
+	v = (wallVertices + rowCount)*(totalColCount) + wallVertices;
 	for (unsigned long i = wallVertices + rowCount; i < totalRowCount; i++) {
-		float x = -xSpacing*wallVertices;
-		for (unsigned long j = 0; j < totalColCount; j++) {
+		float x = 0;
+		for (unsigned long j = wallVertices; j < wallVertices + colCount; j++) {
 			const float y = heights[i - 1][j] + currIncline;
 			heights[i][j] = y;
 
@@ -203,14 +275,56 @@ void HeightMap::Initialize(std::string filePath) {
 		}
 		currIncline *= wallInclineRate;
 		z += zSpacing;
+		v += wallVertices*2;
 	}
 
-	/*//Fix the Corners
-	v = 0;
-	unsigned long i = 0;
-	unsigned long j = 0;
-	heights[i][j] = heights[i][j] - wallHeight;
-	vertices[v].y -= wallHeight;*/
+	//Add walls to the Bottom Left Corner based on the heights closest to the wall
+	currIncline = inclineRate;
+	z = zSpacing * (rowCount);
+	v = (wallVertices + rowCount)*(totalColCount);
+	for (unsigned long i = wallVertices + rowCount; i < totalRowCount; i++) {
+		float x = vertices[(wallVertices + rowCount)*(totalColCount) - totalColCount].x - offset.x;
+		for (unsigned long j = 0; j < wallVertices; j++) {
+			const float tempInclineRate = (wallHeight - (heights[wallVertices + rowCount - 1][j] - heights[wallVertices + rowCount - 1][wallVertices])) / (1 + (pow(wallInclineRate, wallVertices) - wallInclineRate)*(1 / (wallInclineRate - 1)));
+			const float tempCurr = tempInclineRate * pow(wallInclineRate, i - (wallVertices + rowCount));
+			const float y = heights[i - 1][j] + tempCurr;
+			//const float y = heights[i - 1][j];
+			heights[i][j] = y;
+
+			vertices[v] = vec3(x, y, z) + offset;
+			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
+			v++;
+
+			x += xSpacing;
+		}
+		currIncline *= wallInclineRate;
+		z += zSpacing;
+		v += colCount + wallVertices;
+	}
+
+	//Add walls to the Bottom Right Corner based on the heights closest to the wall
+	currIncline = inclineRate;
+	z = zSpacing * (rowCount);
+	v = (wallVertices + rowCount)*(totalColCount) + (wallVertices + colCount);
+	for (unsigned long i = wallVertices + rowCount; i < totalRowCount; i++) {
+		float x = vertices[(wallVertices + rowCount)*(totalColCount)+(wallVertices + colCount) - totalColCount].x - offset.x;
+		for (unsigned long j = wallVertices + colCount; j < totalColCount; j++) {
+			const float tempInclineRate = (wallHeight - (heights[wallVertices + rowCount - 1][j] - heights[wallVertices + rowCount - 1][wallVertices + colCount])) / (1 + (pow(wallInclineRate, wallVertices) - wallInclineRate)*(1 / (wallInclineRate - 1)));
+			const float tempCurr = tempInclineRate * pow(wallInclineRate, i - (wallVertices + rowCount));
+			const float y = heights[i - 1][j] + tempCurr;
+			//const float y = heights[i - 1][j];
+			heights[i][j] = y;
+
+			vertices[v] = vec3(x, y, z) + offset;
+			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
+			v++;
+
+			x += xSpacing;
+		}
+		currIncline *= wallInclineRate;
+		z += zSpacing;
+		v += wallVertices + colCount;
+	}
 
 
 	unsigned long r = 0;

@@ -1,0 +1,23 @@
+{
+		"Tag": "StaticBoulder2",
+		"Components": [
+			{
+				"Type": "Mesh",
+                "Scale": [2, 2, 2],
+				"Mesh": "StaticBoulder2.obj",
+				"Material": "Basic.json",
+                "Texture": "Rock.jpg"
+			},
+            {
+                "Type": "RigidStatic",
+                "Colliders": [
+                    {
+                        "Type": "ConvexMesh",
+                        "Mesh": "StaticBoulder2.obj",
+                        "CollisionGroup": "Obstacles",
+                        "Scale": [2, 2, 2]
+                    }
+                ]
+            }
+		]
+}

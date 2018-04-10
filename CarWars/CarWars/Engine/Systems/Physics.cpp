@@ -124,7 +124,7 @@ void Physics::Initialize() {
     PxSceneDesc sceneDesc(pxPhysics->getTolerancesScale());
     sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f) * 2.f;
 
-    const PxU32 numWorkers = 1;
+    const PxU32 numWorkers = 3;
     pxDispatcher = PxDefaultCpuDispatcherCreate(numWorkers);
     sceneDesc.cpuDispatcher = pxDispatcher;
     sceneDesc.filterShader = CollisionGroups::FilterShader;
@@ -199,12 +199,10 @@ void Physics::Update() {
         Component* component = vehicleComponents[i];
         VehicleComponent* vehicle = static_cast<VehicleComponent*>(component);
         vehicle->inAir = vehicle->pxVehicle->getRigidDynamicActor()->isSleeping() ? false : PxVehicleIsInAir(vehicleQueryResults[i]);
-		if (!vehicle->inAir) {
-			glm::vec3 force = vehicle->GetEntity()->transform.GetUp() * -5.f * abs(vehicle->pxVehicle->computeForwardSpeed());
-			vehicle->actor->addForce(Transform::ToPx(force), PxForceMode::eIMPULSE);
-		}
-		const PxTransform vehicleCOM = vehicle->actor->getCMassLocalPose();
-		vehicle->actor->setCMassLocalPose(PxTransform(vehicleCOM.p.x, glm::clamp((vehicle->GetEntity()->transform.GetGlobalPosition().y - Game::Instance().GetHeightMap()->GetMaxHeight()) / Game::Instance().GetHeightMap()->GetWallHeight(), 0.f, vehicle->GetChassisCenterOfMassOffset().y), vehicleCOM.p.z));
+
+		vehicle->SetDownForce(vehicle->inAir ? glm::vec3(0) : vehicle->GetEntity()->transform.GetUp() * abs(vehicle->pxVehicle->computeForwardSpeed()) * vehicle->GetChassisMass() * -.015f);
+		vehicle->actor->addForce(Transform::ToPx(vehicle->GetDownForce()), PxForceMode::eIMPULSE);
+		vehicle->SetCenterOfMassOffset(vehicle->GetChassisCenterOfMassOffset());
     }
 
     //Scene update.

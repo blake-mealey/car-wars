@@ -68,7 +68,7 @@ Map::Map(std::string dirPath) {
 
 void Map::LoadObjects(Picture* objectsMap) {
     const glm::vec3 generalPowerUpColor = glm::vec3(1.f, 0.f, 1.f);
-    const glm::vec3 speedPowerUpColor = glm::vec3(1.f, 1.f, 0.f);
+    const glm::vec3 healthPowerUpColor = glm::vec3(0.f, 1.f, 0.f);
     const glm::vec3 damagePowerUpColor = glm::vec3(1.f, 0.f, 0.f);
     const glm::vec3 defencePowerUpColor = glm::vec3(0.f, 0.f, 1.f);
     
@@ -84,9 +84,9 @@ void Map::LoadObjects(Picture* objectsMap) {
                 object = ContentManager::LoadEntity("Game/SpawnLocation.json");
             } else if (color == generalPowerUpColor) {
                 object = ContentManager::LoadEntity("Game/PowerUpSpawner.json");
-            } else if (color == speedPowerUpColor) {
+            } else if (color == healthPowerUpColor) {
                 object = ContentManager::LoadEntity("Game/PowerUpSpawner.json");
-                object->GetComponent<PowerUpSpawnerComponent>()->SetPowerUpType(Speed);
+                object->GetComponent<PowerUpSpawnerComponent>()->SetPowerUpType(Health);
             } else if (color == damagePowerUpColor) {
                 object = ContentManager::LoadEntity("Game/PowerUpSpawner.json");
                 object->GetComponent<PowerUpSpawnerComponent>()->SetPowerUpType(Damage);

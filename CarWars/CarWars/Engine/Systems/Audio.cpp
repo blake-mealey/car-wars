@@ -200,6 +200,7 @@ void Audio::UpdateListeners() {
             const auto carUp = player.vehicleEntity->transform.GetUp();
             const auto carPosition = player.vehicleEntity->transform.GetGlobalPosition();
             const auto carVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
+            player.vehicleEntity->GetComponent<VehicleComponent>()->pxVehicle->computeForwardSpeed(); 
             FMOD_VECTOR forward = { carForward.x, carForward.y, carForward.z };
             FMOD_VECTOR up = { carUp.x, carUp.y, carUp.z };
             FMOD_VECTOR position = { carPosition.x, carPosition.y, carPosition.z };
@@ -388,11 +389,11 @@ int LimitedUpdate(int updatePosition, int updatesAvailable) {
 void Audio::Update() { 
 	UpdateListeners(); // 4 updates
 	UpdateAttached();
-	//UpdateRunningCars(); // 
+	UpdateRunningCars(); // 
 
 	MenuMusicControl(); // prevGameState saved
 
-    //CheckMusic(); // 1 update
+    CheckMusic(); // 1 update
 
     soundSystem->update();
 }

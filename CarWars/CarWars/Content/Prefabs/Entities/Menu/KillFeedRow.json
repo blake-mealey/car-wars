@@ -27,7 +27,8 @@
 			"ScaledPosition": [1, 0],
 			"Position": [-20, -10, 0],
 			"Scale":  [30, 30, 0],
-            "TextureColor": "LightBlueAlpha"
+            "TextureColor": "LightBlueAlpha",
+            "Emissiveness": 0.7
 		}
 	]
 }

@@ -1,8 +1,9 @@
 [
   {
     "Prefab": "Pillar.json",
-    "Position": [ 31, 4, 50],
-	"Scale": [40, 10, 2]
+    "Position": [ 29, 4, 50],
+	"Rotate": [0.0, 90.0, 0.0],
+	"Scale": [2, 10, 40]
   },
   {
     "Prefab": "Pillar.json",
@@ -16,13 +17,15 @@
   },
   {
     "Prefab": "Pillar.json",
-    "Position": [ 31, 4, -50],
-	"Scale": [40, 10, 2]
+    "Position": [ 29, 4, -50],
+	"Rotate": [0.0, 90.0, 0.0],
+	"Scale": [2, 10, 40]
   },
   {
     "Prefab": "Pillar.json",
-    "Position": [ -31, 4, -50],
-	"Scale": [40, 10, 2]
+    "Position": [ -29, 4, -50],
+	"Rotate": [0.0, 90.0, 0.0],
+	"Scale": [2, 10, 40]
   },
   {
     "Prefab": "Pillar.json",
@@ -36,56 +39,62 @@
   },
   {
     "Prefab": "Pillar.json",
-    "Position": [ -31, 4, 50],
-	"Scale": [40, 10, 2]
+    "Position": [ -29, 4, 50],
+	"Rotate": [0.0, 90.0, 0.0],
+	"Scale": [2, 10, 40]
   },
 
 
   {
     "Prefab": "Pillar.json",
-    "Position": [ -12, 4, 59],
+    "Position": [ -10, 4, 61],
 	"Scale": [2, 10, 20]
   },
   {
     "Prefab": "Pillar.json",
-    "Position": [ 12, 4, 59],
+    "Position": [ 10, 4, 61],
 	"Scale": [2, 10, 20]
   },
   {
     "Prefab": "Pillar.json",
-    "Position": [ 59, 4, 12],
-	"Scale": [20, 10, 2]
-  },
-  {
-    "Prefab": "Pillar.json",
-    "Position": [ 59, 4, -12],
-	"Scale": [20, 10, 2]
-  },
-  {
-    "Prefab": "Pillar.json",
-    "Position": [ 12, 4, -59],
+    "Position": [ 61, 4, 12],
+	"Rotate": [0.0, 90.0, 0.0],
 	"Scale": [2, 10, 20]
   },
   {
     "Prefab": "Pillar.json",
-    "Position": [ -12, 4, -59],
+    "Position": [ 61, 4, -12],
+	"Rotate": [0.0, 90.0, 0.0],
 	"Scale": [2, 10, 20]
   },
   {
     "Prefab": "Pillar.json",
-    "Position": [ -59, 4, -12],
-	"Scale": [20, 10, 2]
+    "Position": [ -10, 4, -61],
+	"Scale": [2, 10, 20]
   },
   {
     "Prefab": "Pillar.json",
-    "Position": [ -59, 4, 12],
-	"Scale": [20, 10, 2]
+    "Position": [ 10, 4, -61],
+	"Scale": [2, 10, 20]
+  },
+  {
+    "Prefab": "Pillar.json",
+    "Position": [ -61, 4, -12],
+	"Rotate": [0.0, 90.0, 0.0],
+	"Scale": [2, 10, 20]
+  },
+  {
+    "Prefab": "Pillar.json",
+    "Position": [ -61, 4, 12],
+	"Rotate": [0.0, 90.0, 0.0],
+	"Scale": [2, 10, 20]
   },
 
   {
     "Prefab": "Pillar.json",
     "Position": [ 0, 14, 127.5],
-	"Scale": [257, 30, 2]
+	"Rotate": [0.0, 90.0, 0.0],
+	"Scale": [2, 30, 257]
   },
   {
     "Prefab": "Pillar.json",
@@ -94,8 +103,9 @@
   },
   {
     "Prefab": "Pillar.json",
-    "Position": [ 0, 14, -128.5],
-	"Scale": [257, 30, 2]
+    "Position": [0, 14, -128.5],
+	"Rotate": [0.0, 90.0, 0.0],
+	"Scale": [2, 30, 257]
   },
   {
     "Prefab": "Pillar.json",
