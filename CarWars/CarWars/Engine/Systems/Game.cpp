@@ -42,11 +42,11 @@ const string VehicleType::teamTextureNames[Count][2] = {
     { "Vehicles/Green_Hearse.png", "Vehicles/Red_Hearse.png" },
     { "Vehicles/Green_Flatbed.png", "Vehicles/Red_Flatbed.png" }
 };
-const string VehicleType::statDisplayNames[STAT_COUNT] = { "Speed", "Handling", "Armour" };
+const string VehicleType::statDisplayNames[STAT_COUNT] = { "Speed", "Handling", "Armour", "Damage" };
 const string VehicleType::statValues[Count][STAT_COUNT] = {
-	{ "1", "10", "100" },      // Heavy
-	{ "10", "10", "50" },      // Medium
-	{ "20", "10", "10" }       // Light
+	{ "1", "10", "100", "80"},      // Heavy
+	{ "10", "10", "50",  "100"},      // Medium
+	{ "20", "10", "10", "120"}       // Light
 };
 
 const string WeaponType::displayNames[Count] = { "Machine Gun", "Rocket Launcher", "Rail Gun" };
