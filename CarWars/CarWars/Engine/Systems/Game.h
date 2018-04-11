@@ -6,7 +6,8 @@
 #include "Content/HeightMap.h"
 #include "Content/Map.h"
 
-# define M_PI 3.14159265358979323846  /* pi */
+#define PI 3.1415926536  /* pi */
+#define HALF_PI 1.57079632679 /* pi/2 */
 
 class CameraComponent;
 class AiComponent;
