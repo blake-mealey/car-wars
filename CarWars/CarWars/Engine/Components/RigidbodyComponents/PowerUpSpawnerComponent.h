@@ -15,6 +15,7 @@ enum PowerUpType {
 
 class PowerUpSpawnerComponent : public RigidStaticComponent {
 public:
+    float oscillation = 1.0f;
     explicit PowerUpSpawnerComponent(nlohmann::json data);
     ~PowerUpSpawnerComponent() override;
     
