@@ -219,13 +219,17 @@ void Audio::UpdateAttached() {
 			toDelete.push_back(i);
 		} else {
 			// update position
-			FMOD_VECTOR pos = {
-				attachedSounds[i].entity->transform.GetGlobalPosition().x,
-				attachedSounds[i].entity->transform.GetGlobalPosition().y,
-				attachedSounds[i].entity->transform.GetGlobalPosition().z
-			};
-			FMOD_VECTOR vel = { 0.f, 0.f, 0.f };
-			attachedSounds[i].channel->set3DAttributes(&pos, &vel);
+            if (!attachedSounds[i].entity->IsMarkedForDeletion() && &attachedSounds[i].entity != nullptr && &attachedSounds[i].entity->transform != nullptr) {
+                FMOD_VECTOR pos = {
+                    attachedSounds[i].entity->transform.GetGlobalPosition().x,
+                    attachedSounds[i].entity->transform.GetGlobalPosition().y,
+                    attachedSounds[i].entity->transform.GetGlobalPosition().z
+                };
+                FMOD_VECTOR vel = { 0.f, 0.f, 0.f };
+                attachedSounds[i].channel->set3DAttributes(&pos, &vel);
+            } else {
+                toDelete.push_back(i);
+            }
 		}
         availableUpdates--;
 	}
