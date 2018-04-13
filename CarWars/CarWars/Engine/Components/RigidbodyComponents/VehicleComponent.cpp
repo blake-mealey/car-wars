@@ -494,7 +494,7 @@ void VehicleComponent::TakeDamage(WeaponComponent* damager, float _damage) {
     if (damager->GetType() == ComponentType_RailGun) {
         Audio::Instance().PlayAudio3D(Audio::Instance().Weapons.railgunHitHeavy, GetEntity()->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 1.f);
     } else if (damager->GetType() == ComponentType_MachineGun) {
-        Audio::Instance().PlayAudio3D(Audio::Instance().Weapons.bulletHitHeavy, GetEntity()->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 1.f);
+        Audio::Instance().PlayAudio3D(Audio::Instance().Weapons.bulletHitHeavy, GetEntity()->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), .25f);
     }
 
     if (attacker && attacker->teamIndex == me->teamIndex) return;
@@ -770,9 +770,9 @@ void VehicleComponent::OnContact(RigidbodyComponent* body) {
     VehicleComponent* otherVehicle = body->GetEntity()->GetComponent<VehicleComponent>();
 	Entity* vehicle = body->GetEntity();
     if (otherVehicle) {
-		Audio::Instance().PlayAudio3D(Audio::Instance().Environment.hitCar, vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.25f);
+		Audio::Instance().PlayAudio3D(Audio::Instance().Environment.hitCar, vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.125f);
     } else {
-		Audio::Instance().PlayAudio3D(Audio::Instance().Environment.hitGround, vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.25f);
+		Audio::Instance().PlayAudio3D(Audio::Instance().Environment.hitGround, vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.125f);
     }
 }
 

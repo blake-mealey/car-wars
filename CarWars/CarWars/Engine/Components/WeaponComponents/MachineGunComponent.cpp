@@ -3,6 +3,7 @@
 #include "../Component.h"
 #include "../../Entities/EntityManager.h"
 #include "../../Components/CameraComponent.h"
+#include "../../Components/RigidbodyComponents/PowerUpSpawnerComponent.h"
 #include "../../Systems/Content/ContentManager.h"
 #include "../../Systems/Physics/RaycastGroups.h"
 #include "../../Systems/Audio.h"
@@ -70,8 +71,10 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(shotDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
 			hitPosition = Transform::FromPx(gunHit.block.position);
 			Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
+            auto powerupPointer = thingHit->GetComponent<PowerUpSpawnerComponent>();
+          
             if (thingHit) {
-				thingHit->TakeDamage(this, GetDamage());
+                thingHit->TakeDamage(this, GetDamage());
             }
 
             Entity* explosionEffect;

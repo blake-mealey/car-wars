@@ -402,6 +402,7 @@ void Audio::Update() {
     while (availableUpdates > 0 && StateManager::GetState() == GameState_Playing) {
         if (updateFunctionId == 0) UpdateAttached();
         if (updateFunctionId == 1) UpdateRunningCars(); // 
+        break;
     }
 	
     MenuMusicControl(); // prevGameState saved - 1 update
