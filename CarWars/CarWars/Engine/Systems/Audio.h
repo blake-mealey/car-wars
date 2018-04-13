@@ -73,38 +73,6 @@ struct AttachedSound {
 };
 
 
-//struct HeavySounds {
-//    const char *idle = "Content/Sounds/Truck/idle.mp3";
-//    const char *accelerate = "Content/Sounds/Truck/accelerate.mp3";
-//    const char *reverse = "Content/Sounds/Truck/reverse.mp3";
-//    const char *skid = "Content/Sounds/Truck/reverse.mp3";
-//    const char *spinAccelerate = "";
-//};
-//
-//struct MediumSounds {
-//    const char *idle = "Content/Sounds/Truck/idle.mp3";
-//    const char *accelerate = "Content/Sounds/Truck/accelerate.mp3";
-//    const char *reverse = "Content/Sounds/Truck/reverse.mp3";
-//    const char *skid = "Content/Sounds/Truck/reverse.mp3";
-//    const char *spinAccelerate = "";
-//};
-//
-//struct LightSounds {
-//    const char *idle = "Content/Sounds/Truck/idle.mp3";
-//    const char *accelerate = "Content/Sounds/Truck/accelerate.mp3";
-//    const char *reverse = "Content/Sounds/Truck/reverse.mp3";
-//    const char *skid = "Content/Sounds/Truck/reverse.mp3";
-//    const char *spinAccelerate = "";
-//
-//};
-//
-//struct CarSounds {
-//    HeavySounds heavy;
-//    MediumSounds medium;
-//    LightSounds light;
-//};
-
-
 
 class Audio : public System {
 public:
@@ -190,22 +158,3 @@ private:
     Audio& operator= (const Audio&) = delete;
 };
 
-
-/*
-todo:
-reduce volume on multiple hits
-reduce bullet sound
-increase railgun shoot sound
-solve sound being loud when stopped
-
-missle:
-more uniform launch sound
-louder explosion
-
-+ add suicide sound
-
-- machine gun sound (I'd prefer a star wars blaster-y sound but that's up for debate)
-- general mixing (some sounds are too quiet others are too loud)
-- in-game music
-
-*/

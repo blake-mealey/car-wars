@@ -55,7 +55,6 @@ void Audio::Initialize() {
 
     AddSoundToMemory("Content/Sounds/railgun-shoot.mp3", &Weapons.railgunShoot);
     AddSoundToMemory("Content/Sounds/railgun-charge.mp3", &Weapons.railgunCharge);
-    //AddSoundToMemory("Content/Sounds/railgun-hit.mp3", &Weapons.railgunHitHeavy);
     AddSoundToMemory("Content/Sounds/Weapons/railgun-hit1.mp3", &Weapons.railgunHitHeavy);
     AddSoundToMemory("Content/Sounds/railgun-hit.mp3", &Weapons.railgunHitMedium);
     AddSoundToMemory("Content/Sounds/railgun-hit.mp3", &Weapons.railgunHitLight);
@@ -71,9 +70,7 @@ void Audio::Initialize() {
 	AddSoundToMemory("Content/Sounds/car-on-car-collision.mp3", &Environment.hitCar);
 	AddSoundToMemory("Content/Sounds/car-on-ground-collision.mp3", &Environment.hitGround);
 	AddSoundToMemory("Content/Sounds/car-on-ground-collision.mp3", &Environment.hitWall);
-    //AddSoundToMemory("Content/Sounds/powerup.mp3", &Environment.powerup);
     AddSoundToMemory("Content/Sounds/Environment/powerup.mp3", &Environment.powerup);
-    //AddSoundToMemory("Content/Sounds/jump.mp3", &Environment.jump);
     AddSoundToMemory("Content/Sounds/Environment/jump.mp3", &Environment.jump);
 
 }
@@ -168,11 +165,9 @@ void Audio::MenuMusicControl() {
                 PlayMusic(musicPlaylist[currentMusicIndex]);
                 gameStarted = true;
             }
-            //musicChannel->setPosition(gameMusicPosition, FMOD_TIMEUNIT_MS);
         } else if (currGameState == GameState_Paused) {
 			PauseSounds();
         } else if (currGameState == GameState_Menu) {
-            //gameMusicPosition = 0;
             srand(time(NULL));
             currentMusicIndex = rand() % NUM_MUSIC;
             ReleaseSounds();
@@ -245,7 +240,6 @@ void Audio::UpdateAttached() {
 }
 
 void Audio::StartCars() {
-    //const char *engineSound = "Content/Sounds/engine-running.mp3";
     const char *engineSound = "Content/Sounds/Truck/idle.mp3";
 
     // channels and sounds for cars
