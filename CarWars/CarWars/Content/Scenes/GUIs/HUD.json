@@ -7,7 +7,8 @@
         "TextureColor": "RedAlpha",
         "Texture": "HUD/health-vignette.png",
         "AnchorPoint": [ 0.5, 0.5 ],
-        "ScaledPosition": [ 0.5, 0.5 ]
+        "ScaledPosition": [ 0.5, 0.5 ],
+        "Emissiveness": 0.5
       }
     ]
   },
@@ -20,7 +21,8 @@
         "TextureColor": "YellowAlpha",
         "Texture": "HUD/shield-vignette.png",
         "AnchorPoint": [ 0.5, 0.5 ],
-        "ScaledPosition": [ 0.5, 0.5 ]
+        "ScaledPosition": [ 0.5, 0.5 ],
+        "Emissiveness": 0.5
       }
     ]
   },
@@ -33,7 +35,8 @@
         "TextureColor": "GreenAlpha",
         "Texture": "HUD/health-vignette.png",
         "AnchorPoint": [ 0.5, 0.5 ],
-        "ScaledPosition": [ 0.5, 0.5 ]
+        "ScaledPosition": [ 0.5, 0.5 ],
+        "Emissiveness": 0.5
       }
     ]
   },
