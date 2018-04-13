@@ -95,9 +95,6 @@ void Map::LoadObjects(Picture* objectsMap) {
                 object = ContentManager::LoadEntity("Game/PowerUpSpawner.json");
                 object->GetComponent<PowerUpSpawnerComponent>()->SetPowerUpType(Defence);
             }
-			else if (color == spawnDirection) {
-				cout << "Found it";
-			}
             
             if (object) {
                 const glm::vec3 position = offset + glm::vec3(
