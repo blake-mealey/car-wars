@@ -753,9 +753,6 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		float forwardPower = 0; 
 		float backwardPower = 0; 
 		float camSpeed = 1;
-		if (abs(controller->GetState().Gamepad.bRightTrigger) >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-			forwardPower = controller->GetState().Gamepad.bRightTrigger / 255.f;
-		}
 		if (heldButtons & XINPUT_GAMEPAD_B) {
 			backwardPower = 1;
 		}
@@ -769,6 +766,14 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		float steer = 0;
 		if (abs(controller->GetState().Gamepad.sThumbLX) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
 			steer = -controller->GetState().Gamepad.sThumbLX / 32768.0f;
+		}
+		if (abs(controller->GetState().Gamepad.sThumbLY) >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+			if (controller->GetState().Gamepad.sThumbLY > 0) {
+				forwardPower = -controller->GetState().Gamepad.sThumbLY / 32768.0f;
+			}
+			else {
+				backwardPower = -controller->GetState().Gamepad.sThumbLY / 32768.0f;
+			}
 		}
 
 		// -------------------------------------------------------------------------------------------------------------- //
@@ -847,6 +852,50 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		PxQueryFilterData filterData;
 		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
 		cameraHit = cameraC->CastRay(100.0f, filterData);
+
+
+
+		if (abs(controller->GetState().Gamepad.bRightTrigger) >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
+			if (controller->GetPreviousState().Gamepad.bRightTrigger <= XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+				weapon->Charge();
+			else {
+				if (!(player.weaponType == WeaponType::RocketLauncher)) {
+					// Aim Assist
+					glm::vec3 cameraDirection = glm::normalize(cameraC->GetTarget() - cameraC->GetPosition());
+					float lowestDot = 999.0f;
+					Entity* closestAimVehicle = nullptr;
+					for (Component* component : EntityManager::GetComponents(ComponentType_Vehicle)) {
+						VehicleComponent* vehicleComponent = static_cast<VehicleComponent*>(component);
+						Entity* vehicleEntity = vehicleComponent->GetEntity();
+						if ((vehicleEntity->GetId() != vehicle->GetEntity()->GetId()) && (Game::GetPlayerFromEntity(vehicleEntity)->teamIndex != Game::GetPlayerFromEntity(vehicle->GetEntity())->teamIndex)) {
+							glm::vec3 otherVehiclePos = vehicleEntity->transform.GetGlobalPosition();
+							glm::vec3 dirToOtherVehicle = otherVehiclePos - vehicle->GetEntity()->transform.GetGlobalPosition();
+							if (glm::length(dirToOtherVehicle) < 150.0f) {
+								if (glm::dot(cameraDirection, glm::normalize(dirToOtherVehicle)) < lowestDot) {
+									closestAimVehicle = vehicleEntity;
+									lowestDot = glm::dot(cameraDirection, glm::normalize(dirToOtherVehicle));
+								}
+							}
+						}
+					}
+					if (closestAimVehicle && acos(lowestDot) < (6.0f / glm::length(closestAimVehicle->transform.GetGlobalPosition() - vehicle->GetEntity()->transform.GetGlobalPosition()))) {
+						float pull = 1.f;
+						cameraHit = closestAimVehicle->transform.GetGlobalPosition() * pull + cameraHit * (1 - pull);
+					}
+				}
+				weapon->Shoot(cameraHit);
+				vehicle->GetEntity()->GetComponent<WeaponComponent>()->Shoot(cameraHit);
+			}
+			//forwardPower = controller->GetState().Gamepad.bRightTrigger / 255.f;
+		}
+		else if (controller->GetPreviousState().Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
+			if (weapon->GetType() == ComponentType_RailGun) {
+				static_cast<RailGunComponent*>(weapon)->ChargeRelease();
+			}
+		}
+
+
+
 
 		if (pressedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
 			weapon->Charge();
