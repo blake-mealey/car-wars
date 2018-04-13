@@ -58,8 +58,8 @@ Map::Map(std::string dirPath) {
         EntityManager::AddComponent(floor, new MeshComponent({
             { "HeightMap", dirPath },
             { "Material", "Basic.json" },
-            { "Texture", "Boulder.jpg" },
-            { "UvScale",{ 10, 10 } }
+            { "Texture", "NewFloor.jpg" },
+            { "UvScale",{ 1, 1 } }
         }));
     }
 

@@ -4,7 +4,7 @@
     "Components": [
       {
         "Type": "Mesh",
-        "Mesh": "TreeBase.obj",
+        "Mesh": "TreeBase2.obj",
         "Texture": "TreeBark.jpg",
         "Material": "Basic.json"
       },
@@ -20,8 +20,8 @@
       },
       {
         "Type": "Mesh",
-        "Mesh": "TreeLeaves.obj",
-        "Texture": "ThickerBranches.png",
+        "Mesh": "TreeLeaves2.obj",
+        "Texture": "LeavesFull2.png",
         "Material": "Basic.json"
       }
     ]

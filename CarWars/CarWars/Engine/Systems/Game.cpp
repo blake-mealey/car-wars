@@ -391,10 +391,13 @@ void Game::Update() {
 			}
 		}
 
-        // Respawn powerups
+        // Respawn powerups + rotate and oscillate
         std::vector<Component*> powerUpSpawners = EntityManager::GetComponents(ComponentType_PowerUpSpawner);
         for (Component* component : powerUpSpawners) {
+            glm::vec3 currPos = component->GetEntity()->transform.GetGlobalPosition();
             PowerUpSpawnerComponent* spawner = static_cast<PowerUpSpawnerComponent*>(component);
+            component->GetEntity()->transform.SetRotationEulerAngles(glm::vec3(0.f, HALF_PI * StateManager::gameTime.GetSeconds(), 0.f));
+            component->GetEntity()->transform.SetPosition(glm::vec3(currPos.x, currPos.y - .0175f* cos(StateManager::gameTime.GetSeconds() * 3.f), currPos.z));
             spawner->Respawn();
         }
 

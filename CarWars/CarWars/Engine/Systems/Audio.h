@@ -17,7 +17,8 @@
 #define MAX_CHANNELS 200
 #define NUM_MUSIC 7
 
-#define UPDATES_TO_RUN 25
+// 25 is too low
+#define UPDATES_TO_RUN 100 // +6 "mandatory updates"
 
 typedef FMOD::Sound* SoundClass;
 
@@ -132,8 +133,10 @@ public:
 	void StopSound3D(int index);
 
 private:
+    int updateFunctionId;
+    int availableUpdates;
+    int updatePosition;
 	vector<AttachedSound> attachedSounds;
-	int updatePosition;
     bool gameStarted = false;
     int currentMusicIndex = 0;
     const char *musicPlaylist[NUM_MUSIC] = {
