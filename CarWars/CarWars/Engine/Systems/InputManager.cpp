@@ -792,7 +792,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 
 			float sensitivity = .6f;
 
-			directions *= pow(magnitude, 7) * sensitivity; // (magnitude < .95f ? .3 * sensitivity : sensitivity);
+			directions *= pow(magnitude, 5) * sensitivity; // (magnitude < .95f ? .3 * sensitivity : sensitivity);
 
 			cameraX += directions.x;
 			cameraY += directions.y;
