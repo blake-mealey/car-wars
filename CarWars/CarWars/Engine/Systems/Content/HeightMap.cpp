@@ -257,6 +257,59 @@ void HeightMap::Initialize(std::string filePath) {
 			x += xSpacing;
 		}
 		currIncline *= wallInclineRate;
+		//v -= totalColCount * 2;
+		v -= (totalColCount + colCount);
+		z -= zSpacing;
+	}
+
+	//Add walls to the Top Left Corner based on the heights closest to the wall
+	currIncline = inclineRate;
+	z = -zSpacing;
+	v = (wallVertices - 1)*(totalColCount);
+	for (int i = wallVertices - 1; i >= 0; i--) {
+		float x = vertices[(wallVertices - 1)*(totalColCount)+totalColCount].x - offset.x;
+		//float x = -xSpacing*wallVertices;
+		for (unsigned long j = 0; j < wallVertices; j++) {
+			const float tempInclineRate = (wallHeight - (heights[wallVertices][j] - heights[wallVertices][wallVertices])) / (1 + (pow(wallInclineRate, wallVertices) - wallInclineRate)*(1 / (wallInclineRate - 1)));
+			const float tempCurr = tempInclineRate * pow(wallInclineRate, (wallVertices - 1) - i);
+			const float y = heights[i + 1][j] + tempCurr;
+			//const float y = heights[i + 1][j] + currIncline;
+			heights[i][j] = y;
+
+			cout << std::endl;
+			vertices[v] = vec3(x, y, z) + offset;
+			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
+			v++;
+
+			x += xSpacing;
+		}
+		currIncline *= wallInclineRate;
+		v -= (totalColCount + wallVertices);
+		z -= zSpacing;
+	}
+
+	//Add walls to the Top Right Corner based on the heights closest to the wall
+	currIncline = inclineRate;
+	z = -zSpacing;
+	v = (wallVertices - 1)*(totalColCount) + wallVertices + colCount;
+	for (int i = wallVertices - 1; i >= 0; i--) {
+		float x = vertices[(wallVertices - 1)*(totalColCount)+ wallVertices + colCount + totalColCount].x - offset.x;
+		//float x = -xSpacing*wallVertices;
+		for (unsigned long j = wallVertices + colCount; j < totalColCount; j++) {
+			const float tempInclineRate = (wallHeight - (heights[wallVertices][j] - heights[wallVertices][wallVertices + colCount])) / (1 + (pow(wallInclineRate, wallVertices) - wallInclineRate)*(1 / (wallInclineRate - 1)));
+			const float tempCurr = tempInclineRate * pow(wallInclineRate, (wallVertices - 1) - i);
+			const float y = heights[i + 1][j] + tempCurr;
+			//const float y = heights[i + 1][j] + currIncline;
+			heights[i][j] = y;
+
+			cout << std::endl;
+			vertices[v] = vec3(x, y, z) + offset;
+			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
+			v++;
+
+			x += xSpacing;
+		}
+		currIncline *= wallInclineRate;
 		v -= (totalColCount + wallVertices);
 		z -= zSpacing;
 	}
@@ -298,8 +351,7 @@ void HeightMap::Initialize(std::string filePath) {
 			heights[i][j] = y;
 
 			vertices[v] = vec3(x, y, z) + offset;
-			uvs[v] = vec2(1.f - (static_cast<float>(j - wallVertices) / static_cast<float>(colCount)), static_cast<float>(i - wallVertices) / static_cast<float>(rowCount));
-			//uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
+			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
 			v++;
 
 			x += xSpacing;
@@ -323,8 +375,7 @@ void HeightMap::Initialize(std::string filePath) {
 			heights[i][j] = y;
 
 			vertices[v] = vec3(x, y, z) + offset;
-			uvs[v] = vec2(1.f - (static_cast<float>(j - wallVertices) / static_cast<float>(colCount)), static_cast<float>(i - wallVertices) / static_cast<float>(rowCount));
-			//uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
+			uvs[v] = vec2(x / static_cast<float>(totalColCount), z / static_cast<float>(totalRowCount));
 			v++;
 
 			x += xSpacing;
