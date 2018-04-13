@@ -746,17 +746,21 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		int heldButtons = controller->GetState().Gamepad.wButtons & controller->GetPreviousState().Gamepad.wButtons;
 		int pressedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetState().Gamepad.wButtons;
 		int releasedButtons = (controller->GetState().Gamepad.wButtons ^ controller->GetPreviousState().Gamepad.wButtons) & controller->GetPreviousState().Gamepad.wButtons;
-		
+
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Manage Speed
 		// -------------------------------------------------------------------------------------------------------------- //
-		float forwardPower = 0; 
-		float backwardPower = 0; 
+		float forwardPower = 0;
+		float backwardPower = 0;
+		float camSpeed = 1;
 		if (abs(controller->GetState().Gamepad.bRightTrigger) >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
 			forwardPower = controller->GetState().Gamepad.bRightTrigger / 255.f;
 		}
+		if (heldButtons & XINPUT_GAMEPAD_B) {
+			backwardPower = 1;
+		}
 		if (abs(controller->GetState().Gamepad.bLeftTrigger) >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-			backwardPower = controller->GetState().Gamepad.bLeftTrigger / 255.f;
+			camSpeed -= controller->GetState().Gamepad.bLeftTrigger / 510.f;
 		}
 
 		// -------------------------------------------------------------------------------------------------------------- //
@@ -772,7 +776,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		// -------------------------------------------------------------------------------------------------------------- //
 		float cameraX = 0;
 		float cameraY = 0;
-	
+
 		// an attempt to reset camera behind the vehicle
 		if (pressedButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
 			cameraC->follow = !cameraC->follow;
@@ -787,10 +791,13 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 			x /= x > 0.f ? 32767.0f : 32768.0f;
 			y /= y > 0.f ? 32767.0f : 32768.0f;
 
+			//x *= camSpeed;
+			//y *= camSpeed;
+
 			glm::vec2 directions(x, y);
 			float magnitude = length(directions);
 
-			float sensitivity = .6f;
+			float sensitivity = .6f * camSpeed;
 
 			directions *= pow(magnitude, 5) * sensitivity; // (magnitude < .95f ? .3 * sensitivity : sensitivity);
 
@@ -838,7 +845,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		// -------------------------------------------------------------------------------------------------------------- //
 		glm::vec3 cameraHit;
 		PxQueryFilterData filterData;
-		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup() | RaycastGroups::GetPowerUpGroup());
+		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
 		cameraHit = cameraC->CastRay(100.0f, filterData);
 
 		if (pressedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
@@ -866,19 +873,19 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 				}
 				if (closestAimVehicle && acos(lowestDot) < (6.0f / glm::length(closestAimVehicle->transform.GetGlobalPosition() - vehicle->GetEntity()->transform.GetGlobalPosition()))) {
 					float pull = 1.f;
-					cameraHit = closestAimVehicle->transform.GetGlobalPosition() * pull + cameraHit * (1-pull);
+					cameraHit = closestAimVehicle->transform.GetGlobalPosition() * pull + cameraHit * (1 - pull);
 				}
 			}
 			weapon->Shoot(cameraHit);
 			vehicle->GetEntity()->GetComponent<WeaponComponent>()->Shoot(cameraHit);
-	 	}
+		}
 		if (releasedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
 			if (weapon->GetType() == ComponentType_RailGun) {
 				static_cast<RailGunComponent*>(weapon)->ChargeRelease();
 			}
 		}
 		weapon->turnTurret(cameraHit);
-		
+
 		// -------------------------------------------------------------------------------------------------------------- //
 		// Update
 		// -------------------------------------------------------------------------------------------------------------- //
