@@ -87,7 +87,7 @@ void InputManager::HandleMouse() {
 				cameraHit = closestAimVehicle->transform.GetGlobalPosition();
 			} else {
 				PxQueryFilterData filterData;
-				filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
+				filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup() | RaycastGroups::GetPowerUpGroup());
 				cameraHit = cameraC->CastRay(rayLength, filterData);
 			}
 			weapon->Shoot(cameraHit);
@@ -838,7 +838,7 @@ void InputManager::HandleVehicleControllerInput(size_t controllerNum, int &leftV
 		// -------------------------------------------------------------------------------------------------------------- //
 		glm::vec3 cameraHit;
 		PxQueryFilterData filterData;
-		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup());
+		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetRaycastGroup() | RaycastGroups::GetPowerUpGroup());
 		cameraHit = cameraC->CastRay(100.0f, filterData);
 
 		if (pressedButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {

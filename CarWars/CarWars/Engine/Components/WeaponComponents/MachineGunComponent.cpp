@@ -65,7 +65,7 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		PxRaycastBuffer cameraHit;
 		PxQueryFilterData filterData;
 		glm::vec3 hitPosition;
-		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
+		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup() | RaycastGroups::GetPowerUpGroup());
 		PxRaycastBuffer gunHit;
 		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(shotDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
 			hitPosition = Transform::FromPx(gunHit.block.position);

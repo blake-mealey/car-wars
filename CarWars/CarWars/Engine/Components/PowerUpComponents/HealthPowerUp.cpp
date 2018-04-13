@@ -18,6 +18,8 @@ void HealthPowerUp::Collect(PlayerData* player) {
     updateGui(vehicle);
     collectedAt = StateManager::gameTime.GetSeconds();
     duration = 5.0f;
+
+	TweenVignette();
 }
 
 void HealthPowerUp::Tick(PlayerData* player) {

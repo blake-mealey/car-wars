@@ -7,6 +7,7 @@
 #include "../Components/WeaponComponents/WeaponComponent.h"
 #include "../Components/WeaponComponents/RailGunComponent.h"
 #include "../Components/RigidbodyComponents/PowerUpSpawnerComponent.h"
+#include "../Systems/Physics/RaycastGroups.h"
 
 #include "../Systems/Physics.h"
 
@@ -301,7 +302,11 @@ bool AiComponent::GetLineOfSight(glm::vec3 _position) {
 	directionToTarget = glm::normalize(directionToTarget);
 
 	PxQueryFilterData filterData;
-	filterData.data.word0 = -1 ^ GetEntity()->GetComponent<VehicleComponent>()->GetRaycastGroup();  //TODO: remove powerups as well
+
+	filterData.data.word0 = RaycastGroups::GetGroupsMask(GetEntity()->GetComponent<VehicleComponent>()->GetRaycastGroup() | RaycastGroups::GetPowerUpGroup());
+
+	//PxQueryFilterData filterData;
+	//filterData.data.word0 = -1 ^ GetEntity()->GetComponent<VehicleComponent>()->GetRaycastGroup();  //TODO: remove powerups as well
 	VehicleComponent* enemyVehicleComponent = vehicleEntity->GetComponent<VehicleComponent>();
 	if (enemyVehicleComponent) filterData.data.word0 ^= enemyVehicleComponent->GetRaycastGroup();
 

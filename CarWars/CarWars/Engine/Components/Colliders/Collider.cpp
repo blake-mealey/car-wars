@@ -20,7 +20,10 @@ Collider::Collider(nlohmann::json data) : shape(nullptr), geometry(nullptr) {
     const std::string queryFilterType = ContentManager::GetFromJson<std::string>(data["QueryFilterType"], isTrigger ? "NonDrivableSurface" : "DrivableSurface");
     if (queryFilterType == "DrivableSurface") {
         setupDrivableSurface(queryFilterData);
-    }
+	} else if (queryFilterType == "PowerUp") {
+		setupNonDrivableSurface(queryFilterData);
+		queryFilterData.word0 = RaycastGroups::GetPowerUpGroup();
+	}
     else {
         setupNonDrivableSurface(queryFilterData);
     }

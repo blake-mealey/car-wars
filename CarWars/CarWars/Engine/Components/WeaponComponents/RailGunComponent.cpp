@@ -42,7 +42,7 @@ void RailGunComponent::Shoot(glm::vec3 position) {
     glm::vec3 hitPosition;
     PxRaycastBuffer gunHit;
     PxQueryFilterData filterData;
-    filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
+    filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup() | RaycastGroups::GetPowerUpGroup());
     const bool didHit = scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData);
     if (didHit) {
         hitPosition = Transform::FromPx(gunHit.block.position);
