@@ -29,8 +29,286 @@
   },
   {
     "Prefab": "Boulder.json",
-    "Position": [ 10, 5, 10]
+    "Position": [ 10, 5, 10 ]
   },
 
+  {
+    "Prefab": "StaticBoulder1.json",
+    "Position": [135, -7, 135 ],
+	"Scale": [10, 10, 10 ]
+  },
+  {
+    "Prefab": "StaticBoulder1.json",
+    "Position": [135, -7, -135 ],
+	"Scale": [10, 10, 10 ]
+  },
+  {
+    "Prefab": "StaticBoulder1.json",
+    "Position": [-135, -7, 135 ],
+	"Scale": [10, 10, 10 ]
+  },
+  {
+    "Prefab": "StaticBoulder1.json",
+    "Position": [-135, -7, -135 ],
+	"Scale": [10, 10, 10 ]
+  },
+
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [135, -7, 125 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 180, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [135, -7, 100 ],
+	"Scale": [10, 10, 10 ]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [135, -7, 75 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 180, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [135, -7, 50 ],
+	"Scale": [10, 10, 10 ]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [135, -7, 25 ],
+	"Scale": [10, 10, 10 ]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [135, -7, 0 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 180, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [135, -7, -25 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 180, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [135, -7, -50 ],
+	"Scale": [10, 10, 10 ]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [135, -7, -75 ],
+	"Scale": [10, 10, 10 ]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [135, -7, -100 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 180, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [135, -7, -125 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 180, 0]
+  },
+
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [125, -7, 135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 270, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [100, -7, 135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 90, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [75, -7, 135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 270, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [50, -7, 135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 90, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [25, -7, 135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 90, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [0, -7, 135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 270, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-25, -7, 135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 270, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-50, -7, 135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 90, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-75, -7, 135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 90, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-100, -7, 135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 270, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-125, -7, 135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 270, 0]
+  },
+
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-135, -7, 125 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 180, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-135, -7, 100 ],
+	"Scale": [10, 10, 10 ]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-135, -7, 75 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 180, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-135, -7, 50 ],
+	"Scale": [10, 10, 10 ]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-135, -7, 25 ],
+	"Scale": [10, 10, 10 ]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-135, -7, 0 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 180, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-135, -7, -25 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 180, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-135, -7, -50 ],
+	"Scale": [10, 10, 10 ]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-135, -7, -75 ],
+	"Scale": [10, 10, 10 ]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-135, -7, -100 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 180, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-135, -7, -125 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 180, 0]
+  },
+
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [125, -7, -135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 270, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [100, -7, -135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 90, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [75, -7, -135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 270, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [50, -7, -135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 90, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [25, -7, -135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 90, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [0, -7, -135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 270, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-25, -7, -135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 270, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-50, -7, -135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 90, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-75, -7, -135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 90, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-100, -7, -135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 270, 0]
+  },
+  {
+    "Prefab": "StaticBoulder2.json",
+    "Position": [-125, -7, -135 ],
+	"Scale": [10, 10, 10 ],
+	"Rotate": [0, 270, 0]
+  },
   "Sun.json"
 ]

@@ -9,7 +9,8 @@
 		            "Type": "Box",
 		            "Scale": [5, 5, 5],
 		            "IsTrigger": true,
-                    "CollisionGroup": "Obstacles"
+                "CollisionGroup": "Obstacles",
+                "QueryFilterType": "PowerUp"
 	            }
             ]
 	    },

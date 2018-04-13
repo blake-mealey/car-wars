@@ -24,6 +24,7 @@ struct Triangle;
 class Material;
 class MeshComponent;
 class Mesh;
+class CameraComponent;
 
 struct Camera {
 	Camera(glm::vec3 _position, glm::mat4 _viewMatrix, glm::mat4 _projectionMatrix, Entity *_guiRoot) :
@@ -35,6 +36,7 @@ struct Camera {
 	glm::vec2 viewportSize;
     glm::vec3 position;
 	Entity *guiRoot;
+	CameraComponent* component;
 };
 
 struct EABs {
@@ -109,6 +111,9 @@ public:
 
 	static const glm::mat4 BIAS_MATRIX;
 
+    bool sceneGraphShown;
+    bool debugGuiShown;
+
 	// System calls
 	bool Initialize(char* windowTitle);
 	void Update() override;
@@ -123,7 +128,7 @@ public:
 
 	static void WindowSizeCallback(GLFWwindow *window, int width, int height);
 	void SetWindowDimensions(size_t width, size_t height);
-	void UpdateViewports(std::vector<Component*> cameraComponents) const;
+	void UpdateViewports() const;
 
 	glm::vec2 GetWindowSize() const;
 	glm::vec2 GetViewportSize(int index) const;

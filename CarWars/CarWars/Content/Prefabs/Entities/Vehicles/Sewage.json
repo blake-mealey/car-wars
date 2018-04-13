@@ -20,8 +20,8 @@
 		"Scale": [1.2, 1.0, 1.0]
       },
       "Mass": 2000,
-      "ChassisSize": [ 2.1, 1.8, 5.5],
-      "WheelMass": 20,
+      "ChassisSize": [ 2.1, 1.8, 5],
+      "WheelMass": 200,
       "WheelRadius": 0.55,
       "WheelWidth": 0.6,
       "WheelCount": 6,

@@ -1,0 +1,24 @@
+{
+    "Tag": "Dome",
+    "Components": [
+      {
+        "Type": "Mesh",
+        "Mesh": "Dome.obj",
+        "Texture": "FineGold.jpg",
+        "Material": "Basic.json",
+        "Scale": [ 10, 10, 10 ],
+		"Position": [0, 0, 0]
+      },
+      {
+        "Type": "RigidStatic",
+        "Colliders": [
+          {
+            "Type": "Sphere",
+            "CollisionGroup": "Obstacles",
+			"Scale": [ 10, 10, 10 ],
+			"Position": [0, 0, 0]
+          }
+        ]
+      }
+    ]
+}

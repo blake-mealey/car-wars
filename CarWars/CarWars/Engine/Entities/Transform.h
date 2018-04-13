@@ -14,8 +14,8 @@ public:
 	Transform(nlohmann::json data);
 	Transform(physx::PxTransform transform);
 	Transform(glm::vec3 _position, glm::vec3 _scale = glm::vec3(1.f), glm::quat _rotation=glm::quat());
-	Transform(Transform *parent, glm::vec3 pPosition, glm::vec3 pScale, glm::vec3 pEulerRotation, bool connectedToCylinder);
-	Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::quat pRotation, bool connectedToCylinder);
+	Transform(Transform *parent, glm::vec3 pPosition, glm::vec3 pScale, glm::vec3 pEulerRotation);
+	Transform(Transform *pParent, glm::vec3 pPosition, glm::vec3 pScale, glm::quat pRotation);
 
 	void Update();
 
@@ -37,8 +37,6 @@ public:
 	glm::vec3 GetGlobalPosition();
 	glm::vec3 GetGlobalScale();
 
-	glm::vec3 GetCylinderPosition();
-
 	glm::vec3 GetLocalDirection(glm::vec3 globalDirection);
     glm::vec3 GetGlobalDirection(glm::vec3 localDirection);
 	glm::vec3 GetForward();
@@ -56,7 +54,6 @@ public:
     void LookAt(glm::vec3 position);
     void LookInDirection(glm::vec3 direction);
 
-
 	// Operators for basic data
 	void Translate(glm::vec3 offset);
 	void Scale(float scaleFactor);
@@ -71,12 +68,6 @@ public:
 	glm::mat4 GetLocalTransformationMatrix();
 	glm::mat4 GetTransformationMatrix();
     glm::mat4 GetGuiTransformationMatrix(glm::vec2 anchorPoint, glm::vec2 scaledPosition, glm::vec2 scaledScale, glm::vec2 viewportPosition, glm::vec2 viewportScale, glm::vec2 windowScale);
-
-	static glm::vec3 ToCylinder(glm::vec3 point);
-	static glm::vec3 FromCylinder(glm::vec3 point);
-	void ConnectToCylinder();
-
-	bool connectedToCylinder;
 
 	static glm::vec4 FromPx(physx::PxVec4 v);
 	static glm::vec3 FromPx(physx::PxVec3 v);

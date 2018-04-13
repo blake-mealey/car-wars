@@ -12,7 +12,8 @@
       "Text": "armour",
       "Font": "Starjedi.ttf",
       "FontColor": "White",
-      "FontSize": 15
+      "FontSize": 15,
+      "Emissiveness": 0.15
     },
     {
       "Type": "GUI",
@@ -26,7 +27,8 @@
       "Text": "10",
       "Font": "Starjedi.ttf",
       "FontColor": "DarkBlue",
-      "FontSize": 15
+      "FontSize": 15,
+      "Emissiveness": 0.15
     }
   ]
 }

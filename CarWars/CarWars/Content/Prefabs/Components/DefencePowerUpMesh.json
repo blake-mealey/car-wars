@@ -1,4 +1,4 @@
 {
-	"Prefab": "PowerUpMesh.json",
-	"Material": "CyanShiny.json"
+	"Prefab": "Defence.json",
+	"Material": "YellowShiny.json"
 }

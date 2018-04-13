@@ -172,6 +172,7 @@
     <ClCompile Include="Engine\Components\GuiEffects\GuiEffect.cpp" />
     <ClCompile Include="Engine\Components\LineComponent.cpp" />
     <ClCompile Include="Engine\Components\ParticleEmitterComponent.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\HealthPowerUp.cpp" />
     <ClCompile Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.cpp" />
     <ClCompile Include="Engine\Components\WeaponComponents\SuicideWeaponComponent.cpp" />
     <ClCompile Include="Engine\Systems\Content\HeightMap.cpp" />
@@ -256,6 +257,7 @@
     <ClInclude Include="Engine\Components\GuiEffects\GuiEffect.h" />
     <ClInclude Include="Engine\Components\LineComponent.h" />
     <ClInclude Include="Engine\Components\ParticleEmitterComponent.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\HealthPowerUp.h" />
     <ClInclude Include="Engine\Components\RigidbodyComponents\PowerUpSpawnerComponent.h" />
     <ClInclude Include="Engine\Components\Tweens\TTween.h" />
     <ClInclude Include="Engine\Components\Tweens\Tween.h" />
@@ -318,18 +320,25 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\Maps\Arena\Data.json" />
+    <None Include="Content\Maps\TestArena\Data.json" />
     <None Include="Content\Maps\Tiers\Data.json" />
     <None Include="Content\Materials\CyanShiny.json" />
+    <None Include="Content\Materials\GreenShiny.json" />
     <None Include="Content\Materials\PinkShiny.json" />
     <None Include="Content\Materials\YellowShiny.json" />
+    <None Include="Content\Prefabs\Components\Damage.json" />
     <None Include="Content\Prefabs\Components\DamagePowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\DefencePowerUpMesh.json" />
+    <None Include="Content\Prefabs\Components\HP.json" />
     <None Include="Content\Prefabs\Components\Particles\Dust.json" />
     <None Include="Content\Prefabs\Components\PowerUpMesh.json" />
-    <None Include="Content\Prefabs\Components\SpeedPowerUpMesh.json" />
+    <None Include="Content\Prefabs\Components\HealthPowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadA.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadB.json" />
     <None Include="Content\Prefabs\Components\Controls\GamepadControl.json" />
+    <None Include="Content\Prefabs\Components\Defence.json" />
+    <None Include="Content\Prefabs\Entities\Archway.json" />
+    <None Include="Content\Prefabs\Entities\Ball.json" />
     <None Include="Content\Prefabs\Entities\Beam.json" />
     <None Include="Content\Prefabs\Entities\BulletHitCarEffect.json" />
     <None Include="Content\Prefabs\Entities\BulletHitGroundEffect.json" />
@@ -340,6 +349,7 @@
     <None Include="Content\Prefabs\Entities\Controls\GamepadJoin.json" />
     <None Include="Content\Prefabs\Entities\Controls\GamepadSelect.json" />
     <None Include="Content\Prefabs\Entities\Controls\GamepadStart.json" />
+    <None Include="Content\Prefabs\Entities\Dome.json" />
     <None Include="Content\Prefabs\Entities\Game\Floor.json" />
     <None Include="Content\Prefabs\Entities\Game\PowerUpSpawner.json" />
     <None Include="Content\CollisionGroups\Vehicles.json" />
@@ -374,6 +384,9 @@
     <None Include="Content\Prefabs\Entities\Menu\Pillar.json" />
     <None Include="Content\Prefabs\Entities\Particles\Fire.json" />
     <None Include="Content\Prefabs\Entities\Pillar.json" />
+    <None Include="Content\Prefabs\Entities\StaticBoulder1.json" />
+    <None Include="Content\Prefabs\Entities\StaticBoulder2.json" />
+    <None Include="Content\Prefabs\Entities\Tree.json" />
     <None Include="Content\Prefabs\Entities\Vehicles\Flatbed.json" />
     <None Include="Content\Prefabs\Entities\HeadLamp.json" />
     <None Include="Content\Prefabs\Entities\Vehicles\Hearse.json" />
@@ -403,6 +416,7 @@
     <None Include="Content\Scenes\Maps\EmptyArena.json" />
     <None Include="Content\Scenes\Maps\HeightMap.json" />
     <None Include="Content\Scenes\Maps\Moon.json" />
+    <None Include="Content\Scenes\Maps\TestArena.json" />
     <None Include="Content\Scenes\Menu.json" />
     <None Include="Content\Scenes\PhysicsDemo.json" />
     <None Include="Content\Shaders\billboard.frag" />
@@ -428,10 +442,10 @@
     <Media Include="Content\Sounds\powerup.mp3" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Content\Textures\HUD\health-vignette.png" />
+    <Image Include="Content\Maps\TestArena\Map.png" />
+    <Image Include="Content\Maps\TestArena\Nav.png" />
+    <Image Include="Content\Maps\TestArena\Objects.png" />
     <Image Include="Content\Textures\HUD\shield-vignette-blue.png" />
-    <Image Include="Content\Textures\HUD\shield-vignette.png" />
-    <Image Include="Content\Textures\HUD\speed-vingette.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

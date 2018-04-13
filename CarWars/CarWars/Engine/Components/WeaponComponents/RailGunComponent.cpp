@@ -7,6 +7,7 @@
 #include "../../Components/CameraComponent.h"
 #include "../../Components/GuiComponents/GuiHelper.h"
 #include "../../Components/GuiComponents/GuiComponent.h"
+#include "../../Components/ParticleEmitterComponent.h"
 #include "../../Systems/Content/ContentManager.h"
 #include "../../Systems/Physics/RaycastGroups.h"
 #include "../LineComponent.h"
@@ -15,6 +16,7 @@
 #include "../../Systems/Effects.h"
 
 #include <string>
+#include "PennerEasing/Quint.h"
 
 RailGunComponent::~RailGunComponent() {
     if (beam) EntityManager::DestroyEntity(beam);
@@ -40,7 +42,7 @@ void RailGunComponent::Shoot(glm::vec3 position) {
     glm::vec3 hitPosition;
     PxRaycastBuffer gunHit;
     PxQueryFilterData filterData;
-    filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
+    filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup() | RaycastGroups::GetPowerUpGroup());
     const bool didHit = scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(gunDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData);
     if (didHit) {
         hitPosition = Transform::FromPx(gunHit.block.position);
@@ -53,36 +55,65 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 		//Audio::Instance().StopSound(soundIndex);
 		Audio::Instance().StopSound3D(soundIndex);
 
-		//Audio::Instance().PlayAudio2D("Content/Sounds/railgun-shoot.mp3");
-		Audio::Instance().PlayAudio3D("Content/Sounds/railgun-shoot.mp3", vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f));
+		//Get Vehicle
+		Entity* vehicle = GetEntity();
+		Audio::Instance().PlayAudio3D(Audio::Instance().Weapons.railgunShoot, vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 1.f);
 
 		//Calculate Next Shooting Time
 		nextShotTime = StateManager::gameTime + (timeBetweenShots + chargeTime);
 		//Reset Next Charing Time
 		nextChargeTime = StateManager::gameTime + timeBetweenShots;
 
+        auto emitters = rgTurret->GetComponents<ParticleEmitterComponent>();
+        for (auto emitter : emitters) {
+            emitter->Emit(1);
+        }
+
         if (didHit) {
             Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
-            if (thingHit) thingHit->TakeDamage(this, GetDamage());
+			if (thingHit && vehicle) {
+				if(thingHit->GetComponent<VehicleComponent>())
+					thingHit->GetComponent<VehicleComponent>()->pxVehicle->getRigidDynamicActor()->addForce(Transform::ToPx(glm::normalize(thingHit->transform.GetGlobalPosition() - vehicle->transform.GetGlobalPosition()) * 40000.f), PxForceMode::eIMPULSE, true);
+				thingHit->TakeDamage(this, GetDamage());
+			}
         }
 		
 		PlayerData* player = Game::Instance().GetPlayerFromEntity(GetEntity());
 
-        Transform& transform = GetBeam()->transform;
-        float startRadius = transform.GetLocalScale().x;
-		auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(0.f, 1.f, 0.1, StateManager::gameTime);
-		tween->SetUpdateCallback([startRadius, &transform, hitPosition, rgTurret, player, tween](float& value) mutable {
+        Transform& beamTransform = GetBeam()->transform;
+        Transform& beamMeshTransform = beam->GetComponent<MeshComponent>()->transform;
+        ParticleEmitterComponent* emitter = beam->GetComponent<ParticleEmitterComponent>();
+
+        auto tweenIn = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 0.2, StateManager::gameTime);
+        tweenIn->SetUpdateCallback([emitter, &beamTransform, &beamMeshTransform, hitPosition, rgTurret, player](float& value) mutable {
+            if (!player->alive) return;
+            beamTransform.SetPosition(0.5f * (rgTurret->transform.GetGlobalPosition() + hitPosition));
+            float radius = glm::mix(0.1f, 1.f, value);
+            beamMeshTransform.SetScale(glm::vec3(radius, radius, length(rgTurret->transform.GetGlobalPosition() - hitPosition)));
+            beamTransform.LookAt(hitPosition);
+            emitter->SetInitialScale(glm::vec2(radius*3.f));
+            emitter->SetFinalScale(glm::vec2(radius*3.f));
+        });
+
+        float startRadius = beamMeshTransform.GetLocalScale().x;
+		auto tweenOut = Effects::Instance().CreateTween<float, easing::Quint::easeIn>(0.f, 1.f, 0.2, StateManager::gameTime);
+        tweenOut->SetUpdateCallback([emitter, startRadius, &beamTransform, &beamMeshTransform, hitPosition, rgTurret, player](float& value) mutable {
 			if (!player->alive) return;
-            transform.SetPosition(0.5f * (rgTurret->transform.GetGlobalPosition() + hitPosition));
+            beamTransform.SetPosition(0.5f * (rgTurret->transform.GetGlobalPosition() + hitPosition));
             float radius = glm::mix(startRadius, 0.f, value);
-            transform.SetScale(glm::vec3(radius, radius, length(rgTurret->transform.GetGlobalPosition() - hitPosition)));
-            transform.LookAt(hitPosition);
+            beamMeshTransform.SetScale(glm::vec3(radius, radius, length(rgTurret->transform.GetGlobalPosition() - hitPosition)));
+            beamTransform.LookAt(hitPosition);
+            emitter->SetInitialScale(glm::vec2(radius*3.f));
+            emitter->SetFinalScale(glm::vec2(radius*3.f));
 		});
-		tween->SetFinishedCallback([this](float& value) mutable {
+        tweenOut->SetFinishedCallback([this](float& value) mutable {
 			EntityManager::DestroyEntity(beam);
             beam = nullptr;
 		});
-		tween->Start();
+
+
+        tweenIn->SetNext(tweenOut, 0.1);
+        tweenIn->Start();
 
 		HumanData* human = Game::Instance().GetHumanFromEntity(GetEntity());
 		if (human) {
@@ -101,7 +132,7 @@ void RailGunComponent::Shoot(glm::vec3 position) {
         //Play Charging Sound
         if (!playingChargeSound) {
 			//soundIndex = Audio::Instance().PlaySound("Content/Sounds/railgun-charge.mp3");
-			soundIndex = Audio::Instance().PlaySound3D("Content/Sounds/railgun-charge.mp3", GetEntity()->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.22f);
+			soundIndex = Audio::Instance().PlaySound3D(Audio::Instance().Weapons.railgunCharge, GetEntity()->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.22f);
             playingChargeSound = true;
         }
 
@@ -112,11 +143,19 @@ void RailGunComponent::Shoot(glm::vec3 position) {
 		}
 
         const float ratio = ((StateManager::gameTime - (nextShotTime - chargeTime)) / chargeTime).GetSeconds();
-        const float distance = length(hitPosition - gunPosition);
-        const float radius = glm::mix(0.f, 1.f, ratio);
-        GetBeam()->transform.SetScale(glm::vec3(radius, radius, distance));
+        const glm::vec3 direction = hitPosition - gunPosition;
+        const float distance = length(direction);
+        const float radius = 0.1f;// glm::mix(0.f, 1.f, ratio);
+        MeshComponent* beamMesh = GetBeam()->GetComponent<MeshComponent>();
+        beamMesh->transform.SetScale(glm::vec3(radius, radius, distance));
         beam->transform.SetPosition(0.5f * (gunPosition + hitPosition));
         beam->transform.LookAt(hitPosition);
+
+        ParticleEmitterComponent* emitter = beam->GetComponent<ParticleEmitterComponent>();
+        emitter->SetEmitScale(glm::vec3(0.1f, 0.1f, distance*0.5f));
+        emitter->SetEmitCount(distance*0.25f);
+        emitter->SetInitialScale(glm::vec2(radius*4.f));
+        emitter->SetFinalScale(glm::vec2(radius*4.f));
 	}
 }
 
@@ -171,17 +210,20 @@ void RailGunComponent::ChargeRelease() {
 		Transform& mask = gui->GetMask();
 
         Transform& transform = GetEntity()->transform;
-        Transform& beamTransform = GetBeam()->transform;
-        float startRadius = beamTransform.GetLocalScale().x;
+        Transform& beamMeshTransform = GetBeam()->GetComponent<MeshComponent>()->transform;
+        ParticleEmitterComponent* emitter = beam->GetComponent<ParticleEmitterComponent>();
+        float startRadius = beamMeshTransform.GetLocalScale().x;
 
         const glm::vec3 scaleStart = mask.GetLocalScale();
         const glm::vec3 scaleEnd = glm::vec3(134.f, 134.f, 0.f);
-		auto tweenOut = Effects::Instance().CreateTween<float, easing::Sine::easeIn>(0.f, 1.f, 0.05, StateManager::gameTime);
-		tweenOut->SetUpdateCallback([&beamTransform, &transform, &mask, startRadius, scaleStart, scaleEnd](float& value) {
+		auto tweenOut = Effects::Instance().CreateTween<float, easing::Sine::easeIn>(0.f, 1.f, 0.01, StateManager::gameTime);
+		tweenOut->SetUpdateCallback([emitter, &beamMeshTransform, &transform, &mask, startRadius, scaleStart, scaleEnd](float& value) {
 			mask.SetScale(mix(scaleStart, scaleEnd, value));
 
             float radius = glm::mix(startRadius, 0.f, value);
-            beamTransform.SetScale(glm::vec3(radius, radius, beamTransform.GetLocalScale().z));
+            beamMeshTransform.SetScale(glm::vec3(radius, radius, beamMeshTransform.GetLocalScale().z));
+		    emitter->SetInitialScale(glm::vec2(radius*3.f));
+            emitter->SetFinalScale(glm::vec2(radius*3.f));
 		});
         tweenOut->SetFinishedCallback([this](float& value) mutable {
             EntityManager::DestroyEntity(beam);
@@ -198,6 +240,9 @@ Entity* RailGunComponent::GetBeam() {
 }
 
 Time RailGunComponent::GetChargeTime() {
-	RailGunComponent railgun;
-	return railgun.chargeTime;
+	return chargeTime;
+}
+
+Time RailGunComponent::GetCooldown() {
+	return timeBetweenShots;
 }

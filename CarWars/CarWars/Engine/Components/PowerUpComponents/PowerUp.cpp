@@ -15,10 +15,8 @@ PowerUp::~PowerUp() {
 PowerUp::PowerUp(Time a_duration) : duration(a_duration) {}
 
 void PowerUp::Collect(PlayerData* a_player) {
-    //Audio& audioManager = Audio::Instance();
-	//audioManager.PlayAudio("Content/Sounds/powerup.mp3");
 	Entity *vehicle = a_player->vehicleEntity;
-	Audio::Instance().PlayAudio3D("Content/Sounds/powerup.mp3", vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f));
+	Audio::Instance().PlayAudio3D(Audio::Instance().Environment.powerup, vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 10.f);
 
 
 
@@ -71,7 +69,7 @@ void PowerUp::Remove(bool force) {
             auto tweenOut = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(gui->GetTextureOpacity(), 0.f, 0.25, StateManager::gameTime);
             tweenOut->SetUpdateCallback([gui](float& value) mutable {
                 gui->SetTextureOpacity(value);
-                gui->transform.SetScale(glm::mix(glm::vec3(100.f, 100.f, 0.f), glm::vec3(0.f, 0.f, 0.f), value));
+                gui->transform.SetScale(mix(glm::vec3(100.f, 100.f, 0.f), glm::vec3(0.f, 0.f, 0.f), value));
             });
             tweenOut->Start();
         }
@@ -86,17 +84,19 @@ void PowerUp::Remove(bool force) {
 			
 			const glm::vec3 start = light->GetColor();
 			const glm::vec3 end = glm::vec3(1.f);
-			auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0, 1, 2, StateManager::gameTime);
-			tween->SetTag("Headlight" + std::to_string(player->id));
-			tween->SetUpdateCallback([this, start, end, light, mesh](float& value) {
-                if (!player->alive) return;
+			auto tween = Effects::Instance().CreateTween<float, easing::Quint::easeOut>(0.f, 1.f, 2.0, StateManager::gameTime);
+			tween->SetTag("Headlight" + std::to_string(player->id) + std::to_string(entity->GetId()));
+            PlayerData* thePlayer = player;
+			tween->SetUpdateCallback([thePlayer, start, end, light, mesh](float& value) {
+                if (!thePlayer->alive) return;
 				light->SetColor(glm::mix(start, end, value));
-                mesh->GetMaterial()->diffuseColor = glm::vec4(glm::mix(glm::mix(start, end, 0.25f), end, value), 1.f);
+                mesh->GetMaterial()->diffuseColor = glm::vec4(mix(mix(start, end, 0.25f), end, value), 1.f);
 			});
 			tween->Start();
 		}
 	}
 
     player->activePowerUp = nullptr;
+    
     delete this;
 }

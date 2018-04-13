@@ -36,10 +36,15 @@ public:
     bool FinishedPath() const;
 
 	Time GetModeDuration();
+
 	void StartStuckTime();
 	Time GetStuckDuration();
+
 	Time GetSearchDuration();
-	Time GetPreppingTime();
+
+	void StartCharge();
+	Time GetChargeDuration();
+	void StopCharge();
 
 	void Update();
 
@@ -82,8 +87,10 @@ private:
 	Time lastPathUpdate;
 	Time startedStuckTime;
 	Time lastSearchTime;
+	Time chargeStartTime;
 
-	bool charged = false;
+	bool cooldown = false;
+
 	bool stuck = false;
 
 	float distanceToTarget;

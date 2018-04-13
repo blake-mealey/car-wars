@@ -80,6 +80,7 @@
     <ClCompile Include="Engine\Components\WeaponComponents\SuicideWeaponComponent.cpp" />
     <ClCompile Include="Engine\Components\BillboardComponent.cpp" />
     <ClCompile Include="Engine\Components\ParticleEmitterComponent.cpp" />
+    <ClCompile Include="Engine\Components\PowerUpComponents\HealthPowerUp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\imgui\imconfig.h" />
@@ -173,15 +174,16 @@
     <ClInclude Include="Engine\Components\WeaponComponents\SuicideWeaponComponent.h" />
     <ClInclude Include="Engine\Components\BillboardComponent.h" />
     <ClInclude Include="Engine\Components\ParticleEmitterComponent.h" />
+    <ClInclude Include="Engine\Components\PowerUpComponents\HealthPowerUp.h" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="Content\Sounds\powerup.mp3" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Content\Textures\HUD\health-vignette.png" />
     <Image Include="Content\Textures\HUD\shield-vignette-blue.png" />
-    <Image Include="Content\Textures\HUD\shield-vignette.png" />
-    <Image Include="Content\Textures\HUD\speed-vingette.png" />
+    <Image Include="Content\Maps\TestArena\Map.png" />
+    <Image Include="Content\Maps\TestArena\Nav.png" />
+    <Image Include="Content\Maps\TestArena\Objects.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\Materials\CyanShiny.json" />
@@ -258,7 +260,6 @@
     <None Include="Content\Shaders\shadowMap.vert" />
     <None Include="Content\Shaders\skybox.frag" />
     <None Include="Content\Shaders\skybox.vert" />
-    <None Include="Content\Prefabs\Components\SpeedPowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\PowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\DamagePowerUpMesh.json" />
     <None Include="Content\Prefabs\Components\DefencePowerUpMesh.json" />
@@ -290,5 +291,18 @@
     <None Include="Content\Prefabs\Entities\BulletHitGroundEffect.json" />
     <None Include="Content\Prefabs\Entities\BulletHitCarEffect.json" />
     <None Include="Content\Prefabs\Entities\Beam.json" />
+    <None Include="Content\Prefabs\Components\HealthPowerUpMesh.json" />
+    <None Include="Content\Materials\GreenShiny.json" />
+    <None Include="Content\Prefabs\Components\HP.json" />
+    <None Include="Content\Prefabs\Components\Defence.json" />
+    <None Include="Content\Prefabs\Components\Damage.json" />
+    <None Include="Content\Scenes\Maps\TestArena.json" />
+    <None Include="Content\Maps\TestArena\Data.json" />
+    <None Include="Content\Prefabs\Entities\Archway.json" />
+    <None Include="Content\Prefabs\Entities\Ball.json" />
+    <None Include="Content\Prefabs\Entities\StaticBoulder1.json" />
+    <None Include="Content\Prefabs\Entities\StaticBoulder2.json" />
+    <None Include="Content\Prefabs\Entities\Dome.json" />
+    <None Include="Content\Prefabs\Entities\Tree.json" />
   </ItemGroup>
 </Project>

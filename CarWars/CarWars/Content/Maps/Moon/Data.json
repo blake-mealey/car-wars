@@ -2,5 +2,7 @@
 	"MaxHeight": 10,
 	"MaxWidth": 255,
 	"MaxLength": 255,
-    "Scene": "Maps/Moon.json"
+  "Scene": "Maps/Moon.json",
+  "TerrainUvScale": [ 1, 1 ],
+  "TerrainTexture": "NewFloor.jpg"
 }

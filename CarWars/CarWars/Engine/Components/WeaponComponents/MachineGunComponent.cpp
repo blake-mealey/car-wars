@@ -3,6 +3,7 @@
 #include "../Component.h"
 #include "../../Entities/EntityManager.h"
 #include "../../Components/CameraComponent.h"
+#include "../../Components/RigidbodyComponents/PowerUpSpawnerComponent.h"
 #include "../../Systems/Content/ContentManager.h"
 #include "../../Systems/Physics/RaycastGroups.h"
 #include "../../Systems/Audio.h"
@@ -27,11 +28,17 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		turnTurret(position);
 
 		Entity* vehicle = GetEntity();
-		Audio::Instance().PlayAudio3D("Content/Sounds/machine_gun_shot.mp3", vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.11f);
+		//Audio::Instance().PlayAudio3D(Audio::Instance().Weapons.bulletShoot, vehicle->transform.GetGlobalPosition(), glm::vec3(0.f, 0.f, 0.f), 0.11f);
+		Audio::Instance().PlayAudio3DAttached(Audio::Instance().Weapons.bulletShoot, vehicle, 0.11f);
 		//Audio::Instance().PlayAudio2D("Content/Sounds/machine_gun_shot.mp3");
 
 		Entity* mgTurret = EntityManager::FindFirstChild(vehicle, "GunTurret");
 		const glm::vec3 gunPosition = mgTurret->transform.GetGlobalPosition();
+
+        auto emitters = mgTurret->GetComponents<ParticleEmitterComponent>();
+        for (auto emitter : emitters) {
+            emitter->Emit(3);
+        }
 
 		glm::vec3 gunDirection = position - gunPosition;
 		float distanceToTarget = glm::length(gunDirection);
@@ -59,13 +66,15 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		PxRaycastBuffer cameraHit;
 		PxQueryFilterData filterData;
 		glm::vec3 hitPosition;
-		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup());
+		filterData.data.word0 = RaycastGroups::GetGroupsMask(vehicle->GetComponent<VehicleComponent>()->GetRaycastGroup() | RaycastGroups::GetPowerUpGroup());
 		PxRaycastBuffer gunHit;
 		if (scene->raycast(Transform::ToPx(gunPosition), Transform::ToPx(shotDirection), rayLength, gunHit, PxHitFlag::eDEFAULT, filterData)) {
 			hitPosition = Transform::FromPx(gunHit.block.position);
 			Entity* thingHit = EntityManager::FindEntity(gunHit.block.actor);
+            auto powerupPointer = thingHit->GetComponent<PowerUpSpawnerComponent>();
+          
             if (thingHit) {
-				thingHit->TakeDamage(this, GetDamage());
+                thingHit->TakeDamage(this, GetDamage());
             }
 
             Entity* explosionEffect;
@@ -96,10 +105,11 @@ void MachineGunComponent::Shoot(glm::vec3 position) {
 		LineComponent* line = bullet->GetComponent<LineComponent>();
 		line->SetPoint0(gunPosition);
 		line->SetPoint1(hitPosition);
+		line->SetColor(glm::vec4(1.0f, .1f, .1f, 1.f));
+
 		auto tween = Effects::Instance().CreateTween<float, easing::Linear::easeNone>(1.f, 0.f, timeBetweenShots*0.5, StateManager::gameTime);
 		tween->SetUpdateCallback([line, player, mgTurret, tween](float& value) mutable {
 			if (!player->alive) return;
-			line->SetColor(glm::vec4(1.0f, .9f, .4f, .3f));
 			line->SetPoint0(mgTurret->transform.GetGlobalPosition());
 		});
 		tween->SetFinishedCallback([bullet](float& value) mutable {

@@ -27,12 +27,13 @@
 #include "../Components/RigidbodyComponents/PowerUpSpawnerComponent.h"
 #include "PennerEasing/Quint.h"
 #include "../Components/ParticleEmitterComponent.h"
+#include "../Components/PowerUpComponents/HealthPowerUp.h"
 using namespace std;
 
 const string GameModeType::displayNames[Count] = { "Team", "Free for All" };
 
-const string MapType::displayNames[Count] = { "Test Arena", "Moon", "Arena", "Tiers", "Battle Arena", "Battle Dome", "Mansion", "Circle Arena", "Levels" };
-const string MapType::mapDirPaths[Count] = { "TestArena/", "Moon/", "Arena/", "Tiers/", "BattleArena/", "BattleDome/", "Mansion/", "CircleArena/", "Levels/" };
+const string MapType::displayNames[Count] = { "Moon", "Arena", "Tiers", "Battle Arena", "Battle Dome", "Mansion", "Circle Arena", "Levels" };
+const string MapType::mapDirPaths[Count] = { "Moon/", "Arena/", "Tiers/", "BattleArena/", "BattleDome/", "Mansion/", "CircleArena/", "Levels/" };
 
 const string VehicleType::displayNames[Count] = { "Heavy", "Medium", "Light" };
 const string VehicleType::prefabPaths[Count] = { "Vehicles/Sewage.json", "Vehicles/Hearse.json", "Vehicles/Flatbed.json" };
@@ -41,11 +42,11 @@ const string VehicleType::teamTextureNames[Count][2] = {
     { "Vehicles/Green_Hearse.png", "Vehicles/Red_Hearse.png" },
     { "Vehicles/Green_Flatbed.png", "Vehicles/Red_Flatbed.png" }
 };
-const string VehicleType::statDisplayNames[STAT_COUNT] = { "Speed", "Handling", "Armour" };
+const string VehicleType::statDisplayNames[STAT_COUNT] = { "Speed", "Handling", "Armour", "Damage" };
 const string VehicleType::statValues[Count][STAT_COUNT] = {
-	{ "1", "10", "100" },      // Heavy
-	{ "10", "10", "50" },      // Medium
-	{ "20", "10", "10" }       // Light
+	{ "1", "10", "100", "80"},      // Heavy
+	{ "10", "10", "50",  "100"},      // Medium
+	{ "20", "10", "10", "120"}       // Light
 };
 
 const string WeaponType::displayNames[Count] = { "Machine Gun", "Rocket Launcher", "Rail Gun" };
@@ -57,6 +58,7 @@ const string WeaponType::statValues[Count][STAT_COUNT] = {
 	{ "75", "500", "rocket" },      // Rocket Launcher
 	{ "33", "1150", "charge" }       // Rail Gun
 };
+const string WeaponType::texturePaths[Count] = { "HUD/bullets.png", "HUD/explosion.png", "HUD/target.png" };
 
 const unsigned int Game::MAX_VEHICLE_COUNT = 20;
 
@@ -95,7 +97,8 @@ void Game::SpawnVehicle(PlayerData& player) const {
 		cantSpawn = false;
 		spawn = spawns[rand() % spawns.size()];
 		for (Entity* vehicle : EntityManager::FindEntities("Vehicle")) {
-			if (glm::distance(spawn->transform.GetGlobalPosition(), vehicle->transform.GetGlobalPosition()) < 10.0f) {
+			glm::vec3 vehiclePosition = Transform::FromPx(vehicle->GetComponent<VehicleComponent>()->pxRigid->getGlobalPose().p);
+			if (glm::distance(spawn->transform.GetGlobalPosition(), vehiclePosition) < 10.0f) {
 				cantSpawn = true;
 				i++;
 			}
@@ -119,12 +122,15 @@ void Game::SpawnVehicle(PlayerData& player) const {
 	switch (player.vehicleType) {
 	case VehicleType::Heavy:
 		vehicleComponent->SetResistance(0.65f);
+		vehicleComponent->SetBaseDamage(0.85f);
 		break;
 	case VehicleType::Medium:
 		vehicleComponent->SetResistance(0.5f);
+		vehicleComponent->SetBaseDamage(1.0f);
 		break;
 	case VehicleType::Light:
-		vehicleComponent->SetResistance(0.20f);
+		vehicleComponent->SetResistance(0.35f);
+		vehicleComponent->SetBaseDamage(1.15f);
 		break;
 	}
 
@@ -169,6 +175,7 @@ void Game::InitializeGame() {
     else if (gameData.gameMode == GameModeType::FreeForAll) teamCount = gameData.humanCount + gameData.aiCount;
     for (size_t i = 0; i < teamCount; ++i) {
         TeamData team;
+        team.index = i;
         if (gameData.gameMode == GameModeType::Team) {
             team.name = "Team " + to_string(i + 1);
         }
@@ -355,6 +362,25 @@ void Game::Update() {
 			}
 		}
 
+        // health tick
+        for (AiData& player : aiPlayers) {
+            if (player.alive) {
+                auto powerUp = player.activePowerUp;
+                if (powerUp != nullptr && powerUp->GetColor() == glm::vec4(0.f, 1.f, 0.f, 1.f)) {
+                    static_cast<HealthPowerUp*>(powerUp)->Tick(&player);
+                }
+            }
+        }
+        for (int i = 0; i < 4; ++i) {
+            HumanData& player = humanPlayers[i];
+            if (player.alive) {
+                auto powerUp = player.activePowerUp;
+                if (powerUp != nullptr && powerUp->GetColor() == glm::vec4(0.f, 1.f, 0.f, 1.f)) {
+                    static_cast<HealthPowerUp*>(powerUp)->Tick(&player);
+                }
+            }
+        }
+
 		for (AiData& player : aiPlayers) {
 			if (!player.alive && StateManager::gameTime >= player.diedTime + gameData.respawnTime && player.deathCount < gameData.numberOfLives) {
 				SpawnAi(player);
@@ -365,10 +391,13 @@ void Game::Update() {
 			}
 		}
 
-        // Respawn powerups
+        // Respawn powerups + rotate and oscillate
         std::vector<Component*> powerUpSpawners = EntityManager::GetComponents(ComponentType_PowerUpSpawner);
         for (Component* component : powerUpSpawners) {
+            glm::vec3 currPos = component->GetEntity()->transform.GetGlobalPosition();
             PowerUpSpawnerComponent* spawner = static_cast<PowerUpSpawnerComponent*>(component);
+            component->GetEntity()->transform.SetRotationEulerAngles(glm::vec3(0.f, HALF_PI * StateManager::gameTime.GetSeconds(), 0.f));
+            component->GetEntity()->transform.SetPosition(glm::vec3(currPos.x, currPos.y - .0175f* cos(StateManager::gameTime.GetSeconds() * 3.f), currPos.z));
             spawner->Respawn();
         }
 

@@ -59,12 +59,13 @@
     "Components": [
       {
         "Type": "GUI",
-        "Scale": [ 40, 120, 0 ],
+        "Scale": [ 45, 140, 0 ],
         "ScaledPosition": [ 1, 0.5 ],
         "AnchorPoint": [ 1, 0.5 ],
         "ScaledScale": [ 0.2, 0 ],
         "Texture": "Menu.png",
-        "Enabled": false
+        "Enabled": false,
+        "Emissiveness": 0.1
       },
       {
         "Type": "GUI",
@@ -77,7 +78,8 @@
         "Font": "Starjedi.ttf",
         "FontColor": "White",
         "FontSize": 20,
-        "Enabled": false
+        "Enabled": false,
+        "Emissiveness": 0.15
       }
     ]
   },

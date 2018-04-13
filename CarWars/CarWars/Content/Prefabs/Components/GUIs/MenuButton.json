@@ -7,6 +7,5 @@
 	"FontSize": 36,
 	"Texture": "MenuButton.png",
 	"FontColor": "DarkBlue",
-	"SelectedFontColor": "White",
-    "Emissiveness": 0.25
+	"SelectedFontColor": "White"
 }

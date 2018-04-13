@@ -14,8 +14,10 @@ ParticleEmitterComponent::ParticleEmitterComponent(nlohmann::json data) {
     transform = Transform(data);
 
     emitOnSpawn = ContentManager::GetFromJson<size_t>(data["EmitOnSpawn"], 0);
+    emitCount = ContentManager::GetFromJson<size_t>(data["EmitCount"], 1);
     emitConeMinAngle = glm::radians(ContentManager::GetFromJson<float>(data["EmitConeMinAngle"], 0.f));
     emitConeMaxAngle = glm::radians(ContentManager::GetFromJson<float>(data["EmitConeMaxAngle"], 90.f));
+    emitScale = ContentManager::JsonToVec3(data["EmitScale"], glm::vec3());
 
     lockedToEntity = ContentManager::GetFromJson<bool>(data["LockedToEntity"], false);
 
@@ -85,7 +87,7 @@ void ParticleEmitterComponent::Update() {
 
     if (spawnRate > 0.0 && StateManager::globalTime >= nextSpawn) {
         nextSpawn = StateManager::globalTime + spawnRate;
-        Emit();
+        Emit(emitCount);
     }
 }
 
@@ -117,19 +119,35 @@ void ParticleEmitterComponent::Emit(size_t count) {
 
         const glm::quat qAroundF = angleAxis(fAngle, forward);
         const glm::quat qAroundC = angleAxis(cAngle, cross);
-        const glm::quat q = qAroundF *  qAroundC;
+        const glm::quat q = qAroundF * qAroundC;
         
-        const glm::vec3 direction = q * forward;
-        AddParticle(glm::vec3(0.f), direction * initialSpeed);
+        const glm::vec3 direction = normalize(q * forward);
+
+        const glm::vec3 localPosition = emitScale * glm::vec3(UnitRandNegative(), UnitRandNegative(), UnitRandNegative());
+        const glm::vec3 position = localPosition;
+        AddParticle(position, direction * initialSpeed);
     }
+}
+
+void ParticleEmitterComponent::SetEmitScale(glm::vec3 _emitScale) {
+    emitScale = _emitScale;
 }
 
 bool ParticleEmitterComponent::IsLockedToEntity() const {
     return lockedToEntity;
 }
 
+glm::mat4 ParticleEmitterComponent::GetModelMatrix() {
+    if (!lockedToEntity) return glm::mat4(1.f);
+    return transform.GetTransformationMatrix();
+}
+
+float ParticleEmitterComponent::GetInitialSpeed() const {
+    return initialSpeed;
+}
+
 void ParticleEmitterComponent::Sort(glm::vec3 cameraPosition) {
-    glm::vec3 localCameraPosition = lockedToEntity ? glm::inverse(transform.GetTransformationMatrix()) * glm::vec4(cameraPosition, 1.f) : cameraPosition;
+    glm::vec3 localCameraPosition = lockedToEntity ? inverse(transform.GetTransformationMatrix()) * glm::vec4(cameraPosition, 1.f) : cameraPosition;
     std::sort(particles.begin(), particles.end(), [localCameraPosition](const Particle& lhs, const Particle& rhs) -> bool {
         return length(lhs.position - localCameraPosition) > length(rhs.position - localCameraPosition);
     });
@@ -144,12 +162,24 @@ size_t ParticleEmitterComponent::GetParticleCount() const {
     return particles.size();
 }
 
+void ParticleEmitterComponent::SetEmitCount(size_t _emitCount) {
+    emitCount = _emitCount;
+}
+
 glm::vec2 ParticleEmitterComponent::GetInitialScale() const {
     return initialScale;
 }
 
+void ParticleEmitterComponent::SetInitialScale(glm::vec2 scale) {
+    initialScale = scale;
+}
+
 glm::vec2 ParticleEmitterComponent::GetFinalScale() const {
     return finalScale;
+}
+
+void ParticleEmitterComponent::SetFinalScale(glm::vec2 scale) {
+    finalScale = scale;
 }
 
 Texture* ParticleEmitterComponent::GetTexture() const {
@@ -192,8 +222,22 @@ float ParticleEmitterComponent::GetLifetimeSeconds() const {
     return lifetime.GetSeconds();
 }
 
+void ParticleEmitterComponent::SetLifetime(Time _lifetime) {
+    lifetime = _lifetime;
+}
+
 void ParticleEmitterComponent::SetSpawnRate(float _spawnRate) {
     spawnRate = _spawnRate;
+}
+
+void ParticleEmitterComponent::SetAnimationCycles(float _animationCycles) {
+    animationCycles = _animationCycles;
+}
+
+void ParticleEmitterComponent::SetDirections(glm::vec3 direction) {
+    for (Particle& p : particles) {
+        p.velocity = direction * length(p.velocity);
+    }
 }
 
 ComponentType ParticleEmitterComponent::GetType() {

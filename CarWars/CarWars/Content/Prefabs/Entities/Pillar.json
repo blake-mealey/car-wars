@@ -5,7 +5,7 @@
       {
         "Type": "Mesh",
         "Mesh": "Cube.obj",
-        "Texture": "TileableGalvPlate.jpg",
+        "Texture": "BaseSteel.jpg",
         "Material": "Basic.json",
         "UvScale": [ 10, 1 ],
         "Scale": [ 0.5, 0.5, 0.5 ]
@@ -20,4 +20,4 @@
         ]
       }
     ]
-  }
+}

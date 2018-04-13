@@ -6,7 +6,8 @@
 			"AnchorPoint": [0.5, 0.5],
 			"ScaledPosition": [0.5, 0.5],
             "Position": [0, -20, 0],
-            "Texture": "Menu.png"
+            "Texture": "Menu.png",
+			"Emissiveness": 0.1
 		},
 		{
 			"Type": "GUI",
@@ -16,7 +17,8 @@
 			"Font": "Starjedi.ttf",
 			"FontSize": 64,
 			"FontColor": "White",
-			"Text": "paused"
+			"Text": "paused",
+			"Emissiveness": 0.15
 		}
 	],
 	"Children": [
@@ -27,17 +29,20 @@
 					"Prefab": "GUIs/MenuButton.json",
 					"Position": [0, -50, 0],
 					"Text": "resume",
-					"Selected": true
+					"Selected": true,
+					"Emissiveness": 0.15
 				},
 				{
 					"Prefab": "GUIs/MenuButton.json",
 					"Position": [0, 20, 0],
-					"Text": "options"
+					"Text": "options",
+					"Emissiveness": 0.15
 				},
 				{
 					"Prefab": "GUIs/MenuButton.json",
 					"Position": [0, 90, 0],
-					"Text": "exit"
+					"Text": "exit",
+					"Emissiveness": 0.15
 				}
 			]
 		}

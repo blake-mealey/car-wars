@@ -69,7 +69,8 @@ const glm::mat4 Graphics::BIAS_MATRIX = glm::mat4(
 );
 
 // Singleton
-Graphics::Graphics() : framesPerSecond(0.0), lastTime(0.0), frameCount(0), renderMeshes(true),
+Graphics::Graphics() : framesPerSecond(0.0), lastTime(0.0), frameCount(0), sceneGraphShown(false), debugGuiShown(false),
+                       renderMeshes(true),
                        renderGuis(true), renderPhysicsColliders(false), renderPhysicsBoundingBoxes(false),
                        renderNavigationMesh(false), renderNavigationPaths(false), bloomEnabled(true),
                        bloomScale(0.1f) { }
@@ -417,7 +418,7 @@ void Graphics::Update() {
                 PxBounds3 bounds = rigidbody->pxRigid->getWorldBounds(0.5f);
                 Transform transform = Transform(nullptr,
                     Transform::FromPx(bounds.getCenter()),
-                    Transform::FromPx(bounds.getDimensions()), glm::vec3(0.f), false);
+                    Transform::FromPx(bounds.getDimensions()), glm::vec3(0.f));
                 
                 const glm::mat4 modelMatrix = transform.GetTransformationMatrix();
                 
@@ -663,12 +664,12 @@ void Graphics::Update() {
             billboardProgram->LoadUniform(UniformName::UvScale, glm::vec2(1.f));
 
             // Load the billboard's position and scale to the GPU
-            if (emitter->IsLockedToEntity()) {
+            billboardProgram->LoadUniform(UniformName::ModelMatrix, emitter->GetModelMatrix());
+            /*if (emitter->IsLockedToEntity()) {
                 billboardProgram->LoadUniform(UniformName::BillboardPosition, emitter->transform.GetGlobalPosition());
-            }
-            else {
+            } else {
                 billboardProgram->LoadUniform(UniformName::BillboardPosition, glm::vec3());
-            }
+            }*/
 
             billboardProgram->LoadUniform("initialScale", emitter->GetInitialScale());
             billboardProgram->LoadUniform("finalScale", emitter->GetFinalScale());
@@ -1067,23 +1068,21 @@ void Graphics::Update() {
 }
 
 void Graphics::SceneChanged() {
-    UpdateViewports(EntityManager::GetComponents(ComponentType_Camera));
+    //UpdateViewports();
 }
 
 void Graphics::RenderDebugGui() {
     ImGui_ImplGlfwGL3_NewFrame();
 
-    static bool showSceneGraph = true;
-    if (showSceneGraph) {
-        ImGui::Begin("Scene Graph", &showSceneGraph);
+    if (sceneGraphShown) {
+        ImGui::Begin("Scene Graph", &sceneGraphShown);
         ImGui::PushItemWidth(-100);
         EntityManager::GetRoot()->RenderDebugGui();
         ImGui::End();
     }
 
-    static bool showGraphicsMenu = true;
-    if (showGraphicsMenu) {
-        ImGui::Begin("Graphics", &showGraphicsMenu);
+    if (debugGuiShown) {
+        ImGui::Begin("Graphics", &debugGuiShown);
         ImGui::PushItemWidth(-100);
 
         frameCount++;
@@ -1174,8 +1173,11 @@ void Graphics::LoadCameras(std::vector<Component*> cameraComponents) {
 	cameras.clear();
 	for (Component *component: cameraComponents) {
 		if (component->enabled) {
-			CameraComponent *camera = static_cast<CameraComponent*>(component);
-			cameras.push_back(Camera(camera->GetPosition(), camera->GetViewMatrix(), camera->GetProjectionMatrix(), camera->GetGuiRoot()));
+			CameraComponent *cameraComponent = static_cast<CameraComponent*>(component);
+			
+			Camera camera(cameraComponent->GetPosition(), cameraComponent->GetViewMatrix(), cameraComponent->GetProjectionMatrix(), cameraComponent->GetGuiRoot());
+			camera.component = cameraComponent;
+			cameras.push_back(camera);
 			if (cameras.size() == MAX_CAMERAS) break;
 		}
 	}
@@ -1199,10 +1201,7 @@ void Graphics::LoadCameras(std::vector<Component*> cameraComponents) {
 		cameras[i].viewportSize = viewportSize;
 	}
 
-	// If camera count changed, update aspect ratios for next frame
-	if (cameras.size() != lastCount) {
-		UpdateViewports(cameraComponents);
-	}
+	UpdateViewports();
 }
 
 GLFWwindow* Graphics::GetWindow() const {
@@ -1235,18 +1234,14 @@ void Graphics::SetWindowDimensions(size_t width, size_t height) {
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-	UpdateViewports(EntityManager::GetComponents(ComponentType_Camera));
+	UpdateViewports();
 }
 
-void Graphics::UpdateViewports(std::vector<Component*> cameraComponents) const {
+void Graphics::UpdateViewports() const {
     int count = 0;
-	for (Component *component : cameraComponents) {
-		if (component->enabled) {
-            const glm::vec2 viewportSize = GetViewportSize(count++);
-            const float aspectRatio = viewportSize.x / viewportSize.y;
-			CameraComponent *camera = static_cast<CameraComponent*>(component);
-			camera->SetAspectRatio(aspectRatio);
-		}
+	for (Camera camera : cameras) {
+		const float aspectRatio = camera.viewportSize.x / camera.viewportSize.y;
+		camera.component->SetAspectRatio(aspectRatio);
 	}
 }
 

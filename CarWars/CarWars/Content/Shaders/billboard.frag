@@ -35,5 +35,5 @@ void main () {
 
 	vec4 colorMult = mix(initialColor, finalColor, r);
 	color = texture(diffuseTexture, uvScale*vec2(1.f - uv.x, uv.y)) * colorMult;
-	glowColor = vec4(color.rgb*emissiveness, color.a);
+	glowColor = color*emissiveness;
 }

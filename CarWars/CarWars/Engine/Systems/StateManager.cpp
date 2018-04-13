@@ -42,7 +42,10 @@ void StateManager::SetState(GameState state) {
 		}
 		if (winner.killCount <= 0) GuiHelper::SetFirstGuiText("WinnerTitle", "game over");
 		else if (tie) GuiHelper::SetFirstGuiText("WinnerTitle", "tie");
-        else GuiHelper::SetFirstGuiText("WinnerTitle", winner.name + " won!");
+        else {
+            GuiHelper::SetFirstGuiText("WinnerTitle", winner.name + " won!");
+            GuiHelper::SetGuiColors("WinnerTitle", winner.index ? ContentManager::COLOR_LIGHT_RED : ContentManager::COLOR_LIGHT_GREEN);
+        }
 		break;
 
     case GameState_Menu_Start:

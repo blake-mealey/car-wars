@@ -51,6 +51,19 @@ map<string, HeightMap*> ContentManager::heightMaps;
 std::map<string, NavigationMesh*> ContentManager::navigationMeshes;
 GLuint ContentManager::skyboxCubemap;
 
+const glm::vec4 ContentManager::COLOR_WHITE = glm::vec4(1.f, 1.f, 1.f, 1.f);
+const glm::vec4 ContentManager::COLOR_LIGHT_GREY = glm::vec4(224.f, 224.f, 224.f, 255.f) / 255.f;
+const glm::vec4 ContentManager::COLOR_BLACK = glm::vec4(0.f, 0.f, 0.f, 1.f);
+const glm::vec4 ContentManager::COLOR_LIGHT_RED = glm::vec4(212.f, 47.f, 47.f, 255.f) / 255.f;
+const glm::vec4 ContentManager::COLOR_RED = glm::vec4(206.f, 0.f, 0.f, 255.f) / 255.f;
+const glm::vec4 ContentManager::COLOR_LIGHT_GREEN = glm::vec4(115.f, 212.f, 83.f, 255.f) / 255.f;
+const glm::vec4 ContentManager::COLOR_GREEN = glm::vec4(0.f, 1.f, 0.f, 1.f);
+const glm::vec4 ContentManager::COLOR_DARK_BLUE = glm::vec4(0.f, 57.f, 75.f, 255.f) / 255.f;
+const glm::vec4 ContentManager::COLOR_LIGHT_BLUE = glm::vec4(0.f, 106.f, 139.f, 255.f) / 255.f;
+const glm::vec4 ContentManager::COLOR_BLUE = glm::vec4(0.f, 0.f, 1.f, 1.f);
+const glm::vec4 ContentManager::COLOR_YELLOW = glm::vec4(255.f, 233.f, 25.f, 255.f) / 255.f;
+const glm::vec4 ContentManager::COLOR_CYAN = glm::vec4(0.f, 1.f, 1.f, 1.f);
+
 const string ContentManager::CONTENT_DIR_PATH = "./Content/";
 
 const string ContentManager::MESH_DIR_PATH = CONTENT_DIR_PATH + "Meshes/";
@@ -114,6 +127,7 @@ Mesh* ContentManager::GetMesh(const string filePath, unsigned pFlags) {
 	glm::vec3 *vertices = new glm::vec3[vertexCount];
 	glm::vec2 *uvs = new glm::vec2[vertexCount];
 	glm::vec3 *normals = new glm::vec3[vertexCount];
+
 	for (size_t i = 0; i < vertexCount; ++i) {
 		vertices[i] = AssimpVectorToGlm(aiMesh->mVertices[i]);
 		uvs[i] = AssimpVectorToGlm(aiMesh->mTextureCoords[0][i]);
@@ -467,16 +481,18 @@ glm::vec4 ContentManager::GetColorFromJson(json data, glm::vec4 defaultValue) {
         }
     } else if (data.is_string()) {
         string name = data.get<string>();
-        if (name.find("White") != string::npos)                     color = glm::vec4(1.f, 1.f, 1.f, 1.f);
-        else if (name.find("LightGrey") != string::npos)            color = glm::vec4(224.f, 224.f, 224.f, 255.f) / 255.f;
-        else if (name.find("Black") != string::npos)                color = glm::vec4(0.f, 0.f, 0.f, 1.f);
-        else if (name.find("Red") != string::npos)                  color = glm::vec4(206.f, 0.f, 0.f, 255.f) / 255.f;
-        else if (name.find("Green") != string::npos)                color = glm::vec4(0.f, 1.f, 0.f, 1.f);
-        else if (name.find("DarkBlue") != string::npos)             color = glm::vec4(0.f, 57.f, 75.f, 255.f) / 255.f;
-        else if (name.find("LightBlue") != string::npos)             color = glm::vec4(0.f, 106.f, 139.f, 255.f) / 255.f;
-        else if (name.find("Blue") != string::npos)                 color = glm::vec4(0.f, 0.f, 1.f, 1.f);
-        else if (name.find("Yellow") != string::npos)               color = glm::vec4(255.f, 233.f, 25.f, 255.f) / 255.f;
-        else if (name.find("Cyan") != string::npos)                 color = glm::vec4(0.f, 1.f, 1.f, 1.f);
+        if (name.find("White") != string::npos)                 color = COLOR_WHITE;
+        else if (name.find("LightGrey") != string::npos)        color = COLOR_LIGHT_GREY;
+        else if (name.find("Black") != string::npos)            color = COLOR_BLACK;
+        else if (name.find("LightRed") != string::npos)         color = COLOR_LIGHT_RED;
+        else if (name.find("Red") != string::npos)              color = COLOR_RED;
+        else if (name.find("LightGreen") != string::npos)       color = COLOR_LIGHT_GREEN;
+        else if (name.find("Green") != string::npos)            color = COLOR_GREEN;
+        else if (name.find("DarkBlue") != string::npos)         color = COLOR_DARK_BLUE;
+        else if (name.find("LightBlue") != string::npos)        color = COLOR_LIGHT_BLUE;
+        else if (name.find("Blue") != string::npos)             color = COLOR_BLUE;
+        else if (name.find("Yellow") != string::npos)           color = COLOR_YELLOW;
+        else if (name.find("Cyan") != string::npos)             color = COLOR_CYAN;
 
         if (name.find("HalfAlpha") != string::npos) color.a = 0.5f;
         else if (name.find("Alpha") != string::npos) color.a = 0.f;

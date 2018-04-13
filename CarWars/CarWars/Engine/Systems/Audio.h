@@ -16,7 +16,9 @@
 #define MIN_DISTANCE 0.15
 #define MAX_CHANNELS 200
 #define NUM_MUSIC 7
-#define UPDATES_TO_RUN 25
+
+// 25 is too low
+#define UPDATES_TO_RUN 100 // +6 "mandatory updates"
 
 typedef FMOD::Sound* SoundClass;
 
@@ -31,43 +33,54 @@ struct CarSound {
     bool reversing = false;
 };
 
+struct WeaponSounds {
+    FMOD::Sound* missleLaunch;
+    FMOD::Sound* explosion;
 
-//struct HeavySounds {
-//    const char *idle = "Content/Sounds/Truck/idle.mp3";
-//    const char *accelerate = "Content/Sounds/Truck/accelerate.mp3";
-//    const char *reverse = "Content/Sounds/Truck/reverse.mp3";
-//    const char *skid = "Content/Sounds/Truck/reverse.mp3";
-//    const char *spinAccelerate = "";
-//};
-//
-//struct MediumSounds {
-//    const char *idle = "Content/Sounds/Truck/idle.mp3";
-//    const char *accelerate = "Content/Sounds/Truck/accelerate.mp3";
-//    const char *reverse = "Content/Sounds/Truck/reverse.mp3";
-//    const char *skid = "Content/Sounds/Truck/reverse.mp3";
-//    const char *spinAccelerate = "";
-//};
-//
-//struct LightSounds {
-//    const char *idle = "Content/Sounds/Truck/idle.mp3";
-//    const char *accelerate = "Content/Sounds/Truck/accelerate.mp3";
-//    const char *reverse = "Content/Sounds/Truck/reverse.mp3";
-//    const char *skid = "Content/Sounds/Truck/reverse.mp3";
-//    const char *spinAccelerate = "";
-//
-//};
-//
-//struct CarSounds {
-//    HeavySounds heavy;
-//    MediumSounds medium;
-//    LightSounds light;
-//};
+    FMOD::Sound* bulletShoot;
+    FMOD::Sound* bulletHitHeavy;
+    FMOD::Sound* bulletHitMedium;
+    FMOD::Sound* bulletHitLight;
+    FMOD::Sound* bulletHitGround;
+    FMOD::Sound* bulletHitWall;
+
+    FMOD::Sound* railgunCharge;
+    FMOD::Sound* railgunShoot;
+    FMOD::Sound* railgunHitHeavy;
+    FMOD::Sound* railgunHitMedium;
+    FMOD::Sound* railgunHitLight;
+    FMOD::Sound* railgunHitGround;
+    FMOD::Sound* railgunHitWall;
+};
+
+struct MenuSounds {
+    FMOD::Sound* navigate;
+    FMOD::Sound* enter;
+    FMOD::Sound* back;
+};
+
+struct EnvironmentalSounds {
+	FMOD::Sound* hitCar;
+	FMOD::Sound* hitGround;
+	FMOD::Sound* hitWall;
+	FMOD::Sound* powerup;
+	FMOD::Sound* jump;
+};
+
+struct AttachedSound {
+	FMOD::Channel *channel;
+	Entity* entity;
+};
 
 
 
 class Audio : public System {
 public:
-    float musicVolume = 0.085f;
+    WeaponSounds Weapons;
+    MenuSounds Menu;
+	EnvironmentalSounds Environment;
+
+    float musicVolume = 0.065f;
     float aiSoundVolume = 0.25f;
     float playerSoundVolume = 0.05f;
 
@@ -78,21 +91,20 @@ public:
     void Initialize();
 
     void Update() override;
-    void PlayAudio(const char *filename);
-    void PlayAudio(const char *filename, float volume);
-    void PlayAudio(const char *filename, glm::vec3 position, glm::vec3 velocity);
-    void PlayAudio(const char *filename, glm::vec3 position, glm::vec3 velocity, float volume);
     void PlayMusic(const char *filename);
-    void PlayAudio2D(const char *filename);
-    void PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity);
-    void PlayAudio3D(const char *filename, glm::vec3 position, glm::vec3 velocity, float volume);
 
-    int PlaySound(const char* filename);
-    void StopSound(int index);
-	int PlaySound3D(const char* filename, glm::vec3 position, glm::vec3 velocity, float volume);
+	void PlayAudio2D(FMOD::Sound* sound, float volume);
+	void PlayAudio3D(FMOD::Sound *s, glm::vec3 position, glm::vec3 velocity, float volume);
+	void PlayAudio3DAttached(FMOD::Sound *s, Entity* entity, float volume);
+
+	int PlaySound3D(FMOD::Sound* sound, glm::vec3 position, glm::vec3 velocity, float volume);
 	void StopSound3D(int index);
 
 private:
+    int updateFunctionId;
+    int availableUpdates;
+    int updatePosition;
+	vector<AttachedSound> attachedSounds;
     bool gameStarted = false;
     int currentMusicIndex = 0;
     const char *musicPlaylist[NUM_MUSIC] = {
@@ -108,17 +120,13 @@ private:
     FMOD::System *soundSystem;
     GameState prevGameState;
     bool carsStarted = false;
-    
-    FMOD::Sound* soundArray[100];
-    FMOD::Channel* channelArray[100];
-    bool availableSound[100];
 
 	FMOD::Sound* soundArray3D[100];
 	FMOD::Channel* channelArray3D[100];
 	bool availableSound3D[100];
 
     std::vector<CarSound> carSounds;
-    unsigned int gameMusicPosition, gameMusicLength;
+    //unsigned int gameMusicPosition, gameMusicLength;
     FMOD::Sound *music;
     FMOD::Channel *musicChannel;
 
@@ -140,6 +148,9 @@ private:
     void StopCars();
     void ReleaseSounds();
     void CheckMusic();
+    void AddSoundToMemory(const char *filepath, FMOD::Sound** sound);
+	void UpdateAttached();
+
 
     // No instantiation or copying
     Audio();
@@ -147,16 +158,3 @@ private:
     Audio& operator= (const Audio&) = delete;
 };
 
-
-/*
-todo:
-reduce volume on multiple hits
-reduce bullet sound
-increase railgun shoot sound
-solve sound being loud when stopped
-
-missle:
-more uniform launch sound
-louder explosion
-
-*/
