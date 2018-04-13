@@ -46,14 +46,12 @@ void Audio::Initialize() {
     AddSoundToMemory("Content/Sounds/rocket-launch.mp3", &Weapons.missleLaunch); 
     AddSoundToMemory("Content/Sounds/explosion.mp3", &Weapons.explosion);
 
-    //AddSoundToMemory("Content/Sounds/machine_gun_shot.mp3", &Weapons.bulletShoot);
     AddSoundToMemory("Content/Sounds/Weapons/blaster-shoot.mp3", &Weapons.bulletShoot);
-    //AddSoundToMemory("Content/Sounds/bullet-hit.mp3", &Weapons.bulletHitHeavy);
     AddSoundToMemory("Content/Sounds/Weapons/blaster-hit1.mp3", &Weapons.bulletHitHeavy);
-    AddSoundToMemory("Content/Sounds/bullet-hit.mp3", &Weapons.bulletHitMedium);
-    AddSoundToMemory("Content/Sounds/bullet-hit.mp3", &Weapons.bulletHitLight);
-    AddSoundToMemory("Content/Sounds/bullet-hit.mp3", &Weapons.bulletHitGround);
-    AddSoundToMemory("Content/Sounds/bullet-hit.mp3", &Weapons.bulletHitWall);
+    AddSoundToMemory("Content/Sounds/Weapons/blaster-hit2.mp3", &Weapons.bulletHitMedium);
+    AddSoundToMemory("Content/Sounds/Weapons/blaster-hit3.mp3", &Weapons.bulletHitLight);
+    AddSoundToMemory("Content/Sounds/Weapons/blaster-miss.mp3", &Weapons.bulletHitGround);
+    AddSoundToMemory("Content/Sounds/Weapons/blaster-miss.mp3", &Weapons.bulletHitWall);
 
     AddSoundToMemory("Content/Sounds/railgun-shoot.mp3", &Weapons.railgunShoot);
     AddSoundToMemory("Content/Sounds/railgun-charge.mp3", &Weapons.railgunCharge);
@@ -386,6 +384,9 @@ void Audio::CheckMusic() {
         srand(time(NULL));
         currentMusicIndex = rand() % NUM_MUSIC;
         PlayMusic(musicPlaylist[currentMusicIndex]);
+    } else if (!isPlaying && StateManager::GetState() == GameState_Menu) {
+        music->release();
+        PlayMusic("Content/Music/imperial-march.mp3");
     }
 }
 
@@ -402,7 +403,7 @@ void Audio::Update() {
     while (availableUpdates > 0 && StateManager::GetState() == GameState_Playing) {
         if (updateFunctionId == 0) UpdateAttached();
         if (updateFunctionId == 1) UpdateRunningCars(); // 
-        break;
+        break; // break out of the loops when there are fewer updtes to be done
     }
 	
     MenuMusicControl(); // prevGameState saved - 1 update
