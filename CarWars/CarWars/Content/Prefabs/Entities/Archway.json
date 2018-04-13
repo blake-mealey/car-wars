@@ -13,7 +13,7 @@
         "Colliders": [
           {
             "Type": "ConvexMesh",
-			"Mesh": "Boulder.obj",
+			"Mesh": "Archway.obj",
             "CollisionGroup": "Obstacles"
           }
         ]

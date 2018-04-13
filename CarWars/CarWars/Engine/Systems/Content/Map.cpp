@@ -68,11 +68,12 @@ Map::Map(std::string dirPath) {
 
 void Map::LoadObjects(Picture* objectsMap) {
     const glm::vec3 generalPowerUpColor = glm::vec3(1.f, 0.f, 1.f);
-    const glm::vec3 healthPowerUpColor = glm::vec3(0.f, 1.f, 0.f);
+    const glm::vec3 healthPowerUpColor = glm::vec3(1.f, 1.f, 0.f);
     const glm::vec3 damagePowerUpColor = glm::vec3(1.f, 0.f, 0.f);
     const glm::vec3 defencePowerUpColor = glm::vec3(0.f, 0.f, 1.f);
     
     const glm::vec3 spawnColor = glm::vec3(0.f, 1.f, 0.f);
+	const glm::vec3 spawnDirection = glm::vec3(0.0f, 0.f, 0.0f);
 
     const glm::vec3 offset = -glm::vec3(mapWidth, 0.f, mapLength) * 0.5f;
     float* pixels = objectsMap->Pixels();
@@ -94,6 +95,9 @@ void Map::LoadObjects(Picture* objectsMap) {
                 object = ContentManager::LoadEntity("Game/PowerUpSpawner.json");
                 object->GetComponent<PowerUpSpawnerComponent>()->SetPowerUpType(Defence);
             }
+			else if (color == spawnDirection) {
+				cout << "Found it";
+			}
             
             if (object) {
                 const glm::vec3 position = offset + glm::vec3(
@@ -101,8 +105,57 @@ void Map::LoadObjects(Picture* objectsMap) {
                     2.f,
                     static_cast<float>(row) / static_cast<float>(objectsMap->Height()) * mapWidth);
                 SetPosition(object, position);
+				if (color == spawnColor) {
+					float* tempPixels = pixels;
+					//Look to the left
+					float rot = 0.0f;
+					tempPixels -= objectsMap->Channels();
+					if (glm::vec3(tempPixels[0], tempPixels[1], tempPixels[2]) == spawnDirection) {
+						rot = -90.0f;
+					}
+					//Look to the Top Left
+					tempPixels -= objectsMap->Channels()*objectsMap->Width();
+					if (glm::vec3(tempPixels[0], tempPixels[1], tempPixels[2]) == spawnDirection) {
+						rot = -135.0f;
+					}
+					//Look to the Top Center
+					tempPixels += objectsMap->Channels();
+					if (glm::vec3(tempPixels[0], tempPixels[1], tempPixels[2]) == spawnDirection) {
+						rot = -180.0f;
+					}
+					//Look to the Top Right
+					tempPixels += objectsMap->Channels();
+					if (glm::vec3(tempPixels[0], tempPixels[1], tempPixels[2]) == spawnDirection) {
+						rot = -225.0f;
+					}
+
+					//Look to the Right
+					tempPixels += objectsMap->Channels()*objectsMap->Width();
+					if (glm::vec3(tempPixels[0], tempPixels[1], tempPixels[2]) == spawnDirection) {
+						rot = -270.0f;
+					}
+
+					//Look to the Bottom Right
+					tempPixels += objectsMap->Channels()*objectsMap->Width();
+					if (glm::vec3(tempPixels[0], tempPixels[1], tempPixels[2]) == spawnDirection) {
+						rot = -315.0f;
+					}
+
+					//Look to the Bottom Center
+					tempPixels -= objectsMap->Channels();
+					if (glm::vec3(tempPixels[0], tempPixels[1], tempPixels[2]) == spawnDirection) {
+						rot = -360.0f;
+					}
+
+					//Look to the Bottom Left
+					tempPixels -= objectsMap->Channels();
+					if (glm::vec3(tempPixels[0], tempPixels[1], tempPixels[2]) == spawnDirection) {
+						rot = -45.0f;
+					}
+
+					object->transform.SetRotationAxisAngles(glm::vec3(0, 1, 0), glm::radians(rot));
+				}
             }
-            
             pixels += objectsMap->Channels();
         }
     }

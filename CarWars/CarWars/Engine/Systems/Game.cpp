@@ -112,8 +112,9 @@ void Game::SpawnVehicle(PlayerData& player) const {
 	//	sin(randomHorizontalAngle)) * 10.f;
 
 	//const glm::vec3 position = spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f) + randomOffset;
-	const glm::vec3 position = spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f);
-	PxTransform transform = PxTransform(Transform::ToPx(position));
+	Transform trans = Transform(spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f), glm::vec3(1.0f), spawn->transform.GetLocalRotation());
+	//const glm::vec3 position = spawn->transform.GetGlobalPosition() + glm::vec3(0.f, 5.f, 0.f);
+	PxTransform transform = PxTransform(Transform::ToPx(trans));
 
 	// Initialize their vehicle
 	player.vehicleEntity = ContentManager::LoadEntity(VehicleType::prefabPaths[player.vehicleType]);
