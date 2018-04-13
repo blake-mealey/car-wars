@@ -98,8 +98,8 @@ glm::vec3 Transform::GetGlobalDirection(glm::vec3 localDirection) {
 }
 
 glm::vec3 Transform::GetForward() {
-	return glm::vec4(1.0f) * rotationMatrix;
-	//return GetGlobalDirection(FORWARD);
+	//return glm::vec4(1.0f) * rotationMatrix;
+	return GetGlobalDirection(FORWARD);
 }
 
 glm::vec3 Transform::GetRight() {
